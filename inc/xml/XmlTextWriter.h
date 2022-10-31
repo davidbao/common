@@ -1,0 +1,110 @@
+//
+//  XmlTextWriter.h
+//  common
+//
+//  Created by baowei on 2017/1/31.
+//  Copyright © 2017 com. All rights reserved.
+//
+
+#ifndef XmlTextWriter_h
+#define XmlTextWriter_h
+
+#include "data/ValueType.h"
+#include "data/NetType.h"
+#include "data/DateTime.h"
+#include "data/TimeSpan.h"
+#include "data/Version.h"
+#include "data/Rectangle.h"
+#include "data/Point.h"
+#include "data/Size.h"
+#include "data/Uuid.h"
+
+namespace Common
+{
+    class XmlTextWriterInner;
+	class XmlTextWriter
+	{
+	public:
+        XmlTextWriter(const String& fileName);
+		~XmlTextWriter();
+
+		bool isValid() const;
+
+		bool close();
+        
+        void enableIndent(bool indent = true);
+        void enableIndent(const String& str);
+        void enableIndent(const char* str);
+        
+        void writeStartDocument();
+        void writeStartDocument(const String& version, const String& encoding, const String& standalone);
+        void writeEndDocument();
+        
+        void writeStartElement(const String& localName);
+        void writeStartElement(const String& prefix, const String& localName, const String& ns);
+        void writeEndElement();
+
+        void writeAttributeBoolean(const String& localName, const Boolean& value);
+        void writeAttributeChar(const String& localName, const Char& value);
+        void writeAttributeByte(const String& localName, const Byte& value);
+        void writeAttributeInt16(const String& localName, const Int16& value);
+        void writeAttributeUInt16(const String& localName, const UInt16& value);
+        void writeAttributeInt32(const String& localName, const Int32& value);
+        void writeAttributeUInt32(const String& localName, const UInt32& value);
+        void writeAttributeInt64(const String& localName, const Int64& value);
+        void writeAttributeUInt64(const String& localName, const UInt64& value);
+        void writeAttributeFloat(const String& localName, const Float& value);
+        void writeAttributeDouble(const String& localName, const Double& value);
+        void writeAttributeString(const String& localName, const String& value);
+        void writeAttributeDateTime(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
+        void writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
+        void writeAttributeVersion(const String& localName, const Version& value);
+        
+        void writeAttributeBoolean(const String& localName, const bool& value);
+        void writeAttributeChar(const String& localName, const char& value);
+        void writeAttributeByte(const String& localName, const uint8_t& value);
+        void writeAttributeInt16(const String& localName, const short& value);
+        void writeAttributeUInt16(const String& localName, const ushort& value);
+        void writeAttributeInt32(const String& localName, const int& value);
+        void writeAttributeUInt32(const String& localName, const uint& value);
+        void writeAttributeInt64(const String& localName, const int64_t& value);
+        void writeAttributeUInt64(const String& localName, const uint64_t& value);
+        void writeAttributeFloat(const String& localName, const float& value);
+        void writeAttributeDouble(const String& localName, const double& value);
+
+        void writeAttribute(const String& localName, const bool& value);
+        void writeAttribute(const String& localName, const char& value);
+        void writeAttribute(const String& localName, const uint8_t& value);
+        void writeAttribute(const String& localName, const short& value);
+        void writeAttribute(const String& localName, const ushort& value);
+        void writeAttribute(const String& localName, const int& value);
+        void writeAttribute(const String& localName, const uint& value);
+        void writeAttribute(const String& localName, const int64_t& value);
+        void writeAttribute(const String& localName, const uint64_t& value);
+        void writeAttribute(const String& localName, const float& value);
+        void writeAttribute(const String& localName, const double& value);
+        void writeAttribute(const String& localName, const String& value);
+        void writeAttribute(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
+        void writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
+        void writeAttribute(const String& localName, const Version& value);
+        void writeAttribute(const String& localName, const IPAddress& value);
+        void writeAttribute(const String& localName, const MacAddress& value);
+        void writeAttribute(const String& localName, const Uuid& value);
+        void writeAttribute(const String& localName, const RectangleF& value);
+        void writeAttribute(const String& localName, const Rectangle& value);
+        void writeAttribute(const String& localName, const PointF& value);
+        void writeAttribute(const String& localName, const Point& value);
+        void writeAttribute(const String& localName, const SizeF& value);
+        void writeAttribute(const String& localName, const Size& value);
+        template <class T>
+        void writeAttribute(const String& localName, const T& value)
+        {
+            writeAttributeString(localName, value.toString());
+        }
+        
+	private:
+		XmlTextWriterInner* _writer;
+	};
+}
+
+#endif	// XmlTextWriter_h
