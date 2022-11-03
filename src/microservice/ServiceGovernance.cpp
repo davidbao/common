@@ -77,7 +77,7 @@ namespace Microservice {
         Vector<String> keys;
         _constructors.keys(keys);
         for (uint i = 0; i < keys.count(); i++) {
-            names.add(*keys[i]);
+            names.add(keys[i]);
         }
     }
 }

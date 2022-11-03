@@ -10,7 +10,7 @@
 #define __common__Delegate__
 
 #include "thread/Mutex.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 namespace Common
 {
@@ -45,8 +45,8 @@ namespace Common
         EventHandler handler;
         void* owner;
     };
-//    typedef Vector<Delegate> Delegates;
-    class Delegates : public Vector<Delegate>
+//    typedef PList<Delegate> Delegates;
+    class Delegates : public PList<Delegate>
     {
     public:
         Delegates(bool autoDelete = true, uint capacity = 5);

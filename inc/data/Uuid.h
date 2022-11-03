@@ -10,6 +10,7 @@
 #define Uuid_h
 
 #include <stdio.h>
+
 #if WIN32
 #ifndef GUID_DEFINED
 #include <guiddef.h>
@@ -23,47 +24,61 @@ typedef GUID UUID;
 #endif
 #endif
 #endif
-#include "data/Array.h"
+
+#include "data/Vector.h"
 #include "data/ValueType.h"
 
-namespace Common
-{
+namespace Common {
 #ifndef uuid_t
     typedef unsigned char uuid_t[16];
 #endif
-    struct Uuid
-    {
+
+    struct Uuid {
     public:
         Uuid();
-        Uuid(const Uuid& value);
-        Uuid(const String& value);
+
+        Uuid(const Uuid &value);
+
+        Uuid(const String &value);
+
         ~Uuid();
 
-        void operator=(const Uuid& value);
-        bool operator==(const Uuid& value) const;
-        bool operator!=(const Uuid& value) const;
+        void operator=(const Uuid &value);
 
-        void operator=(const String& value);
-        bool operator==(const String& value) const;
-        bool operator!=(const String& value) const;
+        bool operator==(const Uuid &value) const;
 
-        bool operator>(const Uuid& value) const;
-        bool operator>=(const Uuid& value) const;
-        bool operator<(const Uuid& value) const;
-        bool operator<=(const Uuid& value) const;
+        bool operator!=(const Uuid &value) const;
 
-        void write(Stream* stream) const;
-        void read(Stream* stream);
+        void operator=(const String &value);
+
+        bool operator==(const String &value) const;
+
+        bool operator!=(const String &value) const;
+
+        bool operator>(const Uuid &value) const;
+
+        bool operator>=(const Uuid &value) const;
+
+        bool operator<(const Uuid &value) const;
+
+        bool operator<=(const Uuid &value) const;
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
 
         String toString(bool upper = true) const;
+
         void empty();
+
         bool isEmpty() const;
 
         void clear();
 
-	public:
-        static bool parse(const String& str, Uuid& value);
-		static Uuid generate();
+    public:
+        static bool parse(const String &str, Uuid &value);
+
+        static Uuid generate();
 
     public:
         static const Uuid Empty;
@@ -73,7 +88,8 @@ namespace Common
 
         static const int Size = sizeof(uuid_t);
     };
-    typedef Array<Uuid> Uuids;
+
+    typedef Vector<Uuid> Uuids;
 }
 
-#endif /* Uuid_h */
+#endif // Uuid_h

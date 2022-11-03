@@ -188,7 +188,7 @@ namespace Common
     {
         if (isValid())
         {
-            Vector<XmlNode> nodes;
+            PList<XmlNode> nodes;
             subNodes(nodes);
             for (uint i=0; i<nodes.count(); i++)
             {
@@ -439,7 +439,7 @@ namespace Common
         _attributes.copyFrom(&value->_attributes);
         for (uint i=0; i<_attributes.count(); i++)
         {
-            _attributes.Vector<XmlAttribute>::at(i)->_node = this;
+            _attributes.PList<XmlAttribute>::at(i)->_node = this;
         }
     }
     

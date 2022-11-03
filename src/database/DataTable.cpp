@@ -73,7 +73,7 @@ namespace Database
 		return valueType;
 	}
 
-	DataColumns::DataColumns(bool autoDelete, uint capacity) : Vector<DataColumn>(autoDelete, capacity)
+	DataColumns::DataColumns(bool autoDelete, uint capacity) : PList<DataColumn>(autoDelete, capacity)
 	{
 	}
 
@@ -87,7 +87,7 @@ namespace Database
 //    }
 	DataColumn* DataColumns::at(size_t i) const
 	{
-		return Vector<DataColumn>::at(i);
+		return PList<DataColumn>::at(i);
 	}
 	DataColumn* DataColumns::at(const String& columnName) const
 	{
@@ -425,7 +425,7 @@ namespace Database
 		setStringValue(_value, str);
 	}
 
-	DataCells::DataCells(bool autoDelete, uint capacity) : Vector<DataCell>(autoDelete, capacity)
+	DataCells::DataCells(bool autoDelete, uint capacity) : PList<DataCell>(autoDelete, capacity)
 	{
 	}
 
@@ -435,7 +435,7 @@ namespace Database
 	}
 	DataCell* DataCells::at(uint i) const
 	{
-		return Vector < DataCell >::at(i);
+		return PList < DataCell >::at(i);
 	}
 	DataCell* DataCells::at(const String& columnName) const
 	{
@@ -467,13 +467,13 @@ namespace Database
 	bool DataCells::hasColumn(const String& columnName) const
 	{
 		// return at(columnName) != nullptr;
-		return _positions.containsKey(columnName.toLower());
+		return _positions.contains(columnName.toLower());
 	}
 
 	void DataCells::add(const DataCell* cell)
 	{
 		uint position = count();
-		Vector < DataCell >::add(cell);
+		PList < DataCell >::add(cell);
 
 		_positions.add(cell->columnName().toLower(), position);
 	}
@@ -646,7 +646,7 @@ namespace Database
         return node.toString();
     }
 
-    DataTables::DataTables(uint capacity) : Vector<DataTable>(capacity)
+    DataTables::DataTables(uint capacity) : PList<DataTable>(capacity)
     {
     }
     bool DataTables::contains(const String& tableName) const

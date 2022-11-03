@@ -88,7 +88,7 @@ namespace Drivers {
         throw NotImplementedException("It must be override.");
     }
 
-    bool InstructionSet::recombine(const ByteArray &buffer, Vector<ByteArray> &buffers) {
+    bool InstructionSet::recombine(const ByteArray &buffer, PList<ByteArray> &buffers) {
         buffers.add(new ByteArray(buffer));
         return true;
     }
@@ -290,7 +290,7 @@ namespace Drivers {
         return nullptr;
     }
 
-    Instructions::Instructions(bool autoDelete, uint capacity) : Vector<Instruction>(autoDelete, capacity) {
+    Instructions::Instructions(bool autoDelete, uint capacity) : PList<Instruction>(autoDelete, capacity) {
     }
 
     void Instructions::setReceiveInstruction(Instructions *instructions) {

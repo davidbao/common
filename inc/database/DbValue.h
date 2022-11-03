@@ -2,7 +2,7 @@
 #define DBVALUE_H
 
 #include <assert.h>
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "data/Dictionary.h"
 #include "data/ValueType.h"
 #include "data/DateTime.h"

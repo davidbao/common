@@ -11,7 +11,7 @@
 
 #include "IO/Stream.h"
 #include "IO/FileStream.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 namespace Common {
     class MappingStream : public Stream {
@@ -55,7 +55,7 @@ namespace Common {
             FileAccess _access;
         };
 
-        typedef Vector<View> Views;
+        typedef PList<View> Views;
 
         MappingStream(const String &fileName, size_t fileSize);
 

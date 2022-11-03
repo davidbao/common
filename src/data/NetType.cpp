@@ -247,7 +247,7 @@ namespace Common {
     }
 
     void MacAddresses::remove(const MacAddress &address) {
-        Array<MacAddress> temp;
+        Vector<MacAddress> temp;
         for (uint i = 0; i < _addresses.count(); i++) {
             if (_addresses[i] == address)
                 temp.add(address);
@@ -547,7 +547,7 @@ namespace Common {
     }
 
     void IPAddresses::remove(const IPAddress &address) {
-        Array<IPAddress> temp;
+        Vector<IPAddress> temp;
         for (uint i = 0; i < _addresses.count(); i++) {
             if (_addresses[i] == address)
                 temp.add(address);
@@ -680,21 +680,18 @@ namespace Common {
     }
 
     void Endpoints::add(const Endpoint &value) {
-        _items.add(new Endpoint(value));
+        _items.add(Endpoint(value));
     }
 
     void Endpoints::addRange(const Endpoints &value) {
         for (uint i = 0; i < value.count(); i++) {
-            const Endpoint *endpoint = value._items[i];
-            add(*endpoint);
+            const Endpoint &endpoint = value._items[i];
+            add(endpoint);
         }
     }
 
     Endpoint Endpoints::at(size_t pos) const {
-        const Endpoint *endpoint = _items.at(pos);
-        if (endpoint != nullptr)
-            return *endpoint;
-        return Endpoint::Empty;
+        return _items.at(pos);
     }
 
     size_t Endpoints::count() const {
@@ -703,8 +700,8 @@ namespace Common {
 
     bool Endpoints::contains(const Endpoint &value) {
         for (uint i = 0; i < count(); i++) {
-            const Endpoint *endpoint = _items[i];
-            if (endpoint->operator==(value)) {
+            const Endpoint &endpoint = _items[i];
+            if (endpoint == value) {
                 return true;
             }
         }
@@ -717,8 +714,8 @@ namespace Common {
 
     bool Endpoints::remove(const Endpoint &value) {
         for (uint i = 0; i < count(); i++) {
-            const Endpoint *endpoint = _items[i];
-            if (endpoint->operator==(value)) {
+            const Endpoint &endpoint = _items[i];
+            if (endpoint == value) {
                 return removeAt(i);
             }
         }
@@ -732,7 +729,7 @@ namespace Common {
     Endpoints& Endpoints::operator=(const Endpoints &value) {
         clear();
         for (uint i = 0; i < value.count(); i++) {
-            const Endpoint endpoint = value[i];
+            const Endpoint &endpoint = value[i];
             add(endpoint);
         }
         return *this;
@@ -743,8 +740,8 @@ namespace Common {
             return false;
 
         for (uint i = 0; i < value.count(); i++) {
-            const Endpoint endpoint1 = value[i];
-            const Endpoint endpoint2 = at(i);
+            const Endpoint &endpoint1 = value[i];
+            const Endpoint &endpoint2 = at(i);
             if (endpoint1 != endpoint2)
                 return false;
         }
@@ -758,7 +755,7 @@ namespace Common {
     void Endpoints::write(Stream *stream, bool bigEndian) const {
         stream->writeUInt32((uint32_t) count(), bigEndian);
         for (uint32_t i = 0; i < (uint32_t) count(); i++) {
-            const Endpoint endpoint = at(i);
+            const Endpoint &endpoint = at(i);
             endpoint.write(stream, bigEndian);
         }
     }

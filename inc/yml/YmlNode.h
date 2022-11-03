@@ -18,9 +18,9 @@
 #include "data/Point.h"
 #include "data/Size.h"
 #include "data/Array.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "data/Dictionary.h"
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 #include "yaml-cpp/yaml.h"
 
 namespace Common
@@ -66,7 +66,7 @@ namespace Common
             }
         }
         template <class T>
-        YmlNode(const Vector<T>& value) : YmlNode(Type::TypeMap)
+        YmlNode(const PList<T>& value) : YmlNode(Type::TypeMap)
         {
             for (uint i=0; i<value.count(); i++)
             {

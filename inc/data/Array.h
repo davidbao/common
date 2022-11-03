@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include "system/OsDefine.h"
 #include "data/IEnumerable.h"
+#include "data/ISortable.h"
 #include "data/PrimitiveInterface.h"
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
@@ -352,12 +353,12 @@ namespace Common {
             return typename Iterator<type>::iterator(data() + count());
         }
 
-        inline typename Iterator<type>::reverse_const_iterator rbegin() const override {
-            return typename Iterator<type>::reverse_const_iterator(data() + count() - 1);
+        inline typename Iterator<type>::const_reverse_iterator rbegin() const override {
+            return typename Iterator<type>::const_reverse_iterator(data() + count() - 1);
         }
 
-        inline typename Iterator<type>::reverse_const_iterator rend() const override {
-            return typename Iterator<type>::reverse_const_iterator(data() - 1);
+        inline typename Iterator<type>::const_reverse_iterator rend() const override {
+            return typename Iterator<type>::const_reverse_iterator(data() - 1);
         }
 
         inline typename Iterator<type>::reverse_iterator rbegin() override {

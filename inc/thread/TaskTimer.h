@@ -33,7 +33,7 @@ namespace Common
             
             bool isTimeup();
         };
-        typedef Vector<Group> Groups;
+        typedef PList<Group> Groups;
         
         TaskTimer(const String& name, void* owner = nullptr);
         ~TaskTimer();

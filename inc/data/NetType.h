@@ -1,7 +1,6 @@
 #ifndef NetType_h
 #define NetType_h
 
-#include "data/Array.h"
 #include "data/Vector.h"
 #include "data/NetType.h"
 #include "data/ValueType.h"
@@ -97,7 +96,7 @@ namespace Common {
         static bool parse(const String &str, MacAddresses &value, const char splitSymbol = ' ');
 
     private:
-        Array<MacAddress> _addresses;
+        Vector<MacAddress> _addresses;
     };
 
     struct IPAddress {
@@ -200,7 +199,7 @@ namespace Common {
         static bool parse(const String &str, IPAddresses &value, const char splitSymbol = ' ');
 
     private:
-        Array<IPAddress> _addresses;
+        Vector<IPAddress> _addresses;
     };
 
     class Endpoint {

@@ -28,7 +28,7 @@ namespace Communication
         
         bool receive(Device* device, Channel* channel, ByteArray* buffer, int order = 0) override;
         
-        bool recombine(const ByteArray& buffer, Vector<ByteArray>& buffers) override;
+        bool recombine(const ByteArray& buffer, PList<ByteArray>& buffers) override;
         
         InstructionSet* clone() const override
         {

@@ -71,7 +71,7 @@ namespace Communication
         bool initialize(const BaseCommService::InstructionCallback& callback);
         bool unInitialize();
         
-        void getAllServices(Vector<ServerService>& services) const;
+        void getAllServices(PList<ServerService>& services) const;
         ServerService* getService(const Endpoint& peerEndpoint) const;
         ServerService* getService(Type type) const;
         bool hasServices() const;
@@ -120,7 +120,7 @@ namespace Communication
         bool sendAsync(const Endpoints& endpoints, const T& inputData, const String& name)
         {
             bool result = true;
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -135,7 +135,7 @@ namespace Communication
         bool sendAsyncAll(const T& inputData, const String& name)
         {
             bool result = true;
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -163,7 +163,7 @@ namespace Communication
         bool sendAsyncWithoutClient(const Endpoints& endpoints, const T& inputData, const String& name)
         {
             bool result = true;
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -192,7 +192,7 @@ namespace Communication
         bool sendSync(const Endpoints& endpoints, const T& inputData, K& outputData, const String& name)
         {
             bool result = true;
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -216,7 +216,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -242,7 +242,7 @@ namespace Communication
         template<class T, class K, class C>
         bool addPacketSenderWithoutClient(const String& name, const K& data, const Endpoint& peerEndpoint)
         {
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -258,7 +258,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -285,7 +285,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -309,7 +309,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -335,7 +335,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -363,7 +363,7 @@ namespace Communication
         {
             if(peerEndpoint.isEmpty())
             {
-                Vector<ServerService> services;
+                PList<ServerService> services;
                 getAllServices(services);
                 for (uint i=0; i<services.count(); i++)
                 {
@@ -389,7 +389,7 @@ namespace Communication
         template<class T, class K, class C>
         bool addPacketSyncSenderWithoutClient(const String& name, const K& data, const Endpoint& peerEndpoint)
         {
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -419,7 +419,7 @@ namespace Communication
         bool sendVectorAsync(const Endpoints& endpoints, const T& inputData, int packetCount, const String& name)
         {
             bool result = true;
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {

@@ -73,7 +73,7 @@ if (COMMON_ENABLE_TEST)
     set(TEST_SRC
             ConfigServiceTest
             SmProviderTest Md5ProviderTest
-            ArrayTest ByteArrayTest ListTest StringArrayTest VectorTest UrlTest UuidTest ValueTypeTest
+            ArrayTest ByteArrayTest DictionaryTest ListTest MapTest StringArrayTest StringMapTest PListTest UrlTest UuidTest ValueTypeTest VectorTest
             FileTraceListenerTest
             FileTest DirectoryTest MappingStreamTest
             JsonNodeTest

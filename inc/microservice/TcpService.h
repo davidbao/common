@@ -46,7 +46,7 @@ namespace Microservice
         virtual TcpStatus onGetAction(const StringArray& texts, String& result);
         virtual TcpStatus onPostAction(const StringArray& texts, const String& body, String& result);
     };
-    typedef Vector<ITcpAction> TcpActions;
+    typedef PList<ITcpAction> TcpActions;
 
     class ITcpService : public IService
     {

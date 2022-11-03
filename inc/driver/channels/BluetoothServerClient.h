@@ -63,6 +63,6 @@ namespace Drivers
 		DriverManager* _manager;
 	};
 
-	typedef Vector<BluetoothServerClient> BluetoothServerClients;
+	typedef PList<BluetoothServerClient> BluetoothServerClients;
 }
 #endif // BLUETOOTHRECEIVECLIENT_H

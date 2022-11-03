@@ -2,50 +2,68 @@
 //  Vector.h
 //  common
 //
-//  Created by baowei on 2015/7/20.
-//  Copyright © 2015 com. All rights reserved.
+//  Created by baowei on 2022/10/27.
+//  Copyright © 2022 com. All rights reserved.
 //
 
 #ifndef Vector_h
 #define Vector_h
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <sys/types.h>
 #include "system/OsDefine.h"
 #include "data/IEnumerable.h"
+#include "data/ISortable.h"
+#include "data/TypeInfo.h"
 #include "data/PrimitiveInterface.h"
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
 namespace Common {
-    template<class type>
-    class Vector : public Iterator<type *>,
-                   public IIndexGetter<type *>,
-                   public ISortable<type *>,
-                   public IMutex {
+    // type can be a struct or class.
+    // default constructor need to be implemented.
+    // copy constructor need to be implemented.
+    // operator= need to be implemented.
+    // IEvaluation and IEquatable interfaces need to be implemented.
+    template<typename type>
+    class Vector
+            : public IEquatable<Vector<type>>,
+              public IEvaluation<Vector<type>>,
+              public Iterator<type>,
+              public IIndexable<type, type>,
+              public IMutex {
     public:
-        typedef type *typePtr;
-
-        explicit Vector(bool autoDelete = true, size_t capacity = DefaultCapacity) : _array(nullptr), _autoDelete(autoDelete),
-                                                                            _capacity(0), _count(0) {
+        explicit Vector(size_t capacity = DefaultCapacity) : _array(nullptr), _capacity(0), _count(0) {
             setCapacity(capacity);
         }
 
-        // Never use autoDelete in copy constructor.
-        Vector(const Vector &array) : Vector(false, array.capacity()) {
+        Vector(const Vector &array) : Vector(array.capacity()) {
             addRange(array);
         }
 
-        Vector(Vector &&array) : Vector(array.autoDelete(), array.capacity()) {
+        Vector(Vector &&array) noexcept: Vector(array.capacity()) {
             _array = array._array;
             _count = array._count;
             array._array = nullptr;
             array._count = 0;
         }
 
-        Vector(const typePtr *array, size_t count, bool autoDelete = true, size_t capacity = DefaultCapacity) : Vector(
-                autoDelete, capacity) {
+        Vector(const Vector &array, off_t offset, size_t count) : Vector(array.capacity()) {
+            addRange(array, offset, count);
+        }
+
+        Vector(const type *array, size_t count, size_t capacity = DefaultCapacity) : Vector(capacity) {
             addRange(array, count);
+        }
+
+        Vector(const type &value, size_t count) : Vector(DefaultCapacity) {
+            for (size_t i = 0; i < count; i++) {
+                add(value);
+            }
+        }
+
+        Vector(std::initializer_list<type> list) : Vector(DefaultCapacity) {
+            addRange(list.begin(), list.size());
         }
 
         ~Vector() override {
@@ -54,8 +72,12 @@ namespace Common {
             _count = 0;
         }
 
-        inline size_t count() const override {
+        inline virtual size_t count() const {
             return _count;
+        }
+
+        inline virtual type *data() const {
+            return _array;
         }
 
         inline bool isEmpty() const {
@@ -74,39 +96,62 @@ namespace Common {
                 } else {
                     // have data.
                     size_t size = this->size(_count, capacity);
-                    typePtr *temp = _array;
-                    _array = new typePtr[size];
-                    memcpy(_array, temp, sizeof(typePtr) * _count);
+                    type *temp = _array;
+                    _array = new type[size];
+                    copy(_array, temp, _count);
                     _capacity = capacity;
                     delete[] temp;
                 }
             }
         }
 
-        inline bool autoDelete() const {
-            return _autoDelete;
+        Vector &operator=(const Vector &other) {
+            evaluates(other);
+            return *this;
         }
 
-        inline void setAutoDelete(bool autoDelete) {
-            _autoDelete = autoDelete;
-        }
-
-        inline typePtr at(size_t pos) const override {
+        inline type &at(size_t pos) override {
             if (pos < _count) {
                 return _array[pos];
             }
-            return nullptr;
+            static type t;
+            return t;
         }
 
-        inline void add(const type *value) {
-            if (canResize()) {
-                autoResize();
+        inline type at(size_t pos) const override {
+            if (pos < _count) {
+                return _array[pos];
             }
-            _array[_count++] = (type *) value;
+            static type t;
+            return t;
+        }
+
+        inline type front() const {
+            return at(0);
+        }
+
+        inline type &front() {
+            return at(0);
+        }
+
+        inline type back() const {
+            return at(_count - 1);
+        }
+
+        inline type &back() {
+            return at(_count - 1);
+        }
+
+        inline void add(const type &value) {
+            addRange(&value, 1);
+        }
+
+        inline bool addRange(std::initializer_list<type> list) {
+            return addRange(list.begin(), list.size());
         }
 
         inline bool addRange(const Vector &array) {
-            return addRange(array, 0, array.count());
+            return addRange(array._array, array.count());
         }
 
         inline bool addRange(const Vector &array, off_t offset, size_t count) {
@@ -116,35 +161,39 @@ namespace Common {
             return addRange(array._array, offset, count);
         }
 
-        inline bool addRange(const typePtr *array, size_t count) {
+        inline bool addRange(const type *array, size_t count) {
             if (count > 0) {
-                size_t c = count;
-                if (_count + c > this->size()) {
-                    size_t size = this->size(_count + c);
-                    typePtr *temp = _array;
-                    _array = new typePtr[size];
-                    memcpy(_array, temp, sizeof(typePtr) * (_count));
-                    memcpy(_array + _count, array, sizeof(typePtr) * (c));
-                    memset(_array + (_count + c), 0, sizeof(typePtr) * (size - _count - c));
+                if (_count + count > this->size()) {
+                    type *temp = _array;
+                    size_t size = this->size(_count + count);
+                    _array = new type[size];
+                    copy(_array, temp, _count);
+                    copy(_array + _count, array, count);
+                    zero(_array + (_count + count), size - _count - count);
                     delete[] temp;
                 } else {
                     if (canResize()) {
                         autoResize();
                     }
-                    memcpy(_array + _count, array, sizeof(typePtr) * (c));
+                    copy(_array + _count, array, count);
                 }
-                _count += c;
+                _count += count;
+
                 return true;
             }
             return false;
         }
 
-        inline bool addRange(const typePtr *array, off_t offset, size_t count) {
+        inline bool addRange(const type *array, off_t offset, size_t count) {
             return addRange(array + offset, count);
         }
 
+        inline bool insertRange(size_t pos, std::initializer_list<type> list) {
+            return insertRange(pos, list.begin(), list.size());
+        }
+
         inline bool insertRange(size_t pos, const Vector &array) {
-            return insertRange(pos, array._array, array.count());
+            return insertRange(pos, array, 0, array.count());
         }
 
         inline bool insertRange(size_t pos, const Vector &array, off_t offset, size_t count) {
@@ -154,44 +203,33 @@ namespace Common {
             return insertRange(pos, array._array + offset, count);
         }
 
-        inline bool insertRange(size_t pos, const typePtr *array, size_t count) {
+        inline bool insertRange(size_t pos, const type *array, size_t count) {
             if (count > 0 && pos <= _count) {
-                size_t c = count;
-                size_t size = this->size(_count + c);
-                typePtr *temp = _array;
-                _array = new typePtr[size];
-                memcpy(_array, temp, sizeof(typePtr) * (pos));
-                memcpy(_array + pos, array, sizeof(typePtr) * (c));
-                memcpy(_array + (pos + c), temp + pos, sizeof(typePtr) * (_count - pos));
-                memset(_array + (_count + pos + c), 0, sizeof(typePtr) * (size - _count - pos - c));
+                size_t size = this->size(_count + count);
+                type *temp = _array;
+                _array = new type[size];
+                copy(_array, temp, pos);
+                copy(_array + pos, array, count);
+                copy(_array + (pos + count), temp + pos, _count - pos);
+                zero(_array + (_count + pos + count), size - _count - pos - count);
                 delete[] temp;
-                _count += c;
+                _count += count;
 
                 return true;
             }
             return false;
         }
 
-        inline bool insertRange(size_t pos, const typePtr *array, off_t offset, size_t count) {
+        inline bool insertRange(size_t pos, const type *array, off_t offset, size_t count) {
             return insertRange(pos, array + offset, count);
         }
 
-        inline bool insert(size_t pos, const typePtr value) {
-            if ((size_t) pos <= _count) {
-                if (canResize()) {
-                    autoResize();
-                }
+        inline bool insert(size_t pos, const type &value) {
+            return insertRange(pos, &value, 1);
+        }
 
-                typePtr *temp = _array;
-                _array = new typePtr[size()];
-                memcpy(_array, temp, sizeof(typePtr) * (pos));
-                _array[pos] = (typePtr) value;
-                memcpy(_array + (pos + 1), temp + pos, sizeof(typePtr) * (_count - pos));
-                delete[] temp;
-                _count++;
-                return true;
-            }
-            return false;
+        inline bool setRange(size_t pos, std::initializer_list<type> list) {
+            return setRange(pos, list.begin(), list.size());
         }
 
         inline bool setRange(size_t pos, const Vector &array) {
@@ -205,157 +243,140 @@ namespace Common {
             return setRange(pos, array._array + offset, count);
         }
 
-        inline bool setRange(size_t pos, const typePtr *array, size_t count) {
-            if (pos < _count && pos + count < _count) {
-                for (size_t i = pos; i < count; i++) {
-                    if (_autoDelete) {
-                        delete _array[pos];
-                    }
-                }
-                memcpy(_array + pos, array, sizeof(typePtr) * count);
+        inline bool setRange(size_t pos, const type *array, size_t count) {
+            if (pos + count <= _count) {
+                copy(_array + pos, array, count);
                 return true;
             }
             return false;
         }
 
-        inline bool setRange(size_t pos, const typePtr *array, off_t offset, size_t count) {
+        inline bool setRange(size_t pos, const type *array, off_t offset, size_t count) {
             return setRange(pos, array + offset, count);
         }
 
-        inline bool set(size_t pos, const typePtr value, bool insertEmpty = false) {
-            if (pos < _count) {
-                if (_autoDelete) {
-                    delete _array[pos];
-                }
-                _array[pos] = (typePtr) value;
-                return true;
-            }
-
-            if (insertEmpty) {
-                size_t c = (pos / capacity() - count() / capacity() + 1) * capacity();
-                if (c > 0) {
-                    autoResize(c);
-                }
-                _array[pos] = (typePtr) value;
-                _count = pos + 1;
-                return true;
-            } else {
-                return false;
-            }
+        inline bool set(size_t pos, const type &value) override {
+            return setRange(pos, &value, 1);
         }
 
-        inline bool remove(const typePtr value, bool autoDelete = true) {
+        inline bool remove(const type &value) {
             for (size_t i = 0; i < count(); i++) {
-                if (_array[i] == value) {
-                    return removeAt(i, autoDelete);
+                if (equalsValue(i, value)) {
+                    return removeAt(i);
                 }
             }
             return false;
         }
 
-        inline bool removeAt(size_t pos, bool autoDelete = true) {
-            if (pos < _count) {
-                if (_autoDelete && autoDelete) {
-                    delete _array[pos];
-                }
-                if (pos != _count - 1)    // except the last one.
-                {
-                    memmove(_array + pos, _array + pos + 1, sizeof(typePtr) * (_count - pos - 1));
-                    memset(_array + _count - 1, 0, sizeof(typePtr) * 1);
-                }
-                _count--;
-                return true;
-            }
-            return false;
+        inline bool removeAt(size_t pos) {
+            return removeRange(pos, 1);
         }
 
         inline bool removeRange(size_t pos, size_t count) {
             size_t from = pos;
             size_t to = count + from - 1;
             if (to < _count && to >= from) {
-                if (_autoDelete) {
-                    for (size_t i = from; i <= to; i++) {
-                        delete _array[i];
-                    }
+                if (to != _count - 1) {
+                    move(_array + from, _array + to + 1, _count - to - 1);
                 }
-                if (to != _count - 1)    // except the last one.
-                {
-                    memmove(_array + from, _array + to + 1, sizeof(typePtr) * (_count - to - 1));
-                    memset(_array + _count - count, 0, sizeof(typePtr) * count);
-                }
+                zero(_array + _count - count, count);
                 _count -= count;
                 return true;
             }
             return false;
         }
 
-        inline void clear(bool autoDelete = true) {
-            deleteArray(autoDelete);
+        inline void clear() {
+            deleteArray();
 
             makeNull();
         }
 
-        inline bool contains(const typePtr value) const {
+        inline void reserve(size_t size) {
+            if (size > this->size()) {
+                type *temp = _array;
+                size_t count = this->size(size);
+                _array = new type[count];
+                copy(_array, temp, _count);
+                zero(_array + _count, count - _count);
+                delete[] temp;
+            }
+        }
+
+        inline bool contains(const type &value) const {
             for (size_t i = 0; i < count(); i++) {
-                if (_array[i] == value) {
+                if (equalsValue(i, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        inline int indexOf(const typePtr value) const {
+        inline ssize_t indexOf(const type &value) const {
             for (size_t i = 0; i < count(); i++) {
-                if (_array[i] == value) {
-                    return (int) i;
+                if (equalsValue(i, value)) {
+                    return (ssize_t) i;
                 }
             }
             return -1;
         }
 
-        inline ssize_t lastIndexOf(const typePtr value) const {
+        inline ssize_t lastIndexOf(const type &value) const {
             for (ssize_t i = count() - 1; i >= 0; i--) {
-                if (_array[i] == value) {
+                if (equalsValue(i, value)) {
                     return i;
                 }
             }
             return -1;
         }
 
-        inline typePtr *data() const override {
-            return _array;
+        inline void evaluates(const Vector &other) override {
+            _capacity = other.capacity();
+            clear();
+            addRange(other);
         }
 
-        inline typename Iterator<typePtr>::const_iterator begin() const override {
-            return typename Iterator<typePtr>::const_iterator(data());
+        inline bool equals(const Vector &other) const override {
+            if (count() != other.count())
+                return false;
+
+            for (size_t i = 0; i < count(); i++) {
+                if (!equalsValue(i, other.at(i)))
+                    return false;
+            }
+            return true;
         }
 
-        inline typename Iterator<typePtr>::const_iterator end() const override {
-            return typename Iterator<typePtr>::const_iterator(data() + count());
+        inline typename Iterator<type>::const_iterator begin() const override {
+            return typename Iterator<type>::const_iterator(data());
         }
 
-        inline typename Iterator<typePtr>::iterator begin() override {
-            return typename Iterator<typePtr>::iterator(data());
+        inline typename Iterator<type>::const_iterator end() const override {
+            return typename Iterator<type>::const_iterator(data() + count());
         }
 
-        inline typename Iterator<typePtr>::iterator end() override {
-            return typename Iterator<typePtr>::iterator(data() + count());
+        inline typename Iterator<type>::iterator begin() override {
+            return typename Iterator<type>::iterator(data());
         }
 
-        typename Iterator<typePtr>::reverse_const_iterator rbegin() const override {
-            return typename Iterator<typePtr>::reverse_const_iterator(data() + count() - 1);
+        inline typename Iterator<type>::iterator end() override {
+            return typename Iterator<type>::iterator(data() + count());
         }
 
-        inline typename Iterator<typePtr>::reverse_const_iterator rend() const override {
-            return typename Iterator<typePtr>::reverse_const_iterator(data() - 1);
+        inline typename Iterator<type>::const_reverse_iterator rbegin() const override {
+            return typename Iterator<type>::const_reverse_iterator(data() + count() - 1);
         }
 
-        inline typename Iterator<typePtr>::reverse_iterator rbegin() override {
-            return typename Iterator<typePtr>::reverse_iterator(data() + count() - 1);
+        inline typename Iterator<type>::const_reverse_iterator rend() const override {
+            return typename Iterator<type>::const_reverse_iterator(data() - 1);
         }
 
-        inline typename Iterator<typePtr>::reverse_iterator rend() override {
-            return typename Iterator<typePtr>::reverse_iterator(data() - 1);
+        inline typename Iterator<type>::reverse_iterator rbegin() override {
+            return typename Iterator<type>::reverse_iterator(data() + count() - 1);
+        }
+
+        inline typename Iterator<type>::reverse_iterator rend() override {
+            return typename Iterator<type>::reverse_iterator(data() - 1);
         }
 
         void lock() override {
@@ -371,6 +392,11 @@ namespace Common {
         }
 
     private:
+        inline void deleteArray() {
+            delete[] _array;
+            _array = nullptr;
+        }
+
         inline void autoResize() {
             if (canResize()) {
                 autoResize(_capacity);
@@ -378,10 +404,10 @@ namespace Common {
         }
 
         inline void autoResize(size_t capacity) {
-            typePtr *temp = _array;
-            _array = new typePtr[_count + capacity];
-            memcpy(_array, temp, sizeof(typePtr) * (_count));
-            memset(_array + _count, 0, sizeof(typePtr) * (capacity));
+            type *temp = _array;
+            _array = new type[_count + capacity];
+            copy(_array, temp, _count);
+            zero(_array + _count, capacity);
             delete[] temp;
         }
 
@@ -395,19 +421,9 @@ namespace Common {
                     deleteArray();
                 }
                 _count = 0;
-                _array = new typePtr[_capacity];
-                memset(_array, 0, sizeof(typePtr) * (_capacity));
+                _array = new type[_capacity];
+                zero(_array, _capacity);
             }
-        }
-
-        inline void deleteArray(bool autoDelete = true) {
-            for (size_t i = 0; i < count(); i++) {
-                if (_autoDelete && autoDelete) {
-                    delete _array[i];
-                }
-            }
-            delete[] _array;
-            _array = nullptr;
         }
 
         inline size_t size() const {
@@ -418,74 +434,96 @@ namespace Common {
             return size(count, capacity());
         }
 
+        inline bool equalsValue(size_t pos, const type &value) const {
+            if (pos < _count) {
+                return _array[pos] == value;
+            }
+            return false;
+        }
+
         static size_t size(size_t count, size_t capacity) {
             size_t size = (count / capacity) + 1;
             return size * capacity;
+        }
+
+        static void copy(type *dst, const type *src, size_t count) {
+            if (TypeInfo<type>::isComplex) {
+                for (size_t i = 0; i < count; i++) {
+                    new(&dst[i]) type(src[i]);
+                }
+            } else {
+                memcpy((void *) dst, (const void *) src, sizeof(type) * count);
+            }
+        }
+
+        static void move(type *dst, const type *src, size_t count) {
+            if (TypeInfo<type>::isComplex) {
+                for (size_t i = 0; i < count; i++) {
+                    dst[i] = src[i];
+                }
+            } else {
+                memmove((void *) dst, (const void *) src, sizeof(type) * count);
+            }
+        }
+
+        static void zero(type *dst, size_t count) {
+            if (!TypeInfo<type>::isComplex) {
+                memset(dst, 0, sizeof(type) * count);
+            }
         }
 
     protected:
         static const size_t DefaultCapacity = 256;
 
     private:
-        typePtr *_array;
-        bool _autoDelete;
+        type *_array;
         size_t _capacity;
         size_t _count;
         Mutex _mutex;
     };
 
-    template<class type>
-    class CopyVector : public Vector<type> {
+    // type can be a struct or class.
+    // operator= need to be implemented.
+    // copy constructor need to be implemented.
+    // IComparable interfaces need to be implemented.
+    template<typename type>
+    class SortedVector : public Vector<type>, public ISortable<type> {
     public:
-        CopyVector(bool autoDelete = true, size_t capacity = Vector<type>::DefaultCapacity) : Vector<type>(autoDelete,
-                                                                                                           capacity) {
+        explicit SortedVector(size_t capacity = Vector<type>::DefaultCapacity) : Vector<type>(capacity) {
         }
 
-        ~CopyVector() override {
+        SortedVector(const SortedVector &array) : Vector<type>(array) {
         }
 
-        virtual void copyFrom(const CopyVector *values, bool append = false) {
-            if (!append) {
-                this->clear();
-            }
-
-            for (size_t i = 0; i < values->count(); i++) {
-                auto value = new type();
-                value->copyFrom(values->at(i));
-                this->add(value);
-            }
+        SortedVector(SortedVector &&array) noexcept: Vector<type>(std::move(array)) {
         }
 
-        virtual void copyContextFrom(const CopyVector *values) {
-        }
-    };
-
-    template<class type>
-    class CloneVector : public Vector<type> {
-    public:
-        CloneVector(bool autoDelete = true, size_t capacity = Vector<type>::DefaultCapacity) : Vector<type>(autoDelete,
-                                                                                                            capacity) {
+        SortedVector(const SortedVector &array, off_t offset, size_t count) : Vector<type>(array, offset, count) {
         }
 
-        ~CloneVector() override {
+        SortedVector(const type *array, size_t count, size_t capacity = Vector<type>::DefaultCapacity) : Vector<type>(
+                array,
+                count,
+                capacity) {
         }
 
-        CloneVector *clone() const {
-            CloneVector<type> *values = new CloneVector<type>();
-            for (size_t i = 0; i < this->count(); i++) {
-                values->add(this->at(i)->clone());
-            }
-            return values;
+        SortedVector(const type &value, size_t count) : Vector<type>(value, count) {
         }
 
-        virtual void copyFrom(const CloneVector *values, bool append = false) {
-            if (!append) {
-                this->clear();
-            }
+        SortedVector(std::initializer_list<type> list) : Vector<type>(list) {
+        }
 
-            for (size_t i = 0; i < values->count(); i++) {
-                this->add(values->at(i)->clone());
-            }
+        SortedVector &operator=(const SortedVector &other) {
+            Vector<type>::evaluates(other);
+            return *this;
+        }
+
+        inline size_t count() const override {
+            return Vector<type>::count();
+        }
+
+        inline type *data() const override {
+            return Vector<type>::data();
         }
     };
 }

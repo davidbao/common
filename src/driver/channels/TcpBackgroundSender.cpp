@@ -126,7 +126,7 @@ namespace Drivers
     
     Thread* SenderSinglePool::_singleThread = nullptr;
     Mutex SenderSinglePool::_poolsMutex;
-    Vector<SenderSinglePool> SenderSinglePool::_pools(false);
+    PList<SenderSinglePool> SenderSinglePool::_pools(false);
     SenderSinglePool::SenderSinglePool(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd) : SenderPool(dm, cd, dd)
     {
     }

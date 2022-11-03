@@ -32,7 +32,7 @@ namespace Microservice
         virtual bool hasPostAction(const HttpRequest& request);
         virtual bool query(const HttpRequest& request, const SqlSelectFilter& filter, DataTable& table);
     };
-    typedef Vector<IHttpAction> HttpActions;
+    typedef PList<IHttpAction> HttpActions;
 
     template <class T>
     class HttpCallback
@@ -271,7 +271,7 @@ namespace Microservice
         HttpQueryCallback<T> _callback;
     };
 
-    typedef Vector<BaseHttpMapping> HttpMappings;
+    typedef PList<BaseHttpMapping> HttpMappings;
 
     class IHttpRegister : public IService
     {

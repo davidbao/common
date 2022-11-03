@@ -115,7 +115,7 @@ namespace Drivers
 		Channel* _channel;
         
         Mutex _receiveDevicesMutex;
-        Vector<Device> _receiveDevices;
+        PList<Device> _receiveDevices;
         
         Instructions* _dynamicInstructions;
         Mutex _dynamicInstructionsMutex;
@@ -126,7 +126,7 @@ namespace Drivers
         
         Delegates _receivedDelegates;
 	};
-    typedef Vector<Device> Devices;
+    typedef PList<Device> Devices;
     
     class DeviceStatusEventArgs : public EventArgs
     {

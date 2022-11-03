@@ -91,7 +91,7 @@ namespace Drivers
         Delegates _openedDelegates;
         Delegates _closedDelegates;
 	};
-    typedef Vector<Channel> Channels;
+    typedef PList<Channel> Channels;
 }
 
 #endif // CHANNEL_H

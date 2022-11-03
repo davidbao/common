@@ -146,6 +146,6 @@ namespace Drivers
         // key: instruction name, value: tick count.
         Dictionary<String, uint> _nameTicks;
 	};
-    typedef Vector<InstructionPool> InstructionPools;
+    typedef PList<InstructionPool> InstructionPools;
 }
 #endif // INSTRUCTIONPOOL_H

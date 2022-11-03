@@ -201,6 +201,6 @@ namespace Drivers
 		ChannelDescription* _channel;
 		InstructionSet* _instructionSet;
 	};
-    typedef Vector<DeviceDescription> DeviceDescriptions;
+    typedef PList<DeviceDescription> DeviceDescriptions;
 }
 #endif // DEVICEDESCRIPTION_H

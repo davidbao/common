@@ -375,7 +375,7 @@ namespace Drivers
         return false;
     }
 
-    bool TcpServerInteractive::Clients::getUnusedClients(Vector<Client>& clients)
+    bool TcpServerInteractive::Clients::getUnusedClients(PList<Client>& clients)
     {
         Locker locker(&_clientsMutex);
         clients.setAutoDelete(false);
@@ -754,7 +754,7 @@ namespace Drivers
     }
 	void TcpServerInteractive::closeProcInner()
 	{
-        Vector<Client> clients;
+        PList<Client> clients;
         if(_clients.getUnusedClients(clients))
         {
             for (uint i=0; i<clients.count(); i++)

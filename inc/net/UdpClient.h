@@ -9,7 +9,7 @@
 #define UDPCLIENT_H_
 
 #include "data/ValueType.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 namespace Common
 {
@@ -41,7 +41,7 @@ namespace Common
 	private:
 		int _socket;
 	};
-    typedef Vector<UdpClient> UdpClients;
+    typedef PList<UdpClient> UdpClients;
 
 } /* namespace Drivers */
 

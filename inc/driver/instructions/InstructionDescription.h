@@ -1,7 +1,7 @@
 #ifndef INSTRUCTIONDESCRIPTION_H
 #define INSTRUCTIONDESCRIPTION_H
 
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "exception/Exception.h"
 #include "system/Convert.h"
 #include "../IContextProperty.h"
@@ -29,7 +29,7 @@ namespace Drivers
 		InstructionContext* _context;
 		bool _autoDeleteContext;
 	};
-    typedef Vector<InstructionDescription> InstructionDescriptions;
+    typedef PList<InstructionDescription> InstructionDescriptions;
 }
 
 #endif // INSTRUCTIONDESCRIPTION_H

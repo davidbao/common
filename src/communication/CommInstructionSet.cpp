@@ -81,7 +81,7 @@ namespace Communication
         return true;
     }
 
-    bool TcpInstructionSet::recombine(const ByteArray& origin, Vector<ByteArray>& buffers)
+    bool TcpInstructionSet::recombine(const ByteArray& origin, PList<ByteArray>& buffers)
     {
 #ifdef DEBUG
         Stopwatch sw("TcpInstructionSet::recombine", 1000);

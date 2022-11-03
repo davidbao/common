@@ -2,7 +2,7 @@
 #include "diag/Trace.h"
 #include "diag/Stopwatch.h"
 #include "thread/Locker.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "system/Convert.h"
 #include "oci/oci.h"
 
@@ -37,7 +37,7 @@ namespace Database
 			}
 		}
 	};
-	typedef Vector<InnerColumn> InnerColumns;
+	typedef PList<InnerColumn> InnerColumns;
     
     class OracleInner
     {

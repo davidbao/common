@@ -465,7 +465,7 @@ namespace Common
             levelStr = tempLevelStr;
         }
 //#ifdef DEBUG
-//        Vector<String> keys;
+//        PList<String> keys;
 //        properties.keys(keys);
 //        for (uint i=0; i<keys.count(); i++)
 //        {

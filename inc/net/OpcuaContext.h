@@ -95,7 +95,7 @@ namespace Common
     public:
         static OpcuaNodeId Empty;
     };
-    typedef Vector<OpcuaNodeId> NodeIds;
+    typedef PList<OpcuaNodeId> NodeIds;
 
     class TargetName
     {
@@ -119,7 +119,7 @@ namespace Common
         static bool parse(const String& path, TargetNames& targetNames);
         
     private:
-        Vector<TargetName> _names;
+        PList<TargetName> _names;
     };
 
     class Subscription
@@ -130,7 +130,7 @@ namespace Common
         
         Subscription(const OpcuaNodeId* nodeId = nullptr);
     };
-    typedef Vector<Subscription> Subscriptions;
+    typedef PList<Subscription> Subscriptions;
 
     class SubscriptionId
     {
@@ -140,7 +140,7 @@ namespace Common
         
         SubscriptionId(uint32_t subscriptionId);
     };
-    typedef Vector<SubscriptionId> SubscriptionIds;
+    typedef PList<SubscriptionId> SubscriptionIds;
 
     class MessageArrivedEventArgs : public EventArgs
     {

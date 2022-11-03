@@ -475,7 +475,7 @@ namespace Communication
 //        }
         
     private:
-//        typedef Vector<T> Ranges;
+//        typedef PList<T> Ranges;
 //
 //        Ranges _ranges;
         

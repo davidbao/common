@@ -2,7 +2,7 @@
 #define CONTEXT_H
 
 #include "data/ValueType.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 using namespace Common;
 
@@ -51,7 +51,7 @@ namespace Drivers
 		ValueSet _value;
 	};
 
-	typedef Vector<Data> Datas;
+	typedef PList<Data> Datas;
 
 	class Context
 	{

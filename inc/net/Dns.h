@@ -2,7 +2,7 @@
 #define DNS_H
 
 #include "data/Array.h"
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 #include "data/ValueType.h"
 #include "data/Dictionary.h"
 

@@ -650,7 +650,7 @@ bool testIterator() {
     }
 
     index = 3;
-    for (Values::reverse_const_iterator iter = test.rbegin(); iter != test.rend(); ++iter) {
+    for (Values::const_reverse_iterator iter = test.rbegin(); iter != test.rend(); ++iter) {
         if (*iter != index) {
             return false;
         }

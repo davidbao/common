@@ -89,7 +89,7 @@ namespace Common
     {
         for (uint i = 0; i < count(); i++)
         {
-            XmlAttribute* attr = Vector<XmlAttribute>::at(i);
+            XmlAttribute* attr = PList<XmlAttribute>::at(i);
             if (attr->name() == name)
             {
                 return attr;

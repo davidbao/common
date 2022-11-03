@@ -9,19 +9,19 @@
 #ifndef ByteArray_h
 #define ByteArray_h
 
-#include "Array.h"
+#include "data/Vector.h"
 #include "data/ValueType.h"
 #include "exception/Exception.h"
 #include "IO/Stream.h"
 
 namespace Common {
-    class ByteArray : public Array<uint8_t> {
+    class ByteArray : public Vector<uint8_t> {
     public:
         ByteArray(size_t capacity = DefaultCapacity);
 
-        ByteArray(const Array<uint8_t> &array);
+        ByteArray(const Vector<uint8_t> &array);
 
-        ByteArray(const Array<uint8_t> &array, off_t offset, size_t count);
+        ByteArray(const Vector<uint8_t> &array, off_t offset, size_t count);
 
         ByteArray(const uint8_t *array, size_t count, size_t capacity = DefaultCapacity);
 
@@ -30,6 +30,8 @@ namespace Common {
         ByteArray(const ByteArray &array);
 
         ByteArray(const ByteArray &array, off_t offset, size_t count);
+
+        ByteArray(std::initializer_list<uint8_t> list);
 
         void write(Stream *stream, bool bigEndian = true) const;
 

@@ -162,7 +162,7 @@ namespace Drivers
 #ifdef DEBUG
         Stopwatch sw("Device::executeInstruction", 1000);
 #endif
-        Vector<ByteArray> buffers;
+        PList<ByteArray> buffers;
         if(instructionSet()->recombine(buffer, buffers))
         {
             for (uint i=0; i<buffers.count(); i++)

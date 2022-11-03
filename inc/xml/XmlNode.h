@@ -52,7 +52,7 @@ namespace Common
 
 		void selectSingleNode(const char* xpath, XmlNode& node);
 
-        bool subNodes(Vector<XmlNode>& nodes) const;
+        bool subNodes(PList<XmlNode>& nodes) const;
         bool hasSubNodes() const;
         
         bool containsNode(const String& name) const;
@@ -173,7 +173,7 @@ namespace Common
 		XmlAttributes _attributes;
 	};
     
-    typedef Vector<XmlNode> XmlNodes;
+    typedef PList<XmlNode> XmlNodes;
 }
 
 #endif	// XMLNODE_H

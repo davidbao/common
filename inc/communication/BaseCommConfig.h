@@ -161,7 +161,7 @@ namespace Communication
     public:
         static const Client Empty;
     };
-    typedef Vector<Client> Clients;
+    typedef PList<Client> Clients;
     
     class Server
     {
@@ -235,7 +235,7 @@ namespace Communication
     public:
         static const Server Empty;
     };
-    typedef Vector<Server> Servers;
+    typedef PList<Server> Servers;
     
     class BaseCommConfig : public Configuration
     {

@@ -97,7 +97,7 @@ namespace Microservice
     private:
     };
 
-    typedef Vector<BaseNotification> Notifications;
+    typedef PList<BaseNotification> Notifications;
 
     class NotificationService : public INotificationService, public PoolService
     {

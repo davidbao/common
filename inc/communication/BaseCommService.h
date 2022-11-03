@@ -111,7 +111,7 @@ namespace Communication
             Endpoint _endpoint;
             int _invokeCount;
         };
-        typedef Vector<BaseLoopSender> BaseLoopSenders;
+        typedef PList<BaseLoopSender> BaseLoopSenders;
         
         class BasePacketSender
         {
@@ -137,7 +137,7 @@ namespace Communication
             
             Timer* _timer;
         };
-        typedef Vector<BasePacketSender> BasePacketSenders;
+        typedef PList<BasePacketSender> BasePacketSenders;
         
         BaseCommService();
         virtual ~BaseCommService();

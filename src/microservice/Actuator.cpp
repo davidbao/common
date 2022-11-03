@@ -474,8 +474,8 @@ namespace Microservice {
                 availableTagsNode.add(areaNode);
 
                 StringArray values;
-                values.addRange(&heapValues);
-                values.addRange(&nonHeapValues);
+                values.addRange(heapValues);
+                values.addRange(nonHeapValues);
                 idNode.add(JsonNode("values", values));
             }
             availableTagsNode.add(idNode);
@@ -545,8 +545,8 @@ namespace Microservice {
                 availableTagsNode.add(areaNode);
 
                 StringArray values;
-                values.addRange(&heapValues);
-                values.addRange(&nonHeapValues);
+                values.addRange(heapValues);
+                values.addRange(nonHeapValues);
                 idNode.add(JsonNode("values", values));
             }
             if (tags["id"] == "Metaspace") {
@@ -606,8 +606,8 @@ namespace Microservice {
                 availableTagsNode.add(areaNode);
 
                 StringArray values;
-                values.addRange(&heapValues);
-                values.addRange(&nonHeapValues);
+                values.addRange(heapValues);
+                values.addRange(nonHeapValues);
                 idNode.add(JsonNode("values", values));
             }
             availableTagsNode.add(idNode);

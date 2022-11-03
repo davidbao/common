@@ -2,7 +2,7 @@
 #define XMLATTRIBUTE_H
 
 #include "data/ValueType.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 namespace Common
 {
@@ -32,11 +32,11 @@ namespace Common
 		XmlNode* _node;
 		XmlAttributeInner* _attr;
 	};
-	//typedef Vector<XmlAttribute> XmlAttributes;
+	//typedef PList<XmlAttribute> XmlAttributes;
 	class XmlAttributes : public CopyVector<XmlAttribute>
 	{
 	public:
-        XmlAttributes(bool autoDelete = true, uint capacity = Vector<XmlAttribute>::DefaultCapacity);
+        XmlAttributes(bool autoDelete = true, uint capacity = PList<XmlAttribute>::DefaultCapacity);
 
         XmlAttribute* at(const String& name) const;
         XmlAttribute* operator[](const String& name) const;

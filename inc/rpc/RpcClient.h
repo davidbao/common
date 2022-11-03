@@ -74,7 +74,7 @@ namespace rpc
         ClientService* _service;
     };
 
-    typedef Vector<RpcClient> RpcClients;
+    typedef PList<RpcClient> RpcClients;
 }
 
 #endif /* RcpClient_h */

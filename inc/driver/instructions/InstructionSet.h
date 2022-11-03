@@ -23,7 +23,7 @@ namespace Drivers
         virtual bool receive(Device* device, Channel* channel, ByteArray* buffer, int order = 0);
         virtual InstructionSet* clone() const;
         
-        virtual bool recombine(const ByteArray& buffer, Vector<ByteArray>& buffers);
+        virtual bool recombine(const ByteArray& buffer, PList<ByteArray>& buffers);
 	};
 }
 

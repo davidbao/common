@@ -126,10 +126,10 @@ namespace Drivers {
         static const size_t MaxLogLength = 128 * 1024;
     };
 
-//	typedef Vector<Instruction> Instructions;
-    class Instructions : public Vector<Instruction> {
+//	typedef PList<Instruction> Instructions;
+    class Instructions : public PList<Instruction> {
     public:
-        Instructions(bool autoDelete = true, uint capacity = Vector<Instruction>::DefaultCapacity);
+        Instructions(bool autoDelete = true, uint capacity = PList<Instruction>::DefaultCapacity);
 
         void setReceiveInstruction(Instructions *instructions);
     };

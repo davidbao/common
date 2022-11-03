@@ -17,7 +17,7 @@
 #include "data/Point.h"
 #include "data/Size.h"
 #include "data/Array.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "data/StringArray.h"
 #include "yml/YmlNode.h"
 
@@ -76,7 +76,7 @@ namespace Common
             }
         }
         template <class T>
-        JsonNode(const String& name, const Vector<T>& value) : JsonNode(name, Type::TypeArray)
+        JsonNode(const String& name, const PList<T>& value) : JsonNode(name, Type::TypeArray)
         {
             for (uint i=0; i<value.count(); i++)
             {
@@ -133,7 +133,7 @@ namespace Common
         bool hasAttribute(const String& name) const;
         bool hasAttribute() const;
         
-        bool subNodes(Vector<JsonNode>& nodes) const;
+        bool subNodes(PList<JsonNode>& nodes) const;
         bool hasSubNodes() const;
         bool atByName(const String& name, JsonNode& node) const;
         bool at(int i, JsonNode& node) const;

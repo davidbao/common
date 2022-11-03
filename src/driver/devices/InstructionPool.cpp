@@ -84,7 +84,7 @@ namespace Drivers
             size_t c = count();
             if(c > 1)
             {
-                Vector<Packet>::sort(value, c);
+                PList<Packet>::sort(value, c);
             }
         }
     }

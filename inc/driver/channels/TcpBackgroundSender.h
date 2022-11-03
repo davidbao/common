@@ -88,7 +88,7 @@ namespace Drivers
         static Thread* _singleThread;
         
         static Mutex _poolsMutex;
-        static Vector<SenderSinglePool> _pools;
+        static PList<SenderSinglePool> _pools;
     };
     
     class Device;
@@ -152,7 +152,7 @@ namespace Drivers
         void createDevice(const Channel* channel) override;
     };
     
-    typedef Vector<TcpBackgroundSender> TcpBackgroundSenders;
+    typedef PList<TcpBackgroundSender> TcpBackgroundSenders;
 }
 
 #endif // TCPBACKGROUNDSENDER_H

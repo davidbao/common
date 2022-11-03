@@ -297,7 +297,7 @@ namespace Communication
     class UploadPacketContext : public PacketContext<T, K>
     {
     public:
-        typedef Vector<T> Ranges;
+        typedef PList<T> Ranges;
         
         UploadPacketContext(bool autoDelete = false) : PacketContext<T, K>()
         {

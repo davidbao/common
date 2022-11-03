@@ -10,7 +10,7 @@
 #define SqlSelectFilter_h
 
 #include "data/ValueType.h"
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 
 using namespace Common;
 

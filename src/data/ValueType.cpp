@@ -1254,12 +1254,12 @@ namespace Common {
         return Iterator<char>::iterator(_buffer.data() + length());
     }
 
-    Iterator<char>::reverse_const_iterator String::rbegin() const {
-        return Iterator<char>::reverse_const_iterator(_buffer.data() + length() - 1);
+    Iterator<char>::const_reverse_iterator String::rbegin() const {
+        return Iterator<char>::const_reverse_iterator(_buffer.data() + length() - 1);
     }
 
-    Iterator<char>::reverse_const_iterator String::rend() const {
-        return Iterator<char>::reverse_const_iterator(_buffer.data() - 1);
+    Iterator<char>::const_reverse_iterator String::rend() const {
+        return Iterator<char>::const_reverse_iterator(_buffer.data() - 1);
     }
 
     Iterator<char>::reverse_iterator String::rbegin() {

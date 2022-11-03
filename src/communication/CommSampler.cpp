@@ -82,7 +82,7 @@ namespace Communication
 
     Thread* TcpSingleSampler::_singleThread = nullptr;
     Mutex TcpSingleSampler::_poolsMutex;
-    Vector<TcpSingleSampler> TcpSingleSampler::_pools(false);
+    PList<TcpSingleSampler> TcpSingleSampler::_pools(false);
     TcpSingleSampler::TcpSingleSampler(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, const Client::Connection& connection, sampler_callback action, void* owner) : Sampler(dm, cd, dd)
     {
         _detectionInterval = (uint)connection.detectionInterval.totalMilliseconds();

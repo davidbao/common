@@ -172,7 +172,7 @@ namespace Microservice {
             detailsNode.add(JsonNode("leader", leader));
 
             JsonNode servicesNode("services");
-            Vector<JsonNode> nodes;
+            PList<JsonNode> nodes;
             if (tempNode.subNodes(nodes)) {
                 for (uint i = 0; i < nodes.count(); i++) {
                     JsonNode *subNode = nodes[i];
@@ -212,7 +212,7 @@ namespace Microservice {
         if (_httpClient.get(url.toString(), DefaultHeaders, content)) {
             JsonNode node;
             if (JsonNode::parse(content, node)) {
-                Vector<JsonNode> nodes;
+                PList<JsonNode> nodes;
                 if (node.subNodes(nodes) && nodes.count() == 1) {
                     JsonNode *serviceNode = nodes[0];
                     String serviceName;
@@ -232,7 +232,7 @@ namespace Microservice {
         String content;
         JsonNode node;
         if (getAllServices(_baseUrl, content) && JsonNode::parse(content, node)) {
-            Vector<JsonNode> nodes;
+            PList<JsonNode> nodes;
             if (node.subNodes(nodes)) {
                 for (uint i = 0; i < nodes.count(); i++) {
                     JsonNode *subNode = nodes[i];

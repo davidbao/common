@@ -2,14 +2,14 @@
 #define PROCESS_H
 
 #include "data/ValueType.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "data/TimeSpan.h"
 #include "system/Delegate.h"
 
 namespace Common {
     class Process;
 
-    typedef Vector<Process> Processes;
+    typedef PList<Process> Processes;
 
     class ProcessOutputEventArgs : public EventArgs {
     public:

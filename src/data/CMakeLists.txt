@@ -23,6 +23,7 @@ SET(DATA_SRC
         Rectangle.cpp
         Size.cpp
         StringArray.cpp
+        StringMap.cpp
         TimeSpan.cpp
         TimeZone.cpp
         Uuid.cpp

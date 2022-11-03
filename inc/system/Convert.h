@@ -83,7 +83,7 @@ namespace Common {
             }
         };
 
-        typedef Vector<KeyPair> KeyPairs;
+        typedef PList<KeyPair> KeyPairs;
 
         static bool
         splitItems(const String &str, KeyPairs &pairs, const char splitSymbol = ';', const char escape = '\\',

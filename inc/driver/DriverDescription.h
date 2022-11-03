@@ -1,7 +1,7 @@
 #ifndef DRIVERDESCRIPTION_H
 #define DRIVERDESCRIPTION_H
 
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "devices/DeviceDescription.h"
 #include "channels/ChannelDescription.h"
 
@@ -9,7 +9,7 @@ using namespace Common;
 
 namespace Drivers
 {
-	typedef Vector<DeviceDescription> DeviceDescriptions;
+	typedef PList<DeviceDescription> DeviceDescriptions;
 
 	class DriverDescription
 	{

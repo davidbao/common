@@ -82,7 +82,7 @@ namespace rpc
     {
         if(method == nullptr)
             return;
-        
+
         if(!contains(method->name))
             _methods.add(method);
         else
@@ -210,7 +210,7 @@ namespace rpc
                 action(element->owner, element->request, element->response);
                 result = true;
             }
-            
+
             if(result)
                 _asyncElements.remove(token);
         }
@@ -265,7 +265,7 @@ namespace rpc
             {
                 method->request->read(stream);
                 action(method->owner, method->request, method->response);
-                
+
                 // send async reponse.
                 if(connected())
                 {

@@ -150,7 +150,7 @@ namespace Common
     protected:
         Delegates _propertyChangedDelegates;
     };
-    typedef Vector<IPropertyChanged> IPropertyChangeds;
+    typedef PList<IPropertyChanged> IPropertyChangeds;
     
     class IPropertyChangedVisitor : public IService
     {

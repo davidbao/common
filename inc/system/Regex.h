@@ -5,6 +5,7 @@
 #include <regex>
 #include "data/ValueType.h"
 #include "data/StringArray.h"
+#include "data/StringMap.h"
 #include "data/Dictionary.h"
 
 #ifndef REG_NOERROR

@@ -10,7 +10,7 @@
 #define ServerService_h
 
 #include "data/ValueType.h"
-#include "data/Dictionary.h"
+#include "data/Map.h"
 #include "thread/Locker.h"
 #include "thread/Thread.h"
 #include "system/ServiceFactory.h"
@@ -210,7 +210,7 @@ namespace Communication
                 assert(ss);
                 
                 Locker locker(&_includedBufferMutex);
-                Vector<Endpoint> keys;
+                PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
                 for(uint i=0;i<keys.count();i++)
                 {
@@ -244,7 +244,7 @@ namespace Communication
                 assert(ss);
                 
                 Locker locker(&_excludedBufferMutex);
-                Vector<Endpoint> keys;
+                PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
                 for(uint i=0;i<keys.count();i++)
                 {
@@ -365,7 +365,7 @@ namespace Communication
         public:
             typedef LoopVector<K> Buffer;
             typedef Map<Endpoint, Buffer> EndpointBuffers;
-            typedef Vector<Buffer> Buffers;
+            typedef PList<Buffer> Buffers;
             typedef void (*FailedAction)(void*, const T&);
             
             PacketSyncSender(BaseCommService* service, const String& name, const TimeSpan& interval, FailedAction failedAction, void* owner, int packetCount = 10) : BasePacketSender(service, name, interval), _includedBuffer(true), _excludedBuffer(true)
@@ -447,7 +447,7 @@ namespace Communication
                 Endpoints peerEndpoints;
                 
                 _includedBufferMutex.lock();
-                Vector<Endpoint> keys;
+                PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
                 for(uint i=0;i<keys.count();i++)
                 {
@@ -494,7 +494,7 @@ namespace Communication
                 Endpoints peerEndpoints;
                 
                 _excludedBufferMutex.lock();
-                Vector<Endpoint> keys;
+                PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
                 for(uint i=0;i<keys.count();i++)
                 {

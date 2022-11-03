@@ -48,7 +48,7 @@ namespace Drivers
             Client* at(int socketId) const;
             
         private:
-            Vector<Client> _clients;
+            PList<Client> _clients;
             Mutex _clientsMutex;
         };
         

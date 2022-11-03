@@ -15,26 +15,30 @@ namespace Common {
     const char *ByteArray::DecFormat = "%02d";
     const char *ByteArray::OtcFormat = "%02o";
 
-    ByteArray::ByteArray(size_t capacity) : Array<uint8_t>(capacity) {
+    ByteArray::ByteArray(size_t capacity) : Vector<uint8_t>(capacity) {
     }
 
-    ByteArray::ByteArray(const Array<uint8_t> &array) : Array<uint8_t>(array) {
+    ByteArray::ByteArray(const Vector<uint8_t> &array) : Vector<uint8_t>(array) {
     }
 
-    ByteArray::ByteArray(const Array<uint8_t> &array, off_t offset, size_t count) : Array<uint8_t>(array, offset,
-                                                                                                   count) {
+    ByteArray::ByteArray(const Vector<uint8_t> &array, off_t offset, size_t count) : Vector<uint8_t>(array, offset,
+                                                                                                     count) {
     }
 
-    ByteArray::ByteArray(const uint8_t *array, size_t count, size_t capacity) : Array<uint8_t>(array, count, capacity) {
+    ByteArray::ByteArray(const uint8_t *array, size_t count, size_t capacity) : Vector<uint8_t>(array, count,
+                                                                                                capacity) {
     }
 
-    ByteArray::ByteArray(const uint8_t value, size_t count) : Array(value, count) {
+    ByteArray::ByteArray(const uint8_t value, size_t count) : Vector<uint8_t>(value, count) {
     }
 
-    ByteArray::ByteArray(const ByteArray &array) : Array<uint8_t>(array) {
+    ByteArray::ByteArray(const ByteArray &array) : Vector<uint8_t>(array) {
     }
 
-    ByteArray::ByteArray(const ByteArray &value, off_t offset, size_t count) : Array<uint8_t>(value, offset, count) {
+    ByteArray::ByteArray(const ByteArray &value, off_t offset, size_t count) : Vector<uint8_t>(value, offset, count) {
+    }
+
+    ByteArray::ByteArray(std::initializer_list<uint8_t> list) : Vector<uint8_t>(list) {
     }
 
     void ByteArray::write(Stream *stream, bool bigEndian) const {
@@ -157,7 +161,7 @@ namespace Common {
         const uint8_t *dst = array.data();
         ssize_t index = 0;
         ssize_t n = 0;
-        while (index < (ssize_t)count) {
+        while (index < (ssize_t) count) {
             for (n = 0; *(src + n) == *(dst + n); n++)
                 if (!*(dst + n + 1)) {
                     return (ssize_t) (src - first + offset);

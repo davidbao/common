@@ -154,6 +154,6 @@ namespace Drivers
         uint _startTime;
     };
     
-	typedef Vector<TcpBackgroundReceiver> TcpBackgroundReceivers;
+	typedef PList<TcpBackgroundReceiver> TcpBackgroundReceivers;
 }
 #endif // TCPBACKGROUNDRECEIVER_H

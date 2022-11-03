@@ -45,7 +45,7 @@ namespace Drivers
             Client* at(size_t pos) const override;
 
         private:
-            Vector<Client> _items;
+            PList<Client> _items;
         };
         
 		UdpInteractive(DriverManager* dm, Channel* channel);

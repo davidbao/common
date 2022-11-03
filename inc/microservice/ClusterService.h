@@ -72,7 +72,7 @@ namespace Microservice
         bool setValue(const String& key, const String& value, Version& version);
 
     private:
-        Vector<ClusterContext> _items;
+        PList<ClusterContext> _items;
         Map<String, ClusterContext> _map;
         
         Delegates _valueChangedDelegates;

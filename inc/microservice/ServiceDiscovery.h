@@ -38,7 +38,7 @@ namespace Microservice
             
             Item(const String& serviceId, ILoadBalancer* lb);
         };
-        class Items : public Vector<Item>
+        class Items : public PList<Item>
         {
         public:
             Items();

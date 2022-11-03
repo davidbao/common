@@ -474,7 +474,7 @@ namespace Communication
             }
             return true;
         }
-        // T is input data, K is output data(Vector), C is context.
+        // T is input data, K is output data(PList), C is context.
         template<class T, class K, class C>
         bool downloadPacketSync(const T& inputData, K& outputData, const String& name) const
         {
@@ -736,14 +736,14 @@ namespace Communication
             return _instructionPool->addInstruction(id) != nullptr;
         }
 
-        // T is input data(Vector), K is EmptyContext, C is context.
+        // T is input data(PList), K is EmptyContext, C is context.
         template<class T, class C>
         bool uploadPacketSync(const T& inputData, const String& name) const
         {
             EmptyContext empty;
             return uploadPacketSync<T, EmptyContext, C>(inputData, empty, name);
         }
-        // T is input data(Vector), K is output data, C is context.
+        // T is input data(PList), K is output data, C is context.
         template<class T, class K, class C>
         bool uploadPacketSync(const T& inputData, K& outputData, const String& name) const
         {
@@ -1030,7 +1030,7 @@ namespace Communication
         ClientService* at(size_t pos) const override;
 
     private:
-        Vector<ClientService> _services;
+        PList<ClientService> _services;
     };
     
     class ClientServiceFactory

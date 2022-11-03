@@ -457,9 +457,9 @@ namespace Common {
         Vector<String> keys;
         _sessions.keys(keys);
         for (uint i = 0; i < keys.count(); i++) {
-            const String *key = keys[i];
+            const String &key = keys[i];
             HttpSession *value = nullptr;
-            if (_sessions.at(*key, value) && value != nullptr && value->name() == name) {
+            if (_sessions.at(key, value) && value != nullptr && value->name() == name) {
                 return value;
             }
         }
@@ -471,10 +471,10 @@ namespace Common {
         _sessions.keys(keys);
         StringArray removed;
         for (uint i = 0; i < keys.count(); i++) {
-            const String *key = keys[i];
+            const String &key = keys[i];
             HttpSession *session = nullptr;
-            if (_sessions.at(*key, session) && session != nullptr && session->isExpired()) {
-                removed.add(*key);
+            if (_sessions.at(key, session) && session != nullptr && session->isExpired()) {
+                removed.add(key);
             }
         }
 

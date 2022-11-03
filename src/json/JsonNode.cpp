@@ -455,7 +455,7 @@ namespace Common
         return getAttributeNames(names) && names.count() > 0;
     }
     
-    bool JsonNode::subNodes(Vector<JsonNode>& nodes) const
+    bool JsonNode::subNodes(PList<JsonNode>& nodes) const
     {
         JSONNode::iterator iter = _inner->begin();
         for (; iter != _inner->end(); ++iter)

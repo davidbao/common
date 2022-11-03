@@ -12,7 +12,7 @@
 #include "diag/Trace.h"
 #include "thread/Mutex.h"
 #include "data/ValueType.h"
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 #include "thread/ProcessMutex.h"
 #include "thread/Thread.h"
 #include "data/Culture.h"

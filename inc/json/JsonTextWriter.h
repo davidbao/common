@@ -108,7 +108,7 @@ namespace Common
         
         FileStream* _stream;
         JsonNode* _rootNode;
-        Vector<JsonNode> _nodes;
+        PList<JsonNode> _nodes;
     };
 }
 

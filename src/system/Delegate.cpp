@@ -43,7 +43,7 @@ namespace Common
         }
     }
 
-    Delegates::Delegates(bool autoDelete, uint capacity) : Vector<Delegate>(autoDelete, capacity)
+    Delegates::Delegates(bool autoDelete, uint capacity) : PList<Delegate>(autoDelete, capacity)
     {
     }
     void Delegates::add(void* owner, EventHandler handler)
@@ -62,7 +62,7 @@ namespace Common
                 }
             }
         }
-        Vector<Delegate>::add(new Delegate(owner, handler));
+        PList<Delegate>::add(new Delegate(owner, handler));
     }
     void Delegates::remove(void* owner, EventHandler handler)
     {
@@ -76,7 +76,7 @@ namespace Common
                 if(delegate->owner == owner &&
                    delegate->handler == handler)
                 {
-                    Vector<Delegate>::removeAt(i);
+                    PList<Delegate>::removeAt(i);
                     break;
                 }
             }

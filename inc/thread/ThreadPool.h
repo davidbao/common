@@ -9,7 +9,7 @@
 #ifndef common_ThreadPool_h
 #define common_ThreadPool_h
 
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "Thread.h"
 #include "Mutex.h"
 
@@ -29,7 +29,7 @@ namespace Common
             Item(action_callback3 action, ThreadHolder* holder);
             ~Item();
         };
-        typedef Vector<Item> Items;
+        typedef PList<Item> Items;
         
     public:
         static void startAsync(action_callback3 action, void* owner = nullptr);

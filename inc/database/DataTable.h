@@ -2,7 +2,7 @@
 #define DATATABLE_H
 
 #include <assert.h>
-#include "data/Vector.h"
+#include "data/PList.h"
 #include "data/Dictionary.h"
 #include "data/ValueType.h"
 #include "data/StringArray.h"
@@ -38,10 +38,10 @@ namespace Database
 		bool _primaryKey;
 	};
 
-	class DataColumns : public Vector<DataColumn>
+	class DataColumns : public PList<DataColumn>
 	{
 	public:
-		DataColumns(bool autoDelete = true, uint capacity = Vector<DataColumn>::DefaultCapacity);
+		DataColumns(bool autoDelete = true, uint capacity = PList<DataColumn>::DefaultCapacity);
 
 		DataColumn* operator[](const String& columnName) const;
 //        DataColumn* operator[](size_t i) const;
@@ -96,10 +96,10 @@ namespace Database
 		Value _value;
 		const DataColumn* _column;
 	};
-	class DataCells : public Vector<DataCell>
+	class DataCells : public PList<DataCell>
 	{
 	public:
-		DataCells(bool autoDelete = true, uint capacity = Vector<DataCell>::DefaultCapacity);
+		DataCells(bool autoDelete = true, uint capacity = PList<DataCell>::DefaultCapacity);
 
 		DataCell* operator[](const char* i) const;
 		DataCell* at(uint i) const;
@@ -129,7 +129,7 @@ namespace Database
 		DataCells _cells;
 	};
 
-	typedef Vector<DataRow> DataRows;
+	typedef PList<DataRow> DataRows;
 
 	class DataTable
 	{
@@ -166,11 +166,11 @@ namespace Database
 		DataColumns _columns;
         int _totalCount;
 	};
-//    typedef Vector<DataTable> DataTables;
-    class DataTables : public Vector<DataTable>
+//    typedef PList<DataTable> DataTables;
+    class DataTables : public PList<DataTable>
     {
     public:
-        DataTables(uint capacity = Vector<DataTable>::DefaultCapacity);
+        DataTables(uint capacity = PList<DataTable>::DefaultCapacity);
         
         bool contains(const String& tableName) const;
         

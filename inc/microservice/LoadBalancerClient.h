@@ -10,7 +10,7 @@
 #define LoadBalancerClient_h
 
 #include "data/ValueType.h"
-#include "data/Dictionary.h"
+#include "data/Map.h"
 #include "system/ServiceFactory.h"
 #include "microservice/ServiceInstance.h"
 

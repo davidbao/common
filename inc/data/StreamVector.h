@@ -12,7 +12,7 @@
 #include "exception/Exception.h"
 #include "IO/Stream.h"
 #include "data/Array.h"
-#include "data/Vector.h"
+#include "data/PList.h"
 
 namespace Common
 {
@@ -114,7 +114,7 @@ namespace Common
 
 		virtual size_t fixedCount() const
 		{
-			return Vector<type>::count();
+			return PList<type>::count();
 		}
 	};
     

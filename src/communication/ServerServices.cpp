@@ -223,7 +223,7 @@ namespace Communication
         return true;
     }
     
-    void ServerServices::getAllServices(Vector<ServerService>& services) const
+    void ServerServices::getAllServices(PList<ServerService>& services) const
     {
         services.setAutoDelete(false);
         for (uint i=0; i<Type::Count; i++)
@@ -355,7 +355,7 @@ namespace Communication
     size_t ServerServices::clientCount() const
     {
         size_t count = 0;
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (size_t i=0; i<services.count(); i++)
         {
@@ -367,7 +367,7 @@ namespace Communication
     
     void ServerServices::addCloseDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -381,7 +381,7 @@ namespace Communication
     }
     void ServerServices::removeCloseDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -396,7 +396,7 @@ namespace Communication
     
     void ServerServices::addAcceptDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -410,7 +410,7 @@ namespace Communication
     }
     void ServerServices::removeAcceptDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -425,7 +425,7 @@ namespace Communication
     
     void ServerServices::addReceivedDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -435,7 +435,7 @@ namespace Communication
     }
     void ServerServices::removeReceivedDelegate(const Delegate& delegate)
     {
-        Vector<ServerService> services;
+        PList<ServerService> services;
         getAllServices(services);
         for (uint i=0; i<services.count(); i++)
         {
@@ -462,7 +462,7 @@ namespace Communication
     {
         if(peerEndpoint.isEmpty())
         {
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {
@@ -484,7 +484,7 @@ namespace Communication
     {
         if(peerEndpoint.isEmpty())
         {
-            Vector<ServerService> services;
+            PList<ServerService> services;
             getAllServices(services);
             for (uint i=0; i<services.count(); i++)
             {

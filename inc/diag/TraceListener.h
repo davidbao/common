@@ -50,8 +50,8 @@ namespace Common
         TraceListenerContext(const TraceListenerContext& context);
         virtual ~TraceListenerContext();
     };
-//    typedef Vector<TraceListenerContext> TraceListenerContexts;
-    class TraceListenerContexts : public Vector<TraceListenerContext>
+//    typedef PList<TraceListenerContext> TraceListenerContexts;
+    class TraceListenerContexts : public PList<TraceListenerContext>
     {
     public:
         TraceListenerContexts(bool autoDelete = true, uint capacity = DefaultCapacity);
@@ -81,7 +81,7 @@ namespace Common
         friend class Trace;
     };
     
-    typedef Vector<TraceListener> TraceListeners;
+    typedef PList<TraceListener> TraceListeners;
 }
 
 #endif /* TraceListener_h */

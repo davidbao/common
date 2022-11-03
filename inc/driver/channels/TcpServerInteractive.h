@@ -80,7 +80,7 @@ namespace Drivers
             bool _deleteFlag;
             uint _deleteStart;
         };
-//        typedef Vector<Client> Clients;
+//        typedef PList<Client> Clients;
         class Clients
         {
         public:
@@ -96,7 +96,7 @@ namespace Drivers
             
             bool process(int socketId, int bufferLength);
             
-            bool getUnusedClients(Vector<Client>& clients);
+            bool getUnusedClients(PList<Client>& clients);
             
             bool containsPeerEndpoint(const Endpoint& peerEndpoint);
             
@@ -117,10 +117,10 @@ namespace Drivers
 //            void deleteClients();
             
         private:
-            Vector<Client> _clients;
+            PList<Client> _clients;
             Mutex _clientsMutex;
             
-//            Vector<Client> _deleteClients;
+//            PList<Client> _deleteClients;
 //            Mutex _deleteClientsMutex;
         };
         

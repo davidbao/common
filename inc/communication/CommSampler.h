@@ -92,7 +92,7 @@ namespace Communication
         static Thread* _singleThread;
         
         static Mutex _poolsMutex;
-        static Vector<TcpSingleSampler> _pools;
+        static PList<TcpSingleSampler> _pools;
     };
     
     class UdpSampler : public Sampler

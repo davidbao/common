@@ -272,7 +272,7 @@ namespace Communication
             return _ranges.count();
         }
         
-        typedef Vector<K> Ranges;
+        typedef PList<K> Ranges;
         
         Ranges _ranges;
     };

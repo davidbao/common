@@ -11,8 +11,7 @@
 
 #include "data/ValueType.h"
 #include "data/NetType.h"
-#include "data/Dictionary.h"
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 #include "system/ServiceFactory.h"
 
 using namespace Common;
@@ -78,7 +77,7 @@ namespace Microservice
         ServerProperty at(uint i) const;
         
     private:
-        Vector<ServerProperty> _servers;
+        PList<ServerProperty> _servers;
     };
 
     class ServiceInstance
@@ -148,7 +147,7 @@ namespace Microservice
         void toServerProperties(ServerProperties& servers) const;
         
     private:
-        Vector<ServiceInstance> _instances;
+        PList<ServiceInstance> _instances;
     };
 
     class ServiceInstanceChooser

@@ -11,7 +11,7 @@
 
 #include "data/DateTime.h"
 #include "data/TimeZone.h"
-#include "data/Dictionary.h"
+#include "data/Map.h"
 #include "data/ValueType.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"

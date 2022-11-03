@@ -10,6 +10,7 @@
 #define ValueType_h
 
 #include "data/Array.h"
+#include "data/PList.h"
 #include "data/Vector.h"
 #include "data/PrimitiveInterface.h"
 
@@ -89,9 +90,9 @@ namespace Common {
 
         iterator end() override;
 
-        reverse_const_iterator rbegin() const override;
+        const_reverse_iterator rbegin() const override;
 
-        reverse_const_iterator rend() const override;
+        const_reverse_iterator rend() const override;
 
         reverse_iterator rbegin() override;
 
@@ -348,7 +349,7 @@ namespace Common {
         trimInner(const String &str, const Array<char> &trimChars, TrimType trimType);
 
     private:
-        Array<char> _buffer;
+        Vector<char> _buffer;
 
         static const char base64Table[65];
         static const int base64LineBreakPosition = 76;

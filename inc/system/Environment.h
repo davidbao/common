@@ -9,7 +9,7 @@
 #ifndef Environment_h
 #define Environment_h
 
-#include "data/StringArray.h"
+#include "data/StringMap.h"
 
 namespace Common {
     class Environment {
