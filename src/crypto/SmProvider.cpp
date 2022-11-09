@@ -586,7 +586,7 @@ namespace Common {
         uint8_t *out = (uint8_t *) malloc(((data.count() >> 4) + 1) << 4);
         int len = 0;
         int currentLen = 0;
-        if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), data.count())) {
+        if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), (int)data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             free(out);
             return false;
@@ -637,7 +637,7 @@ namespace Common {
         uint8_t out[1024 + EVP_MAX_BLOCK_LENGTH];
         int len = 0;
         int currentLen = 0;
-        if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), data.count())) {
+        if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), (int)data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             return false;
         }

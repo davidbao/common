@@ -151,7 +151,7 @@ namespace Common
     {
         if(isOpen())
         {
-            size_t pos = position();
+            off_t pos = position();
 #ifdef WIN32
 			HANDLE file = (HANDLE)_get_osfhandle(_fd);
 			SetEndOfFile(file);

@@ -10,7 +10,7 @@
 #define Interactive_h
 
 #include "data/NetType.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "exception/Exception.h"
 
 using namespace Common;

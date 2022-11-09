@@ -2,7 +2,7 @@
 #define BLUETOOTHCHANNELCONTEXT_H
 
 #include "ChannelContext.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "data/TimeSpan.h"
 
 using namespace Common;

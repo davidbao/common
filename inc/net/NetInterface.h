@@ -13,6 +13,7 @@
 #include "data/NetType.h"
 #include "data/TimeSpan.h"
 #include "data/StringArray.h"
+#include "data/Vector.h"
 
 namespace Common {
     class NetInterface {
@@ -66,7 +67,7 @@ namespace Common {
             bool equals(const Client &other) const override;
         };
 
-        typedef Array<Client> Clients;
+        typedef Vector<Client> Clients;
 
         static bool getMacAddresses(MacAddresses &addresses);
 

@@ -13,168 +13,217 @@
 
 using namespace Common;
 
-namespace Database
-{
-	class DataColumn
-	{
-	public:
-		DataColumn(const String& name, const String& type, bool pkey = false);
-		DataColumn(const String& name, const ValueTypes& type, bool pkey = false);
-		~DataColumn();
+namespace Database {
+    class DataColumn {
+    public:
+        DataColumn(const String &name, const String &type, bool pkey = false);
 
-		ValueTypes type() const;
-		int isInteger() const;
-		int isDateTime() const;
-		int isString() const;
-		const String& name() const;
-		bool primaryKey() const;
+        DataColumn(const String &name, const ValueTypes &type, bool pkey = false);
 
-	private:
-		ValueTypes convertType(const String& type);
+        ~DataColumn();
 
-	protected:
-		String _name;
-		ValueTypes _type;
-		bool _primaryKey;
-	};
+        ValueTypes type() const;
 
-	class DataColumns : public PList<DataColumn>
-	{
-	public:
-		DataColumns(bool autoDelete = true, uint capacity = PList<DataColumn>::DefaultCapacity);
+        int isInteger() const;
 
-		DataColumn* operator[](const String& columnName) const;
-//        DataColumn* operator[](size_t i) const;
-		DataColumn* at(size_t i) const override;
-		DataColumn* at(const String& columnName) const;
-	};
+        int isDateTime() const;
 
-	class DataCell
-	{
-	public:
-		DataCell(const DataColumn* column);
-		DataCell(const DataColumn* column, const DbValue& value);
-        DataCell(const DataColumn* column, bool value);
-        DataCell(const DataColumn* column, uint8_t value);
-        DataCell(const DataColumn* column, short value);
-        DataCell(const DataColumn* column, ushort value);
-		DataCell(const DataColumn* column, int value);
-		DataCell(const DataColumn* column, uint value);
-		DataCell(const DataColumn* column, int64_t value);
-		DataCell(const DataColumn* column, uint64_t value);
-		DataCell(const DataColumn* column, double value);
-		DataCell(const DataColumn* column, const char* value);
-		DataCell(const DataColumn* column, const String& value);
-		DataCell(const DataColumn* column, const DateTime& value);
-		DataCell(const DataColumn* column, const TimeSpan& value);
-		~DataCell();
+        int isString() const;
 
-		ValueTypes type() const;
-		const Value& value() const;
-		const String valueStr(bool hasQuote = false) const;
-		bool matchColumnName(const char* columnName) const;
-		const String columnName() const;
-        const DataColumn* column() const;
+        const String &name() const;
 
-		static void setStringValue(Value& value, const char* str);
+        bool primaryKey() const;
 
-		bool isNullValue() const;
-		void setNullValue();
-        
-        void copyFrom(const DataCell* cell);
+    private:
+        ValueTypes convertType(const String &type);
 
-	private:
-		DataCell(const DataColumn* column, const Value value);
+    protected:
+        String _name;
+        ValueTypes _type;
+        bool _primaryKey;
+    };
 
-		void setStringValue(const char* str);
+    class DataColumns : public PList<DataColumn> {
+    public:
+        DataColumns(bool autoDelete = true, uint capacity = PList<DataColumn>::DefaultCapacity);
 
-	private:
-		friend class SqliteClient;
-		friend class OracleClient;
+        DataColumn *operator[](size_t pos) const;
+
+        DataColumn *operator[](const String &columnName) const;
+
+        DataColumn *at(size_t i) const override;
+
+        DataColumn *at(const String &columnName) const;
+    };
+
+    class DataCell {
+    public:
+        DataCell(const DataColumn *column);
+
+        DataCell(const DataColumn *column, const DbValue &value);
+
+        DataCell(const DataColumn *column, bool value);
+
+        DataCell(const DataColumn *column, uint8_t value);
+
+        DataCell(const DataColumn *column, short value);
+
+        DataCell(const DataColumn *column, ushort value);
+
+        DataCell(const DataColumn *column, int value);
+
+        DataCell(const DataColumn *column, uint value);
+
+        DataCell(const DataColumn *column, int64_t value);
+
+        DataCell(const DataColumn *column, uint64_t value);
+
+        DataCell(const DataColumn *column, double value);
+
+        DataCell(const DataColumn *column, const char *value);
+
+        DataCell(const DataColumn *column, const String &value);
+
+        DataCell(const DataColumn *column, const DateTime &value);
+
+        DataCell(const DataColumn *column, const TimeSpan &value);
+
+        ~DataCell();
+
+        ValueTypes type() const;
+
+        const Value &value() const;
+
+        const String valueStr(bool hasQuote = false) const;
+
+        bool matchColumnName(const char *columnName) const;
+
+        const String columnName() const;
+
+        const DataColumn *column() const;
+
+        static void setStringValue(Value &value, const char *str);
+
+        bool isNullValue() const;
+
+        void setNullValue();
+
+        void copyFrom(const DataCell *cell);
+
+    private:
+        DataCell(const DataColumn *column, const Value value);
+
+        void setStringValue(const char *str);
+
+    private:
+        friend class SqliteClient;
+
+        friend class OracleClient;
+
         friend class MysqlClient;
 
-		Value _value;
-		const DataColumn* _column;
-	};
-	class DataCells : public PList<DataCell>
-	{
-	public:
-		DataCells(bool autoDelete = true, uint capacity = PList<DataCell>::DefaultCapacity);
+        Value _value;
+        const DataColumn *_column;
+    };
 
-		DataCell* operator[](const char* i) const;
-		DataCell* at(uint i) const;
-		DataCell* at(const String& columnName) const;
+    class DataCells : public PList<DataCell> {
+    public:
+        DataCells(bool autoDelete = true, uint capacity = PList<DataCell>::DefaultCapacity);
 
-		const Value cellValue(const String& columnName) const;
-		bool hasColumn(const String& columnName) const;
+        DataCell *operator[](const char *columnName) const;
 
-		void add(const DataCell* cell);
+        DataCell *at(size_t pos) const;
 
-	private:
-		Dictionary<String, uint> _positions;
-	};
+        DataCell *at(const String &columnName) const;
 
-	class DataRow
-	{
-	public:
-		DataRow();
-		~DataRow();
+        const Value cellValue(const String &columnName) const;
 
-		void addCell(const DataCell* cell);
-		const DataCells* cells() const;
-        
-        void replaceCell(const DataCell* cell);
+        bool hasColumn(const String &columnName) const;
 
-	private:
-		DataCells _cells;
-	};
+        void add(const DataCell *cell);
 
-	typedef PList<DataRow> DataRows;
+    private:
+        Dictionary<String, size_t> _positions;
+    };
 
-	class DataTable
-	{
-	public:
-		DataTable();
-		DataTable(const String& name);
-		DataTable(const char* name);
-		~DataTable();
+    class DataRow {
+    public:
+        DataRow();
 
-		const String& name() const;
-		void setName(const String& name);
-		void addRow(const DataRow* row);
-		const DataRows* rows() const;
-		uint rowCount() const;
-		void addColumn(const DataColumn* column);
-		const DataColumns* columns() const;
-        DataColumn* getColumn(const String& columnName) const;
-		uint columnCount() const;
-		void clear();
+        ~DataRow();
+
+        void addCell(const DataCell *cell);
+
+        const DataCells *cells() const;
+
+        void replaceCell(const DataCell *cell);
+
+    private:
+        DataCells _cells;
+    };
+
+    typedef PList<DataRow> DataRows;
+
+    class DataTable {
+    public:
+        DataTable();
+
+        DataTable(const String &name);
+
+        DataTable(const char *name);
+
+        ~DataTable();
+
+        const String &name() const;
+
+        void setName(const String &name);
+
+        void addRow(const DataRow *row);
+
+        const DataRows *rows() const;
+
+        size_t rowCount() const;
+
+        void addColumn(const DataColumn *column);
+
+        const DataColumns *columns() const;
+
+        DataColumn *getColumn(const String &columnName) const;
+
+        size_t columnCount() const;
+
+        void clear();
+
         void clearRows();
 
-		const String anyColumnNameStr(bool hasTableName = false) const;
-		const String columnNameStr(bool hasTableName = false, const StringArray* excludedNames = NULL, const char* splitStr = ",") const;
+        const String anyColumnNameStr(bool hasTableName = false) const;
+
+        const String columnNameStr(bool hasTableName = false, const StringArray *excludedNames = NULL,
+                                   const char *splitStr = ",") const;
 
         int totalCount() const;
+
         void setTotalCount(int totalCount);
-        
-        void toJsonNode(JsonNode& node) const;
+
+        void toJsonNode(JsonNode &node) const;
+
         String toJsonString() const;
-        
-	private:
-		String _name;
-		DataRows _rows;
-		DataColumns _columns;
+
+    private:
+        String _name;
+        DataRows _rows;
+        DataColumns _columns;
         int _totalCount;
-	};
+    };
+
 //    typedef PList<DataTable> DataTables;
-    class DataTables : public PList<DataTable>
-    {
+    class DataTables : public PList<DataTable> {
     public:
         DataTables(uint capacity = PList<DataTable>::DefaultCapacity);
-        
-        bool contains(const String& tableName) const;
-        
-        DataTable* getTable(const String& tableName) const;
+
+        bool contains(const String &tableName) const;
+
+        DataTable *getTable(const String &tableName) const;
     };
 }
 #endif // DATATABLE_H

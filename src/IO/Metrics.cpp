@@ -738,7 +738,7 @@ namespace Common
     void MemoryStat::logUsed()
     {
         int64_t used = MemoryStat::used();
-        String str = Double(((double)used) / 1024.0 / 1024.0).toString(1);
+        String str = Double(((double)used) / 1024.0 / 1024.0).toString("0.0");
         Trace::verb(String::format("Current used memory, %s M", str.c_str()));
     }
 

@@ -71,20 +71,28 @@ if (COMMON_ENABLE_TEST)
 
     # application settings
     set(TEST_SRC
+            # configuration
             ConfigServiceTest
+            # crypto
             SmProviderTest Md5ProviderTest
-            ArrayTest ByteArrayTest DictionaryTest ListTest MapTest StringArrayTest StringMapTest PListTest UrlTest UuidTest ValueTypeTest VectorTest
+            # data
+            ByteArrayTest DictionaryTest ListTest MapTest StringTest StringArrayTest StringMapTest PListTest UrlTest
+            TypeInfoTest UuidTest ValueTypeTest VectorTest WStringTest
+            # diag
             FileTraceListenerTest
+            # IO
             FileTest DirectoryTest MappingStreamTest
+            # json
             JsonNodeTest
+            # system
             RandomTest ResourcesTest EnvironmentTest)
 
-    if(${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
+    if (${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
         set(TEST_SRC ${TEST_SRC} HttpClientTest)
     endif ()
-    if(${COMMON_BUILD_MICROSERVICE})
+    if (${COMMON_BUILD_MICROSERVICE})
         set(TEST_SRC ${TEST_SRC} SummerApplicationTest)
-    endif()
+    endif ()
 
     if (MAC_OS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation -framework SystemConfiguration")

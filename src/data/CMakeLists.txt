@@ -13,15 +13,18 @@
 
 SET(DATA_SRC
         ByteArray.cpp
+        Convert.cpp
         Culture.cpp
         DateTime.cpp
         Enum.cpp
         NetType.cpp
         Point.cpp
+        PositionCoord.cpp
         PrimitiveInterface.cpp
         ValueType.cpp
         Rectangle.cpp
         Size.cpp
+        String.cpp
         StringArray.cpp
         StringMap.cpp
         TimeSpan.cpp
@@ -30,6 +33,7 @@ SET(DATA_SRC
         ValueType.cpp
         Variant.cpp
         Version.cpp
+        WString.cpp
         )
 
 add_library(data OBJECT ${DATA_SRC})

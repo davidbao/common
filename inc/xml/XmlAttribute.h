@@ -33,7 +33,7 @@ namespace Common
 		XmlAttributeInner* _attr;
 	};
 	//typedef PList<XmlAttribute> XmlAttributes;
-	class XmlAttributes : public CopyVector<XmlAttribute>
+	class XmlAttributes : public CopyPList<XmlAttribute>
 	{
 	public:
         XmlAttributes(bool autoDelete = true, uint capacity = PList<XmlAttribute>::DefaultCapacity);

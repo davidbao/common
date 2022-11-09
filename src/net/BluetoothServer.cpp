@@ -18,7 +18,7 @@
 #include "net/TcpClient.h"
 #include <errno.h>
 #include "diag/Trace.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "thread/TickTimeout.h"
 #include "system/Math.h"
 

@@ -97,87 +97,67 @@ namespace Common {
     }
 
     void Stream::writeFloat(float value, bool bigEndian) {
+        static const int count = sizeof(float);
+        uint8_t buffer[count];
+        memcpy(buffer, &value, count);
         if ((isBigEndian() && !bigEndian) ||
             (isLittleEndian() && bigEndian)) {
-            int count = sizeof(float);
-            uint8_t *buffer = new uint8_t[count];
-            uint8_t *source = (uint8_t *) &value;
+            uint8_t temp[count];
             for (int i = 0; i < count; i++) {
-                buffer[i] = source[count - 1 - i];
+                temp[i] = buffer[count - 1 - i];
             }
-            write(buffer, 0, count);
-            delete[] buffer;
-        } else {
-            write((uint8_t *) &value, 0, sizeof(float));
+            memcpy(buffer, temp, count);
         }
+        write(buffer, 0, count);
     }
 
     float Stream::readFloat(bool bigEndian) {
+        static const int count = sizeof(float);
+        uint8_t buffer[count];
+        read(buffer, 0, count);
         if ((isBigEndian() && !bigEndian) ||
             (isLittleEndian() && bigEndian)) {
-            int count = sizeof(float);
-            uint8_t *source = new uint8_t[count];
-            uint8_t *buffer = new uint8_t[count];
-            read(source, 0, count);
+            uint8_t temp[count];
             for (int i = 0; i < count; i++) {
-                buffer[i] = source[count - 1 - i];
+                temp[i] = buffer[count - 1 - i];
             }
-            float result;
-            memcpy(&result, buffer, count);
-            delete[] source;
-            delete[] buffer;
-            return result;
-        } else {
-            int count = sizeof(float);
-            uint8_t *buffer = new uint8_t[count];
-            read(buffer, 0, count);
-            float result;
-            memcpy(&result, buffer, count);
-            delete[] buffer;
-            return result;
+            memcpy(buffer, temp, count);
         }
+        float result;
+        memcpy(&result, buffer, count);
+        return result;
     }
 
     void Stream::writeDouble(double value, bool bigEndian) {
+        static const int count = sizeof(double);
+        uint8_t buffer[count];
+        memcpy(buffer, &value, count);
         if ((isBigEndian() && !bigEndian) ||
             (isLittleEndian() && bigEndian)) {
-            int count = sizeof(double);
-            uint8_t *buffer = new uint8_t[count];
-            uint8_t *source = (uint8_t *) &value;
+            uint8_t temp[count];
             for (int i = 0; i < count; i++) {
-                buffer[i] = source[count - 1 - i];
+                temp[i] = buffer[count - 1 - i];
             }
-            write(buffer, 0, count);
-            delete[] buffer;
-        } else {
-            write((uint8_t *) &value, 0, sizeof(double));
+            memcpy(buffer, temp, count);
         }
+        write(buffer, 0, count);
     }
 
     double Stream::readDouble(bool bigEndian) {
+        static const int count = sizeof(double);
+        uint8_t buffer[count];
+        read(buffer, 0, count);
         if ((isBigEndian() && !bigEndian) ||
             (isLittleEndian() && bigEndian)) {
-            int count = sizeof(double);
-            uint8_t *source = new uint8_t[count];
-            uint8_t *buffer = new uint8_t[count];
-            read(source, 0, count);
+            uint8_t temp[count];
             for (int i = 0; i < count; i++) {
-                buffer[i] = source[count - 1 - i];
+                temp[i] = buffer[count - 1 - i];
             }
-            double result;
-            memcpy(&result, buffer, count);
-            delete[] source;
-            delete[] buffer;
-            return result;
-        } else {
-            int count = sizeof(double);
-            uint8_t *buffer = new uint8_t[count];
-            read(buffer, 0, count);
-            double result;
-            memcpy(&result, buffer, count);
-            delete[] buffer;
-            return result;
+            memcpy(buffer, temp, count);
         }
+        double result;
+        memcpy(&result, buffer, count);
+        return result;
     }
 
     void Stream::writeInt64(int64_t value, bool bigEndian) {

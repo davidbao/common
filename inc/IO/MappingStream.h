@@ -32,9 +32,9 @@ namespace Common {
 
             ~View();
 
-            ssize_t write(size_t position, const uint8_t *array, off_t offset, size_t count);
+            ssize_t write(off_t position, const uint8_t *array, off_t offset, size_t count);
 
-            ssize_t read(size_t position, uint8_t *array, off_t offset, size_t count);
+            ssize_t read(off_t position, uint8_t *array, off_t offset, size_t count);
 
             void close();
 

@@ -36,6 +36,7 @@ namespace Common {
 
         StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false);
 
+        COMMON_ATTR_DEPRECATED("use StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false)")
         StringMap(const KeyValue *item, bool ignoreKeyCase = false);
 
         void add(const String &key, const String &value);
@@ -48,11 +49,17 @@ namespace Common {
 
         void add(const String &key, const bool &value);
 
+        void add(const String &key, const int8_t &value);
+
         void add(const String &key, const uint8_t &value);
 
-        void add(const String &key, const int &value);
+        void add(const String &key, const int16_t &value);
 
-        void add(const String &key, const uint &value);
+        void add(const String &key, const uint16_t &value);
+
+        void add(const String &key, const int32_t &value);
+
+        void add(const String &key, const uint32_t &value);
 
         void add(const String &key, const int64_t &value);
 
@@ -73,15 +80,17 @@ namespace Common {
 
         bool at(const String &key, bool &value) const;
 
+        bool at(const String &key, int8_t &value) const;
+
         bool at(const String &key, uint8_t &value) const;
 
-        bool at(const String &key, short &value) const;
+        bool at(const String &key, int16_t &value) const;
 
-        bool at(const String &key, ushort &value) const;
+        bool at(const String &key, uint16_t &value) const;
 
-        bool at(const String &key, int &value) const;
+        bool at(const String &key, int32_t &value) const;
 
-        bool at(const String &key, uint &value) const;
+        bool at(const String &key, uint32_t &value) const;
 
         bool at(const String &key, int64_t &value) const;
 
@@ -110,13 +119,21 @@ namespace Common {
 
         bool set(const String &key, const char *value);
 
+        bool set(const String &key, char *value);
+
         bool set(const String &key, const bool &value);
+
+        bool set(const String &key, const int8_t &value);
 
         bool set(const String &key, const uint8_t &value);
 
-        bool set(const String &key, const int &value);
+        bool set(const String &key, const int16_t &value);
 
-        bool set(const String &key, const uint &value);
+        bool set(const String &key, const uint16_t &value);
+
+        bool set(const String &key, const int32_t &value);
+
+        bool set(const String &key, const uint32_t &value);
 
         bool set(const String &key, const int64_t &value);
 

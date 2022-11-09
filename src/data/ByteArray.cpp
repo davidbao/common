@@ -198,7 +198,7 @@ namespace Common {
         // Fixed it only use one loop in the future.
         ByteArray first(buffer, 0, offset);
         ByteArray middle(buffer, offset, count);
-        ByteArray end(buffer, count + offset, buffer.count() - count - offset);
+        ByteArray end(buffer, (off_t)count + offset, buffer.count() - count - offset);
         ssize_t pos;
         do {
             pos = ByteArray::find(middle, src);

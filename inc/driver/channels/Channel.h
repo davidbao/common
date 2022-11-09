@@ -2,7 +2,7 @@
 #define CHANNEL_H
 
 #include "data/ByteArray.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "exception/Exception.h"
 #include "thread/Thread.h"
 #include "thread/Mutex.h"

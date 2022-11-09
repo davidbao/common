@@ -17,7 +17,7 @@
 #include "data/Rectangle.h"
 #include "data/Point.h"
 #include "data/Size.h"
-#include "data/Array.h"
+#include "data/Vector.h"
 #include "data/PList.h"
 #include "data/Dictionary.h"
 #include "data/StringMap.h"
@@ -58,7 +58,7 @@ namespace Common
         {
         }
         template <class T>
-        YmlNode(const Array<T>& value) : YmlNode(Type::TypeMap)
+        YmlNode(const Vector<T>& value) : YmlNode(Type::TypeMap)
         {
             for (uint i=0; i<value.count(); i++)
             {
@@ -97,7 +97,7 @@ namespace Common
         bool getAttribute(const String& name, float& value) const;
         bool getAttribute(const String& name, double& value) const;
         template <class T>
-        bool getAttribute(const String& name, Array<T>& value) const
+        bool getAttribute(const String& name, Vector<T>& value) const
         {
             StringArray texts;
             if(!getAttribute(name, texts))

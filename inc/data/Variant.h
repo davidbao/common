@@ -9,12 +9,11 @@
 #ifndef Variant_h
 #define Variant_h
 
-#include "Array.h"
 #include "data/ValueType.h"
 #include "exception/Exception.h"
 #include "IO/Stream.h"
 #include "data/DateTime.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "data/ByteArray.h"
 
 namespace Common

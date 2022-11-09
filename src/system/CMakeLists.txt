@@ -17,7 +17,6 @@ SET(SYSTEM_SRC
         CheckUtilities.cpp
         Clipboard.cpp
         Console.cpp
-        Convert.cpp
         Delegate.cpp
         DynamicLoader.cpp
         Environment.cpp

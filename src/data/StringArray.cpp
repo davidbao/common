@@ -8,7 +8,7 @@
 
 #include <stdarg.h>
 #include "data/StringArray.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "data/ValueType.h"
 #include "IO/Stream.h"
 #include "exception/Exception.h"

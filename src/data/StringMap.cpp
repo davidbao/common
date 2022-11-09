@@ -58,15 +58,27 @@ namespace Common {
         add(key, Boolean(value).toString());
     }
 
+    void StringMap::add(const String &key, const int8_t &value) {
+        add(key, Char(value).toString());
+    }
+
     void StringMap::add(const String &key, const uint8_t &value) {
         add(key, Byte(value).toString());
     }
 
-    void StringMap::add(const String &key, const int &value) {
+    void StringMap::add(const String &key, const int16_t &value) {
+        add(key, Int16(value).toString());
+    }
+
+    void StringMap::add(const String &key, const uint16_t &value) {
+        add(key, UInt16(value).toString());
+    }
+
+    void StringMap::add(const String &key, const int32_t &value) {
         add(key, Int32(value).toString());
     }
 
-    void StringMap::add(const String &key, const uint &value) {
+    void StringMap::add(const String &key, const uint32_t &value) {
         add(key, UInt32(value).toString());
     }
 
@@ -115,15 +127,23 @@ namespace Common {
         return false;
     }
 
-    bool StringMap::at(const String &key, uint8_t &value) const {
+    bool StringMap::at(const String &key, int8_t &value) const {
         String str;
-        if (at(key, str) && Byte::parse(str, value)) {
+        if (at(key, str) && Int8::parse(str, value)) {
             return true;
         }
         return false;
     }
 
-    bool StringMap::at(const String &key, short &value) const {
+    bool StringMap::at(const String &key, uint8_t &value) const {
+        String str;
+        if (at(key, str) && UInt8::parse(str, value)) {
+            return true;
+        }
+        return false;
+    }
+
+    bool StringMap::at(const String &key, int16_t &value) const {
         String str;
         if (at(key, str) && Int16::parse(str, value)) {
             return true;
@@ -131,7 +151,7 @@ namespace Common {
         return false;
     }
 
-    bool StringMap::at(const String &key, ushort &value) const {
+    bool StringMap::at(const String &key, uint16_t &value) const {
         String str;
         if (at(key, str) && UInt16::parse(str, value)) {
             return true;
@@ -139,7 +159,7 @@ namespace Common {
         return false;
     }
 
-    bool StringMap::at(const String &key, int &value) const {
+    bool StringMap::at(const String &key, int32_t &value) const {
         String str;
         if (at(key, str) && Int32::parse(str, value)) {
             return true;
@@ -147,7 +167,7 @@ namespace Common {
         return false;
     }
 
-    bool StringMap::at(const String &key, uint &value) const {
+    bool StringMap::at(const String &key, uint32_t &value) const {
         String str;
         if (at(key, str) && UInt32::parse(str, value)) {
             return true;
@@ -199,19 +219,35 @@ namespace Common {
         return set(key, String(value).toString());
     }
 
+    bool StringMap::set(const String &key, char *value) {
+        return set(key, String(value).toString());
+    }
+
     bool StringMap::set(const String &key, const bool &value) {
         return set(key, Boolean(value).toString());
+    }
+
+    bool StringMap::set(const String &key, const int8_t &value) {
+        return set(key, Char(value).toString());
     }
 
     bool StringMap::set(const String &key, const uint8_t &value) {
         return set(key, Byte(value).toString());
     }
 
-    bool StringMap::set(const String &key, const int &value) {
+    bool StringMap::set(const String &key, const int16_t &value) {
+        return set(key, Int16(value).toString());
+    }
+
+    bool StringMap::set(const String &key, const uint16_t &value) {
+        return set(key, UInt16(value).toString());
+    }
+
+    bool StringMap::set(const String &key, const int32_t &value) {
         return set(key, Int32(value).toString());
     }
 
-    bool StringMap::set(const String &key, const uint &value) {
+    bool StringMap::set(const String &key, const uint32_t &value) {
         return set(key, UInt32(value).toString());
     }
 

@@ -8,7 +8,7 @@
 
 #include "net/EthernetInfo.h"
 #include "data/StringArray.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 
 namespace Common
 {

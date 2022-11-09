@@ -21,7 +21,7 @@
 #include <errno.h>
 #include "net/UdpClient.h"
 #include "diag/Trace.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "system/Math.h"
 #include "thread/TickTimeout.h"
 #include "net/TcpClient.h"

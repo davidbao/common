@@ -12,6 +12,7 @@
 #include "data/ValueType.h"
 #include "data/NetType.h"
 #include "data/StringMap.h"
+#include "data/PList.h"
 #include "system/ServiceFactory.h"
 
 using namespace Common;

@@ -3,7 +3,7 @@
 #include "data/StringArray.h"
 #include "IO/Stream.h"
 #include "system/Random.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "system/Regex.h"
 
 namespace Common {

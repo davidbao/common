@@ -2,7 +2,8 @@
 #define VERSION_H
 
 #include <stdio.h>
-#include "data/ValueType.h"
+#include "data/String.h"
+#include "data/Vector.h"
 
 namespace Common
 {
@@ -64,7 +65,7 @@ namespace Common
 		int _build;
 		int _revision;
 	};
-    typedef Array<Version> Versions;
+    typedef Vector<Version> Versions;
 }
 
 #endif // VERSION_H

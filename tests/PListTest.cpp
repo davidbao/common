@@ -143,14 +143,14 @@ bool testConstructor() {
 }
 
 bool testCount() {
-    Values test(DefaultCapacity);
+    Values test(true, DefaultCapacity);
     test.add(new Value(1));
     test.add(new Value("abc"));
     return test.count() == 2;
 }
 
 bool testSetCapacity() {
-    Values test(DefaultCapacity);
+    Values test(true, DefaultCapacity);
     // set capacity if test is empty.
     test.setCapacity(50);
     if (!(test.capacity() == 50 && test.count() == 0)) {
@@ -214,7 +214,7 @@ bool testAt() {
 }
 
 bool testAdd() {
-    Values test(DefaultCapacity);
+    Values test(true, DefaultCapacity);
     test.add(new Value(1));
     test.add(new Value("abc"));
     if (!valueEquals(test[0], 1) && !valueEquals(test[1], "abc")) {

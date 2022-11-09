@@ -9,553 +9,88 @@
 #ifndef ValueType_h
 #define ValueType_h
 
-#include "data/Array.h"
-#include "data/PList.h"
 #include "data/Vector.h"
 #include "data/PrimitiveInterface.h"
-
-#include <string>
-
-using namespace std;
+#include "data/String.h"
 
 namespace Common {
     class Stream;
 
-    class ByteArray;
+    enum NumberStyles : uint32_t {
+        // Bit flag indicating that leading whitespace is allowed. Character values
+        // 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, and 0x0020 are considered to be
+        // whitespace.
 
-    class String
-            : public IEquatable<String>,
-              public IEvaluation<String>,
-              public IComparable<String>,
-              public IIndexable<char, char>,
-              public Iterator<char> {
-    public:
-        enum Base64FormattingOptions {
-            Base64None = 0,
-            InsertLineBreaks = 1
-        };
-        enum StreamLength {
-            StreamLength1 = 1,
-            StreamLength2 = 2,
-            StreamLength4 = 4
-        };
+        NSNone = 0x00000000,
 
-        static const String NewLine;
-        static const String Empty;
-        static const String NA;     // Not applicable
+        NSAllowLeadingWhite = 0x00000001,
 
-        // Constructor & destructor
-        String(uint capacity = 256);
+        NSAllowTrailingWhite = 0x00000002, //Bitflag indicating trailing whitespace is allowed.
 
-        String(const String &value);
+        NSAllowLeadingSign = 0x00000004, //Can the number start with a sign char.
+        //Specified by NumberFormatInfo.PositiveSign and NumberFormatInfo.NegativeSign
 
-        String(const string &value);
+        NSAllowTrailingSign = 0x00000008, //Allow the number to end with a sign char
 
-        String(const char *value, size_t count = 0);
+        NSAllowParentheses = 0x00000010, //Allow the number to be enclosed in parens
 
-        String(char ch, size_t count = 1);
+        NSAllowDecimalPoint = 0x00000020, //Allow a decimal point
 
-        ~String() override;
+        NSAllowThousands = 0x00000040, //Allow thousands separators (more properly, allow group separators)
 
-        // Element access
-        char &at(size_t pos) override;
+        NSAllowExponent = 0x00000080, //Allow an exponent
 
-        char at(size_t pos) const override;
+        NSAllowCurrencySymbol = 0x00000100, //Allow a currency symbol.
 
-        bool set(size_t pos, const char &value) override;
+        NSAllowHexSpecifier = 0x00000200, //Allow specifying hexadecimal.
+        //Common uses.  These represent some of the most common combinations of these flags.
 
-        const char *c_str() const;
 
-        char front() const;
+        NSInteger = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowLeadingSign,
 
-        char &front();
+        NSHexNumber = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowHexSpecifier,
 
-        char back() const;
+        NSNumber = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowLeadingSign | NSAllowTrailingSign |
+                   NSAllowDecimalPoint | NSAllowThousands,
 
-        char &back();
+        NSFloat = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowLeadingSign |
+                  NSAllowDecimalPoint | NSAllowExponent,
 
-        // Capacity
-        const String &toString() const;
+        NSCurrency = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowLeadingSign | NSAllowTrailingSign |
+                     NSAllowParentheses | NSAllowDecimalPoint | NSAllowThousands | NSAllowCurrencySymbol,
 
-        bool isNullOrEmpty() const;
+        NSAny = NSAllowLeadingWhite | NSAllowTrailingWhite | NSAllowLeadingSign | NSAllowTrailingSign |
+                NSAllowParentheses | NSAllowDecimalPoint | NSAllowThousands | NSAllowCurrencySymbol | NSAllowExponent,
 
-        size_t length() const;
-
-        // Iterators
-        const_iterator begin() const override;
-
-        const_iterator end() const override;
-
-        iterator begin() override;
-
-        iterator end() override;
-
-        const_reverse_iterator rbegin() const override;
-
-        const_reverse_iterator rend() const override;
-
-        reverse_iterator rbegin() override;
-
-        reverse_iterator rend() override;
-
-        // Operations
-        String toLower() const;
-
-        String toUpper() const;
-
-        String
-        trim(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-             const char trimChar4 = '\0');
-
-        String trimStart(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                         const char trimChar4 = '\0');
-
-        String trimEnd(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                       const char trimChar4 = '\0');
-
-        bool contains(const String &str) const;
-
-        bool contains(const char ch) const;
-
-        void append(const char ch);
-
-        void append(const char *str, size_t count);
-
-        void append(const String &str);
-
-        void append(const String &str, off_t offset, size_t count);
-
-        void appendLine(const char ch);
-
-        void appendLine(const char *str, size_t count);
-
-        void appendLine(const String &str = String::Empty);
-
-        void appendLine(const String &str, off_t offset, size_t count);
-
-        String replace(const String &src, const String &dst);
-
-        String substr(off_t offset, size_t count) const;
-
-        String substr(off_t offset) const;
-
-        String insert(off_t offset, const String &str);
-
-        String insert(off_t offset, const char ch);
-
-        bool removeAt(size_t pos);
-
-        bool removeRange(size_t pos, size_t count);
-
-        String trim(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                    const char trimChar4 = '\0') const;
-
-        String trimStart(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                         const char trimChar4 = '\0') const;
-
-        String trimEnd(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                       const char trimChar4 = '\0') const;
-
-        void empty();
-
-        bool equals(const String &other) const override;
-
-        void evaluates(const String &other) override;
-
-        int compareTo(const String &other) const override;
-
-        int compareTo(const String &other, bool ignoreCase) const;
-
-        // Find
-        ssize_t find(const String &str, off_t offset = 0) const;
-
-        ssize_t find(const char ch, off_t offset = 0) const;
-
-        ssize_t findLastOf(const String &str) const;
-
-        ssize_t findLastOf(const char ch) const;
-
-        // Operator.
-        operator const char *() const;
-
-        String operator+=(const String &value);
-
-        String operator+=(const string &value);
-
-        String operator+=(const char *value);
-
-        String operator+(const String &value) const;
-
-        String operator+(const string &value) const;
-
-        String operator+(const char *value) const;
-
-        String &operator=(const String &value);
-
-        String &operator=(const string &value);
-
-        String &operator=(const char *value);
-
-        bool operator==(const String &value) const;
-
-        bool operator==(const char *value) const;
-
-        bool operator==(const string &value) const;
-
-        bool operator!=(const String &value) const;
-
-        bool operator!=(const char *value) const;
-
-        bool operator!=(const string &value) const;
-
-        bool operator>(const String &value) const;
-
-        bool operator>(const string &value) const;
-
-        bool operator>(const char *value) const;
-
-        bool operator>=(const String &value) const;
-
-        bool operator>=(const string &value) const;
-
-        bool operator>=(const char *value) const;
-
-        bool operator<(const String &value) const;
-
-        bool operator<(const string &value) const;
-
-        bool operator<(const char *value) const;
-
-        bool operator<=(const String &value) const;
-
-        bool operator<=(const string &value) const;
-
-        bool operator<=(const char *value) const;
-
-        // Stream
-        void write(Stream *stream, StreamLength streamLength = StreamLength1) const;
-
-        void read(Stream *stream, StreamLength streamLength = StreamLength1);
-
-        void writeFixedLengthStr(Stream *stream, size_t length);
-
-        void readFixedLengthStr(Stream *stream, size_t length);
-
-
-        // Encode
-        String GBKtoUTF8() const;
-
-        String UTF8toGBK() const;
-
-        bool isUTF8() const;
-
-        // Base64
-        String toBase64() const;
-
-        String fromBase64() const;
-
-    public:
-        static bool equals(const String &value1, const String &value2, bool ignoreCase = false);
-
-        static int compare(const String &value1, const String &value2, bool ignoreCase = false);
-
-        static String GBKtoUTF8(const String &value);
-
-        static String UTF8toGBK(const String &value);
-
-        static String toBase64(const String &value);
-
-        static String toBase64(const uint8_t *inArray, off_t offset, size_t length,
-                               Base64FormattingOptions options = Base64FormattingOptions::Base64None);
-
-        static bool toBase64(const uint8_t *inArray, off_t offset, size_t length, String &str,
-                             Base64FormattingOptions options = Base64FormattingOptions::Base64None);
-
-        static String fromBase64(const String &value);
-
-        static bool fromBase64(const String &value, ByteArray &array);
-
-        static bool fromBase64(const char *inputPtr, size_t inputLength, ByteArray &array);
-
-        static String convert(const char *format, ...);
-
-        static String format(const char *format, ...);
-
-        static bool isNullOrEmpty(const String &value);
-
-        static String replace(const String &str, const String &src, const String &dst);
-
-        static String substr(const String &str, off_t offset, size_t count);
-
-        static String
-        trim(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-             const char trimChar4 = '\0');
-
-        static String
-        trimStart(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-                  const char trimChar4 = '\0');
-
-        static String
-        trimEnd(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-                const char trimChar4 = '\0');
-
-//        static bool parse(const String &str, String &value);
-
-        static bool isUTF8(const String &str);
-
-        static String encoding(const char *fromCode, const char *toCode, const char *str);
-
-        static String unicode2String(const String &unicode);
-
-    private:
-        void setString(const char *value);
-
-        void setString(const char *value, size_t count);
-
-        void setString(const string &value);
-
-        void setString(char value);
-
-        void addString(const char *value);
-
-        void addString(const char *value, size_t count);
-
-        void addString(const string &value);
-
-        void addString(char value);
-
-        const char *getString() const;
-
-        static size_t
-        convertToBase64Array(char *outChars, const uint8_t *inData, off_t offset, size_t length, bool insertLineBreaks);
-
-        static size_t toBase64_CalculateAndValidateOutputLength(size_t inputLength, bool insertLineBreaks);
-
-        static size_t fromBase64_ComputeResultLength(const char *inputPtr, size_t inputLength);
-
-        static size_t
-        fromBase64_Decode(const char *startInputPtr, size_t inputLength, uint8_t *startDestPtr, size_t destLength);
-
-    private:
-        static bool encoding(const char *fromCode, const char *toCode, const char *str, char *&buffer, size_t &length);
-
-        enum TrimType {
-            TrimHead = 0,
-            TrimTail = 1,
-            TrimBoth = 2
-        };
-
-        static String
-        trimInner(const String &str, const Array<char> &trimChars, TrimType trimType);
-
-    private:
-        Vector<char> _buffer;
-
-        static const char base64Table[65];
-        static const int base64LineBreakPosition = 76;
-        static const int MaxFormatStrLength = 1024 * 100;    // 100 K
     };
 
-    class WString : public IIndexable<wchar_t, wchar_t> {
+    struct Boolean : public IEquatable<Boolean>, public IEvaluation<Boolean> {
     public:
-        static const WString NewLine;
-        static const WString Empty;
-        static const WString NA;
-
-        WString(uint capacity = 256);
-
-        WString(const WString &value);
-
-        WString(const wstring &value);
-
-        WString(const String &value);
-
-        WString(const wchar_t *value, size_t count = 0);
-
-        WString(wchar_t ch, size_t count = 1);
-
-        ~WString() override;
-
-        bool isNullOrEmpty() const;
-
-        size_t length() const;
-
-        void empty();
-
-        operator const wchar_t *() const;
-
-        operator const String() const;
-
-        const wchar_t *c_str() const;
-
-        WString operator+=(const WString &value);
-
-        WString operator+=(const wstring &value);
-
-        WString operator+=(const wchar_t *value);
-
-        WString operator+(const WString &value) const;
-
-        WString operator+(const wstring &value) const;
-
-        WString operator+(const wchar_t *value) const;
-
-        WString &operator=(const WString &value);
-
-        WString &operator=(const wstring &value);
-
-        WString &operator=(const wchar_t *value);
-
-        bool operator==(const WString &value) const;
-
-        bool operator!=(const WString &value) const;
-
-        bool operator==(const wchar_t *value) const;
-
-        bool operator!=(const wchar_t *value) const;
-
-        bool operator==(const wstring &value) const;
-
-        bool operator!=(const wstring &value) const;
-
-        bool operator>(const WString &value) const;
-
-        bool operator>=(const WString &value) const;
-
-        bool operator<(const WString &value) const;
-
-        bool operator<=(const WString &value) const;
-
-        wchar_t &at(size_t pos) override;
-
-        wchar_t at(size_t pos) const override;
-
-        bool set(size_t pos, const wchar_t &value) override;
-
-        WString toLower() const;
-
-        WString toUpper() const;
-
-        WString trim(const wchar_t symbol1 = ' ', const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-                     const wchar_t symbol4 = '\0') const;
-
-        WString trimStart(const wchar_t symbol1 = ' ', const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-                          const wchar_t symbol4 = '\0') const;
-
-        WString trimEnd(const wchar_t symbol1 = ' ', const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-                        const wchar_t symbol4 = '\0') const;
-
-        WString GBKtoUTF8() const;
-
-        WString UTF8toGBK() const;
-
-        WString toBase64() const;
-
-        WString fromBase64() const;
-
-        ssize_t find(const wchar_t *substring, off_t offset = 0) const;
-
-        ssize_t find(const wchar_t ch) const;
-
-        ssize_t findLastOf(const wchar_t *substring) const;
-
-        ssize_t findLastOf(const wchar_t ch) const;
-
-        bool contains(const wchar_t *substring) const;
-
-        bool contains(const wchar_t ch) const;
-
-        void append(const wchar_t ch);
-
-        void append(const wchar_t *str, size_t count);
-
-        void append(const WString &str);
-
-        void appendLine(const wchar_t ch);
-
-        void appendLine(const wchar_t *str, size_t count);
-
-        void appendLine(const WString &str = WString::Empty);
-
-        WString replace(const WString &src, const WString &dst);
-
-        WString substr(off_t offset, size_t count) const;
-
-        WString substr(off_t offset) const;
-
-        WString insert(off_t offset, const WString &str);
-
-        WString insert(off_t offset, const wchar_t ch);
-
-    public:
-        static bool equals(const WString &value1, const WString &value2, bool ignoreCase = false);
-
-        static int compare(const WString &value1, const WString &value2, bool ignoreCase = false);
-
-        static bool isNullOrEmpty(const WString &value);
-
-        static WString replace(const WString &str, const WString &src, const WString &dst);
-
-        static WString substr(const WString &str, off_t offset, size_t count);
-
-        static WString
-        trim(const WString &str, const wchar_t symbol1, const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-             const wchar_t symbol4 = '\0');
-
-        static WString
-        trimStart(const WString &str, const wchar_t symbol1, const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-                  const wchar_t symbol4 = '\0');
-
-        static WString
-        trimEnd(const WString &str, const wchar_t symbol1, const wchar_t symbol2 = '\0', const wchar_t symbol3 = '\0',
-                const wchar_t symbol4 = '\0');
-
-    private:
-        void setString(const wchar_t *value);
-
-        void setString(const wchar_t *value, size_t count);
-
-        void setString(const wstring &value);
-
-        void setString(wchar_t value);
-
-        void addString(const wchar_t *value);
-
-        void addString(const wchar_t *value, size_t count);
-
-        void addString(const wstring &value);
-
-        void addString(wchar_t value);
-
-        const wchar_t *getString() const;
-
-    private:
-        Array<wchar_t> _buffer;
-    };
-
-    struct Boolean {
-    public:
-        Boolean();
+        Boolean(const bool &value = false);
 
         Boolean(const Boolean &value);
 
-        Boolean(const bool &value);
+        ~Boolean() override;
 
-        ~Boolean();
+        bool equals(const Boolean &other) const override;
+
+        void evaluates(const Boolean &other) override;
 
         operator bool() const;
 
-        Boolean &operator=(const Boolean &value);
+        Boolean &operator=(const Boolean &other);
 
-        bool operator==(const Boolean &value) const;
+        Boolean &operator=(const bool &value);
 
-        bool operator!=(const Boolean &value) const;
+        bool operator==(const bool &value) const;
+
+        bool operator!=(const bool &value) const;
 
         void write(Stream *stream) const;
 
         void read(Stream *stream);
 
-        const String toString() const;
+        String toString() const;
 
     public:
         static bool parse(const String &str, Boolean &value);
@@ -570,7 +105,171 @@ namespace Common {
         bool _value;
     };
 
-    struct Char {
+    struct BaseValueType {
+    public:
+        BaseValueType();
+
+        virtual ~BaseValueType();
+
+    protected:
+        template<typename type>
+        static String toValueString(const type &value, const String &format = String::Empty);
+
+        static bool parseInt64(const String &str, int64_t &value, NumberStyles style = NSInteger);
+
+        static bool parseUInt64(const String &str, uint64_t &value, NumberStyles style = NSInteger);
+
+        static bool
+        parseDouble(const String &str, double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
+
+    private:
+        static void addThousandSeparator(const char *str, char *result);
+    };
+
+    template<typename type>
+    struct ValueType
+            : public BaseValueType,
+              public IEquatable<ValueType<type>>,
+              public IEvaluation<ValueType<type>>,
+              public IComparable<ValueType<type>> {
+    public:
+        ValueType(const type &value) : _value(value) {
+        }
+
+        ValueType(const ValueType &value) : _value(value._value) {
+        }
+
+        ~ValueType() override {
+        }
+
+        inline bool equals(const ValueType &other) const override {
+            return _value == other._value;
+        }
+
+        inline void evaluates(const ValueType &other) override {
+            _value = other._value;
+        }
+
+        inline int compareTo(const ValueType &other) const override {
+            // Need to use compare because subtraction will wrap
+            // to positive for very large neg numbers, etc.
+            if (_value < other._value) return -1;
+            if (_value > other._value) return 1;
+            return 0;
+        }
+
+        inline operator type() const {
+            return _value;
+        }
+
+        inline ValueType &operator+=(const ValueType &value) {
+            _value += value._value;
+            return *this;
+        }
+
+        inline ValueType &operator-=(const ValueType &value) {
+            _value -= value._value;
+            return *this;
+        }
+
+        inline ValueType operator+(const ValueType &value) {
+            ValueType result = _value;
+            result._value += value._value;
+            return result;
+        }
+
+        ValueType operator-(const ValueType &value) {
+            ValueType result = _value;
+            result._value -= value._value;
+            return result;
+        }
+
+        inline bool operator==(const type &value) const {
+            return _value == value;
+        }
+
+        inline bool operator!=(const type &value) const {
+            return !operator==(value);
+        }
+
+        inline bool operator>(const type &value) const {
+            return _value > value;
+        }
+
+        inline bool operator>=(const type &value) const {
+            return _value >= value;
+        }
+
+        inline bool operator<(const type &value) const {
+            return _value < value;
+        }
+
+        inline bool operator<=(const type &value) const {
+            return _value <= value;
+        }
+
+        inline ValueType operator+=(const type &value) {
+            _value += value;
+            return *this;
+        }
+
+        inline ValueType operator-=(const type &value) {
+            _value -= value;
+            return *this;
+        }
+
+        inline ValueType operator+(const type &value) {
+            ValueType result = _value;
+            result._value += value;
+            return result;
+        }
+
+        inline ValueType operator-(const type &value) {
+            ValueType result = _value;
+            result._value -= value;
+            return result;
+        }
+
+        // ++i
+        inline type operator++() {
+            return ++_value;
+        }
+
+        // i++
+        inline type operator++(int) {
+            return _value++;
+        }
+
+        // --i
+        inline type operator--() {
+            return --_value;
+        }
+
+        // i--
+        inline type operator--(int) {
+            return _value--;
+        }
+
+    protected:
+        static String toString(const type &value, const String &format = String::Empty) {
+            return toValueString(value, format);
+        }
+
+        template<typename name>
+        static bool parseNumber(const String &str, type &value, NumberStyles style) {
+            name temp;
+            if (parseValue(str, temp, style)) {
+                value = temp._value;
+                return true;
+            }
+            return false;
+        }
+
+    protected:
+        type _value;
+    };
+
+    struct Char : public ValueType<char> {
     public:
         enum UnicodeCategory : uint8_t {
             //
@@ -585,19 +284,19 @@ namespace Common {
             LowercaseLetter = 1,
             //
             // Summary:
-            //     Indicates that the character is a titlecase letter. Signified by the Unicode
-            //     designation "Lt" (letter, titlecase). The value is 2.
+            //     Indicates that the character is a title-case letter. Signified by the Unicode
+            //     designation "Lt" (letter, title-case). The value is 2.
             TitlecaseLetter = 2,
             //
             // Summary:
-            //     Indicates that the character is a modifier letter, which is free-standing spacing
+            //     Indicates that the character is a modifier letter, which is freestanding spacing
             //     character that indicates modifications of a preceding letter. Signified by the
             //     Unicode designation "Lm" (letter, modifier). The value is 3.
             ModifierLetter = 3,
             //
             // Summary:
             //     Indicates that the character is a letter that is not an uppercase letter, a lowercase
-            //     letter, a titlecase letter, or a modifier letter. Signified by the Unicode designation
+            //     letter, a title-case letter, or a modifier letter. Signified by the Unicode designation
             //     "Lo" (letter, other). The value is 4.
             OtherLetter = 4,
             //
@@ -748,83 +447,54 @@ namespace Common {
             OtherNotAssigned = 29
         };
 
-        Char();
+        Char(const char &value = 0);
 
         Char(const Char &value);
 
-        Char(const char &value);
-
-        ~Char();
-
-        operator char() const;
+        ~Char() override;
 
         Char &operator=(const Char &value);
 
-        bool operator==(const Char &value) const;
-
-        bool operator!=(const Char &value) const;
-
-        bool operator>(const Char &value) const;
-
-        bool operator>=(const Char &value) const;
-
-        bool operator<(const Char &value) const;
-
-        bool operator<=(const Char &value) const;
-
-        Char operator+=(const Char &value);
-
-        Char operator-=(const Char &value);
-
-        Char operator+(const Char &value);
-
-        Char operator-(const Char &value);
-
         Char &operator=(const char &value);
-
-        bool operator==(const char &value) const;
-
-        bool operator!=(const char &value) const;
-
-        bool operator>(const char &value) const;
-
-        bool operator>=(const char &value) const;
-
-        bool operator<(const char &value) const;
-
-        bool operator<=(const char &value) const;
-
-        Char operator+=(const char &value);
-
-        Char operator-=(const char &value);
-
-        Char operator+(const char &value);
-
-        Char operator-(const char &value);
-
-        char operator++();       // ++i
-        char operator++(int);    // i++
-        char operator--();       // --i
-        char operator--(int);    // i--
 
         void write(Stream *stream) const;
 
         void read(Stream *stream);
 
-        const String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty) const;
 
-        int compareTo(Char value) const;
+        Char toLower() const;
 
-        const Char toLower() const;
+        Char toUpper() const;
 
-        const Char toUpper() const;
+        bool isDigit() const;
+
+        bool isLetter() const;
+
+        bool isWhiteSpace() const;
+
+        bool isUpper() const;
+
+        bool isLower() const;
+
+        bool isLetterOrDigit() const;
+
+        bool isSymbol() const;
+
+        bool isAscii() const;
 
     public:
-        static bool parse(const String &str, Char &value, bool decimal = true);
+        static bool parse(const String &str, Char &value);
 
-        static bool parse(const String &str, char &value, bool decimal = true);
+        static bool parse(const String &str, char &value);
 
-        static bool parse(const String &str, int8_t &value, bool decimal = true);
+        static Char toLower(const Char &c);
+
+        static Char toLower(char c);
+
+        static Char toUpper(const Char &c);
+
+        static Char toUpper(char c);
 
         static uint8_t toHex(char value);
 
@@ -862,17 +532,13 @@ namespace Common {
     public:
         static const Char MinValue;
         static const Char MaxValue;
-
         static const Char NewLine;
 
     private:
         static const uint8_t categoryForLatin1[256];
-
-    private:
-        char _value;
     };
 
-    struct WChar {
+    struct WChar : public ValueType<wchar_t> {
     public:
         enum UnicodeCategory : uint8_t {
             //
@@ -887,19 +553,19 @@ namespace Common {
             LowercaseLetter = 1,
             //
             // Summary:
-            //     Indicates that the character is a titlecase letter. Signified by the Unicode
-            //     designation "Lt" (letter, titlecase). The value is 2.
+            //     Indicates that the character is a title-case letter. Signified by the Unicode
+            //     designation "Lt" (letter, title-case). The value is 2.
             TitlecaseLetter = 2,
             //
             // Summary:
-            //     Indicates that the character is a modifier letter, which is free-standing spacing
+            //     Indicates that the character is a modifier letter, which is freestanding spacing
             //     character that indicates modifications of a preceding letter. Signified by the
             //     Unicode designation "Lm" (letter, modifier). The value is 3.
             ModifierLetter = 3,
             //
             // Summary:
             //     Indicates that the character is a letter that is not an uppercase letter, a lowercase
-            //     letter, a titlecase letter, or a modifier letter. Signified by the Unicode designation
+            //     letter, a title-case letter, or a modifier letter. Signified by the Unicode designation
             //     "Lo" (letter, other). The value is 4.
             OtherLetter = 4,
             //
@@ -1050,77 +716,60 @@ namespace Common {
             OtherNotAssigned = 29
         };
 
-        WChar();
+        WChar(const wchar_t &value = 0);
 
         WChar(const WChar &value);
 
-        WChar(const wchar_t &value);
-
-        ~WChar();
-
-        operator wchar_t() const;
+        ~WChar() override;
 
         WChar &operator=(const WChar &value);
 
-        bool operator==(const WChar &value) const;
-
-        bool operator!=(const WChar &value) const;
-
-        bool operator>(const WChar &value) const;
-
-        bool operator>=(const WChar &value) const;
-
-        bool operator<(const WChar &value) const;
-
-        bool operator<=(const WChar &value) const;
-
-        WChar operator+=(const WChar &value);
-
-        WChar operator-=(const WChar &value);
-
-        WChar operator+(const WChar &value);
-
-        WChar operator-(const WChar &value);
-
         WChar &operator=(const wchar_t &value);
-
-        bool operator==(const wchar_t &value) const;
-
-        bool operator!=(const wchar_t &value) const;
-
-        bool operator>(const wchar_t &value) const;
-
-        bool operator>=(const wchar_t &value) const;
-
-        bool operator<(const wchar_t &value) const;
-
-        bool operator<=(const wchar_t &value) const;
-
-        WChar operator+=(const wchar_t &value);
-
-        WChar operator-=(const wchar_t &value);
-
-        WChar operator+(const wchar_t &value);
-
-        WChar operator-(const wchar_t &value);
-
-        wchar_t operator++();       // ++i
-        wchar_t operator++(int);    // i++
-        wchar_t operator--();       // --i
-        wchar_t operator--(int);    // i--
 
         void write(Stream *stream) const;
 
         void read(Stream *stream);
 
-        const String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty) const;
 
-        int compareTo(WChar value) const;
+        WChar toLower() const;
+
+        WChar toUpper() const;
+
+        bool isDigit() const;
+
+        bool isLetter() const;
+
+        bool isWhiteSpace() const;
+
+        bool isUpper() const;
+
+        bool isLower() const;
+
+        bool isLetterOrDigit() const;
+
+        bool isSymbol() const;
+
+        bool isAscii() const;
+
+        bool isHanzi() const;
 
     public:
-        static bool parse(const String &str, WChar &value, bool decimal = true);
+        static bool parse(const String &str, WChar &value);
 
-        static bool parse(const String &str, wchar_t &value, bool decimal = true);
+        static bool parse(const String &str, wchar_t &value);
+
+        static WChar toLower(const WChar &c);
+
+        static WChar toLower(wchar_t c);
+
+        static WChar toUpper(const WChar &c);
+
+        static WChar toUpper(wchar_t c);
+
+        static uint8_t toHex(wchar_t value);
+
+        static wchar_t toChar(uint8_t value);
 
         static bool isDigit(wchar_t c);
 
@@ -1136,17 +785,17 @@ namespace Common {
 
         static bool isSymbol(wchar_t c);
 
+        static bool isAscii(wchar_t ch);
+
         static bool isHanzi(wchar_t c);
 
     private:
         static bool isWhiteSpaceLatin1(wchar_t c);
 
-        // Return true for all wchar_tacters below or equal U+00ff, which is ASCII + Latin-1 Supplement.
+        // Return true for all characters below or equal U+00ff, which is ASCII + Latin-1 Supplement.
         static bool isLatin1(wchar_t ch);
 
-        // Return true for all wchar_tacters below or equal U+007f, which is ASCII.
-        static bool isAscii(wchar_t ch);
-
+        // Return true for all characters below or equal U+007f, which is ASCII.
         static bool checkSymbol(UnicodeCategory uc);
 
         static UnicodeCategory getLatin1UnicodeCategory(wchar_t ch);
@@ -1156,761 +805,346 @@ namespace Common {
     public:
         static const WChar MinValue;
         static const WChar MaxValue;
+        static const WChar NewLine;
 
     private:
         static const uint8_t categoryForLatin1[256];
-
-    private:
-        wchar_t _value;
     };
 
-    struct Int8 {
+    struct Int8 : public ValueType<int8_t> {
     public:
-        Int8();
+        Int8(const int8_t &value = 0);
 
         Int8(const Int8 &value);
 
-        Int8(const int8_t &value);
-
-        ~Int8();
-
-        operator int8_t() const;
+        ~Int8() override;
 
         Int8 &operator=(const Int8 &value);
 
-        bool operator==(const Int8 &value) const;
-
-        bool operator!=(const Int8 &value) const;
-
-        bool operator>(const Int8 &value) const;
-
-        bool operator>=(const Int8 &value) const;
-
-        bool operator<(const Int8 &value) const;
-
-        bool operator<=(const Int8 &value) const;
-
-        Int8 operator+=(const Int8 &value);
-
-        Int8 operator-=(const Int8 &value);
-
-        Int8 operator+(const Int8 &value);
-
-        Int8 operator-(const Int8 &value);
-
         Int8 &operator=(const int8_t &value);
-
-        bool operator==(const int8_t &value) const;
-
-        bool operator!=(const int8_t &value) const;
-
-        bool operator>(const int8_t &value) const;
-
-        bool operator>=(const int8_t &value) const;
-
-        bool operator<(const int8_t &value) const;
-
-        bool operator<=(const int8_t &value) const;
-
-        Int8 operator+=(const int8_t &value);
-
-        Int8 operator-=(const int8_t &value);
-
-        Int8 operator+(const int8_t &value);
-
-        Int8 operator-(const int8_t &value);
-
-        int8_t operator++();       // ++i
-        int8_t operator++(int);    // i++
-        int8_t operator--();       // --i
-        int8_t operator--(int);    // i--
 
         void write(Stream *stream) const;
 
         void read(Stream *stream);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(Int8 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, Int8 &value, bool decimal = true);
+        static bool parse(const String &str, Int8 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, int8_t &value, bool decimal = true);
+        static bool parse(const String &str, int8_t &value, NumberStyles style = NSInteger);
 
     public:
         static const Int8 MinValue;
         static const Int8 MaxValue;
-
-    private:
-        int8_t _value;
     };
 
-    struct UInt8 {
+    struct UInt8 : public ValueType<uint8_t> {
     public:
-        UInt8();
+        UInt8(const uint8_t &value = 0);
 
         UInt8(const UInt8 &value);
 
-        UInt8(const uint8_t &value);
-
-        ~UInt8();
-
-        operator uint8_t() const;
+        ~UInt8() override;
 
         UInt8 &operator=(const UInt8 &value);
 
-        bool operator==(const UInt8 &value) const;
-
-        bool operator!=(const UInt8 &value) const;
-
-        bool operator>(const UInt8 &value) const;
-
-        bool operator>=(const UInt8 &value) const;
-
-        bool operator<(const UInt8 &value) const;
-
-        bool operator<=(const UInt8 &value) const;
-
-        UInt8 operator+=(const UInt8 &value);
-
-        UInt8 operator-=(const UInt8 &value);
-
-        UInt8 operator+(const UInt8 &value);
-
-        UInt8 operator-(const UInt8 &value);
-
         UInt8 &operator=(const uint8_t &value);
-
-        bool operator==(const uint8_t &value) const;
-
-        bool operator!=(const uint8_t &value) const;
-
-        bool operator>(const uint8_t &value) const;
-
-        bool operator>=(const uint8_t &value) const;
-
-        bool operator<(const uint8_t &value) const;
-
-        bool operator<=(const uint8_t &value) const;
-
-        UInt8 operator+=(const uint8_t &value);
-
-        UInt8 operator-=(const uint8_t &value);
-
-        UInt8 operator+(const uint8_t &value);
-
-        UInt8 operator-(const uint8_t &value);
-
-        uint8_t operator++();       // ++i
-        uint8_t operator++(int);    // i++
-        uint8_t operator--();       // --i
-        uint8_t operator--(int);    // i--
 
         void write(Stream *stream) const;
 
         void read(Stream *stream);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(UInt8 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, UInt8 &value, bool decimal = true);
+        static bool parse(const String &str, UInt8 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, uint8_t &value, bool decimal = true);
+        static bool parse(const String &str, uint8_t &value, NumberStyles style = NSInteger);
 
     public:
         static const UInt8 MinValue;
         static const UInt8 MaxValue;
-
-    private:
-        uint8_t _value;
     };
 
     typedef UInt8 Byte;
 
-    struct Int16 {
+    struct Int16 : public ValueType<int16_t> {
     public:
-        Int16();
+        Int16(const int16_t &value = 0);
 
         Int16(const Int16 &value);
 
-        Int16(const int16_t &value);
-
-        ~Int16();
-
-        operator int16_t() const;
+        ~Int16() override;
 
         Int16 &operator=(const Int16 &value);
 
-        bool operator==(const Int16 &value) const;
-
-        bool operator!=(const Int16 &value) const;
-
-        bool operator>(const Int16 &value) const;
-
-        bool operator>=(const Int16 &value) const;
-
-        bool operator<(const Int16 &value) const;
-
-        bool operator<=(const Int16 &value) const;
-
-        Int16 operator+=(const Int16 &value);
-
-        Int16 operator-=(const Int16 &value);
-
-        Int16 operator+(const Int16 &value);
-
-        Int16 operator-(const Int16 &value);
-
         Int16 &operator=(const int16_t &value);
-
-        bool operator==(const int16_t &value) const;
-
-        bool operator!=(const int16_t &value) const;
-
-        bool operator>(const int16_t &value) const;
-
-        bool operator>=(const int16_t &value) const;
-
-        bool operator<(const int16_t &value) const;
-
-        bool operator<=(const int16_t &value) const;
-
-        Int16 operator+=(const int16_t &value);
-
-        Int16 operator-=(const int16_t &value);
-
-        Int16 operator+(const int16_t &value);
-
-        Int16 operator-(const int16_t &value);
-
-        int16_t operator++();       // ++i
-        int16_t operator++(int);    // i++
-        int16_t operator--();       // --i
-        int16_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(Int16 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, Int16 &value, bool decimal = true);
+        static bool parse(const String &str, Int16 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, int16_t &value, bool decimal = true);
+        static bool parse(const String &str, int16_t &value, NumberStyles style = NSInteger);
 
     public:
         static const Int16 MinValue;
         static const Int16 MaxValue;
-
-    private:
-        int16_t _value;
     };
 
     typedef Int16 Short;
 
-    struct UInt16 {
+    struct UInt16 : public ValueType<uint16_t> {
     public:
-        UInt16();
+        UInt16(const uint16_t &value = 0);
 
         UInt16(const UInt16 &value);
 
-        UInt16(const uint16_t &value);
-
-        ~UInt16();
-
-        operator uint16_t() const;
+        ~UInt16() override;
 
         UInt16 &operator=(const UInt16 &value);
 
-        bool operator==(const UInt16 &value) const;
-
-        bool operator!=(const UInt16 &value) const;
-
-        bool operator>(const UInt16 &value) const;
-
-        bool operator>=(const UInt16 &value) const;
-
-        bool operator<(const UInt16 &value) const;
-
-        bool operator<=(const UInt16 &value) const;
-
-        UInt16 operator+=(const UInt16 &value);
-
-        UInt16 operator-=(const UInt16 &value);
-
-        UInt16 operator+(const UInt16 &value);
-
-        UInt16 operator-(const UInt16 &value);
-
         UInt16 &operator=(const uint16_t &value);
-
-        bool operator==(const uint16_t &value) const;
-
-        bool operator!=(const uint16_t &value) const;
-
-        bool operator>(const uint16_t &value) const;
-
-        bool operator>=(const uint16_t &value) const;
-
-        bool operator<(const uint16_t &value) const;
-
-        bool operator<=(const uint16_t &value) const;
-
-        UInt16 operator+=(const uint16_t &value);
-
-        UInt16 operator-=(const uint16_t &value);
-
-        UInt16 operator+(const uint16_t &value);
-
-        UInt16 operator-(const uint16_t &value);
-
-        uint16_t operator++();       // ++i
-        uint16_t operator++(int);    // i++
-        uint16_t operator--();       // --i
-        uint16_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(UInt16 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, UInt16 &value, bool decimal = true);
+        static bool parse(const String &str, UInt16 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, uint16_t &value, bool decimal = true);
+        static bool parse(const String &str, uint16_t &value, NumberStyles style = NSInteger);
 
     public:
         static const UInt16 MinValue;
         static const UInt16 MaxValue;
-
-    private:
-        uint16_t _value;
     };
 
     typedef UInt16 UShort;
 
-    struct Int32 {
+    struct Int32 : public ValueType<int32_t> {
     public:
-        Int32();
+        Int32(const int32_t &value = 0);
 
         Int32(const Int32 &value);
 
-        Int32(const int32_t &value);
-
-        ~Int32();
-
-        operator int32_t() const;
+        ~Int32() override;
 
         Int32 &operator=(const Int32 &value);
 
-        bool operator==(const Int32 &value) const;
-
-        bool operator!=(const Int32 &value) const;
-
-        bool operator>(const Int32 &value) const;
-
-        bool operator>=(const Int32 &value) const;
-
-        bool operator<(const Int32 &value) const;
-
-        bool operator<=(const Int32 &value) const;
-
-        Int32 operator+=(const Int32 &value);
-
-        Int32 operator-=(const Int32 &value);
-
-        Int32 operator+(const Int32 &value);
-
-        Int32 operator-(const Int32 &value);
-
         Int32 &operator=(const int32_t &value);
-
-        bool operator==(const int32_t &value) const;
-
-        bool operator!=(const int32_t &value) const;
-
-        bool operator>(const int32_t &value) const;
-
-        bool operator>=(const int32_t &value) const;
-
-        bool operator<(const int32_t &value) const;
-
-        bool operator<=(const int32_t &value) const;
-
-        Int32 operator+=(const int32_t &value);
-
-        Int32 operator-=(const int32_t &value);
-
-        Int32 operator+(const int32_t &value);
-
-        Int32 operator-(const int32_t &value);
-
-        int32_t operator++();       // ++i
-        int32_t operator++(int);    // i++
-        int32_t operator--();       // --i
-        int32_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(Int32 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, Int32 &value, bool decimal = true);
+        static bool parse(const String &str, Int32 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, int32_t &value, bool decimal = true);
-
-        static bool isHexInteger(const String &str);
+        static bool parse(const String &str, int32_t &value, NumberStyles style = NSInteger);
 
     public:
         static const Int32 MinValue;
         static const Int32 MaxValue;
-
-    private:
-        int32_t _value;
     };
 
-    struct UInt32 {
+    struct UInt32 : public ValueType<uint32_t> {
     public:
-        UInt32();
+        UInt32(const uint32_t &value = 0);
 
         UInt32(const UInt32 &value);
 
-        UInt32(const uint32_t &value);
-
-        ~UInt32();
-
-        operator uint32_t() const;
+        ~UInt32() override;
 
         UInt32 &operator=(const UInt32 &value);
 
-        bool operator==(const UInt32 &value) const;
-
-        bool operator!=(const UInt32 &value) const;
-
-        bool operator>(const UInt32 &value) const;
-
-        bool operator>=(const UInt32 &value) const;
-
-        bool operator<(const UInt32 &value) const;
-
-        bool operator<=(const UInt32 &value) const;
-
-        UInt32 operator+=(const UInt32 &value);
-
-        UInt32 operator-=(const UInt32 &value);
-
-        UInt32 operator+(const UInt32 &value);
-
-        UInt32 operator-(const UInt32 &value);
-
         UInt32 &operator=(const uint32_t &value);
-
-        bool operator==(const uint32_t &value) const;
-
-        bool operator!=(const uint32_t &value) const;
-
-        bool operator>(const uint32_t &value) const;
-
-        bool operator>=(const uint32_t &value) const;
-
-        bool operator<(const uint32_t &value) const;
-
-        bool operator<=(const uint32_t &value) const;
-
-        UInt32 operator+=(const uint32_t &value);
-
-        UInt32 operator-=(const uint32_t &value);
-
-        UInt32 operator+(const uint32_t &value);
-
-        UInt32 operator-(const uint32_t &value);
-
-        uint32_t operator++();       // ++i
-        uint32_t operator++(int);    // i++
-        uint32_t operator--();       // --i
-        uint32_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(UInt32 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, UInt32 &value, bool decimal = true);
+        static bool parse(const String &str, UInt32 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, uint32_t &value, bool decimal = true);
+        static bool parse(const String &str, uint32_t &value, NumberStyles style = NSInteger);
 
     public:
         static const UInt32 MinValue;
         static const UInt32 MaxValue;
-
-    private:
-        uint32_t _value;
     };
 
-    struct Int64 {
+    struct Int64 : public ValueType<int64_t> {
     public:
-        Int64();
+        Int64(const int64_t &value = 0);
 
         Int64(const Int64 &value);
 
-        Int64(const int64_t &value);
-
-        ~Int64();
-
-        operator int64_t() const;
+        ~Int64() override;
 
         Int64 &operator=(const Int64 &value);
 
-        bool operator==(const Int64 &value) const;
-
-        bool operator!=(const Int64 &value) const;
-
-        bool operator>(const Int64 &value) const;
-
-        bool operator>=(const Int64 &value) const;
-
-        bool operator<(const Int64 &value) const;
-
-        bool operator<=(const Int64 &value) const;
-
-        Int64 operator+=(const Int64 &value);
-
-        Int64 operator-=(const Int64 &value);
-
-        Int64 operator+(const Int64 &value);
-
-        Int64 operator-(const Int64 &value);
-
         Int64 &operator=(const int64_t &value);
-
-        bool operator==(const int64_t &value) const;
-
-        bool operator!=(const int64_t &value) const;
-
-        bool operator>(const int64_t &value) const;
-
-        bool operator>=(const int64_t &value) const;
-
-        bool operator<(const int64_t &value) const;
-
-        bool operator<=(const int64_t &value) const;
-
-        Int64 operator+=(const int64_t &value);
-
-        Int64 operator-=(const int64_t &value);
-
-        Int64 operator+(const int64_t &value);
-
-        Int64 operator-(const int64_t &value);
-
-        int64_t operator++();       // ++i
-        int64_t operator++(int);    // i++
-        int64_t operator--();       // --i
-        int64_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(Int64 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, Int64 &value, bool decimal = true);
+        static bool parse(const String &str, Int64 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, int64_t &value, bool decimal = true);
+        static bool parse(const String &str, int64_t &value, NumberStyles style = NSInteger);
 
     public:
         static const Int64 MinValue;
         static const Int64 MaxValue;
-
-    private:
-        int64_t _value;
     };
 
-    struct UInt64 {
+    struct UInt64 : public ValueType<uint64_t> {
     public:
-        UInt64();
+        UInt64(const uint64_t &value = 0);
 
         UInt64(const UInt64 &value);
 
-        UInt64(const uint64_t &value);
-
-        ~UInt64();
-
-        operator uint64_t() const;
+        ~UInt64() override;
 
         UInt64 &operator=(const UInt64 &value);
 
-        bool operator==(const UInt64 &value) const;
-
-        bool operator!=(const UInt64 &value) const;
-
-        bool operator>(const UInt64 &value) const;
-
-        bool operator>=(const UInt64 &value) const;
-
-        bool operator<(const UInt64 &value) const;
-
-        bool operator<=(const UInt64 &value) const;
-
-        UInt64 operator+=(const UInt64 &value);
-
-        UInt64 operator-=(const UInt64 &value);
-
-        UInt64 operator+(const UInt64 &value);
-
-        UInt64 operator-(const UInt64 &value);
-
         UInt64 &operator=(const uint64_t &value);
-
-        bool operator==(const uint64_t &value) const;
-
-        bool operator!=(const uint64_t &value) const;
-
-        bool operator>(const uint64_t &value) const;
-
-        bool operator>=(const uint64_t &value) const;
-
-        bool operator<(const uint64_t &value) const;
-
-        bool operator<=(const uint64_t &value) const;
-
-        UInt64 operator+=(const uint64_t &value);
-
-        UInt64 operator-=(const uint64_t &value);
-
-        UInt64 operator+(const uint64_t &value);
-
-        UInt64 operator-(const uint64_t &value);
-
-        uint64_t operator++();       // ++i
-        uint64_t operator++(int);    // i++
-        uint64_t operator--();       // --i
-        uint64_t operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
-
-        int compareTo(UInt64 value) const;
+        String toString(const String &format = String::Empty) const;
 
     public:
-        static bool parse(const String &str, UInt64 &value, bool decimal = true);
+        static bool parse(const String &str, UInt64 &value, NumberStyles style = NSInteger);
 
-        static bool parse(const String &str, uint64_t &value, bool decimal = true);
+        static bool parse(const String &str, uint64_t &value, NumberStyles style = NSInteger);
 
     public:
         static const UInt64 MinValue;
         static const UInt64 MaxValue;
-
-    private:
-        uint64_t _value;
     };
 
-    struct Float {
+    struct Float : public ValueType<float> {
     public:
-        Float();
+        Float(const float &value = 0.0f);
 
         Float(const Float &value);
 
-        Float(const float &value);
-
-        ~Float();
-
-        operator float() const;
+        ~Float() override;
 
         Float &operator=(const Float &value);
 
-        bool operator==(const Float &value) const;
-
-        bool operator!=(const Float &value) const;
-
-        bool operator>(const Float &value) const;
-
-        bool operator>=(const Float &value) const;
-
-        bool operator<(const Float &value) const;
-
-        bool operator<=(const Float &value) const;
-
-        Float operator+=(const Float &value);
-
-        Float operator-=(const Float &value);
-
-        Float operator+(const Float &value);
-
-        Float operator-(const Float &value);
-
         Float &operator=(const float &value);
-
-        bool operator==(const float &value) const;
-
-        bool operator!=(const float &value) const;
-
-        bool operator>(const float &value) const;
-
-        bool operator>=(const float &value) const;
-
-        bool operator<(const float &value) const;
-
-        bool operator<=(const float &value) const;
-
-        Float operator+=(const float &value);
-
-        Float operator-=(const float &value);
-
-        Float operator+(const float &value);
-
-        Float operator-(const float &value);
-
-        float operator++();       // ++i
-        float operator++(int);    // i++
-        float operator--();       // --i
-        float operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty) const;
 
-        const String toString(int pointSize) const;
-
+        // Determines if the given floating point number value is nan.
+        // value	-	floating point value
+        // true if value is nan, false otherwise
         bool isNaN() const;
 
+        // Determines if the given floating point number value is finite.
+        // value	-	floating point value
+        // true if value is finite, false otherwise
         bool isFinite() const;
 
-        int compareTo(Float value) const;
+        // Determines if the given floating point number value is infinity.
+        // value	-	floating point value
+        // true if value is infinity, false otherwise
+        bool isInfinity() const;
+
+        // Determines if the given floating point number value is negative.
+        // value	-	floating point value
+        // true if value is negative, false otherwise
+        bool isNegative() const;
+
+        // Determines if the given floating point number value is negative infinity.
+        // value	-	floating point value
+        // true if arg is negative infinity, false otherwise
+        bool isNegativeInfinity() const;
+
+        // Determines if the given floating point number value is positive infinity.
+        // value	-	floating point value
+        // true if value is positive infinity, false otherwise
+        bool isPositiveInfinity() const;
+
+        // Determines if the given floating point number value is normal, i.e. is neither zero, subnormal, infinite, nor NaN.
+        // value	-	floating point value
+        // true if value is normal, false otherwise
+        bool isNormal() const;
+
+        // Determines if the given floating point number value is subnormal.
+        // value	-	floating point value
+        // true if value is subnormal, false otherwise
+        bool isSubnormal() const;
 
     public:
-        static bool parse(const String &str, Float &value);
+        static bool
+        parse(const String &str, Float &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
-        static bool parse(const String &str, float &value);
+        static bool
+        parse(const String &str, float &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
+        // Determines if the given floating point number value is nan.
+        // value	-	floating point value
+        // true if value is nan, false otherwise
         static bool isNaN(const Float &value);
 
+        // Determines if the given floating point number value is finite.
+        // value	-	floating point value
+        // true if value is finite, false otherwise
         static bool isFinite(const Float &value);
+
+        // Determines if the given floating point number value is infinity.
+        // value	-	floating point value
+        // true if value is infinity, false otherwise
+        static bool isInfinity(const Float &value);
+
+        // Determines if the given floating point number value is negative.
+        // value	-	floating point value
+        // true if value is negative, false otherwise
+        static bool isNegative(const Float &value);
+
+        // Determines if the given floating point number value is negative infinity.
+        // value	-	floating point value
+        // true if arg is negative infinity, false otherwise
+        static bool isNegativeInfinity(const Float &value);
+
+        // Determines if the given floating point number value is positive infinity.
+        // value	-	floating point value
+        // true if value is positive infinity, false otherwise
+        static bool isPositiveInfinity(const Float &value);
+
+        // Determines if the given floating point number value is normal, i.e. is neither zero, subnormal, infinite, nor NaN.
+        // value	-	floating point value
+        // true if value is normal, false otherwise
+        static bool isNormal(const Float &value);
+
+        // Determines if the given floating point number value is subnormal.
+        // value	-	floating point value
+        // true if value is subnormal, false otherwise
+        static bool isSubnormal(const Float &value);
 
     public:
         static const Float MinValue;
@@ -1919,94 +1153,112 @@ namespace Common {
         static const Float NegativeInfinity;
         static const Float PositiveInfinity;
         static const Float NaN;
-
-    private:
-        float _value;
     };
 
-    struct Double {
+    struct Double : public ValueType<double> {
     public:
-        Double();
+        Double(const double &value = 0.0);
 
         Double(const Double &value);
 
-        Double(const double &value);
-
-        ~Double();
-
-        operator double() const;
+        ~Double() override;
 
         Double &operator=(const Double &value);
 
-        bool operator==(const Double &value) const;
-
-        bool operator!=(const Double &value) const;
-
-        bool operator>(const Double &value) const;
-
-        bool operator>=(const Double &value) const;
-
-        bool operator<(const Double &value) const;
-
-        bool operator<=(const Double &value) const;
-
-        Double operator+=(const Double &value);
-
-        Double operator-=(const Double &value);
-
-        Double operator+(const Double &value);
-
-        Double operator-(const Double &value);
-
         Double &operator=(const double &value);
-
-        bool operator==(const double &value) const;
-
-        bool operator!=(const double &value) const;
-
-        bool operator>(const double &value) const;
-
-        bool operator>=(const double &value) const;
-
-        bool operator<(const double &value) const;
-
-        bool operator<=(const double &value) const;
-
-        Double operator+=(const double &value);
-
-        Double operator-=(const double &value);
-
-        Double operator+(const double &value);
-
-        Double operator-(const double &value);
-
-        double operator++();       // ++i
-        double operator++(int);    // i++
-        double operator--();       // --i
-        double operator--(int);    // i--
 
         void write(Stream *stream, bool bigEndian = true) const;
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty) const;
 
-        const String toString(int pointSize) const;
-
+        // Determines if the given floating point number value is nan.
+        // value	-	floating point value
+        // true if value is nan, false otherwise
         bool isNaN() const;
 
+        // Determines if the given floating point number value is finite.
+        // value	-	floating point value
+        // true if value is finite, false otherwise
         bool isFinite() const;
 
-        int compareTo(Double value) const;
+        // Determines if the given floating point number value is infinity.
+        // value	-	floating point value
+        // true if value is infinity, false otherwise
+        bool isInfinity() const;
+
+        // Determines if the given floating point number value is negative.
+        // value	-	floating point value
+        // true if value is negative, false otherwise
+        bool isNegative() const;
+
+        // Determines if the given floating point number value is negative infinity.
+        // value	-	floating point value
+        // true if arg is negative infinity, false otherwise
+        bool isNegativeInfinity() const;
+
+        // Determines if the given floating point number value is positive infinity.
+        // value	-	floating point value
+        // true if value is positive infinity, false otherwise
+        bool isPositiveInfinity() const;
+
+        // Determines if the given floating point number value is normal, i.e. is neither zero, subnormal, infinite, nor NaN.
+        // value	-	floating point value
+        // true if value is normal, false otherwise
+        bool isNormal() const;
+
+        // Determines if the given floating point number value is subnormal.
+        // value	-	floating point value
+        // true if value is subnormal, false otherwise
+        bool isSubnormal() const;
 
     public:
-        static bool parse(const String &str, Double &value);
+        static bool
+        parse(const String &str, Double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
-        static bool parse(const String &str, double &value);
+        static bool
+        parse(const String &str, double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
+        // Determines if the given floating point number value is nan.
+        // value	-	floating point value
+        // true if value is nan, false otherwise
         static bool isNaN(const Double &value);
 
+        // Determines if the given floating point number value is finite.
+        // value	-	floating point value
+        // true if value is finite, false otherwise
         static bool isFinite(const Double &value);
+
+        // Determines if the given floating point number value is infinity.
+        // value	-	floating point value
+        // true if value is infinity, false otherwise
+        static bool isInfinity(const Double &value);
+
+        // Determines if the given floating point number value is negative.
+        // value	-	floating point value
+        // true if value is negative, false otherwise
+        static bool isNegative(const Double &value);
+
+        // Determines if the given floating point number value is negative infinity.
+        // value	-	floating point value
+        // true if arg is negative infinity, false otherwise
+        static bool isNegativeInfinity(const Double &value);
+
+        // Determines if the given floating point number value is positive infinity.
+        // value	-	floating point value
+        // true if value is positive infinity, false otherwise
+        static bool isPositiveInfinity(const Double &value);
+
+        // Determines if the given floating point number value is normal, i.e. is neither zero, subnormal, infinite, nor NaN.
+        // value	-	floating point value
+        // true if value is normal, false otherwise
+        static bool isNormal(const Double &value);
+
+        // Determines if the given floating point number value is subnormal.
+        // value	-	floating point value
+        // true if value is subnormal, false otherwise
+        static bool isSubnormal(const Double &value);
 
     public:
         static const Double MinValue;
@@ -2015,48 +1267,7 @@ namespace Common {
         static const Double NegativeInfinity;
         static const Double PositiveInfinity;
         static const Double NaN;
-        static const Double Infinity;
-
-    private:
-        double _value;
     };
-
-    struct PositionCoord {
-    public:
-        double latitude;
-        double longitude;
-
-        PositionCoord(double longitude = Double::NaN, double latitude = Double::NaN);
-
-        PositionCoord(const PositionCoord &coord);
-
-        PositionCoord(const String &str);
-
-        PositionCoord(const char *str);
-
-        bool isEmpty() const;
-
-        void empty();
-
-        const String toString() const;
-
-        static bool parse(const String &str, PositionCoord &value);
-
-        void operator=(const PositionCoord &value);
-
-        bool operator==(const PositionCoord &value) const;
-
-        bool operator!=(const PositionCoord &value) const;
-
-        void write(Stream *stream, bool bigEndian = true) const;
-
-        void read(Stream *stream, bool bigEndian = true);
-
-    public:
-        static const PositionCoord Empty;
-    };
-
-    typedef Array<PositionCoord> LocationCoords;
 }
 
 #endif /* ValueType_h */

@@ -18,7 +18,6 @@
 #include <locale.h>
 
 #if WIN32
-
 #include <Windows.h>
 #include <memory.h>
 #include <fcntl.h>
@@ -26,7 +25,6 @@
 #include <direct.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
-
 #elif __APPLE__
 #include <sys/param.h>
 #include <unistd.h>
@@ -38,11 +36,10 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
-#endif
-
 #ifdef __arm_linux__
 #include <linux/reboot.h>
 #include <sys/reboot.h>
+#endif // __arm_linux__
 #endif
 
 namespace Common {

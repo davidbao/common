@@ -1,6 +1,6 @@
 #include <math.h>
 #include "data/TimeSpan.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "system/Math.h"
 #include "exception/Exception.h"
 #include "data/StringArray.h"

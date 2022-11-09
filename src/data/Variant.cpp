@@ -2,417 +2,391 @@
 //  Variant.cpp
 //  common
 //
-//  Created by baowei on 25/11/2017.
+//  Created by baowei on 2017/11/25.
 //  Copyright © 2017 com. All rights reserved.
 //
 
 #include "data/Variant.h"
 
-namespace Common
-{
-    Variant::Variant(Type type)
-    {
+namespace Common {
+    Variant::Variant(Type type) {
         _type = type;
         _value.lValue = 0;
     }
-    Variant::Variant(bool value) : Variant(Digital)
-    {
+
+    Variant::Variant(bool value) : Variant(Digital) {
         setValue(value);
     }
-    Variant::Variant(int8_t value) : Variant(Integer8)
-    {
+
+    Variant::Variant(int8_t value) : Variant(Integer8) {
         setValue(value);
     }
-    Variant::Variant(uint8_t value) : Variant(UInteger8)
-    {
+
+    Variant::Variant(uint8_t value) : Variant(UInteger8) {
         setValue(value);
     }
-    Variant::Variant(int16_t value) : Variant(Integer16)
-    {
+
+    Variant::Variant(int16_t value) : Variant(Integer16) {
         setValue(value);
     }
-    Variant::Variant(uint16_t value) : Variant(UInteger16)
-    {
+
+    Variant::Variant(uint16_t value) : Variant(UInteger16) {
         setValue(value);
     }
-    Variant::Variant(int32_t value) : Variant(Integer32)
-    {
+
+    Variant::Variant(int32_t value) : Variant(Integer32) {
         setValue(value);
     }
-    Variant::Variant(uint32_t value) : Variant(UInteger32)
-    {
+
+    Variant::Variant(uint32_t value) : Variant(UInteger32) {
         setValue(value);
     }
-    Variant::Variant(int64_t value) : Variant(Integer64)
-    {
+
+    Variant::Variant(int64_t value) : Variant(Integer64) {
         setValue(value);
     }
-    Variant::Variant(uint64_t value) : Variant(UInteger64)
-    {
+
+    Variant::Variant(uint64_t value) : Variant(UInteger64) {
         setValue(value);
     }
-    Variant::Variant(float value) : Variant(Float32)
-    {
+
+    Variant::Variant(float value) : Variant(Float32) {
         setValue(value);
     }
-    Variant::Variant(double value) : Variant(Float64)
-    {
+
+    Variant::Variant(double value) : Variant(Float64) {
         setValue(value);
     }
-    Variant::Variant(const String& value) : Variant(Text)
-    {
+
+    Variant::Variant(const String &value) : Variant(Text) {
         setValue(value);
     }
-    Variant::Variant(DateTime value) : Variant(Date)
-    {
+
+    Variant::Variant(DateTime value) : Variant(Date) {
         setValue(value);
     }
-    Variant::Variant(const ByteArray& value) : Variant(Blob)
-    {
+
+    Variant::Variant(const ByteArray &value) : Variant(Blob) {
         setValue(value);
     }
-    Variant::~Variant()
-    {
-        if (type() == Text)
-        {
-            if(_value.strValue != nullptr)
-            {
+
+    Variant::~Variant() {
+        if (type() == Text) {
+            if (_value.strValue != nullptr) {
                 delete[] _value.strValue;
                 _value.strValue = nullptr;
             }
-        }
-        else if (type() == Blob)
-        {
-            if(_value.blobValue != nullptr)
-            {
+        } else if (type() == Blob) {
+            if (_value.blobValue != nullptr) {
                 delete[] _value.blobValue;
                 _value.blobValue = nullptr;
             }
         }
     }
-    
-    bool Variant::isEmpty() const
-    {
+
+    bool Variant::isEmpty() const {
         return _type == Null;
     }
 
-    Variant& Variant::operator=(const Variant& tag)
-    {
+    Variant &Variant::operator=(const Variant &tag) {
         this->_type = tag._type;
         setValue(tag.value());
         return *this;
     }
-    bool Variant::operator==(const Variant& tag) const
-    {
-        if(this->_type != tag._type)
-        {
+
+    bool Variant::operator==(const Variant &tag) const {
+        if (this->_type != tag._type) {
             return false;
         }
-        
+
         return isValueEqual(_type, _value, tag._value);
     }
-    bool Variant::operator!=(const Variant& tag) const
-    {
+
+    bool Variant::operator!=(const Variant &tag) const {
         return !operator==(tag);
     }
-    Variant& Variant::operator=(const Value& value)
-    {
+
+    Variant &Variant::operator=(const Value &value) {
         setValue(value);
         return *this;
     }
-    bool Variant::operator==(const Value& value) const
-    {
+
+    bool Variant::operator==(const Value &value) const {
         return isValueEqual(_type, _value, value);
     }
-    bool Variant::operator!=(const Value& value) const
-    {
+
+    bool Variant::operator!=(const Value &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const bool& value)
-    {
+    Variant &Variant::operator=(const bool &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator bool() const
-    {
+
+    Variant::operator bool() const {
         bool v = false;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const bool& value) const
-    {
+
+    bool Variant::operator==(const bool &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const bool& value) const
-    {
+
+    bool Variant::operator!=(const bool &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const int8_t& value)
-    {
+    Variant &Variant::operator=(const int8_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator int8_t() const
-    {
+
+    Variant::operator int8_t() const {
         int8_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const int8_t& value) const
-    {
+
+    bool Variant::operator==(const int8_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const int8_t& value) const
-    {
+
+    bool Variant::operator!=(const int8_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const uint8_t& value)
-    {
+    Variant &Variant::operator=(const uint8_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator uint8_t() const
-    {
+
+    Variant::operator uint8_t() const {
         uint8_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const uint8_t& value) const
-    {
+
+    bool Variant::operator==(const uint8_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const uint8_t& value) const
-    {
+
+    bool Variant::operator!=(const uint8_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const int16_t& value)
-    {
+    Variant &Variant::operator=(const int16_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator int16_t() const
-    {
+
+    Variant::operator int16_t() const {
         int16_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const int16_t& value) const
-    {
+
+    bool Variant::operator==(const int16_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const int16_t& value) const
-    {
+
+    bool Variant::operator!=(const int16_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const uint16_t& value)
-    {
+    Variant &Variant::operator=(const uint16_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator uint16_t() const
-    {
+
+    Variant::operator uint16_t() const {
         uint16_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const uint16_t& value) const
-    {
+
+    bool Variant::operator==(const uint16_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const uint16_t& value) const
-    {
+
+    bool Variant::operator!=(const uint16_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const int32_t& value)
-    {
+    Variant &Variant::operator=(const int32_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator int32_t() const
-    {
+
+    Variant::operator int32_t() const {
         int32_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const int32_t& value) const
-    {
+
+    bool Variant::operator==(const int32_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const int32_t& value) const
-    {
+
+    bool Variant::operator!=(const int32_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const uint32_t& value)
-    {
+    Variant &Variant::operator=(const uint32_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator uint32_t() const
-    {
+
+    Variant::operator uint32_t() const {
         uint32_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const uint32_t& value) const
-    {
+
+    bool Variant::operator==(const uint32_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const uint32_t& value) const
-    {
+
+    bool Variant::operator!=(const uint32_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const int64_t& value)
-    {
+    Variant &Variant::operator=(const int64_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator int64_t() const
-    {
+
+    Variant::operator int64_t() const {
         int64_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const int64_t& value) const
-    {
+
+    bool Variant::operator==(const int64_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const int64_t& value) const
-    {
+
+    bool Variant::operator!=(const int64_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const uint64_t& value)
-    {
+    Variant &Variant::operator=(const uint64_t &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator uint64_t() const
-    {
+
+    Variant::operator uint64_t() const {
         uint64_t v = 0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const uint64_t& value) const
-    {
+
+    bool Variant::operator==(const uint64_t &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const uint64_t& value) const
-    {
+
+    bool Variant::operator!=(const uint64_t &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const float& value)
-    {
+    Variant &Variant::operator=(const float &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator float() const
-    {
+
+    Variant::operator float() const {
         float v = 0.0f;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const float& value) const
-    {
+
+    bool Variant::operator==(const float &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const float& value) const
-    {
+
+    bool Variant::operator!=(const float &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const double& value)
-    {
+    Variant &Variant::operator=(const double &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator double() const
-    {
+
+    Variant::operator double() const {
         double v = 0.0;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const double& value) const
-    {
+
+    bool Variant::operator==(const double &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const double& value) const
-    {
+
+    bool Variant::operator!=(const double &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const String& value)
-    {
+    Variant &Variant::operator=(const String &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator String() const
-    {
+
+    Variant::operator String() const {
         String v = String::Empty;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const String& value) const
-    {
+
+    bool Variant::operator==(const String &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const String& value) const
-    {
+
+    bool Variant::operator!=(const String &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const DateTime& value)
-    {
+    Variant &Variant::operator=(const DateTime &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator DateTime() const
-    {
+
+    Variant::operator DateTime() const {
         DateTime v = DateTime::MinValue;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const DateTime& value) const
-    {
+
+    bool Variant::operator==(const DateTime &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const DateTime& value) const
-    {
+
+    bool Variant::operator!=(const DateTime &value) const {
         return !operator==(value);
     }
 
-    Variant& Variant::operator=(const ByteArray& value)
-    {
+    Variant &Variant::operator=(const ByteArray &value) {
         setValue(value);
         return *this;
     }
-    Variant::operator ByteArray() const
-    {
+
+    Variant::operator ByteArray() const {
         ByteArray v;
         getValue(v);
         return v;
     }
-    bool Variant::operator==(const ByteArray& value) const
-    {
+
+    bool Variant::operator==(const ByteArray &value) const {
         return compareValue(value);
     }
-    bool Variant::operator!=(const ByteArray& value) const
-    {
+
+    bool Variant::operator!=(const ByteArray &value) const {
         return !operator==(value);
     }
-    
-    bool Variant::isValueEqual(Type type, const Value& value1, const Value& value2)
-    {
-        switch (type)
-        {
+
+    bool Variant::isValueEqual(Type type, const Value &value1, const Value &value2) {
+        switch (type) {
             case Null:
                 return true;
             case Digital:
@@ -448,59 +422,48 @@ namespace Common
         }
         return false;
     }
-    
-    void Variant::setStringValue(const String& str)
-    {
+
+    void Variant::setStringValue(const String &str) {
         setStringValue(str, _type, _value);
     }
-    void Variant::setStringValue(const String& str, Type type, Value& value)
-    {
-        if (type == Text)
-        {
-            if (value.strValue != nullptr)
-            {
+
+    void Variant::setStringValue(const String &str, Type type, Value &value) {
+        if (type == Text) {
+            if (value.strValue != nullptr) {
                 delete[] value.strValue;
             }
-            if (str.isNullOrEmpty())
-            {
+            if (str.isNullOrEmpty()) {
                 value.strValue = nullptr;
                 return;
             }
-            
+
             size_t len = strlen(str);
-            if (len > 0)
-            {
+            if (len > 0) {
                 value.strValue = new char[len + 1];
                 strcpy(value.strValue, str);
-            }
-            else
-            {
+            } else {
                 value.strValue = new char[1];
                 value.strValue[0] = '\0';
             }
         }
     }
-    void Variant::setByteArrayValue(const uint8_t* buffer)
-    {
+
+    void Variant::setByteArrayValue(const uint8_t *buffer) {
         setByteArrayValue(buffer, _type, _value);
     }
-    void Variant::setByteArrayValue(const uint8_t* buffer, Type type, Value& value)
-    {
-        if (type == Blob)
-        {
-            if (value.blobValue != nullptr)
-            {
+
+    void Variant::setByteArrayValue(const uint8_t *buffer, Type type, Value &value) {
+        if (type == Blob) {
+            if (value.blobValue != nullptr) {
                 delete[] value.blobValue;
             }
-            if (buffer == nullptr)
-            {
+            if (buffer == nullptr) {
                 value.blobValue = nullptr;
                 return;
             }
-            
+
             size_t count = blobCount(buffer);
-            if(count > 0)
-            {
+            if (count > 0) {
                 value.blobValue = new uint8_t[2 + count];
                 uint8_t high = (count >> 8) & 0xFF;
                 uint8_t low = count & 0xFF;
@@ -510,27 +473,23 @@ namespace Common
             }
         }
     }
-    void Variant::setByteArrayValue(const ByteArray& buffer)
-    {
+
+    void Variant::setByteArrayValue(const ByteArray &buffer) {
         setByteArrayValue(buffer, _type, _value);
     }
-    void Variant::setByteArrayValue(const ByteArray& buffer, Type type, Value& value)
-    {
-        if (type == Blob)
-        {
-            if (value.blobValue != nullptr)
-            {
+
+    void Variant::setByteArrayValue(const ByteArray &buffer, Type type, Value &value) {
+        if (type == Blob) {
+            if (value.blobValue != nullptr) {
                 delete[] value.blobValue;
             }
-            if (buffer.count() == 0)
-            {
+            if (buffer.count() == 0) {
                 value.blobValue = nullptr;
                 return;
             }
-            
+
             size_t count = buffer.count();
-            if(count > 0)
-            {
+            if (count > 0) {
                 value.blobValue = new uint8_t[2 + count];
                 uint8_t high = (count >> 8) & 0xFF;
                 uint8_t low = count & 0xFF;
@@ -540,224 +499,189 @@ namespace Common
             }
         }
     }
-    
-    bool Variant::isNullValue(const Variant& tag)
-    {
+
+    bool Variant::isNullValue(const Variant &tag) {
         return (tag.type() == Null);
     }
-    bool Variant::isNullValue() const
-    {
+
+    bool Variant::isNullValue() const {
         return isNullValue(*this);
     }
-    void Variant::setNullValue()
-    {
+
+    void Variant::setNullValue() {
         _type = Null;
     }
-    
-    Variant::Type Variant::type() const
-    {
+
+    Variant::Type Variant::type() const {
         return _type;
     }
-    
-    void Variant::setValue(const Value& v)
-    {
+
+    void Variant::setValue(const Value &v) {
         Variant::Value oldValue;
         oldValue.lValue = 0;
         Variant::changeValue(type(), value(), type(), oldValue);
-        
+
         setValueInner(v);
-        
-        if(type() == Text)
-        {
-            if(oldValue.strValue != nullptr)
-            {
+
+        if (type() == Text) {
+            if (oldValue.strValue != nullptr) {
                 delete[] oldValue.strValue;
             }
-        }
-        else if(type() == Blob)
-        {
-            if(oldValue.blobValue != nullptr)
-            {
+        } else if (type() == Blob) {
+            if (oldValue.blobValue != nullptr) {
                 delete[] oldValue.blobValue;
             }
         }
     }
+
     template<class T>
-    bool Variant::setValue(const T& v)
-    {
-        if(compareValue(v))
+    bool Variant::setValue(const T &v) {
+        if (compareValue(v))
             return false;
-        
+
         Value temp;
         temp.lValue = 0;
-        if(changeValueInner(v, type(), temp))
-        {
+        if (changeValueInner(v, type(), temp)) {
             setValue(temp);
-            if(type() == Text)
-            {
+            if (type() == Text) {
                 delete[] temp.strValue;
-            }
-            else if(type() == Blob)
-            {
+            } else if (type() == Blob) {
                 delete[] temp.blobValue;
             }
             return true;
         }
         return false;
     }
-    
-    bool Variant::setValue(const bool& v)
-    {
+
+    bool Variant::setValue(const bool &v) {
         return setValue<bool>(v);
     }
-    bool Variant::setValue(const int8_t& v)
-    {
+
+    bool Variant::setValue(const int8_t &v) {
         return setValue<int8_t>(v);
     }
-    bool Variant::setValue(const uint8_t& v)
-    {
+
+    bool Variant::setValue(const uint8_t &v) {
         return setValue<uint8_t>(v);
     }
-    bool Variant::setValue(const int16_t& v)
-    {
+
+    bool Variant::setValue(const int16_t &v) {
         return setValue<int16_t>(v);
     }
-    bool Variant::setValue(const uint16_t& v)
-    {
+
+    bool Variant::setValue(const uint16_t &v) {
         return setValue<uint16_t>(v);
     }
-    bool Variant::setValue(const int32_t& v)
-    {
+
+    bool Variant::setValue(const int32_t &v) {
         return setValue<int32_t>(v);
     }
-    bool Variant::setValue(const uint32_t& v)
-    {
+
+    bool Variant::setValue(const uint32_t &v) {
         return setValue<uint32_t>(v);
     }
-    bool Variant::setValue(const int64_t& v)
-    {
+
+    bool Variant::setValue(const int64_t &v) {
         return setValue<int64_t>(v);
     }
-    bool Variant::setValue(const uint64_t& v)
-    {
+
+    bool Variant::setValue(const uint64_t &v) {
         return setValue<uint64_t>(v);
     }
-    bool Variant::setValue(const float& v)
-    {
+
+    bool Variant::setValue(const float &v) {
         return setValue<float>(v);
     }
-    bool Variant::setValue(const double& v)
-    {
+
+    bool Variant::setValue(const double &v) {
         return setValue<double>(v);
     }
-    bool Variant::setValue(const String& v)
-    {
-        if(compareValue(v))
+
+    bool Variant::setValue(const String &v) {
+        if (compareValue(v))
             return false;
-        
+
         Value temp;
         temp.lValue = 0;
-        if(changeStringValue(v, type(), temp))
-        {
+        if (changeStringValue(v, type(), temp)) {
             setValue(temp);
-            if(type() == Text)
-            {
+            if (type() == Text) {
                 delete[] temp.strValue;
-            }
-            else if(type() == Blob)
-            {
+            } else if (type() == Blob) {
                 delete[] temp.blobValue;
             }
             return true;
         }
         return false;
     }
-    bool Variant::setValue(const char* v)
-    {
-        if(v != nullptr)
-        {
-            return setValue((String)v);
+
+    bool Variant::setValue(const char *v) {
+        if (v != nullptr) {
+            return setValue((String) v);
         }
         return false;
     }
-    bool Variant::setValue(const DateTime& v)
-    {
-        if(compareValue(v))
+
+    bool Variant::setValue(const DateTime &v) {
+        if (compareValue(v))
             return false;
-        
+
         Value temp;
         temp.lValue = 0;
-        if(changeDateValue(v, type(), temp))
-        {
+        if (changeDateValue(v, type(), temp)) {
             setValue(temp);
-            if(type() == Text)
-            {
+            if (type() == Text) {
                 delete[] temp.strValue;
-            }
-            else if(type() == Blob)
-            {
+            } else if (type() == Blob) {
                 delete[] temp.blobValue;
             }
             return true;
         }
         return false;
     }
-    bool Variant::setValue(const ByteArray& v)
-    {
-        if(compareValue(v))
+
+    bool Variant::setValue(const ByteArray &v) {
+        if (compareValue(v))
             return false;
-        
+
         Value temp;
         temp.lValue = 0;
-        if(changeByteArrayValue(v, type(), temp))
-        {
+        if (changeByteArrayValue(v, type(), temp)) {
             setValue(temp);
-            if(type() == Text)
-            {
+            if (type() == Text) {
                 delete[] temp.strValue;
-            }
-            else if(type() == Blob)
-            {
+            } else if (type() == Blob) {
                 delete[] temp.blobValue;
             }
             return true;
         }
         return false;
     }
-    
-    void Variant::setValueInner(const Value& value)
-    {
-        if (_type == Text)
-        {
+
+    void Variant::setValueInner(const Value &value) {
+        if (_type == Text) {
             setStringValue(value.strValue);
-        }
-        else if(_type == Blob)
-        {
+        } else if (_type == Blob) {
             setByteArrayValue(value.blobValue);
-        }
-        else
-        {
+        } else {
             _value = value;
         }
     }
 
-    bool Variant::isAnalogValue() const
-    {
+    bool Variant::isAnalogValue() const {
         return isAnalogValue(type());
     }
-    bool Variant::isDigitalValue() const
-    {
+
+    bool Variant::isDigitalValue() const {
         return isDigitalValue(type());
     }
 
-    Variant::Value Variant::value() const
-    {
+    Variant::Value Variant::value() const {
         return _value;
     }
-    bool Variant::getValue(Variant::Type type, Variant::Value& value) const
-    {
-        switch (_type)
-        {
+
+    bool Variant::getValue(Variant::Type type, Variant::Value &value) const {
+        switch (_type) {
             case Null:
                 break;
             case Digital:
@@ -793,79 +717,77 @@ namespace Common
         }
         return false;
     }
+
     template<class T>
-    bool Variant::getValue(T& v) const
-    {
+    bool Variant::getValue(T &v) const {
         return changeValueInner(type(), value(), v);
     }
-    bool Variant::getValue(bool& value) const
-    {
+
+    bool Variant::getValue(bool &value) const {
         return getValue<bool>(value);
     }
-    bool Variant::getValue(int8_t& value) const
-    {
+
+    bool Variant::getValue(int8_t &value) const {
         return getValue<int8_t>(value);
     }
-    bool Variant::getValue(uint8_t& value) const
-    {
+
+    bool Variant::getValue(uint8_t &value) const {
         return getValue<uint8_t>(value);
     }
-    bool Variant::getValue(int16_t& value) const
-    {
+
+    bool Variant::getValue(int16_t &value) const {
         return getValue<int16_t>(value);
     }
-    bool Variant::getValue(uint16_t& value) const
-    {
+
+    bool Variant::getValue(uint16_t &value) const {
         return getValue<uint16_t>(value);
     }
-    bool Variant::getValue(int32_t& value) const
-    {
+
+    bool Variant::getValue(int32_t &value) const {
         return getValue<int32_t>(value);
     }
-    bool Variant::getValue(uint32_t& value) const
-    {
+
+    bool Variant::getValue(uint32_t &value) const {
         return getValue<uint32_t>(value);
     }
-    bool Variant::getValue(int64_t& value) const
-    {
+
+    bool Variant::getValue(int64_t &value) const {
         return getValue<int64_t>(value);
     }
-    bool Variant::getValue(uint64_t& value) const
-    {
+
+    bool Variant::getValue(uint64_t &value) const {
         return getValue<uint64_t>(value);
     }
-    bool Variant::getValue(float& value) const
-    {
+
+    bool Variant::getValue(float &value) const {
         return getValue<float>(value);
     }
-    bool Variant::getValue(double& value) const
-    {
+
+    bool Variant::getValue(double &value) const {
         return getValue<double>(value);
     }
-    bool Variant::getValue(String& v) const
-    {
+
+    bool Variant::getValue(String &v) const {
         return changeStringValue(type(), value(), v);
     }
-    const String Variant::valueStr() const
-    {
+
+    const String Variant::valueStr() const {
         String value;
-        if(getValue(value))
+        if (getValue(value))
             return value;
         return String::Empty;
     }
-    bool Variant::getValue(DateTime& v) const
-    {
+
+    bool Variant::getValue(DateTime &v) const {
         return changeDateValue(type(), value(), v);
     }
-    bool Variant::getValue(ByteArray& v) const
-    {
+
+    bool Variant::getValue(ByteArray &v) const {
         return changeByteArrayValue(type(), value(), v);
     }
-    
-    bool Variant::compareValue(const Value& v) const
-    {
-        switch (type())
-        {
+
+    bool Variant::compareValue(const Value &v) const {
+        switch (type()) {
             case Null:
                 return false;
             case Digital:
@@ -900,109 +822,104 @@ namespace Common
                 return false;
         }
     }
-    bool Variant::compareValue(const bool& v) const
-    {
+
+    bool Variant::compareValue(const bool &v) const {
         return compareValue<bool>(type(), value(), v);
     }
-    bool Variant::compareValue(const int8_t& v) const
-    {
+
+    bool Variant::compareValue(const int8_t &v) const {
         return compareValue<int8_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const uint8_t& v) const
-    {
+
+    bool Variant::compareValue(const uint8_t &v) const {
         return compareValue<uint8_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const int16_t& v) const
-    {
+
+    bool Variant::compareValue(const int16_t &v) const {
         return compareValue<int16_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const uint16_t& v) const
-    {
+
+    bool Variant::compareValue(const uint16_t &v) const {
         return compareValue<uint16_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const int32_t& v) const
-    {
+
+    bool Variant::compareValue(const int32_t &v) const {
         return compareValue<int32_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const uint32_t& v) const
-    {
+
+    bool Variant::compareValue(const uint32_t &v) const {
         return compareValue<uint32_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const int64_t& v) const
-    {
+
+    bool Variant::compareValue(const int64_t &v) const {
         return compareValue<int64_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const uint64_t& v) const
-    {
+
+    bool Variant::compareValue(const uint64_t &v) const {
         return compareValue<uint64_t>(type(), value(), v);
     }
-    bool Variant::compareValue(const float& v) const
-    {
+
+    bool Variant::compareValue(const float &v) const {
         return compareValue<float>(type(), value(), v);
     }
-    bool Variant::compareValue(const double& v) const
-    {
+
+    bool Variant::compareValue(const double &v) const {
         return compareValue<double>(type(), value(), v);
     }
-    bool Variant::compareValue(const String& v) const
-    {
+
+    bool Variant::compareValue(const String &v) const {
         String str;
-        if(changeStringValue(type(), value(), str))
-        {
+        if (changeStringValue(type(), value(), str)) {
             return str == v;
         }
         return false;
     }
-    bool Variant::compareValue(const DateTime& v) const
-    {
+
+    bool Variant::compareValue(const DateTime &v) const {
         DateTime temp;
-        if(changeDateValue(type(), value(), temp))
-        {
+        if (changeDateValue(type(), value(), temp)) {
             return temp == v;
         }
         return false;
     }
-    bool Variant::compareValue(const ByteArray& v) const
-    {
+
+    bool Variant::compareValue(const ByteArray &v) const {
         ByteArray temp;
-        if(changeByteArrayValue(type(), value(), temp))
-        {
+        if (changeByteArrayValue(type(), value(), temp)) {
             return temp == v;
         }
         return false;
     }
+
     template<class T>
-    bool Variant::compareValue(Type type, const Value& value, const T& v)
-    {
-        switch (type)
-        {
+    bool Variant::compareValue(Type type, const Value &value, const T &v) {
+        switch (type) {
             case Null:
                 return false;
-            case Digital:
-            {
+            case Digital: {
                 bool temp = v != 0 ? true : false;
                 return value.bValue == temp;
             }
             case Integer8:
-                return value.cValue == (int8_t)v;
+                return value.cValue == (int8_t) v;
             case UInteger8:
-                return value.ucValue == (uint8_t)v;
+                return value.ucValue == (uint8_t) v;
             case Integer16:
-                return value.sValue == (int16_t)v;
+                return value.sValue == (int16_t) v;
             case UInteger16:
-                return value.usValue == (uint16_t)v;
+                return value.usValue == (uint16_t) v;
             case Integer32:
-                return value.nValue == (int32_t)v;
+                return value.nValue == (int32_t) v;
             case UInteger32:
-                return value.unValue == (uint32_t)v;
+                return value.unValue == (uint32_t) v;
             case Integer64:
-                return value.lValue == (int64_t)v;
+                return value.lValue == (int64_t) v;
             case UInteger64:
-                return value.ulValue == (uint64_t)v;
+                return value.ulValue == (uint64_t) v;
             case Float32:
-                return value.fValue == (float)v;
+                return value.fValue == (float) v;
             case Float64:
-                return value.dValue == (double)v;
+                return value.dValue == (double) v;
             case Text:
                 return compareTextValue(value.strValue, Convert::convertStr(v).c_str());
             case Date:
@@ -1014,108 +931,96 @@ namespace Common
         }
         return true;
     }
-    bool Variant::compareValue(Type type, const Value& value, const bool& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const bool &v) {
         return compareValue<bool>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const int8_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const int8_t &v) {
         return compareValue<int8_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const uint8_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const uint8_t &v) {
         return compareValue<uint8_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const int16_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const int16_t &v) {
         return compareValue<int16_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const uint16_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const uint16_t &v) {
         return compareValue<uint16_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const int32_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const int32_t &v) {
         return compareValue<int32_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const uint32_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const uint32_t &v) {
         return compareValue<uint32_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const int64_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const int64_t &v) {
         return compareValue<int64_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const uint64_t& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const uint64_t &v) {
         return compareValue<uint64_t>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const float& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const float &v) {
         return compareValue<float>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const double& v)
-    {
+
+    bool Variant::compareValue(Type type, const Value &value, const double &v) {
         return compareValue<double>(type, value, v);
     }
-    bool Variant::compareValue(Type type, const Value& value, const String& v)
-    {
-        switch (type)
-        {
+
+    bool Variant::compareValue(Type type, const Value &value, const String &v) {
+        switch (type) {
             case Null:
                 return false;
-            case Digital:
-            {
+            case Digital: {
                 bool temp;
                 return Boolean::parse(v, temp) && value.bValue == temp;
             }
-            case Integer8:
-            {
+            case Integer8: {
                 int8_t temp;
                 return Int8::parse(v, temp) && value.cValue == temp;
             }
-            case UInteger8:
-            {
+            case UInteger8: {
                 uint8_t temp;
                 return UInt8::parse(v, temp) && value.ucValue == temp;
             }
-            case Integer16:
-            {
+            case Integer16: {
                 int16_t temp;
                 return Int16::parse(v, temp) && value.sValue == temp;
             }
-            case UInteger16:
-            {
+            case UInteger16: {
                 uint16_t temp;
                 return UInt16::parse(v, temp) && value.usValue == temp;
             }
-            case Integer32:
-            {
+            case Integer32: {
                 int32_t temp;
                 return Int32::parse(v, temp) && value.nValue == temp;
             }
-            case UInteger32:
-            {
+            case UInteger32: {
                 uint32_t temp;
                 return UInt32::parse(v, temp) && value.unValue == temp;
             }
-            case Integer64:
-            {
+            case Integer64: {
                 Int64 temp;
                 return Int64::parse(v, temp) && value.lValue == temp;
             }
-            case UInteger64:
-            {
+            case UInteger64: {
                 UInt64 temp;
                 return UInt64::parse(v, temp) && value.ulValue == temp;
             }
-            case Float32:
-            {
+            case Float32: {
                 float temp;
                 return Float::parse(v, temp) && value.fValue == temp;
             }
-            case Float64:
-            {
+            case Float64: {
                 double temp;
                 return Double::parse(v, temp) && value.dValue == temp;
             }
@@ -1130,36 +1035,26 @@ namespace Common
         }
         return true;
     }
-    
-    bool Variant::changeValue(const Variant* tag, Type destType, Value& destValue)
-    {
-        if(tag == nullptr)
+
+    bool Variant::changeValue(const Variant *tag, Type destType, Value &destValue) {
+        if (tag == nullptr)
             return false;
-        
+
         return changeValue(tag->type(), tag->value(), destType, destValue);
     }
-    bool Variant::changeValue(Type type, const Value& value, Type destType, Value& destValue)
-    {
-        if(type == destType)
-        {
-            if(type == Text)
-            {
+
+    bool Variant::changeValue(Type type, const Value &value, Type destType, Value &destValue) {
+        if (type == destType) {
+            if (type == Text) {
                 setStringValue(value.strValue, destType, destValue);
-            }
-            else if(type == Blob)
-            {
+            } else if (type == Blob) {
                 setByteArrayValue(value.blobValue, destType, destValue);
-            }
-            else
-            {
+            } else {
                 destValue = value;
             }
             return true;
-        }
-        else
-        {
-            switch (type)
-            {
+        } else {
+            switch (type) {
                 case Null:
                     return false;
                 case Digital:
@@ -1196,16 +1091,14 @@ namespace Common
         }
         return false;
     }
-    
-    bool Variant::compareValue(Type type1, const Value& value1, Type type2, const Value& value2)
-    {
+
+    bool Variant::compareValue(Type type1, const Value &value1, Type type2, const Value &value2) {
         Value destValue;
         destValue.lValue = 0;
-        if(!changeValue(type1, value1, type2, destValue))
+        if (!changeValue(type1, value1, type2, destValue))
             return false;
-        
-        switch (type2)
-        {
+
+        switch (type2) {
             case Null:
                 return false;
             case Digital:
@@ -1230,31 +1123,23 @@ namespace Common
                 return value2.fValue == destValue.fValue;
             case Float64:
                 return value2.dValue == destValue.dValue;
-            case Text:
-            {
-                if(value2.strValue != nullptr && destValue.strValue != nullptr)
-                {
+            case Text: {
+                if (value2.strValue != nullptr && destValue.strValue != nullptr) {
                     bool result = strcmp(value2.strValue, destValue.strValue) == 0;
                     delete[] destValue.strValue;
                     return result;
-                }
-                else
-                {
+                } else {
                     return value2.strValue == nullptr && destValue.strValue == nullptr ? true : false;
                 }
             }
             case Date:
                 return value2.tValue == destValue.tValue;
-            case Blob:
-            {
-                if(value2.blobValue != nullptr && destValue.blobValue != nullptr)
-                {
+            case Blob: {
+                if (value2.blobValue != nullptr && destValue.blobValue != nullptr) {
                     bool result = compareBlobValue(value2.blobValue, destValue.blobValue);
                     delete[] destValue.blobValue;
                     return result;
-                }
-                else
-                {
+                } else {
                     return value2.blobValue == nullptr && destValue.blobValue == nullptr ? true : false;
                 }
             }
@@ -1263,11 +1148,9 @@ namespace Common
         }
         return true;
     }
-    
-    bool Variant::changeDigitalValue(bool v, Type type, Value& value)
-    {
-        switch (type)
-        {
+
+    bool Variant::changeDigitalValue(bool v, Type type, Value &value) {
+        switch (type) {
             case Null:
                 return false;
             case Digital:
@@ -1315,132 +1198,125 @@ namespace Common
         }
         return true;
     }
-    bool Variant::changeInt8Value(int8_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeInt8Value(int8_t v, Type type, Value &value) {
         return changeValueInner<int8_t>(v, type, value);
     }
-    bool Variant::changeUInt8Value(uint8_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeUInt8Value(uint8_t v, Type type, Value &value) {
         return changeValueInner<uint8_t>(v, type, value);
     }
-    bool Variant::changeInt16Value(int16_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeInt16Value(int16_t v, Type type, Value &value) {
         return changeValueInner<int16_t>(v, type, value);
     }
-    bool Variant::changeUInt16Value(uint16_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeUInt16Value(uint16_t v, Type type, Value &value) {
         return changeValueInner<uint16_t>(v, type, value);
     }
-    bool Variant::changeInt32Value(int32_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeInt32Value(int32_t v, Type type, Value &value) {
         return changeValueInner<int32_t>(v, type, value);
     }
-    bool Variant::changeUInt32Value(uint32_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeUInt32Value(uint32_t v, Type type, Value &value) {
         return changeValueInner<uint32_t>(v, type, value);
     }
-    bool Variant::changeInt64Value(int64_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeInt64Value(int64_t v, Type type, Value &value) {
         return changeValueInner<int64_t>(v, type, value);
     }
-    bool Variant::changeUInt64Value(uint64_t v, Type type, Value& value)
-    {
+
+    bool Variant::changeUInt64Value(uint64_t v, Type type, Value &value) {
         return changeValueInner<uint64_t>(v, type, value);
     }
-    bool Variant::changeFloat32Value(float v, Type type, Value& value)
-    {
+
+    bool Variant::changeFloat32Value(float v, Type type, Value &value) {
         return changeValueInner<float>(v, type, value);
     }
-    bool Variant::changeFloat64Value(double v, Type type, Value& value)
-    {
+
+    bool Variant::changeFloat64Value(double v, Type type, Value &value) {
         return changeValueInner<double>(v, type, value);
     }
-    bool Variant::changeStringValue(const String& v, Type type, Value& value)
-    {
+
+    bool Variant::changeStringValue(const String &v, Type type, Value &value) {
         return changeStringValue(v.c_str(), type, value);
     }
-    bool Variant::changeStringValue(const char* v, Type type, Value& value)
-    {
-        if(v == nullptr)
+
+    bool Variant::changeStringValue(const char *v, Type type, Value &value) {
+        if (v == nullptr)
             return false;
-        
+
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
-            case Digital:
-            {
-                if(Boolean::parse(v, value.bValue))
+            case Digital: {
+                if (Boolean::parse(v, value.bValue))
                     changed = true;
                 int n;
-                if(Int32::parse(v, n))
-                {
+                if (Int32::parse(v, n)) {
                     value.bValue = n != 0 ? true : false;
                     changed = true;
                 }
             }
                 break;
             case Integer8:
-                if(Int8::parse(v, value.cValue))
+                if (Int8::parse(v, value.cValue))
                     changed = true;
                 break;
             case UInteger8:
-                if(UInt8::parse(v, value.ucValue))
+                if (UInt8::parse(v, value.ucValue))
                     changed = true;
                 break;
             case Integer16:
-                if(Int16::parse(v, value.sValue))
+                if (Int16::parse(v, value.sValue))
                     changed = true;
                 break;
             case UInteger16:
-                if(UInt16::parse(v, value.usValue))
+                if (UInt16::parse(v, value.usValue))
                     changed = true;
                 break;
             case Integer32:
-                if(Int32::parse(v, value.nValue))
+                if (Int32::parse(v, value.nValue))
                     changed = true;
                 break;
             case UInteger32:
-                if(UInt32::parse(v, value.unValue))
+                if (UInt32::parse(v, value.unValue))
                     changed = true;
                 break;
             case Integer64:
-                if(Int64::parse(v, value.lValue))
+                if (Int64::parse(v, value.lValue))
                     changed = true;
                 break;
             case UInteger64:
-                if(UInt64::parse(v, value.ulValue))
+                if (UInt64::parse(v, value.ulValue))
                     changed = true;
                 break;
             case Float32:
-                if(Float::parse(v, value.fValue))
+                if (Float::parse(v, value.fValue))
                     changed = true;
                 break;
             case Float64:
-                if(Int32::parse(v, value.nValue))
+                if (Int32::parse(v, value.nValue))
                     changed = true;
                 break;
             case Text:
                 setStringValue(v, type, value);
                 changed = true;
                 break;
-            case Date:
-            {
+            case Date: {
                 DateTime time;
-                if (DateTime::parse(v, time))
-                {
+                if (DateTime::parse(v, time)) {
                     value.tValue = time.ticks();
                     changed = true;
                 }
                 break;
             }
-            case Blob:
-            {
+            case Blob: {
                 ByteArray array;
-                if(ByteArray::parse(v, array))
-                {
+                if (ByteArray::parse(v, array)) {
                     setByteArrayValue(array, type, value);
                     changed = true;
                 }
@@ -1452,11 +1328,10 @@ namespace Common
         }
         return changed;
     }
-    bool Variant::changeDateValue(const DateTime& v, Type type, Value& value)
-    {
+
+    bool Variant::changeDateValue(const DateTime &v, Type type, Value &value) {
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1510,11 +1385,10 @@ namespace Common
         }
         return changed;
     }
-    bool Variant::changeByteArrayValue(const ByteArray& v, Type type, Value& value)
-    {
+
+    bool Variant::changeByteArrayValue(const ByteArray &v, Type type, Value &value) {
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1567,11 +1441,10 @@ namespace Common
         }
         return changed;
     }
-    bool Variant::changeByteArrayValue(const uint8_t* v, Type type, Value& value)
-    {
+
+    bool Variant::changeByteArrayValue(const uint8_t *v, Type type, Value &value) {
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1624,56 +1497,54 @@ namespace Common
         }
         return changed;
     }
-    
-    bool Variant::changeDigitalValue(Type type, const Value& value, bool& v)
-    {
+
+    bool Variant::changeDigitalValue(Type type, const Value &value, bool &v) {
         return changeValueInner<bool>(type, value, v);
     }
-    bool Variant::changeInt8Value(Type type, const Value& value, int8_t& v)
-    {
+
+    bool Variant::changeInt8Value(Type type, const Value &value, int8_t &v) {
         return changeValueInner<int8_t>(type, value, v);
     }
-    bool Variant::changeUInt8Value(Type type, const Value& value, uint8_t& v)
-    {
+
+    bool Variant::changeUInt8Value(Type type, const Value &value, uint8_t &v) {
         return changeValueInner<uint8_t>(type, value, v);
     }
-    bool Variant::changeInt16Value(Type type, const Value& value, int16_t& v)
-    {
+
+    bool Variant::changeInt16Value(Type type, const Value &value, int16_t &v) {
         return changeValueInner<int16_t>(type, value, v);
     }
-    bool Variant::changeUInt16Value(Type type, const Value& value, uint16_t& v)
-    {
+
+    bool Variant::changeUInt16Value(Type type, const Value &value, uint16_t &v) {
         return changeValueInner<uint16_t>(type, value, v);
     }
-    bool Variant::changeInt32Value(Type type, const Value& value, int32_t& v)
-    {
+
+    bool Variant::changeInt32Value(Type type, const Value &value, int32_t &v) {
         return changeValueInner<int32_t>(type, value, v);
     }
-    bool Variant::changeUInt32Value(Type type, const Value& value, uint32_t& v)
-    {
+
+    bool Variant::changeUInt32Value(Type type, const Value &value, uint32_t &v) {
         return changeValueInner<uint32_t>(type, value, v);
     }
-    bool Variant::changeInt64Value(Type type, const Value& value, int64_t& v)
-    {
+
+    bool Variant::changeInt64Value(Type type, const Value &value, int64_t &v) {
         return changeValueInner<int64_t>(type, value, v);
     }
-    bool Variant::changeUInt64Value(Type type, const Value& value, uint64_t& v)
-    {
+
+    bool Variant::changeUInt64Value(Type type, const Value &value, uint64_t &v) {
         return changeValueInner<uint64_t>(type, value, v);
     }
-    bool Variant::changeFloat32Value(Type type, const Value& value, float& v)
-    {
+
+    bool Variant::changeFloat32Value(Type type, const Value &value, float &v) {
         return changeValueInner<float>(type, value, v);
     }
-    bool Variant::changeFloat64Value(Type type, const Value& value, double& v)
-    {
+
+    bool Variant::changeFloat64Value(Type type, const Value &value, double &v) {
         return changeValueInner<double>(type, value, v);
     }
-    bool Variant::changeStringValue(Type type, const Value& value, String& v)
-    {
+
+    bool Variant::changeStringValue(Type type, const Value &value, String &v) {
         bool changed = true;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1713,23 +1584,18 @@ namespace Common
             case Text:
                 v = value.strValue;
                 break;
-            case Date:
-            {
+            case Date: {
                 DateTime time(value.tValue);
                 v = time.toString();
                 break;
             }
-            case Blob:
-            {
+            case Blob: {
                 size_t count = blobCount(value.blobValue);
-                if(count > 0 && count < 128)
-                {
-                    const uint8_t* buffer = blobBuffer(value.blobValue);
+                if (count > 0 && count < 128) {
+                    const uint8_t *buffer = blobBuffer(value.blobValue);
                     ByteArray array(buffer, count);
                     v = array.toString();
-                }
-                else
-                {
+                } else {
                     changed = false;
                 }
             }
@@ -1740,11 +1606,10 @@ namespace Common
         }
         return changed;
     }
-    bool Variant::changeDateValue(Type type, const Value& value, DateTime& v)
-    {
+
+    bool Variant::changeDateValue(Type type, const Value &value, DateTime &v) {
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1781,11 +1646,9 @@ namespace Common
             case Float64:
                 changed = false;
                 break;
-            case Text:
-            {
+            case Text: {
                 DateTime time;
-                if (DateTime::parse(value.strValue, time))
-                {
+                if (DateTime::parse(value.strValue, time)) {
                     v = time;
                     changed = true;
                 }
@@ -1804,11 +1667,10 @@ namespace Common
         }
         return changed;
     }
-    bool Variant::changeByteArrayValue(Type type, const Value& value, ByteArray& v)
-    {
+
+    bool Variant::changeByteArrayValue(Type type, const Value &value, ByteArray &v) {
         bool changed = false;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -1851,12 +1713,10 @@ namespace Common
             case Date:
                 changed = false;
                 break;
-            case Blob:
-            {
+            case Blob: {
                 size_t count = blobCount(value.blobValue);
-                if(count > 0)
-                {
-                    const uint8_t* buffer = blobBuffer(value.blobValue);
+                if (count > 0) {
+                    const uint8_t *buffer = blobBuffer(value.blobValue);
                     v = ByteArray(buffer, count);
                 }
             }
@@ -1867,64 +1727,60 @@ namespace Common
         }
         return changed;
     }
-    
-    double Variant::toAnalogValue(Type type, const Value& value)
-    {
-        if(isAnalogValue(type))
-        {
+
+    double Variant::toAnalogValue(Type type, const Value &value) {
+        if (isAnalogValue(type)) {
             double result = 0.0;
             changeValueInner<double>(type, value, result);
             return result;
         }
         return 0.0;
     }
-    Variant::Value Variant::fromAnalogValue(Type type, double value)
-    {
+
+    Variant::Value Variant::fromAnalogValue(Type type, double value) {
         Value result;
         result.lValue = 0;
         changeValueInner<double>(value, type, result);
         return result;
     }
-    
+
     template<class T>
-    bool Variant::changeValueInner(T v, Type type, Value& value)
-    {
-        switch (type)
-        {
+    bool Variant::changeValueInner(T v, Type type, Value &value) {
+        switch (type) {
             case Null:
                 return false;
             case Digital:
                 value.bValue = v != 0;
                 break;
             case Integer8:
-                value.cValue = (int8_t)v;
+                value.cValue = (int8_t) v;
                 break;
             case UInteger8:
-                value.ucValue = (uint8_t)v;
+                value.ucValue = (uint8_t) v;
                 break;
             case Integer16:
-                value.sValue = (int16_t)v;
+                value.sValue = (int16_t) v;
                 break;
             case UInteger16:
-                value.usValue = (uint16_t)v;
+                value.usValue = (uint16_t) v;
                 break;
             case Integer32:
-                value.nValue = (int32_t)v;
+                value.nValue = (int32_t) v;
                 break;
             case UInteger32:
-                value.unValue = (uint32_t)v;
+                value.unValue = (uint32_t) v;
                 break;
             case Integer64:
-                value.lValue = (int64_t)v;
+                value.lValue = (int64_t) v;
                 break;
             case UInteger64:
-                value.ulValue = (uint64_t)v;
+                value.ulValue = (uint64_t) v;
                 break;
             case Float32:
-                value.fValue = (float)v;
+                value.fValue = (float) v;
                 break;
             case Float64:
-                value.dValue = (double)v;
+                value.dValue = (double) v;
                 break;
             case Text:
                 setStringValue(Convert::convertStr(v), type, value);
@@ -1938,51 +1794,47 @@ namespace Common
         }
         return true;
     }
-    
+
     template<class T>
-    bool Variant::changeValueInner(Type type, const Value& value, T& v)
-    {
-        switch (type)
-        {
+    bool Variant::changeValueInner(Type type, const Value &value, T &v) {
+        switch (type) {
             case Null:
                 return false;
             case Digital:
-                v = (T)value.bValue;
+                v = (T) value.bValue;
                 break;
             case Integer8:
-                v = (T)value.cValue;
+                v = (T) value.cValue;
                 break;
             case UInteger8:
-                v = (T)value.ucValue;
+                v = (T) value.ucValue;
                 break;
             case Integer16:
-                v = (T)value.sValue;
+                v = (T) value.sValue;
                 break;
             case UInteger16:
-                v = (T)value.usValue;
+                v = (T) value.usValue;
                 break;
             case Integer32:
-                v = (T)value.nValue;
+                v = (T) value.nValue;
                 break;
             case UInteger32:
-                v = (T)value.unValue;
+                v = (T) value.unValue;
                 break;
             case Integer64:
-                v = (T)value.lValue;
+                v = (T) value.lValue;
                 break;
             case UInteger64:
-                v = (T)value.ulValue;
+                v = (T) value.ulValue;
                 break;
             case Float32:
-                v = (T)value.fValue;
+                v = (T) value.fValue;
                 break;
             case Float64:
-                v = (T)value.dValue;
+                v = (T) value.dValue;
                 break;
-            case Text:
-            {
-                if(Convert::parseStr(value.strValue, v))
-                {
+            case Text: {
+                if (Convert::parseStr(value.strValue, v)) {
                     return true;
                 }
                 return false;
@@ -1997,15 +1849,12 @@ namespace Common
         return true;
     }
 
-    const String Variant::typeStr() const
-    {
+    const String Variant::typeStr() const {
         return toTypeStr(_type);
     }
-    
-    void Variant::writeValue(Stream* stream, Variant::Type type, const Variant::Value& value)
-    {
-        switch (type)
-        {
+
+    void Variant::writeValue(Stream *stream, Variant::Type type, const Variant::Value &value) {
+        switch (type) {
             case Null:
                 break;
             case Digital:
@@ -2047,13 +1896,11 @@ namespace Common
             case Date:
                 stream->writeUInt64(value.tValue);
                 break;
-            case Blob:
-            {
+            case Blob: {
                 size_t count = blobCount(value.blobValue);
-                stream->writeUInt16((ushort)count);
-                if(count > 0)
-                {
-                    const uint8_t* buffer = blobBuffer(value.blobValue);
+                stream->writeUInt16((ushort) count);
+                if (count > 0) {
+                    const uint8_t *buffer = blobBuffer(value.blobValue);
                     stream->write(buffer, 0, count);
                 }
             }
@@ -2062,10 +1909,9 @@ namespace Common
                 break;
         }
     }
-    void Variant::readValue(Stream* stream, Variant::Type type, Variant::Value& value)
-    {
-        switch (type)
-        {
+
+    void Variant::readValue(Stream *stream, Variant::Type type, Variant::Value &value) {
+        switch (type) {
             case Null:
                 break;
             case Digital:
@@ -2107,11 +1953,9 @@ namespace Common
             case Date:
                 value.tValue = stream->readUInt64();
                 break;
-            case Blob:
-            {
+            case Blob: {
                 size_t count = stream->readUInt16();
-                if(count > 0)
-                {
+                if (count > 0) {
                     value.blobValue = new uint8_t[2 + count];
                     uint8_t high = (count >> 8) & 0xFF;
                     uint8_t low = count & 0xFF;
@@ -2125,11 +1969,10 @@ namespace Common
                 break;
         }
     }
-    int Variant::valueSize(Type type, const Value& value)
-    {
+
+    int Variant::valueSize(Type type, const Value &value) {
         int size = 0;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 size = 0;
                 break;
@@ -2167,7 +2010,7 @@ namespace Common
                 size = sizeof(value.dValue);
                 break;
             case Text:
-                size = sizeof(short) + (int)strlen(value.strValue);
+                size = sizeof(short) + (int) strlen(value.strValue);
                 break;
             case Date:
                 size = sizeof(value.tValue);
@@ -2177,11 +2020,9 @@ namespace Common
         }
         return size;
     }
-    
-    String Variant::toTypeScriptStr(Type type)
-    {
-        switch (type)
-        {
+
+    String Variant::toTypeScriptStr(Type type) {
+        switch (type) {
             case Null:
                 return String::Empty;
             case Digital:
@@ -2214,10 +2055,9 @@ namespace Common
                 return String::Empty;
         }
     }
-    String Variant::toTypeStr(Type type)
-    {
-        switch (type)
-        {
+
+    String Variant::toTypeStr(Type type) {
+        switch (type) {
             case Null:
                 return "Null";
             case Digital:
@@ -2225,7 +2065,7 @@ namespace Common
             case Integer8:
                 return "Integer8";
             case UInteger8:
-               return "UInteger8";
+                return "UInteger8";
             case Integer16:
                 return "Integer16";
             case UInteger16:
@@ -2252,105 +2092,78 @@ namespace Common
                 return "Null";
         }
     }
-    Variant::Type Variant::fromTypeStr(const String& str)
-    {
-        if(String::equals(str, "Digital", true) ||
-           String::equals(str, "Boolean", true) ||
-           String::equals(str, "Bit", true))
-        {
+
+    Variant::Type Variant::fromTypeStr(const String &str) {
+        if (String::equals(str, "Digital", true) ||
+            String::equals(str, "Boolean", true) ||
+            String::equals(str, "Bit", true)) {
             return Type::Digital;
-        }
-        else if(String::equals(str, "Int8", true) ||
-                String::equals(str, "Char", true) ||
-                String::equals(str, "Integer8", true))
-        {
+        } else if (String::equals(str, "Int8", true) ||
+                   String::equals(str, "Char", true) ||
+                   String::equals(str, "Integer8", true)) {
             return Type::Integer8;
-        }
-        else if(String::equals(str, "UInt8", true) ||
-                String::equals(str, "Byte", true) ||
-                String::equals(str, "UInteger8", true))
-        {
+        } else if (String::equals(str, "UInt8", true) ||
+                   String::equals(str, "Byte", true) ||
+                   String::equals(str, "UInteger8", true)) {
             return Type::UInteger8;
-        }
-        else if(String::equals(str, "Int16", true) ||
-                String::equals(str, "Short", true) ||
-                String::equals(str, "Integer16", true))
-        {
+        } else if (String::equals(str, "Int16", true) ||
+                   String::equals(str, "Short", true) ||
+                   String::equals(str, "Integer16", true)) {
             return Type::Integer16;
-        }
-        else if(String::equals(str, "UInt16", true) ||
-                String::equals(str, "UShort", true) ||
-                String::equals(str, "WORD", true) ||
-                String::equals(str, "UInteger16", true))
-        {
+        } else if (String::equals(str, "UInt16", true) ||
+                   String::equals(str, "UShort", true) ||
+                   String::equals(str, "WORD", true) ||
+                   String::equals(str, "UInteger16", true)) {
             return Type::UInteger16;
-        }
-        else if(String::equals(str, "Int32", true) ||
-                String::equals(str, "Integer32", true) ||
-                String::equals(str, "Integer", true))
-        {
+        } else if (String::equals(str, "Int32", true) ||
+                   String::equals(str, "Integer32", true) ||
+                   String::equals(str, "Integer", true)) {
             return Type::Integer32;
-        }
-        else if(String::equals(str, "UInt32", true) ||
-                String::equals(str, "UInteger32", true) ||
-                String::equals(str, "DWORD", true) ||
-                String::equals(str, "UInteger", true))
-        {
+        } else if (String::equals(str, "UInt32", true) ||
+                   String::equals(str, "UInteger32", true) ||
+                   String::equals(str, "DWORD", true) ||
+                   String::equals(str, "UInteger", true)) {
             return Type::UInteger32;
-        }
-        else if(String::equals(str, "Integer64", true) ||
-                String::equals(str, "Int64", true))
-        {
+        } else if (String::equals(str, "Integer64", true) ||
+                   String::equals(str, "Int64", true)) {
             return Type::Integer64;
-        }
-        else if(String::equals(str, "UInteger64", true) ||
-                String::equals(str, "UInt64", true))
-        {
+        } else if (String::equals(str, "UInteger64", true) ||
+                   String::equals(str, "UInt64", true)) {
             return Type::UInteger64;
-        }
-        else if(String::equals(str, "Float32", true) ||
-                String::equals(str, "Single", true) ||
-                String::equals(str, "Float", true))
-        {
+        } else if (String::equals(str, "Float32", true) ||
+                   String::equals(str, "Single", true) ||
+                   String::equals(str, "Float", true)) {
             return Type::Float32;
-        }
-        else if(String::equals(str, "Float64", true) ||
-                String::equals(str, "Double", true))
-        {
+        } else if (String::equals(str, "Float64", true) ||
+                   String::equals(str, "Double", true)) {
             return Type::Float64;
-        }
-        else if(String::equals(str, "Text", true) ||
-                String::equals(str, "String", true))
-        {
+        } else if (String::equals(str, "Text", true) ||
+                   String::equals(str, "String", true)) {
             return Type::Text;
-        }
-        else if(String::equals(str, "Date", true) ||
-                String::equals(str, "DateTime", true) ||
-                String::equals(str, "Time", true))
-        {
+        } else if (String::equals(str, "Date", true) ||
+                   String::equals(str, "DateTime", true) ||
+                   String::equals(str, "Time", true)) {
             return Type::Date;
-        }
-        else if(String::equals(str, "Blob", true) ||
-                String::equals(str, "ByteArray", true) ||
-                String::equals(str, "Bytes", true))
-        {
+        } else if (String::equals(str, "Blob", true) ||
+                   String::equals(str, "ByteArray", true) ||
+                   String::equals(str, "Bytes", true)) {
             return Type::Blob;
         }
         return Type::Null;
     }
-    bool Variant::isValidType(Type type)
-    {
+
+    bool Variant::isValidType(Type type) {
         return type != Type::Null;
     }
-    void Variant::getAllTypeStr(StringArray& array)
-    {
-        array.addArray("Digital", "Integer8", "UInteger8", "Integer16", "UInteger16", "Integer32", "UInteger32", "Integer64", "UInteger64",
+
+    void Variant::getAllTypeStr(StringArray &array) {
+        array.addArray("Digital", "Integer8", "UInteger8", "Integer16", "UInteger16", "Integer32", "UInteger32",
+                       "Integer64", "UInteger64",
                        "Float32", "Float64", "Text", "Date", "Blob", nullptr);
     }
-    int Variant::getTypeLength(Type type)
-    {
-        switch (type)
-        {
+
+    int Variant::getTypeLength(Type type) {
+        switch (type) {
             case Null:
                 return 0;
             case Digital:
@@ -2384,41 +2197,38 @@ namespace Common
         }
         return 0;
     }
-    
-    bool Variant::isAnalogValue(Type type)
-    {
+
+    bool Variant::isAnalogValue(Type type) {
         return (type == Variant::Integer8 || type == Variant::UInteger8 ||
                 type == Variant::Integer16 || type == Variant::UInteger16 ||
-                type == Variant::Integer32 ||type == Variant::UInteger32 ||
+                type == Variant::Integer32 || type == Variant::UInteger32 ||
                 type == Variant::Integer64 || type == Variant::UInteger64 ||
                 type == Variant::Float32 || type == Variant::Float64);
     }
-    bool Variant::isDigitalValue(Type type)
-    {
+
+    bool Variant::isDigitalValue(Type type) {
         return (type == Variant::Digital);
     }
-    bool Variant::isIntegerValue(Type type)
-    {
+
+    bool Variant::isIntegerValue(Type type) {
         return (type == Variant::Integer8 || type == Variant::UInteger8 ||
                 type == Variant::Integer16 || type == Variant::UInteger16 ||
-                type == Variant::Integer32 ||type == Variant::UInteger32 ||
+                type == Variant::Integer32 || type == Variant::UInteger32 ||
                 type == Variant::Integer64 || type == Variant::UInteger64);
     }
-    bool Variant::isDoubleValue(Type type)
-    {
+
+    bool Variant::isDoubleValue(Type type) {
         return (type == Variant::Float32 || type == Variant::Float64);
     }
-    bool Variant::isStringValue(Type type)
-    {
+
+    bool Variant::isStringValue(Type type) {
         return (type == Variant::Text);
     }
-    
-    void Variant::write(Stream* stream, bool bigEndian) const
-    {
+
+    void Variant::write(Stream *stream, bool bigEndian) const {
         stream->writeByte(_type);
-        
-        switch (_type)
-        {
+
+        switch (_type) {
             case Null:
                 break;
             case Digital:
@@ -2457,8 +2267,7 @@ namespace Common
             case Text:
                 stream->writeStr(_value.strValue);
                 break;
-            case Date:
-            {
+            case Date: {
                 DateTime time(_value.tValue);
                 time.write(stream);
             }
@@ -2467,12 +2276,11 @@ namespace Common
                 break;
         }
     }
-    void Variant::read(Stream* stream, bool bigEndian)
-    {
-        _type = (Type)stream->readByte();
-        
-        switch (_type)
-        {
+
+    void Variant::read(Stream *stream, bool bigEndian) {
+        _type = (Type) stream->readByte();
+
+        switch (_type) {
             case Null:
                 break;
             case Digital:
@@ -2511,8 +2319,7 @@ namespace Common
             case Text:
                 setStringValue(stream->readStr());
                 break;
-            case Date:
-            {
+            case Date: {
                 DateTime time;
                 time.read(stream);
                 _value.tValue = time.ticks();
@@ -2522,63 +2329,57 @@ namespace Common
                 break;
         }
     }
-    
-    String Variant::toValueString(Type type, const Value& value)
-    {
+
+    String Variant::toValueString(Type type, const Value &value) {
         String str;
-        if(Variant::changeStringValue(type, value, str))
+        if (Variant::changeStringValue(type, value, str))
             return str;
         return String::Empty;
     }
-    bool Variant::parseValueString(const String& str, Type type, Value& value)
-    {
+
+    bool Variant::parseValueString(const String &str, Type type, Value &value) {
         return Variant::changeStringValue(str, type, value);
     }
 
-    bool Variant::compareTextValue(const char* value1, const char* value2)
-    {
-        if(value1 != nullptr && value2 != nullptr)
+    bool Variant::compareTextValue(const char *value1, const char *value2) {
+        if (value1 != nullptr && value2 != nullptr)
             return strcmp(value1, value2) == 0;
-        else if(value1 == nullptr && value2 == nullptr)
+        else if (value1 == nullptr && value2 == nullptr)
             return true;
         else
             return false;
     }
-    bool Variant::compareBlobValue(const uint8_t* value1, const uint8_t* value2)
-    {
+
+    bool Variant::compareBlobValue(const uint8_t *value1, const uint8_t *value2) {
         size_t count1 = blobCount(value1);
-        const uint8_t* buffer1 = blobBuffer(value1);
+        const uint8_t *buffer1 = blobBuffer(value1);
         size_t count2 = blobCount(value2);
-        const uint8_t* buffer2 = blobBuffer(value2);
-        if(count1 == count2 &&
-           buffer1 != nullptr && buffer2 != nullptr)
-        {
+        const uint8_t *buffer2 = blobBuffer(value2);
+        if (count1 == count2 &&
+            buffer1 != nullptr && buffer2 != nullptr) {
             return memcmp(buffer1, buffer2, count1) == 0;
         }
         return false;
     }
-    size_t Variant::blobCount(const uint8_t* value)
-    {
-        if(value != nullptr)
-        {
+
+    size_t Variant::blobCount(const uint8_t *value) {
+        if (value != nullptr) {
             uint8_t high = value[0];
             uint8_t low = value[1];
-            size_t count = (((uint)high >> 8) & 0xFF00) + low;
+            size_t count = (((uint) high >> 8) & 0xFF00) + low;
             return count;
         }
         return 0;
     }
-    const uint8_t* Variant::blobBuffer(const uint8_t* value)
-    {
-        if(value != nullptr)
-        {
+
+    const uint8_t *Variant::blobBuffer(const uint8_t *value) {
+        if (value != nullptr) {
             return value + 2;
         }
         return nullptr;
     }
 
-    const String Variant::toString() const
-    {
+    const String Variant::toString() const {
         String value;
         getValue(value);
         return value;

@@ -418,17 +418,19 @@ bool testSetRange() {
 }
 
 bool testQuickSort() {
+    static const char* fmt = "D2";
+
     StringArray test;
     static const int count = 100;
     for (int i = 0; i < count; ++i) {
-        test.add(Int32(i).toString("%02d"));
+        test.add(Int32(i).toString(fmt));
     }
 
     // sort desc.
     test.sort(false);
 //    printValues(test);
     for (int i = 0; i < count; ++i) {
-        if (!valueEquals(test[count - 1 - i], Int32(i).toString("%02d"))) {
+        if (!valueEquals(test[count - 1 - i], Int32(i).toString(fmt))) {
             return false;
         }
     }
@@ -436,7 +438,7 @@ bool testQuickSort() {
     // sort asc.
     test.sort(true);
     for (int i = 0; i < count; ++i) {
-        if (!valueEquals(test[i], Int32(i).toString("%02d"))) {
+        if (!valueEquals(test[i], Int32(i).toString(fmt))) {
             return false;
         }
     }
@@ -444,7 +446,7 @@ bool testQuickSort() {
     // sort desc by comparison.
     test.sort(comparison, false);
     for (int i = 0; i < count; ++i) {
-        if (!valueEquals(test[count - 1 - i], Int32(i).toString("%02d"))) {
+        if (!valueEquals(test[count - 1 - i], Int32(i).toString(fmt))) {
             return false;
         }
     }
@@ -452,7 +454,7 @@ bool testQuickSort() {
     // sort asc by comparison.
     test.sort(comparison, true);
     for (int i = 0; i < count; ++i) {
-        if (!valueEquals(test[i], Int32(i).toString("%02d"))) {
+        if (!valueEquals(test[i], Int32(i).toString(fmt))) {
             return false;
         }
     }
@@ -460,7 +462,7 @@ bool testQuickSort() {
     // sort desc by comparer.
     test.sort(AscComparer<String>(), false);
     for (int i = 0; i < count; ++i) {
-        if (!valueEquals(test[count - 1 - i], Int32(i).toString("%02d"))) {
+        if (!valueEquals(test[count - 1 - i], Int32(i).toString(fmt))) {
             return false;
         }
     }

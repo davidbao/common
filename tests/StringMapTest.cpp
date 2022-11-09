@@ -20,8 +20,8 @@ bool testConstructor() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         StringMap test2(test);
         if (test2 != test) {
             return false;
@@ -30,8 +30,8 @@ bool testConstructor() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         StringMap test2(std::move(test));
         if (test2.count() != 3) {
             return false;
@@ -43,21 +43,21 @@ bool testConstructor() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         if (test.count() != 3) {
             return false;
         }
         StringMap test2{{"1", "1"},
-                       {"2", "2"},
-                       {"3", "3"},
-                       {"4", "4"}};
+                        {"2", "2"},
+                        {"3", "3"},
+                        {"4", "4"}};
         if (test2.count() != 4) {
             return false;
         }
         StringMap test3{{"1", "1"},
-                       {"2", "2"},
-                       {"3", "3"}};
+                        {"2", "2"},
+                        {"3", "3"}};
         if (test3.count() != 3) {
             return false;
         }
@@ -81,12 +81,12 @@ bool testConstructor() {
 bool testEquals() {
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
-
-        StringMap test2{{"1", "1"},
                        {"2", "2"},
                        {"3", "3"}};
+
+        StringMap test2{{"1", "1"},
+                        {"2", "2"},
+                        {"3", "3"}};
 
         if (!test2.equals(test)) {
             return false;
@@ -95,12 +95,12 @@ bool testEquals() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
-
-        StringMap test2{{"1", "1"},
                        {"2", "2"},
                        {"3", "3"}};
+
+        StringMap test2{{"1", "1"},
+                        {"2", "2"},
+                        {"3", "3"}};
 
         if (!(test2 == test)) {
             return false;
@@ -116,8 +116,8 @@ bool testEquals() {
 bool testEvaluates() {
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
 
         StringMap test2;
         test2.evaluates(test);
@@ -129,8 +129,8 @@ bool testEvaluates() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
 
         StringMap test2;
         test2 = test;
@@ -145,12 +145,12 @@ bool testEvaluates() {
 
 bool testCompare() {
     StringMap alice{{"1", "1"},
-                   {"2", "2"},
-                   {"3", "3"}};
+                    {"2", "2"},
+                    {"3", "3"}};
     StringMap bob{{"7",  "7"},
-                 {"8",  "8"},
-                 {"9",  "9"},
-                 {"10", "10"}};
+                  {"8",  "8"},
+                  {"9",  "9"},
+                  {"10", "10"}};
     if (!(bob.compareTo(alice) > 0)) {
         return false;
     }
@@ -170,19 +170,97 @@ bool testCompare() {
     return true;
 }
 
-bool testAdd() {
-    StringMap test;
-    test.add("1", "1");
-    if (test.count() != 1) {
+template<typename T>
+bool testAddValue(StringMap& test, const T &value) {
+    String key = "1";
+    test.add(key, value);
+    T value2;
+    if (!(test.at(key, value2) && value == value2)) {
         return false;
     }
-    if (test.at("1") != "1") {
-        return false;
+    return true;
+}
+
+bool testAdd() {
+    {
+        StringMap test;
+        test.add("1", "1");
+        if (test.count() != 1) {
+            return false;
+        }
+        if (test.at("1") != "1") {
+            return false;
+        }
+        test.add("1", "0");
+        if (test.at("1") != "0") {
+            return false;
+        }
     }
 
-    test.add("1", "0");
-    if (test.at("1") != "0") {
-        return false;
+    {
+        StringMap test;
+        test.add("1", "1");
+
+        if (!testAddValue(test, (string) "1")) {
+            return false;
+        }
+        if (!testAddValue(test, true)) {
+            return false;
+        }
+        {
+            StringMap test;
+            String key = "1";
+            const char *value = "1";
+            test.add(key, value);
+            String value2;
+            if (!(test.at(key, value2) && value2 == value)) {
+                return false;
+            }
+        }
+        {
+            StringMap test;
+            String key = "1";
+            char value[32];
+            strcpy(value, "1");
+            test.add(key, value);
+            String value2;
+            if (!(test.at(key, value2) && value2 == value)) {
+                return false;
+            }
+        }
+        if (!testAddValue(test, (int8_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (uint8_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (int16_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (uint16_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (int32_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (uint32_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (int64_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, (uint64_t) 1)) {
+            return false;
+        }
+        if (!testAddValue(test, 1.0f)) {
+            return false;
+        }
+        if (!testAddValue(test, 1.0)) {
+            return false;
+        }
+        if (!testAddValue(test, Version("1.1"))) {
+            return false;
+        }
     }
 
     return true;
@@ -190,8 +268,8 @@ bool testAdd() {
 
 bool testAddRange() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
 
     StringMap test2;
     test2.addRange(test);
@@ -204,8 +282,8 @@ bool testAddRange() {
 
 bool testContains() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
 
     if (!test.contains("1")) {
         return false;
@@ -222,8 +300,8 @@ bool testContains() {
 
 bool testClear() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     if (test.count() != 3) {
         return false;
     }
@@ -237,8 +315,8 @@ bool testClear() {
 
 bool testCount() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     if (test.count() != 3) {
         return false;
     }
@@ -248,8 +326,8 @@ bool testCount() {
 
 bool testEmpty() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     if (test.isEmpty()) {
         return false;
     }
@@ -265,8 +343,8 @@ bool testEmpty() {
 bool testAt() {
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         String value;
         if (!test.at("1", value)) {
             return false;
@@ -278,8 +356,8 @@ bool testAt() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         String value;
         value = test.at("1");
         if (value != "1") {
@@ -293,8 +371,8 @@ bool testAt() {
 
     {
         StringMap test{{"1", "1"},
-                      {"2", "2"},
-                      {"3", "3"}};
+                       {"2", "2"},
+                       {"3", "3"}};
         String value;
         value = test["1"];
         if (value != "1") {
@@ -309,10 +387,111 @@ bool testAt() {
     return true;
 }
 
+template<typename T>
+bool testSetValue(StringMap& test, const T &value) {
+    String key = "1";
+    if(!test.set(key, value)) {
+        return false;
+    }
+    T value2;
+    if (!(test.at(key, value2) && value == value2)) {
+        return false;
+    }
+    if(test.set("11", value)) {
+        return false;
+    }
+    return true;
+}
+bool testSet() {
+    {
+        StringMap test{{"1", "1"},
+                       {"2", "2"},
+                       {"3", "3"}};
+        if (!test.set("1", "0")) {
+            return false;
+        }
+        if (test["1"] != "0") {
+            return false;
+        }
+
+        if (test.set("4", "4")) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test{{"1", "1"},
+                       {"2", "2"},
+                       {"3", "3"}};
+        if (!testSetValue(test, (string) "1")) {
+            return false;
+        }
+        if (!testSetValue(test, true)) {
+            return false;
+        }
+        {
+            StringMap test;
+            String key = "1";
+            const char *value = "1";
+            test.add(key, value);
+            String value2;
+            if (!(test.at(key, value2) && value2 == value)) {
+                return false;
+            }
+        }
+        {
+            StringMap test;
+            String key = "1";
+            char value[32];
+            strcpy(value, "1");
+            test.add(key, value);
+            String value2;
+            if (!(test.at(key, value2) && value2 == value)) {
+                return false;
+            }
+        }
+        if (!testSetValue(test, (int8_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (uint8_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (int16_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (uint16_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (int32_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (uint32_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (int64_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, (uint64_t) 1)) {
+            return false;
+        }
+        if (!testSetValue(test, 1.0f)) {
+            return false;
+        }
+        if (!testSetValue(test, 1.0)) {
+            return false;
+        }
+        if (!testSetValue(test, Version("1.1"))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool testRemove() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     if (!test.remove("2")) {
         return false;
     }
@@ -328,8 +507,8 @@ bool testRemove() {
 
 bool testKeys() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     StringArray keys;
     test.keys(keys);
     if (test.count() != 3) {
@@ -346,8 +525,8 @@ bool testKeys() {
 
 bool testStrings() {
     StringMap test{{"1", "1"},
-                  {"2", "2"},
-                  {"3", "3"}};
+                   {"2", "2"},
+                   {"3", "3"}};
     StringArray values;
     test.values(values);
     if (test.count() != 3) {
@@ -431,17 +610,20 @@ int main() {
     if (!testAt()) {
         return 11;
     }
-    if (!testRemove()) {
+    if (!testSet()) {
         return 12;
     }
-    if (!testKeys()) {
+    if (!testRemove()) {
         return 13;
     }
-    if (!testStrings()) {
+    if (!testKeys()) {
         return 14;
     }
-    if (!testIterator()) {
+    if (!testStrings()) {
         return 15;
+    }
+    if (!testIterator()) {
+        return 16;
     }
 
     return 0;

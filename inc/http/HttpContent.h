@@ -130,7 +130,7 @@ namespace Common {
         String getValueStr(const String &name) const;
 
     private:
-        CopyVector<HttpHeader> _values;
+        CopyPList<HttpHeader> _values;
 
     public:
         static const HttpHeaders JsonTypeHeaders;

@@ -1,7 +1,7 @@
 #ifndef CHECKUTILITIES_H
 #define CHECKUTILITIES_H
 
-#include "Convert.h"
+#include "data/Convert.h"
 #include "data/ByteArray.h"
 
 namespace Common

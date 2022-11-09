@@ -27,7 +27,8 @@ namespace Common {
     public:
         typedef type *typePtr;
 
-        explicit PList(bool autoDelete = true, size_t capacity = DefaultCapacity) : _array(nullptr), _autoDelete(autoDelete),
+        explicit PList(bool autoDelete = true, size_t capacity = DefaultCapacity) : _array(nullptr),
+                                                                                    _autoDelete(autoDelete),
                                                                                     _capacity(0), _count(0) {
             setCapacity(capacity);
         }
@@ -436,16 +437,16 @@ namespace Common {
     };
 
     template<class type>
-    class CopyVector : public PList<type> {
+    class CopyPList : public PList<type> {
     public:
-        CopyVector(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
-                                                                                                         capacity) {
+        CopyPList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
+                                                                                                        capacity) {
         }
 
-        ~CopyVector() override {
+        ~CopyPList() override {
         }
 
-        virtual void copyFrom(const CopyVector *values, bool append = false) {
+        virtual void copyFrom(const CopyPList *values, bool append = false) {
             if (!append) {
                 this->clear();
             }
@@ -457,29 +458,29 @@ namespace Common {
             }
         }
 
-        virtual void copyContextFrom(const CopyVector *values) {
+        virtual void copyContextFrom(const CopyPList *values) {
         }
     };
 
     template<class type>
-    class CloneVector : public PList<type> {
+    class ClonePList : public PList<type> {
     public:
-        CloneVector(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
-                                                                                                          capacity) {
+        ClonePList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
+                                                                                                         capacity) {
         }
 
-        ~CloneVector() override {
+        ~ClonePList() override {
         }
 
-        CloneVector *clone() const {
-            CloneVector<type> *values = new CloneVector<type>();
+        ClonePList *clone() const {
+            ClonePList<type> *values = new ClonePList<type>();
             for (size_t i = 0; i < this->count(); i++) {
                 values->add(this->at(i)->clone());
             }
             return values;
         }
 
-        virtual void copyFrom(const CloneVector *values, bool append = false) {
+        virtual void copyFrom(const ClonePList *values, bool append = false) {
             if (!append) {
                 this->clear();
             }

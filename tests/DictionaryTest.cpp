@@ -491,6 +491,24 @@ bool testIntAt() {
     return true;
 }
 
+bool testIntSet() {
+    ValueMap test{{1, 1},
+                  {2, 2},
+                  {3, 3}};
+    if(!test.set(1, 0)) {
+        return false;
+    }
+    if(test[1] != 0) {
+        return false;
+    }
+
+    if(test.set(4, 4)) {
+        return false;
+    }
+
+    return true;
+}
+
 bool testIntRemove() {
     IntMap test{{1, 1},
                 {2, 2},
@@ -878,6 +896,24 @@ bool testAt() {
     return true;
 }
 
+bool testSet() {
+    ValueMap test{{Key(1), Value(1)},
+                  {Key(2), Value(2)},
+                  {Key(3), Value(3)}};
+    if (!test.set(Key(1), Value(0))) {
+        return false;
+    }
+    if (test[Key(1)] != Value(0)) {
+        return false;
+    }
+
+    if (test.set(Key(4), Value(4))) {
+        return false;
+    }
+
+    return true;
+}
+
 bool testRemove() {
     ValueMap test{{Key(1), Value(1)},
                   {Key(2), Value(2)},
@@ -1000,17 +1036,20 @@ int main() {
     if (!testIntAt()) {
         return 11;
     }
-    if (!testIntRemove()) {
+    if (!testIntSet()) {
         return 12;
     }
-    if (!testIntKeys()) {
+    if (!testIntRemove()) {
         return 13;
     }
-    if (!testIntValues()) {
+    if (!testIntKeys()) {
         return 14;
     }
-    if (!testIntIterator()) {
+    if (!testIntValues()) {
         return 15;
+    }
+    if (!testIntIterator()) {
+        return 16;
     }
 
     if (!testConstructor()) {
@@ -1046,17 +1085,20 @@ int main() {
     if (!testAt()) {
         return 31;
     }
-    if (!testRemove()) {
+    if(! testSet()) {
         return 32;
     }
-    if (!testKeys()) {
+    if (!testRemove()) {
         return 33;
     }
-    if (!testValues()) {
+    if (!testKeys()) {
         return 34;
     }
-    if (!testIterator()) {
+    if (!testValues()) {
         return 35;
+    }
+    if (!testIterator()) {
+        return 36;
     }
 
     return 0;

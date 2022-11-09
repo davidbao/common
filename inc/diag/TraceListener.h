@@ -10,6 +10,7 @@
 #define TraceListener_h
 
 #include "data/ValueType.h"
+#include "data/PList.h"
 
 namespace Common
 {

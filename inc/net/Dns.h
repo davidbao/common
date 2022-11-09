@@ -1,7 +1,7 @@
 #ifndef DNS_H
 #define DNS_H
 
-#include "data/Array.h"
+#include "data/Vector.h"
 #include "data/StringMap.h"
 #include "data/ValueType.h"
 #include "data/Dictionary.h"

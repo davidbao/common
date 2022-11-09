@@ -12,7 +12,7 @@
 #include "data/ByteArray.h"
 #include "data/ValueType.h"
 #include "data/PrimitiveInterface.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "xml/XmlTextReader.h"
 #include "xml/XmlTextWriter.h"
 #include "json/JsonTextReader.h"

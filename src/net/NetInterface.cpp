@@ -48,7 +48,7 @@
 #include "net/NetInterface.h"
 #include "diag/Trace.h"
 #include "system/Math.h"
-#include "system/Convert.h"
+#include "data/Convert.h"
 #include "data/DateTime.h"
 #include "thread/Process.h"
 #include "thread/TickTimeout.h"

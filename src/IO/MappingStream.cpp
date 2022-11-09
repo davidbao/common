@@ -32,7 +32,7 @@ namespace Common {
         close();
     }
 
-    ssize_t MappingStream::View::write(size_t position, const uint8_t *array, off_t offset, size_t count) {
+    ssize_t MappingStream::View::write(off_t position, const uint8_t *array, off_t offset, size_t count) {
         updateViewAccessor();
 
         if (isValid()) {
@@ -44,7 +44,7 @@ namespace Common {
         return 0;
     }
 
-    ssize_t MappingStream::View::read(size_t position, uint8_t *array, off_t offset, size_t count) {
+    ssize_t MappingStream::View::read(off_t position, uint8_t *array, off_t offset, size_t count) {
         updateViewAccessor();
 
         if (isValid()) {
@@ -176,12 +176,12 @@ namespace Common {
         _position = 0;
 
         Views views;
-        off_t offset = 0, size = 0;
+        size_t offset = 0, size = 0;
         size_t vsize = viewSize();
         for (size_t i = 0; i < fileSize; i += vsize) {
             offset = i;
             size = Math::min(vsize, (fileSize - i));
-            _views.add(new View(mapping, access, offset, size));
+            _views.add(new View(mapping, access, (off_t)offset, size));
         }
     }
 
@@ -214,12 +214,12 @@ namespace Common {
         _position = 0;
 
         Views views;
-        off_t offset = 0, size = 0;
+        size_t offset = 0, size = 0;
         size_t vsize = viewSize();
         for (size_t i = 0; i < fileSize; i += vsize) {
             offset = i;
             size = Math::min(vsize, (fileSize - i));
-            _views.add(new View(mapping, access, offset, size));
+            _views.add(new View(mapping, access, (off_t)offset, size));
         }
     }
 
@@ -254,9 +254,9 @@ namespace Common {
             if (size > position()) {
                 length = Math::min((int64_t) (count - length), (int64_t) (view->size - (position() - view->offset)));
                 view->write(position() - view->offset, array, offset, length);
-                offset += length;
+                offset += (off_t)length;
                 pos += length;
-                seek(pos, SeekOrigin::SeekBegin);
+                seek((off_t)pos, SeekOrigin::SeekBegin);
                 if (offset >= count)
                     break;
             }
@@ -283,16 +283,16 @@ namespace Common {
         }
 
         size_t size = 0;
-        size_t length = 0;
-        size_t pos = position();
+        ssize_t length = 0;
+        off_t pos = position();
         for (size_t i = 0; i < _views.count(); i++) {
             View *view = _views[i];
             size += view->size;
             if (size > position()) {
-                length += (int) view->read(position() - view->offset, array, offset + length, count - length);
-                pos += length;
+                length += view->read(position() - view->offset, array, offset + (off_t)length, count - length);
+                pos += (off_t)length;
                 seek(pos, SeekOrigin::SeekBegin);
-                if (length >= count)
+                if (length >= (ssize_t)count)
                     break;
             }
         }
@@ -331,7 +331,7 @@ namespace Common {
                 offset += position();
                 break;
             case SeekOrigin::SeekEnd:
-                offset = length() - offset;
+                offset = (off_t)length() - offset;
                 break;
             default:
                 break;

@@ -55,7 +55,7 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPublicKey);
         uint8_t *pEncode = new uint8_t[nLen + 1];
-        int ret = RSA_public_encrypt(data.count(), data.data(), (uint8_t *) pEncode, pRSAPublicKey, RSA_PKCS1_PADDING);
+        int ret = RSA_public_encrypt((int)data.count(), data.data(), (uint8_t *) pEncode, pRSAPublicKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = ByteArray(pEncode, ret);
         } else {
@@ -97,7 +97,7 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPriKey);
         uint8_t *pDecode = new uint8_t[nLen + 1];
-        int ret = RSA_private_decrypt(data.count(), data.data(), (uint8_t *) pDecode, pRSAPriKey, RSA_PKCS1_PADDING);
+        int ret = RSA_private_decrypt((int)data.count(), data.data(), (uint8_t *) pDecode, pRSAPriKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = ByteArray(pDecode, ret);
         } else {
@@ -182,7 +182,7 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPublicKey);
         char *pEncode = new char[nLen + 1];
-        int ret = RSA_public_encrypt(data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pEncode,
+        int ret = RSA_public_encrypt((int)data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pEncode,
                                      pRSAPublicKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = String(pEncode, ret);
@@ -213,7 +213,7 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPriKey);
         char *pDecode = new char[nLen + 1];
-        int ret = RSA_private_decrypt(data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pDecode,
+        int ret = RSA_private_decrypt((int)data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pDecode,
                                       pRSAPriKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = String(pDecode, ret);

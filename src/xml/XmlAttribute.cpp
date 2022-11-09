@@ -82,7 +82,7 @@ namespace Common
         _attr->attr = value->_attr->attr;
     }
     
-    XmlAttributes::XmlAttributes(bool autoDelete, uint capacity) : CopyVector<XmlAttribute>(autoDelete, capacity)
+    XmlAttributes::XmlAttributes(bool autoDelete, uint capacity) : CopyPList<XmlAttribute>(autoDelete, capacity)
     {
     }
     XmlAttribute* XmlAttributes::at(const String& name) const
@@ -109,6 +109,6 @@ namespace Common
     
     XmlAttribute* XmlAttributes::at(size_t pos) const
     {
-        return CopyVector<XmlAttribute>::at(pos);
+        return CopyPList<XmlAttribute>::at(pos);
     }
 }
