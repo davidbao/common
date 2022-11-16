@@ -6,10 +6,10 @@
 //  Copyright © 2015 com. All rights reserved.
 //
 
-#include <ctype.h>
-#include <stdarg.h>
-#include <inttypes.h>
-#include <locale.h>
+#include <cctype>
+#include <cstdarg>
+#include <cinttypes>
+#include <clocale>
 #include "data/WString.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"
@@ -34,10 +34,6 @@ namespace Common {
     WString::WString(const wstring &value) : WString(value.c_str()) {
     }
 
-//    WString::WString(const String &value) {
-//        setString(WString::convert(value));
-//    }
-
     WString::WString(const wchar_t *value, size_t count) {
         if (value != nullptr)
             setString(value, count == 0 ? wcslen(value) : count);
@@ -49,8 +45,7 @@ namespace Common {
         }
     }
 
-    WString::~WString() {
-    }
+    WString::~WString() = default;
 
     void WString::setString(const wchar_t *value) {
         _buffer.clear();
@@ -62,18 +57,11 @@ namespace Common {
         addString(value, count);
     }
 
-    void WString::setString(const wstring &value) {
-        setString(value.c_str());
-    }
-
-    void WString::addString(const wchar_t *value) {
-        if (value != nullptr) {
-            addString(value, (size_t) wcslen(value));
-        }
-    }
-
     void WString::addString(const wchar_t *value, size_t count) {
         if (value != nullptr) {
+            if(count == 0) {
+                count = wcslen(value);
+            }
             size_t length = Math::min(wcslen(value), count);
             if (length > 0) {
                 if (isNullOrEmpty()) {
@@ -87,15 +75,6 @@ namespace Common {
                 _buffer.add('\0');
             }
         }
-    }
-
-    void WString::addString(const wstring &value) {
-        addString(value.c_str());
-    }
-
-    void WString::setString(wchar_t value) {
-        wchar_t buffer[2] = {value, '\0'};
-        setString(buffer);
     }
 
     void WString::addString(wchar_t value) {
@@ -160,78 +139,6 @@ namespace Common {
         return *this;
     }
 
-    bool WString::operator==(const WString &value) const {
-        return equals(*this, value, false);
-    }
-
-    bool WString::operator!=(const WString &value) const {
-        return !operator==(value);
-    }
-
-    bool WString::operator==(const wchar_t *value) const {
-        return equals(*this, value, false);
-    }
-
-    bool WString::operator!=(const wchar_t *value) const {
-        return !operator==(value);
-    }
-
-    bool WString::operator==(const wstring &value) const {
-        return equals(*this, value, false);
-    }
-
-    bool WString::operator!=(const wstring &value) const {
-        return !operator==(value);
-    }
-
-    bool WString::operator>(const WString &value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool WString::operator>(const wstring &value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool WString::operator>(const wchar_t *value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool WString::operator>=(const WString &value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool WString::operator>=(const wstring &value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool WString::operator>=(const wchar_t *value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool WString::operator<(const WString &value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool WString::operator<(const wstring &value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool WString::operator<(const wchar_t *value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool WString::operator<=(const WString &value) const {
-        return compare(*this, value) <= 0;
-    }
-
-    bool WString::operator<=(const wstring &value) const {
-        return compare(*this, value) <= 0;
-    }
-
-    bool WString::operator<=(const wchar_t *value) const {
-        return compare(*this, value) <= 0;
-    }
-
     wchar_t &WString::at(size_t pos) {
         return _buffer.at(pos);
     }
@@ -281,6 +188,14 @@ namespace Common {
 #endif
             return wcscasecmp(value1.getString(), value2.getString());
         }
+    }
+
+    int WString::compare(const WString &value1, const wstring &value2, bool ignoreCase) {
+        return WString::compare(value1, value2.c_str(), ignoreCase);
+    }
+
+    int WString::compare(const WString &value1, const wchar_t *value2, bool ignoreCase) {
+        return WString::compare(value1, WString(value2), ignoreCase);
     }
 
     void WString::write(Stream *stream, StreamLength streamLength) const {
@@ -349,7 +264,7 @@ namespace Common {
 
         const wchar_t *str = this->getString();
         size_t len = length();
-        wchar_t *result = new wchar_t[len + 1];
+        auto *result = new wchar_t[len + 1];
         wmemset(result, 0, len + 1);
         for (size_t i = 0; i < len; i++) {
             result[i] = (wchar_t) tolower(str[i]);
@@ -365,7 +280,7 @@ namespace Common {
 
         const wchar_t *str = this->getString();
         size_t len = length();
-        wchar_t *result = new wchar_t[len + 1];
+        auto *result = new wchar_t[len + 1];
         wmemset(result, 0, len + 1);
         for (size_t i = 0; i < len; i++) {
             result[i] = (wchar_t) toupper(str[i]);
@@ -397,11 +312,19 @@ namespace Common {
         return getString();
     }
 
-    WString::operator const String() const {
+    WString::operator String() const {
         return WString::convert(*this);
     }
 
     bool WString::equals(const WString &other) const {
+        return WString::equals(*this, other);
+    }
+
+    bool WString::equals(const wchar_t *other) const {
+        return WString::equals(*this, other);
+    }
+
+    bool WString::equals(const wstring &other) const {
         return WString::equals(*this, other);
     }
 
@@ -417,55 +340,72 @@ namespace Common {
         return WString::compare(*this, other, ignoreCase);
     }
 
+    int WString::compareTo(const wstring &other) const {
+        return WString::compare(*this, other);
+    }
+
+    int WString::compareTo(const wstring &other, bool ignoreCase) const {
+        return WString::compare(*this, other, ignoreCase);
+    }
+
+    int WString::compareTo(const wchar_t *other) const {
+        return WString::compare(*this, other);
+    }
+
+    int WString::compareTo(const wchar_t *other, bool ignoreCase) const {
+        return WString::compare(*this, other, ignoreCase);
+    }
+
     WString
-    WString::trim(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3, const wchar_t trimChar4) {
+    WString::trim(wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                  wchar_t trimChar4) const {
         return WString::trim(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
-    WString WString::trimStart(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                               const wchar_t trimChar4) {
+    WString WString::trimStart(wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                               wchar_t trimChar4) const {
         return WString::trimStart(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
-    WString WString::trimEnd(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                             const wchar_t trimChar4) {
+    WString WString::trimEnd(wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                             wchar_t trimChar4) const {
         return WString::trimEnd(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
     WString
-    WString::trim(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                  const wchar_t trimChar4) {
+    WString::trim(const WString &str, wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                  wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (wchar_t i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimBoth);
     }
 
     WString
-    WString::trimStart(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                       const wchar_t trimChar4) {
+    WString::trimStart(const WString &str, wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                       wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (wchar_t i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimHead);
     }
 
     WString
-    WString::trimEnd(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                     const wchar_t trimChar4) {
+    WString::trimEnd(const WString &str, wchar_t trimChar1, wchar_t trimChar2, wchar_t trimChar3,
+                     wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (wchar_t i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimTail);
@@ -552,7 +492,7 @@ namespace Common {
     bool WString::isUTF8(const WString &str) {
         size_t i, ix, c, n, j;
         for (i = 0, ix = str.length(); i < ix; i++) {
-            c = (wchar_t) str[i];
+            c = (size_t) str[i];
             //if (c==0x09 || c==0x0a || c==0x0d || (0x20 <= c && c <= 0x7e) ) n = 0; // is_printable_ascii
             if (0x00 <= c && c <= 0x7f) n = 0; // 0bbbbbbb
             else if ((c & 0xE0) == 0xC0) n = 1; // 110bbbbb
@@ -616,7 +556,7 @@ namespace Common {
         return (first - current);
     }
 
-    ssize_t WString::find(const wchar_t ch, off_t offset) const {
+    ssize_t WString::find(wchar_t ch, off_t offset) const {
         wchar_t buffer[2] = {ch, '\0'};
         return find(buffer, offset);
     }
@@ -630,7 +570,7 @@ namespace Common {
         return ((wstring) getString()).find_last_of(str);
     }
 
-    ssize_t WString::findLastOf(const wchar_t ch) const {
+    ssize_t WString::findLastOf(wchar_t ch) const {
         wchar_t buffer[2] = {ch, '\0'};
         return findLastOf(buffer);
     }
@@ -639,12 +579,12 @@ namespace Common {
         return find(str) != -1;
     }
 
-    bool WString::contains(const wchar_t ch) const {
+    bool WString::contains(wchar_t ch) const {
         wchar_t buffer[2] = {ch, '\0'};
         return contains(buffer);
     }
 
-    void WString::append(const wchar_t ch) {
+    void WString::append(wchar_t ch) {
         addString(ch);
     }
 
@@ -661,7 +601,7 @@ namespace Common {
         append(buffer + offset, count);
     }
 
-    void WString::appendLine(const wchar_t ch) {
+    void WString::appendLine(wchar_t ch) {
         append(ch);
         append(NewLine);
     }
@@ -743,7 +683,7 @@ namespace Common {
         return WString::Empty;
     }
 
-    WString WString::insert(off_t offset, const wchar_t ch) {
+    WString WString::insert(off_t offset, wchar_t ch) {
         wchar_t buffer[2] = {ch, '\0'};
         return insert(offset, buffer);
     }
@@ -756,23 +696,8 @@ namespace Common {
         return _buffer.removeRange(pos, count);
     }
 
-    WString WString::trim(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                          const wchar_t trimChar4) const {
-        return WString::trim(*this, trimChar1, trimChar2, trimChar3, trimChar4);
-    }
-
-    WString WString::trimStart(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                               const wchar_t trimChar4) const {
-        return WString::trimStart(*this, trimChar1, trimChar2, trimChar3, trimChar4);
-    }
-
-    WString WString::trimEnd(const wchar_t trimChar1, const wchar_t trimChar2, const wchar_t trimChar3,
-                             const wchar_t trimChar4) const {
-        return WString::trimEnd(*this, trimChar1, trimChar2, trimChar3, trimChar4);
-    }
-
     WString WString::convert(const wchar_t *format, ...) {
-        wchar_t *message = new wchar_t[MaxFormatStrLength];
+        auto *message = new wchar_t[MaxFormatStrLength];
         wmemset(message, 0, MaxFormatStrLength);
         va_list ap;
         va_start(ap, format);
@@ -784,7 +709,7 @@ namespace Common {
     }
 
     WString WString::format(const wchar_t *format, ...) {
-        wchar_t *message = new wchar_t[MaxFormatStrLength];
+        auto *message = new wchar_t[MaxFormatStrLength];
         wmemset(message, 0, MaxFormatStrLength);
         va_list ap;
         va_start(ap, format);
@@ -796,43 +721,43 @@ namespace Common {
     }
 
     Iterator<wchar_t>::const_iterator WString::begin() const {
-        return Iterator<wchar_t>::const_iterator(_buffer.data());
+        return {_buffer.data()};
     }
 
     Iterator<wchar_t>::const_iterator WString::end() const {
-        return Iterator<wchar_t>::const_iterator(_buffer.data() + length());
+        return {_buffer.data() + length()};
     }
 
     Iterator<wchar_t>::iterator WString::begin() {
-        return Iterator<wchar_t>::iterator(_buffer.data());
+        return {_buffer.data()};
     }
 
     Iterator<wchar_t>::iterator WString::end() {
-        return Iterator<wchar_t>::iterator(_buffer.data() + length());
+        return {_buffer.data() + length()};
     }
 
     Iterator<wchar_t>::const_reverse_iterator WString::rbegin() const {
-        return Iterator<wchar_t>::const_reverse_iterator(_buffer.data() + length() - 1);
+        return {_buffer.data() + length() - 1};
     }
 
     Iterator<wchar_t>::const_reverse_iterator WString::rend() const {
-        return Iterator<wchar_t>::const_reverse_iterator(_buffer.data() - 1);
+        return {_buffer.data() - 1};
     }
 
     Iterator<wchar_t>::reverse_iterator WString::rbegin() {
-        return Iterator<wchar_t>::reverse_iterator(_buffer.data() + length() - 1);
+        return {_buffer.data() + length() - 1};
     }
 
     Iterator<wchar_t>::reverse_iterator WString::rend() {
-        return Iterator<wchar_t>::reverse_iterator(_buffer.data() - 1);
+        return {_buffer.data() - 1};
     }
 
-    WString WString::convert(const String& str) {
+    WString WString::convert(const String &str) {
         if (str.length() > 0) {
             std::string strLocale = setlocale(LC_ALL, "");
             const char *chSrc = str.c_str();
             size_t nDestSize = mbstowcs(nullptr, chSrc, 0) + 1;
-            wchar_t *wchDest = new wchar_t[nDestSize];
+            auto *wchDest = new wchar_t[nDestSize];
             wmemset(wchDest, 0, nDestSize);
             mbstowcs(wchDest, chSrc, nDestSize);
             WString wstrResult = wchDest;
@@ -842,7 +767,8 @@ namespace Common {
         }
         return WString::Empty;
     }
-    String WString::convert(const WString& str) {
+
+    String WString::convert(const WString &str) {
         if (str.length() > 0) {
             const wchar_t *src = str.c_str();
             std::string strLocale = setlocale(LC_ALL, "");

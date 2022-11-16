@@ -44,6 +44,18 @@ namespace Common {
             return ::roundl(value);
         }
 
+        inline static float ceiling(float value) {
+            return ::ceilf(value);
+        }
+
+        inline static double ceiling(double value) {
+            return ::ceil(value);
+        }
+
+        inline static long double ceiling(long double value) {
+            return ::ceill(value);
+        }
+
         inline static float sin(float value) {
             return ::sinf(value);
         }

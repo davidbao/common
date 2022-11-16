@@ -30,7 +30,7 @@ namespace Common
         _writer = new XmlTextWriterInner();
         
 		/*
-		* this initialize the library and check potential ABI mismatches
+		* this initializes the library and check potential ABI mismatches
 		* between the version it was compiled for and the actual shared
 		* library used.
 		*/
@@ -300,45 +300,5 @@ namespace Common
     void XmlTextWriter::writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format)
     {
         writeAttributeTimeSpan(localName, value, format);
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const Version& value)
-    {
-        writeAttributeVersion(localName, value);
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const IPAddress& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const MacAddress& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const Uuid& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const RectangleF& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const Rectangle& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const PointF& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const Point& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const SizeF& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    void XmlTextWriter::writeAttribute(const String& localName, const Size& value)
-    {
-        writeAttributeString(localName, value.toString());
     }
 }

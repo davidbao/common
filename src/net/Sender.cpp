@@ -4,7 +4,7 @@
 #include "thread/TickTimeout.h"
 #include "diag/Stopwatch.h"
 
-namespace Common
+namespace Net
 {
     Sender::Sender()
     {

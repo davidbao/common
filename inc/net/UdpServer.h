@@ -11,9 +11,9 @@
 
 #include "data/StringArray.h"
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 
-namespace Common
+namespace Net
 {
 	class UdpServer
 	{

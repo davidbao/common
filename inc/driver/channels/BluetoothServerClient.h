@@ -6,7 +6,6 @@
 #include "BluetoothServerChannelContext.h"
 #include "net/BluetoothClient.h"
 #include "net/BluetoothServer.h"
-#include "data/LoopArray.h"
 #include "thread/Thread.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"

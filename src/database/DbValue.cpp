@@ -374,7 +374,7 @@ namespace Database
 			}
 		}
 	}
-	void DbValue::writeStr(Stream* stream, int lengthCount) const
+	void DbValue::writeStr(Stream* stream, String::StreamLength lengthCount) const
 	{
 		assert(_type == Text);
 		if (_type == Text)
@@ -388,7 +388,7 @@ namespace Database
 			}
 		}
 	}
-	void DbValue::readStr(Stream* stream, int lengthCount)
+	void DbValue::readStr(Stream* stream, String::StreamLength lengthCount)
 	{
 		_type = (ValueTypes)stream->readByte();
 		ValueFlag flag = (ValueFlag)stream->readByte();

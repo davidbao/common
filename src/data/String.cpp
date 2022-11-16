@@ -6,9 +6,9 @@
 //  Copyright © 2015 com. All rights reserved.
 //
 
-#include <ctype.h>
-#include <stdarg.h>
-#include <inttypes.h>
+#include <cctype>
+#include <cstdarg>
+#include <cinttypes>
 #include "iconv.h"
 #include "data/String.h"
 #include "data/ByteArray.h"
@@ -31,7 +31,7 @@ namespace Common {
                                           't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
                                           '8', '9', '+', '/', '='};
 
-    String::String(uint capacity) : _buffer(capacity) {
+    String::String(size_t capacity) : _buffer(capacity) {
     }
 
     String::String(const String &value) {
@@ -52,12 +52,11 @@ namespace Common {
         }
     }
 
-    String::~String() {
-    }
+    String::~String() = default;
 
-    void String::setString(const char *value) {
+    void String::setString(const String &value) {
         _buffer.clear();
-        addString(value);
+        addString(value.c_str());
     }
 
     void String::setString(const char *value, size_t count) {
@@ -65,18 +64,11 @@ namespace Common {
         addString(value, count);
     }
 
-    void String::setString(const string &value) {
-        setString(value.c_str());
-    }
-
-    void String::addString(const char *value) {
-        if (value != nullptr) {
-            addString(value, (size_t) strlen(value));
-        }
-    }
-
     void String::addString(const char *value, size_t count) {
         if (value != nullptr) {
+            if(count == 0) {
+                count = strlen(value);
+            }
             size_t length = Math::min(strlen(value), count);
             if (length > 0) {
                 if (isNullOrEmpty()) {
@@ -90,15 +82,6 @@ namespace Common {
                 _buffer.add('\0');
             }
         }
-    }
-
-    void String::addString(const string &value) {
-        addString(value.c_str());
-    }
-
-    void String::setString(char value) {
-        char buffer[2] = {value, '\0'};
-        setString(buffer);
     }
 
     void String::addString(char value) {
@@ -158,78 +141,6 @@ namespace Common {
         return *this;
     }
 
-    bool String::operator==(const String &value) const {
-        return equals(*this, value, false);
-    }
-
-    bool String::operator!=(const String &value) const {
-        return !operator==(value);
-    }
-
-    bool String::operator==(const char *value) const {
-        return equals(*this, value, false);
-    }
-
-    bool String::operator!=(const char *value) const {
-        return !operator==(value);
-    }
-
-    bool String::operator==(const string &value) const {
-        return equals(*this, value, false);
-    }
-
-    bool String::operator!=(const string &value) const {
-        return !operator==(value);
-    }
-
-    bool String::operator>(const String &value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool String::operator>(const string &value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool String::operator>(const char *value) const {
-        return compare(*this, value) > 0;
-    }
-
-    bool String::operator>=(const String &value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool String::operator>=(const string &value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool String::operator>=(const char *value) const {
-        return compare(*this, value) >= 0;
-    }
-
-    bool String::operator<(const String &value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool String::operator<(const string &value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool String::operator<(const char *value) const {
-        return compare(*this, value) < 0;
-    }
-
-    bool String::operator<=(const String &value) const {
-        return compare(*this, value) <= 0;
-    }
-
-    bool String::operator<=(const string &value) const {
-        return compare(*this, value) <= 0;
-    }
-
-    bool String::operator<=(const char *value) const {
-        return compare(*this, value) <= 0;
-    }
-
     char &String::at(size_t pos) {
         return _buffer.at(pos);
     }
@@ -279,6 +190,14 @@ namespace Common {
 #endif
             return strcasecmp(value1.getString(), value2.getString());
         }
+    }
+
+    int String::compare(const String &value1, const string &value2, bool ignoreCase) {
+        return String::compare(value1, value2.c_str(), ignoreCase);
+    }
+
+    int String::compare(const String &value1, const char *value2, bool ignoreCase) {
+        return String::compare(value1, String(value2), ignoreCase);
     }
 
     void String::write(Stream *stream, StreamLength streamLength) const {
@@ -393,11 +312,19 @@ namespace Common {
         return getString();
     }
 
-    String::operator const WString() const {
+    String::operator WString() const {
         return WString::convert(*this);
     }
 
     bool String::equals(const String &other) const {
+        return String::equals(*this, other);
+    }
+
+    bool String::equals(const char* other) const {
+        return String::equals(*this, other);
+    }
+
+    bool String::equals(const string &other) const {
         return String::equals(*this, other);
     }
 
@@ -413,51 +340,55 @@ namespace Common {
         return String::compare(*this, other, ignoreCase);
     }
 
-    String String::trim(const char trimChar1, const char trimChar2, const char trimChar3, const char trimChar4) {
-        return String::trim(*this, trimChar1, trimChar2, trimChar3, trimChar4);
+    int String::compareTo(const string &other) const {
+        return String::compare(*this, other);
     }
 
-    String String::trimStart(const char trimChar1, const char trimChar2, const char trimChar3, const char trimChar4) {
-        return String::trimStart(*this, trimChar1, trimChar2, trimChar3, trimChar4);
+    int String::compareTo(const string &other, bool ignoreCase) const {
+        return String::compare(*this, other, ignoreCase);
     }
 
-    String String::trimEnd(const char trimChar1, const char trimChar2, const char trimChar3, const char trimChar4) {
-        return String::trimEnd(*this, trimChar1, trimChar2, trimChar3, trimChar4);
+    int String::compareTo(const char *other) const {
+        return String::compare(*this, other);
+    }
+
+    int String::compareTo(const char *other, bool ignoreCase) const {
+        return String::compare(*this, other, ignoreCase);
     }
 
     String
-    String::trim(const String &str, const char trimChar1, const char trimChar2, const char trimChar3,
-                 const char trimChar4) {
+    String::trim(const String &str, char trimChar1, char trimChar2, char trimChar3,
+                 char trimChar4) {
         Vector<char> trimChars;
         const char temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (char i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimBoth);
     }
 
-    String String::trimStart(const String &str, const char trimChar1, const char trimChar2, const char trimChar3,
-                             const char trimChar4) {
+    String String::trimStart(const String &str, char trimChar1, char trimChar2, char trimChar3,
+                             char trimChar4) {
         Vector<char> trimChars;
         const char temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (char i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimHead);
     }
 
     String
-    String::trimEnd(const String &str, const char trimChar1, const char trimChar2, const char trimChar3,
-                    const char trimChar4) {
+    String::trimEnd(const String &str, char trimChar1, char trimChar2, char trimChar3,
+                    char trimChar4) {
         Vector<char> trimChars;
         const char temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (size_t i = 0; i < 4; i++) {
-            if (temp[i] != '\0') {
-                trimChars.add(temp[i]);
+        for (char i : temp) {
+            if (i != '\0') {
+                trimChars.add(i);
             }
         }
         return trimInner(str, trimChars, TrimType::TrimTail);
@@ -609,21 +540,21 @@ namespace Common {
     }
 
     size_t String::toBase64_CalculateAndValidateOutputLength(size_t inputLength, bool insertLineBreaks) {
-        size_t outlen = (inputLength) / 3 * 4;          // the base length - we want integer division here.
-        outlen += ((inputLength % 3) != 0) ? 4 : 0;         // at most 4 more chars for the remainder
+        size_t len = (inputLength) / 3 * 4;          // the base length - we want integer division here.
+        len += ((inputLength % 3) != 0) ? 4 : 0;         // at most 4 more chars for the remainder
 
-        if (outlen == 0)
+        if (len == 0)
             return 0;
 
         if (insertLineBreaks) {
-            ssize_t newLines = outlen / base64LineBreakPosition;
-            if ((outlen % base64LineBreakPosition) == 0) {
+            size_t newLines = len / base64LineBreakPosition;
+            if ((len % base64LineBreakPosition) == 0) {
                 --newLines;
             }
-            outlen += newLines * 2;              // the number of line break chars we'll add, "\r\n"
+            len += newLines * 2;              // the number of line break chars we'll add, "\r\n"
         }
 
-        return outlen;
+        return len;
     }
 
     size_t String::convertToBase64Array(char *outChars, const uint8_t *inData, off_t offset, size_t length,
@@ -676,6 +607,8 @@ namespace Common {
                 outChars[j + 3] = base64[64]; //Pad
                 j += 4;
                 break;
+            default:
+                break;
         }
 
         return j;
@@ -720,7 +653,7 @@ namespace Common {
 
         ByteArray array;
         if (fromBase64(value, array)) {
-            return String((const char *) array.data(), array.count());
+            return {(const char *) array.data(), array.count()};
         }
         return Empty;
     }
@@ -750,7 +683,7 @@ namespace Common {
             // It may either simply write no bytes (e.g. input = " ") or throw (e.g. input = "ab").
 
             // Create result uint8_t blob:
-            uint8_t *decodedBytes = new uint8_t[resultLength];
+            auto *decodedBytes = new uint8_t[resultLength];
 
             // Convert Base64 chars into bytes:
             size_t actualResultLength = fromBase64_Decode(inputPtr, inputLength, decodedBytes, resultLength);
@@ -761,7 +694,7 @@ namespace Common {
         }
         // Note that actualResultLength can differ from resultLength if the caller is modifying the array
         // as it is being converted. Silently ignore the failure.
-        // Consider throwing exception in an non in-place release.
+        // Consider throwing exception in a non in-place release.
 
         // We are done:
         return false;
@@ -773,8 +706,8 @@ namespace Common {
     /// based on 3 bytes per 4 chars.
     /// </summary>
     size_t String::fromBase64_ComputeResultLength(const char *inputPtr, size_t inputLength) {
-        const uint intEq = (uint) '=';
-        const uint intSpace = (uint) ' ';
+        const auto intEq = (size_t) '=';
+        const auto intSpace = (size_t) ' ';
 
         assert(0 <= inputLength);
 
@@ -783,8 +716,7 @@ namespace Common {
         int padding = 0;
 
         while (inputPtr < inputEndPtr) {
-
-            uint c = (uint) (*inputPtr);
+            auto c = (size_t) (*inputPtr);
             inputPtr++;
 
             // We want to be as fast as possible and filter out spaces with as few comparisons as possible.
@@ -839,18 +771,18 @@ namespace Common {
         // You may find this method weird to look at. It's written for performance, not aesthetics.
         // You will find unrolled loops label jumps and bit manipulations.
 
-        const uint intA = (uint) 'A';
-        const uint inta = (uint) 'a';
-        const uint int0 = (uint) '0';
-        const uint intEq = (uint) '=';
-        const uint intPlus = (uint) '+';
-        const uint intSlash = (uint) '/';
-        const uint intSpace = (uint) ' ';
-        const uint intTab = (uint) '\t';
-        const uint intNLn = (uint) '\n';
-        const uint intCRt = (uint) '\r';
-        const uint intAtoZ = (uint) ('Z' - 'A');  // = ('z' - 'a')
-        const uint int0to9 = (uint) ('9' - '0');
+        const auto intA = (size_t) 'A';
+        const auto inta = (size_t) 'a';
+        const auto int0 = (size_t) '0';
+        const auto intEq = (size_t) '=';
+        const auto intPlus = (size_t) '+';
+        const auto intSlash = (size_t) '/';
+        const auto intSpace = (size_t) ' ';
+        const auto intTab = (size_t) '\t';
+        const auto intNLn = (size_t) '\n';
+        const auto intCRt = (size_t) '\r';
+        const auto intAtoZ = (size_t) ('Z' - 'A');  // = ('z' - 'a')
+        const auto int0to9 = (size_t) ('9' - '0');
 
         const char *inputPtr = startInputPtr;
         uint8_t *destPtr = startDestPtr;
@@ -860,12 +792,12 @@ namespace Common {
         uint8_t *endDestPtr = destPtr + destLength;
 
         // Current char code/value:
-        uint currCode;
+        size_t currCode;
 
         // This 4-uint8_t integer will contain the 4 codes of the current 4-char group.
-        // Eeach char codes for 6 bits = 24 bits.
+        // Each char codes for 6 bits = 24 bits.
         // The remaining uint8_t will be FF, we use it as a marker when 4 chars have been processed.
-        uint currBlockCodes = 0x000000FFu;
+        size_t currBlockCodes = 0x000000FFu;
 
         while (true) {
             // break when done:
@@ -873,7 +805,7 @@ namespace Common {
                 goto _AllInputConsumed;
 
             // Get current char:
-            currCode = (uint) (*inputPtr);
+            currCode = (size_t) (*inputPtr);
             inputPtr++;
 
             // Determine current char code:
@@ -966,7 +898,7 @@ namespace Common {
         } else { // '=' can also be at the pre-last position iff the last is also a '=' excluding the white spaces:
 
             // We need to get rid of any intermediate white spaces.
-            // Otherwise we would be rejecting input such as "abc= =":
+            // Otherwise, we would be rejecting input such as "abc= =":
             while (inputPtr < (endInputPtr - 1)) {
                 int lastChar = *(inputPtr);
                 if (lastChar != (int) ' ' && lastChar != (int) '\n' && lastChar != (int) '\r' &&
@@ -1019,12 +951,12 @@ namespace Common {
 
         const char *current = &getString()[0];
         const char *substring = current + offset;
-        const char *first = strstr(substring, str);
+        const char *first = ::strstr(substring, str.c_str());
         if (nullptr == first) return -1;
         return (first - current);
     }
 
-    ssize_t String::find(const char ch, off_t offset) const {
+    ssize_t String::find(char ch, off_t offset) const {
         char buffer[2] = {ch, '\0'};
         return find(buffer, offset);
     }
@@ -1035,10 +967,10 @@ namespace Common {
         if (str.isNullOrEmpty())
             return -1;
 
-        return ((string) getString()).find_last_of(str);
+        return (ssize_t)((string) getString()).find_last_of(str.c_str());
     }
 
-    ssize_t String::findLastOf(const char ch) const {
+    ssize_t String::findLastOf(char ch) const {
         char buffer[2] = {ch, '\0'};
         return findLastOf(buffer);
     }
@@ -1047,12 +979,12 @@ namespace Common {
         return find(str) != -1;
     }
 
-    bool String::contains(const char ch) const {
+    bool String::contains(char ch) const {
         char buffer[2] = {ch, '\0'};
         return contains(buffer);
     }
 
-    void String::append(const char ch) {
+    void String::append(char ch) {
         addString(ch);
     }
 
@@ -1061,7 +993,7 @@ namespace Common {
     }
 
     void String::append(const String &str) {
-        addString(str);
+        addString(str.c_str());
     }
 
     void String::append(const String &str, off_t offset, size_t count) {
@@ -1069,7 +1001,7 @@ namespace Common {
         append(buffer + offset, count);
     }
 
-    void String::appendLine(const char ch) {
+    void String::appendLine(char ch) {
         append(ch);
         append(NewLine);
     }
@@ -1105,7 +1037,7 @@ namespace Common {
 
         string strBig = str.getString();
         std::string::size_type pos = 0;
-        while ((pos = strBig.find(src, pos)) != string::npos) {
+        while ((pos = strBig.find(src.c_str(), pos)) != string::npos) {
             const char *dstStr = dst.c_str();
             strBig.replace(pos, src.length(), dstStr != nullptr ? dstStr : "");
             pos += dst.length();
@@ -1151,7 +1083,7 @@ namespace Common {
         return String::Empty;
     }
 
-    String String::insert(off_t offset, const char ch) {
+    String String::insert(off_t offset, char ch) {
         char buffer[2] = {ch, '\0'};
         return insert(offset, buffer);
     }
@@ -1164,18 +1096,18 @@ namespace Common {
         return _buffer.removeRange(pos, count);
     }
 
-    String String::trim(const char trimChar1, const char trimChar2, const char trimChar3,
-                        const char trimChar4) const {
+    String String::trim(char trimChar1, char trimChar2, char trimChar3,
+                        char trimChar4) const {
         return String::trim(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
-    String String::trimStart(const char trimChar1, const char trimChar2, const char trimChar3,
-                             const char trimChar4) const {
+    String String::trimStart(char trimChar1, char trimChar2, char trimChar3,
+                             char trimChar4) const {
         return String::trimStart(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
-    String String::trimEnd(const char trimChar1, const char trimChar2, const char trimChar3,
-                           const char trimChar4) const {
+    String String::trimEnd(char trimChar1, char trimChar2, char trimChar3,
+                           char trimChar4) const {
         return String::trimEnd(*this, trimChar1, trimChar2, trimChar3, trimChar4);
     }
 
@@ -1235,34 +1167,34 @@ namespace Common {
     }
 
     Iterator<char>::const_iterator String::begin() const {
-        return Iterator<char>::const_iterator(_buffer.data());
+        return {_buffer.data()};
     }
 
     Iterator<char>::const_iterator String::end() const {
-        return Iterator<char>::const_iterator(_buffer.data() + length());
+        return {_buffer.data() + length()};
     }
 
     Iterator<char>::iterator String::begin() {
-        return Iterator<char>::iterator(_buffer.data());
+        return {_buffer.data()};
     }
 
     Iterator<char>::iterator String::end() {
-        return Iterator<char>::iterator(_buffer.data() + length());
+        return {_buffer.data() + length()};
     }
 
     Iterator<char>::const_reverse_iterator String::rbegin() const {
-        return Iterator<char>::const_reverse_iterator(_buffer.data() + length() - 1);
+        return {_buffer.data() + length() - 1};
     }
 
     Iterator<char>::const_reverse_iterator String::rend() const {
-        return Iterator<char>::const_reverse_iterator(_buffer.data() - 1);
+        return {_buffer.data() - 1};
     }
 
     Iterator<char>::reverse_iterator String::rbegin() {
-        return Iterator<char>::reverse_iterator(_buffer.data() + length() - 1);
+        return {_buffer.data() + length() - 1};
     }
 
     Iterator<char>::reverse_iterator String::rend() {
-        return Iterator<char>::reverse_iterator(_buffer.data() - 1);
+        return {_buffer.data() - 1};
     }
 }

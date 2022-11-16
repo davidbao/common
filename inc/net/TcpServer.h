@@ -6,7 +6,7 @@
 #include "data/TimeSpan.h"
 #include "TcpClient.h"
 
-namespace Common
+namespace Net
 {
     class TcpServer
     {

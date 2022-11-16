@@ -102,7 +102,7 @@ namespace Common
         if (hasSubNodes())
         {
             xmlNodePtr nodePtr = _node->node->children;
-            while (nodePtr != NULL)
+            while (nodePtr != nullptr)
             {
                 if (nodePtr->type == XML_ELEMENT_NODE)
                 {
@@ -119,7 +119,7 @@ namespace Common
         if (isValid())
         {
             xmlNodePtr nodePtr = _node->node->children;
-            while (nodePtr != NULL)
+            while (nodePtr != nullptr)
             {
                 if (nodePtr->type == XML_ELEMENT_NODE)
                 {
@@ -136,7 +136,7 @@ namespace Common
 		if (isValid())
 		{
 			xmlNodePtr nodePtr = _node->node->children;
-			while (nodePtr != NULL)
+			while (nodePtr != nullptr)
 			{
 				if (nodePtr->type == XML_ELEMENT_NODE &&
 					strcmp((const char*)nodePtr->name, xpath) == 0)
@@ -154,7 +154,7 @@ namespace Common
         if (isValid())
         {
             xmlNodePtr nodePtr = _node->node->children;
-            while (nodePtr != NULL)
+            while (nodePtr != nullptr)
             {
                 if (nodePtr->type == XML_ELEMENT_NODE &&
                     strcmp((const char*)nodePtr->name, name) == 0)
@@ -171,7 +171,7 @@ namespace Common
         if (isValid())
         {
             xmlNodePtr nodePtr = _node->node->children;
-            while (nodePtr != NULL)
+            while (nodePtr != nullptr)
             {
                 if (nodePtr->type == XML_ELEMENT_NODE &&
                     strcmp((const char*)nodePtr->name, name) == 0)
@@ -281,42 +281,6 @@ namespace Common
     {
         return appendAttribute(name, Double(value).toString());
     }
-    bool XmlNode::appendAttribute(const String& name, const DateTime& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const TimeSpan& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const Version& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const Point& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const PointF& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const Size& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const SizeF& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const Rectangle& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::appendAttribute(const String& name, const RectangleF& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
     
     bool XmlNode::updateAttribute(const String& name, const String& value)
     {
@@ -375,44 +339,7 @@ namespace Common
     {
         return updateAttribute(name, Double(value).toString());
     }
-    bool XmlNode::updateAttribute(const String& name, const DateTime& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const TimeSpan& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const Version& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
 
-    bool XmlNode::updateAttribute(const String& name, const Point& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const PointF& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const Size& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const SizeF& value)
-    {
-        return updateAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const Rectangle& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    bool XmlNode::updateAttribute(const String& name, const RectangleF& value)
-    {
-        return appendAttribute(name, value.toString());
-    }
-    
     bool XmlNode::appendNode(XmlNode& node)
     {
         if (isValid())
@@ -505,42 +432,6 @@ namespace Common
     bool XmlNode::getAttribute(const String& name, double& value) const
     {
         return Double::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, DateTime& value) const
-    {
-        return DateTime::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, TimeSpan& value) const
-    {
-        return TimeSpan::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, Version& value) const
-    {
-        return Version::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, Point& value) const
-    {
-        return Point::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, PointF& value) const
-    {
-        return PointF::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, Size& value) const
-    {
-        return Size::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, SizeF& value) const
-    {
-        return SizeF::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, Rectangle& value) const
-    {
-        return Rectangle::parse(getAttribute(name), value);
-    }
-    bool XmlNode::getAttribute(const String& name, RectangleF& value) const
-    {
-        return RectangleF::parse(getAttribute(name), value);
     }
 
     String XmlNode::toString() const

@@ -9,7 +9,6 @@
 #ifndef Convert_h
 #define Convert_h
 
-#include <stdio.h>
 #include "data/StringArray.h"
 #include "data/ValueType.h"
 #include "data/PList.h"
@@ -35,9 +34,9 @@ namespace Common {
 
         static String convertStr(uint64_t value);
 
-        static String convertStr(float value, const String& format = String::Empty);
+        static String convertStr(float value, const String &format = String::Empty);
 
-        static String convertStr(double value, const String& format = String::Empty);
+        static String convertStr(double value, const String &format = String::Empty);
 
         static bool parseStr(const String &text, bool &value);
 
@@ -57,28 +56,30 @@ namespace Common {
 
         static bool parseStr(const String &text, uint64_t &value, NumberStyles style = NumberStyles::NSInteger);
 
-        static bool parseStr(const String &text, float &value, NumberStyles style = (NumberStyles)(NSFloat | NSAllowThousands));
+        static bool
+        parseStr(const String &text, float &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
-        static bool parseStr(const String &text, double &value, NumberStyles style = (NumberStyles)(NSFloat | NSAllowThousands));
+        static bool
+        parseStr(const String &text, double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
         static void
-        splitStr(const String &str, const char splitSymbol, StringArray &texts, const char incSymbol = '\0');
+        splitStr(const String &str, char splitSymbol, StringArray &texts, char incSymbol = '\0');
 
         static void
-        splitStr(const String &str, StringArray &texts, const char splitSymbol = ';', const char incSymbol = '\0');
+        splitStr(const String &str, StringArray &texts, char splitSymbol = ';', char incSymbol = '\0');
 
         static void splitStr(const String &str, StringArray &texts, const String &splitSymbol = ";");
 
         static void
-        splitItems(const String &str, StringArray &texts, const char splitSymbol = ';', const char escape = '\\',
-                   const char startRange = '{', const char endRange = '}');
+        splitItems(const String &str, StringArray &texts, char splitSymbol = ';', char escape = '\\',
+                   char startRange = '{', char endRange = '}');
 
         class KeyPair {
         public:
             String name;
             String value;
 
-            KeyPair(const String &name = String::Empty, const String &value = String::Empty) {
+            explicit KeyPair(const String &name = String::Empty, const String &value = String::Empty) {
                 this->name = name;
                 this->value = value;
             }
@@ -87,8 +88,8 @@ namespace Common {
         typedef PList<KeyPair> KeyPairs;
 
         static bool
-        splitItems(const String &str, KeyPairs &pairs, const char splitSymbol = ';', const char escape = '\\',
-                   const char startRange = '{', const char endRange = '}');
+        splitItems(const String &str, KeyPairs &pairs, char splitSymbol = ';', char escape = '\\',
+                   char startRange = '{', char endRange = '}');
     };
 }
 

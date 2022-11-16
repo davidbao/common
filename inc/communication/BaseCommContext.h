@@ -15,11 +15,12 @@
 #include "data/DateTime.h"
 #include "data/StreamVector.h"
 #include "data/ByteArray.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "data/PrimitiveInterface.h"
 #include "driver/instructions/InstructionContext.h"
 
 using namespace Common;
+using namespace Net;
 using namespace Drivers;
 
 namespace Communication

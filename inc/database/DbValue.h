@@ -81,8 +81,8 @@ namespace Database
 		void write(Stream* stream, bool bigEndian = true) const;
 		void read(Stream* stream, bool bigEndian = true);
 
-		void writeStr(Stream* stream, int lengthCount = 2) const;
-		void readStr(Stream* stream, int lengthCount = 2);
+		void writeStr(Stream* stream, String::StreamLength lengthCount = String::StreamLength2) const;
+		void readStr(Stream* stream, String::StreamLength lengthCount = String::StreamLength2);
 		void writeFixedLengthStr(Stream* stream, int length) const;
 		void readFixedLengthStr(Stream* stream, int length);
 

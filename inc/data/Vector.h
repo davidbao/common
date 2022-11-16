@@ -416,14 +416,9 @@ namespace Common {
         }
 
         inline void makeNull() {
-            if (_count > 0 || _array == nullptr) {
-                if (_array != nullptr) {
-                    deleteArray();
-                }
-                _count = 0;
-                _array = new type[_capacity];
-                zero(_array, _capacity);
-            }
+            _count = 0;
+            _array = new type[_capacity];
+            zero(_array, _capacity);
         }
 
         inline size_t size() const {

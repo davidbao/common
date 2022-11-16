@@ -37,7 +37,7 @@
 
 using namespace Common;
 
-namespace Drivers
+namespace Net
 {
 	BluetoothClient::BluetoothClient(int socketId)
 	{

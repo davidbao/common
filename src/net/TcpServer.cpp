@@ -44,7 +44,7 @@
 #define closesocket(a) ::close(a)
 #endif
 
-namespace Common
+namespace Net
 {
     TcpServer::TcpServer()
     {

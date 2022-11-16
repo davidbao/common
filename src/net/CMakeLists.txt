@@ -15,9 +15,7 @@ SET(NET_SRC
         Dns.cpp
         EthernetInfo.cpp
         NetInterface.cpp
-        MqttClient.cpp
-        OpcuaClient.cpp
-        OpcuaContext.cpp
+        NetType.cpp
         Receiver.cpp
         Sender.cpp
         TcpClient.cpp

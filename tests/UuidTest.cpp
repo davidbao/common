@@ -14,27 +14,27 @@ using namespace Common;
 bool testGenerate() {
     Uuid id = Uuid::generate();
     return !id.isEmpty();
-};
+}
 
 bool testEmpty1() {
     Uuid id = Uuid::Empty;
     return id.isEmpty();
-};
+}
 
 bool testEmpty2() {
     Uuid id = Uuid::generate();
     id.empty();
     return id.isEmpty();
-};
+}
 
 bool testParse() {
     Uuid id = Uuid::generate();
     String idStr = id.toString();
     Uuid id2;
-    if(!Uuid::parse(idStr, id2))
+    if (!Uuid::parse(idStr, id2))
         return false;
     return id == id2;
-};
+}
 
 bool testEquals() {
     Uuid id, id2;
@@ -61,7 +61,7 @@ bool testStream() {
     MemoryStream ms;
     static const String idStr = "08967256-661D-4C25-8449-47B6C632B1F9";
     Uuid id;
-    if(Uuid::parse(idStr, id)) {
+    if (Uuid::parse(idStr, id)) {
         id.write(&ms);
         ms.seek(0);
         Uuid id2;
@@ -71,22 +71,34 @@ bool testStream() {
     return false;
 }
 
+bool testUuids() {
+    Uuids test{Uuid("08967256-661D-4C25-8449-47B6C632B1F9"), Uuid("08967256-661D-4C25-8449-47B6C632B1FA")};
+    if (test.count() != 2) {
+        return false;
+    }
+
+    return true;
+}
+
 int main() {
-    if(!testGenerate())
+    if (!testGenerate())
         return 1;
-    if(!testEmpty1())
+    if (!testEmpty1())
         return 2;
-    if(!testEmpty2())
+    if (!testEmpty2())
         return 3;
-    if(!testParse())
+    if (!testParse())
         return 4;
-    if(!testEquals())
+    if (!testEquals())
         return 5;
-    if(!testGreaterThan())
+    if (!testGreaterThan())
         return 6;
-    if(!testLessThan())
+    if (!testLessThan())
         return 7;
-    if(!testStream())
+    if (!testStream())
         return 8;
+    if (!testUuids()) {
+        return 9;
+    }
     return 0;
 }

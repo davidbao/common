@@ -11,7 +11,8 @@
 
 using namespace Common;
 
-class Key : public IComparable<Key>, public IEquatable<Key>, public IEvaluation<Key> {
+class Key : public IEquatable<Key>, public IEquatable<Key, int>, public IEquatable<Key, String>,
+            public IComparable<Key>, public IEvaluation<Key> {
 public:
     Key(int value = 0) : _iValue(value), _strValue(nullptr) {
     }
@@ -66,33 +67,17 @@ public:
         return compareTo(other) == 0;
     }
 
+    bool equals(const int &other) const override {
+        return _iValue == other;
+    }
+
+    bool equals(const String &other) const override {
+        return _strValue == other;
+    }
+
     Key &operator=(const Key &other) {
         evaluates(other);
         return *this;
-    }
-
-    bool operator==(const Key &other) const {
-        return this->equals(other);
-    }
-
-    bool operator!=(const Key &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const int &other) const {
-        return this->equals(Key(other));
-    }
-
-    bool operator!=(const int &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const String &other) const {
-        return this->equals(Key(other));
-    }
-
-    bool operator!=(const String &other) const {
-        return !this->operator==(other);
     }
 
 private:
@@ -100,7 +85,8 @@ private:
     String _strValue;
 };
 
-class Value : public IComparable<Value>, public IEquatable<Value>, public IEvaluation<Value> {
+class Value : public IEquatable<Value>, public IEquatable<Value, int>, public IEquatable<Value, String>,
+        public IComparable<Value>, public IEvaluation<Value> {
 public:
     Value(int value = 0) : _iValue(value), _strValue(nullptr) {
     }
@@ -155,33 +141,17 @@ public:
         return compareTo(other) == 0;
     }
 
+    bool equals(const int &other) const override {
+        return _iValue == other;
+    }
+
+    bool equals(const String &other) const override {
+        return _strValue == other;
+    }
+
     Value &operator=(const Value &other) {
         evaluates(other);
         return *this;
-    }
-
-    bool operator==(const Value &other) const {
-        return this->equals(other);
-    }
-
-    bool operator!=(const Value &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const int &other) const {
-        return this->equals(Value(other));
-    }
-
-    bool operator!=(const int &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const String &other) const {
-        return this->equals(Value(other));
-    }
-
-    bool operator!=(const String &other) const {
-        return !this->operator==(other);
     }
 
 private:

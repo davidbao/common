@@ -11,11 +11,13 @@
 
 #ifdef __EMSCRIPTEN__
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "data/Dictionary.h"
 #include "system/Application.h"
 
 #include <emscripten/bind.h>
+
+using namespace Net;
 
 namespace Common
 {

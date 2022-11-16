@@ -12,11 +12,7 @@
 #include "data/ValueType.h"
 #include "data/DateTime.h"
 #include "data/TimeSpan.h"
-#include "data/Version.h"
-#include "data/Rectangle.h"
-#include "data/Point.h"
-#include "data/Size.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
 
@@ -83,16 +79,7 @@ namespace Common
         void writeAttribute(const String& name, const char* value);
         void writeAttribute(const String& name, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
         void writeAttribute(const String& name, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
-        void writeAttribute(const String& name, const Version& value);
-        void writeAttribute(const String& name, const IPAddress& value);
-        void writeAttribute(const String& name, const MacAddress& value);
-        void writeAttribute(const String& name, const Uuid& value);
-        void writeAttribute(const String& name, const RectangleF& value);
-        void writeAttribute(const String& name, const Rectangle& value);
-        void writeAttribute(const String& name, const PointF& value);
-        void writeAttribute(const String& name, const Point& value);
-        void writeAttribute(const String& name, const SizeF& value);
-        void writeAttribute(const String& name, const Size& value);
+
         template <class T>
         void writeAttribute(const String& name, const T& value)
         {

@@ -21,6 +21,7 @@
 #include "InstructionContext.h"
 
 using namespace Common;
+using namespace Net;
 
 namespace Drivers {
     class Interactive;

@@ -6,8 +6,7 @@
 //  Copyright © 2016 com. All rights reserved.
 //
 
-#include <string.h>
-#include <assert.h>
+
 #include "data/Convert.h"
 
 namespace Common {
@@ -47,11 +46,11 @@ namespace Common {
         return UInt64(value).toString();
     }
 
-    String Convert::convertStr(float value, const String& format) {
+    String Convert::convertStr(float value, const String &format) {
         return Float(value).toString(format);
     }
 
-    String Convert::convertStr(double value, const String& format) {
+    String Convert::convertStr(double value, const String &format) {
         return Double(value).toString(format);
     }
 
@@ -99,7 +98,7 @@ namespace Common {
         return Double::parse(text, value, style);
     }
 
-    void Convert::splitStr(const String &str, const char splitSymbol, StringArray &texts, const char incSymbol) {
+    void Convert::splitStr(const String &str, char splitSymbol, StringArray &texts, char incSymbol) {
         int size;
         String splitStr;
         String text = str;
@@ -135,7 +134,7 @@ namespace Common {
         }
     }
 
-    void Convert::splitStr(const String &str, StringArray &texts, const char splitSymbol, const char incSymbol) {
+    void Convert::splitStr(const String &str, StringArray &texts, char splitSymbol, char incSymbol) {
         splitStr(str, splitSymbol, texts, incSymbol);
     }
 
@@ -155,13 +154,13 @@ namespace Common {
             texts.add(splitStr);
             if (splitStr != text) {
                 size_t len = splitSymbol.length();
-                text = text.substr((off_t)(size + len), text.length() - (size_t)size - len);
+                text = text.substr((off_t) (size + len), text.length() - (size_t) size - len);
             }
         }
     }
 
-    void Convert::splitItems(const String &str, StringArray &texts, const char splitSymbol, const char escape,
-                             const char startRange, const char endRange) {
+    void Convert::splitItems(const String &str, StringArray &texts, char splitSymbol, char escape,
+                             char startRange, char endRange) {
         off_t offset = 0;
         int range = 0;
         char prevCh = '\0';
@@ -184,8 +183,8 @@ namespace Common {
         texts.add(str.substr(offset, str.length() - offset));
     }
 
-    bool Convert::splitItems(const String &str, KeyPairs &pairs, const char splitSymbol, const char escape,
-                             const char startRange, const char endRange) {
+    bool Convert::splitItems(const String &str, KeyPairs &pairs, char splitSymbol, char escape,
+                             char startRange, char endRange) {
         if (str.isNullOrEmpty())
             return false;
 
@@ -200,7 +199,7 @@ namespace Common {
                     String value = String::trim(values[1], ' ', startRange, endRange);
 
                     if (!name.isNullOrEmpty()) {
-                        KeyPair *kp = new KeyPair(name, value);
+                        auto *kp = new KeyPair(name, value);
                         pairs.add(kp);
                     }
                 }

@@ -251,22 +251,6 @@ namespace Common
         }
         return false;
     }
-    bool JsonTextReader::getAttribute(const String& name, Version& value)
-    {
-        return Version::parse(getAttribute(name), value);
-    }
-    bool JsonTextReader::getAttribute(const String& name, IPAddress& value)
-    {
-        return IPAddress::parse(getAttribute(name), value);
-    }
-    bool JsonTextReader::getAttribute(const String& name, MacAddress& value)
-    {
-        return MacAddress::parse(getAttribute(name), value);
-    }
-    bool JsonTextReader::getAttribute(const String& name, Uuid& value)
-    {
-        return Uuid::parse(getAttribute(name), value);
-    }
     
     const ConfigFile& JsonTextReader::configFile() const
     {

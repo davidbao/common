@@ -155,7 +155,7 @@ namespace Common {
         //sj.hStdOutput
         PROCESS_INFORMATION pi;
         memset(&pi, 0, sizeof(pi));
-        String clineStr = arguments != nullptr ? String::format("%s %s", fileName.c_str(), arguments.c_str()) : String(fileName);
+        String clineStr = !arguments.isNullOrEmpty() ? String::format("%s %s", fileName.c_str(), arguments.c_str()) : String(fileName);
         BOOL result = CreateProcess(nullptr, (char *) clineStr.c_str(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW,
                                     nullptr, nullptr, &si, &pi);
         if (result) {
@@ -204,7 +204,7 @@ namespace Common {
 #else
         char **argv = nullptr;
         uint len = 0;
-        if (arguments != nullptr) {
+        if (!arguments.isNullOrEmpty()) {
             String temp = arguments;
             StringArray as;
             Convert::splitStr(temp, ' ', as, '"');

@@ -6,7 +6,6 @@
 #include "UdpServerChannelContext.h"
 #include "net/UdpClient.h"
 #include "net/UdpServer.h"
-#include "data/LoopArray.h"
 #include "thread/Thread.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"

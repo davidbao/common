@@ -14,8 +14,6 @@
 cmake_minimum_required(VERSION 3.2.3)
 project(common)
 
-set(CMAKE_CXX_STANDARD 11)
-
 option(COMMON_ENABLE_TEST "Option for build with test" ON)
 option(COMMON_BUILD_DATABASE "Option for build with database" ON)
 option(COMMON_BUILD_DRIVER "Option for build with driver" ON)
@@ -32,6 +30,9 @@ set(COMMON_VERSION_MAJOR 3)
 set(COMMON_VERSION_MINOR 1)
 set(COMMON_VERSION_PATCH 0)
 set(COMMON_VERSION ${COMMON_VERSION_MAJOR}.${COMMON_VERSION_MINOR}.${COMMON_VERSION_PATCH})
+
+set(COMMON_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD ${COMMON_CXX_STANDARD})
 
 message(STATUS "CMake version: " ${CMAKE_VERSION})
 message(STATUS "CMake system name: " ${CMAKE_SYSTEM_NAME})

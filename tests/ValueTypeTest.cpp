@@ -1103,7 +1103,7 @@ bool testCharComparison() {
     {
         Char test('A');
         Char test2 = test.toLower();
-        if(test2 != 'a') {
+        if (test2 != 'a') {
             return false;
         }
     }
@@ -1112,7 +1112,7 @@ bool testCharComparison() {
     {
         Char test('a');
         Char test2 = test.toUpper();
-        if(test2 != 'A') {
+        if (test2 != 'A') {
             return false;
         }
     }
@@ -1120,7 +1120,7 @@ bool testCharComparison() {
     // isDigit
     {
         Char digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        for (auto test : digits) {
+        for (const auto& test: digits) {
             if (!test.isDigit()) {
                 return false;
             }
@@ -1128,7 +1128,7 @@ bool testCharComparison() {
     }
     {
         Char test('a');
-        if(test.isDigit()) {
+        if (test.isDigit()) {
             return false;
         }
     }
@@ -1136,19 +1136,19 @@ bool testCharComparison() {
     // isLetter
     {
         Char test('a');
-        if(!test.isLetter()) {
+        if (!test.isLetter()) {
             return false;
         }
     }
     {
         Char test('B');
-        if(!test.isLetter()) {
+        if (!test.isLetter()) {
             return false;
         }
     }
     {
         Char test(',');
-        if(test.isLetter()) {
+        if (test.isLetter()) {
             return false;
         }
     }
@@ -1156,13 +1156,13 @@ bool testCharComparison() {
     // isWhiteSpace
     {
         Char test(' ');
-        if(!test.isWhiteSpace()) {
+        if (!test.isWhiteSpace()) {
             return false;
         }
     }
     {
         Char test('1');
-        if(test.isWhiteSpace()) {
+        if (test.isWhiteSpace()) {
             return false;
         }
     }
@@ -1170,13 +1170,13 @@ bool testCharComparison() {
     // isUpper
     {
         Char test('A');
-        if(!test.isUpper()) {
+        if (!test.isUpper()) {
             return false;
         }
     }
     {
         Char test('a');
-        if(test.isUpper()) {
+        if (test.isUpper()) {
             return false;
         }
     }
@@ -1184,13 +1184,13 @@ bool testCharComparison() {
     // isLower
     {
         Char test('a');
-        if(!test.isLower()) {
+        if (!test.isLower()) {
             return false;
         }
     }
     {
         Char test('A');
-        if(test.isLower()) {
+        if (test.isLower()) {
             return false;
         }
     }
@@ -1198,19 +1198,19 @@ bool testCharComparison() {
     // isLetterOrDigit
     {
         Char test('A');
-        if(!test.isLetterOrDigit()) {
+        if (!test.isLetterOrDigit()) {
             return false;
         }
     }
     {
         Char test('9');
-        if(!test.isLetterOrDigit()) {
+        if (!test.isLetterOrDigit()) {
             return false;
         }
     }
     {
         Char test('.');
-        if(test.isLetterOrDigit()) {
+        if (test.isLetterOrDigit()) {
             return false;
         }
     }
@@ -1218,13 +1218,13 @@ bool testCharComparison() {
     // isSymbol
     {
         Char test('.');
-        if(!test.isSymbol()) {
+        if (!test.isSymbol()) {
             return false;
         }
     }
     {
         Char test('A');
-        if(test.isSymbol()) {
+        if (test.isSymbol()) {
             return false;
         }
     }
@@ -1232,13 +1232,13 @@ bool testCharComparison() {
     // isAscii
     {
         Char test('A');
-        if(!test.isAscii()) {
+        if (!test.isAscii()) {
             return false;
         }
     }
     {
-        Char test((char)0xC0);
-        if(test.isAscii()) {
+        Char test((char) 0xC0);
+        if (test.isAscii()) {
             return false;
         }
     }
@@ -1246,19 +1246,19 @@ bool testCharComparison() {
     // toChar
     {
         Char test = Char::toChar(9);
-        if(test != '9') {
+        if (test != '9') {
             return false;
         }
     }
     {
         Char test = Char::toChar(0x0F);
-        if(test != 'F') {
+        if (test != 'F') {
             return false;
         }
     }
     {
         Char test = Char::toChar(0x11);
-        if((uint8_t)test != 0xFF) {
+        if ((uint8_t) test != 0xFF) {
             return false;
         }
     }
@@ -1266,25 +1266,25 @@ bool testCharComparison() {
     // toHex
     {
         uint8_t test = Char::toHex('9');
-        if(test != 0x09) {
+        if (test != 0x09) {
             return false;
         }
     }
     {
         uint8_t test = Char::toHex('A');
-        if(test != 0x0A) {
+        if (test != 0x0A) {
             return false;
         }
     }
     {
         uint8_t test = Char::toHex('a');
-        if(test != 0x0A) {
+        if (test != 0x0A) {
             return false;
         }
     }
     {
         Char test = Char::toHex('.');
-        if((uint8_t)test != 0xFF) {
+        if ((uint8_t) test != 0xFF) {
             return false;
         }
     }
@@ -1297,7 +1297,7 @@ bool testWCharComparison() {
     {
         WChar test('A');
         WChar test2 = test.toLower();
-        if(test2 != L'a') {
+        if (test2 != L'a') {
             return false;
         }
     }
@@ -1306,7 +1306,7 @@ bool testWCharComparison() {
     {
         WChar test(L'a');
         WChar test2 = test.toUpper();
-        if(test2 != L'A') {
+        if (test2 != L'A') {
             return false;
         }
     }
@@ -1314,7 +1314,7 @@ bool testWCharComparison() {
     // isDigit
     {
         WChar digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        for (auto test : digits) {
+        for (const auto& test: digits) {
             if (!test.isDigit()) {
                 return false;
             }
@@ -1322,7 +1322,7 @@ bool testWCharComparison() {
     }
     {
         WChar test(L'a');
-        if(test.isDigit()) {
+        if (test.isDigit()) {
             return false;
         }
     }
@@ -1330,19 +1330,19 @@ bool testWCharComparison() {
     // isLetter
     {
         WChar test(L'a');
-        if(!test.isLetter()) {
+        if (!test.isLetter()) {
             return false;
         }
     }
     {
         WChar test(L'B');
-        if(!test.isLetter()) {
+        if (!test.isLetter()) {
             return false;
         }
     }
     {
         WChar test(L',');
-        if(test.isLetter()) {
+        if (test.isLetter()) {
             return false;
         }
     }
@@ -1350,13 +1350,13 @@ bool testWCharComparison() {
     // isWhiteSpace
     {
         WChar test(L' ');
-        if(!test.isWhiteSpace()) {
+        if (!test.isWhiteSpace()) {
             return false;
         }
     }
     {
         WChar test(L'1');
-        if(test.isWhiteSpace()) {
+        if (test.isWhiteSpace()) {
             return false;
         }
     }
@@ -1364,13 +1364,13 @@ bool testWCharComparison() {
     // isUpper
     {
         WChar test(L'A');
-        if(!test.isUpper()) {
+        if (!test.isUpper()) {
             return false;
         }
     }
     {
         WChar test(L'a');
-        if(test.isUpper()) {
+        if (test.isUpper()) {
             return false;
         }
     }
@@ -1378,13 +1378,13 @@ bool testWCharComparison() {
     // isLower
     {
         WChar test(L'a');
-        if(!test.isLower()) {
+        if (!test.isLower()) {
             return false;
         }
     }
     {
         WChar test(L'A');
-        if(test.isLower()) {
+        if (test.isLower()) {
             return false;
         }
     }
@@ -1392,19 +1392,19 @@ bool testWCharComparison() {
     // isLetterOrDigit
     {
         WChar test(L'A');
-        if(!test.isLetterOrDigit()) {
+        if (!test.isLetterOrDigit()) {
             return false;
         }
     }
     {
         WChar test(L'9');
-        if(!test.isLetterOrDigit()) {
+        if (!test.isLetterOrDigit()) {
             return false;
         }
     }
     {
         WChar test(L'.');
-        if(test.isLetterOrDigit()) {
+        if (test.isLetterOrDigit()) {
             return false;
         }
     }
@@ -1412,13 +1412,13 @@ bool testWCharComparison() {
     // isSymbol
     {
         WChar test(L'.');
-        if(!test.isSymbol()) {
+        if (!test.isSymbol()) {
             return false;
         }
     }
     {
         WChar test(L'A');
-        if(test.isSymbol()) {
+        if (test.isSymbol()) {
             return false;
         }
     }
@@ -1426,13 +1426,13 @@ bool testWCharComparison() {
     // isAscii
     {
         WChar test(L'A');
-        if(!test.isAscii()) {
+        if (!test.isAscii()) {
             return false;
         }
     }
     {
         WChar test(0xC0);
-        if(test.isAscii()) {
+        if (test.isAscii()) {
             return false;
         }
     }
@@ -1440,19 +1440,19 @@ bool testWCharComparison() {
     // toChar
     {
         WChar test = WChar::toChar(9);
-        if(test != L'9') {
+        if (test != L'9') {
             return false;
         }
     }
     {
         WChar test = WChar::toChar(0x0F);
-        if(test != L'F') {
+        if (test != L'F') {
             return false;
         }
     }
     {
         WChar test = WChar::toChar(0x11);
-        if((uint8_t)test != 0xFF) {
+        if ((uint8_t) test != 0xFF) {
             return false;
         }
     }
@@ -1460,38 +1460,38 @@ bool testWCharComparison() {
     // toHex
     {
         uint8_t test = WChar::toHex(L'9');
-        if(test != 0x09) {
+        if (test != 0x09) {
             return false;
         }
     }
     {
         uint8_t test = WChar::toHex(L'A');
-        if(test != 0x0A) {
+        if (test != 0x0A) {
             return false;
         }
     }
     {
         uint8_t test = WChar::toHex(L'a');
-        if(test != 0x0A) {
+        if (test != 0x0A) {
             return false;
         }
     }
     {
         WChar test = WChar::toHex(L'.');
-        if((uint8_t)test != 0xFF) {
+        if ((uint8_t) test != 0xFF) {
             return false;
         }
     }
 
     {
         WChar test(L'汉');
-        if(!test.isHanzi()) {
+        if (!test.isHanzi()) {
             return false;
         }
     }
     {
         WChar test(L'A');
-        if(test.isHanzi()) {
+        if (test.isHanzi()) {
             return false;
         }
     }
@@ -1503,82 +1503,82 @@ bool testFloatComparison() {
     // isNaN
     {
         Float test = Float::NaN;
-        if(!test.isNaN()) {
+        if (!test.isNaN()) {
             return false;
         }
-        if(!Float::isNaN(Float::NaN)) {
+        if (!Float::isNaN(Float::NaN)) {
             return false;
         }
-        if(Float::isNaN(Float::PositiveInfinity)) {
+        if (Float::isNaN(Float::PositiveInfinity)) {
             return false;
         }
-        if(Float::isNaN(Float::NegativeInfinity)) {
+        if (Float::isNaN(Float::NegativeInfinity)) {
             return false;
         }
-        if(Float::isNaN(0.0f)) {
+        if (Float::isNaN(0.0f)) {
             return false;
         }
-        if(Float::isNaN(Float::MinValue / 2.0f)) {
+        if (Float::isNaN(Float::MinValue / 2.0f)) {
             return false;
         }
         float v = 0.0f;
-        if(!Float::isNaN(v / v)) {
+        if (!Float::isNaN(v / v)) {
             return false;
         }
-        if(!Float::isNaN(Float::PositiveInfinity - Float::PositiveInfinity)) {
+        if (!Float::isNaN(Float::PositiveInfinity - Float::PositiveInfinity)) {
             return false;
         }
     }
 
     // isFinite
     {
-        if(!Float(0.0f).isFinite()) {
+        if (!Float(0.0f).isFinite()) {
             return false;
         }
-        if(Float(Math::exp(800.0f)).isFinite()) {
+        if (Float(Math::exp(800.0f)).isFinite()) {
             return false;
         }
-        if(Float::isFinite(Float::NaN)) {
+        if (Float::isFinite(Float::NaN)) {
             return false;
         }
-        if(Float::isFinite(Float::PositiveInfinity)) {
+        if (Float::isFinite(Float::PositiveInfinity)) {
             return false;
         }
-        if(Float::isFinite(Float::NegativeInfinity)) {
+        if (Float::isFinite(Float::NegativeInfinity)) {
             return false;
         }
-        if(!Float::isFinite(0.0f)) {
+        if (!Float::isFinite(0.0f)) {
             return false;
         }
-        if(Float::isFinite(Math::exp(800.0f))) {
+        if (Float::isFinite(Math::exp(800.0f))) {
             return false;
         }
-        if(!Float::isFinite(Float::MinValue / 2.0f)) {
+        if (!Float::isFinite(Float::MinValue / 2.0f)) {
             return false;
         }
     }
 
     // isInfinity
     {
-        if(Float(0.0f).isInfinity()) {
+        if (Float(0.0f).isInfinity()) {
             return false;
         }
-        if(Float::isInfinity(Float::NaN)) {
+        if (Float::isInfinity(Float::NaN)) {
             return false;
         }
-        if(!Float::isInfinity(Float::PositiveInfinity)) {
+        if (!Float::isInfinity(Float::PositiveInfinity)) {
             return false;
         }
-        if(!Float::isInfinity(Float::NegativeInfinity)) {
+        if (!Float::isInfinity(Float::NegativeInfinity)) {
             return false;
         }
-        if(Float::isInfinity(0.0f)) {
+        if (Float::isInfinity(0.0f)) {
             return false;
         }
-        if(!Float::isInfinity(Math::exp(800.0f))) {
+        if (!Float::isInfinity(Math::exp(800.0f))) {
             return false;
         }
-        if(Float::isInfinity(Float::MinValue / 2.0f)) {
+        if (Float::isInfinity(Float::MinValue / 2.0f)) {
             return false;
         }
     }
@@ -1586,65 +1586,65 @@ bool testFloatComparison() {
     // isNegative
     {
         Float test(-0.0f);
-        if(!test.isNegative()) {
+        if (!test.isNegative()) {
             return false;
         }
-        if(Float::isNegative(+0.0f)) {
+        if (Float::isNegative(+0.0f)) {
             return false;
         }
-        if(!Float::isNegative(-0.0f)) {
+        if (!Float::isNegative(-0.0f)) {
             return false;
         }
     }
 
     // isNegativeInfinity
     {
-        if(Float(0.0f).isNegativeInfinity()) {
+        if (Float(0.0f).isNegativeInfinity()) {
             return false;
         }
-        if(Float::isNegativeInfinity(Float::NaN)) {
+        if (Float::isNegativeInfinity(Float::NaN)) {
             return false;
         }
         float v = 0.0f;
-        if(!Float::isNegativeInfinity(-5.0f / v)) {
+        if (!Float::isNegativeInfinity(-5.0f / v)) {
             return false;
         }
-        if(!Float::isNegativeInfinity(Float::NegativeInfinity)) {
+        if (!Float::isNegativeInfinity(Float::NegativeInfinity)) {
             return false;
         }
-        if(Float::isNegativeInfinity(0.0f)) {
+        if (Float::isNegativeInfinity(0.0f)) {
             return false;
         }
-        if(!Float::isNegativeInfinity(-Math::exp(800.0f))) {
+        if (!Float::isNegativeInfinity(-Math::exp(800.0f))) {
             return false;
         }
-        if(Float::isNegativeInfinity(Float::MinValue / 2.0f)) {
+        if (Float::isNegativeInfinity(Float::MinValue / 2.0f)) {
             return false;
         }
     }
 
     // isPositiveInfinity
     {
-        if(!Float(Float::PositiveInfinity).isPositiveInfinity()) {
+        if (!Float(Float::PositiveInfinity).isPositiveInfinity()) {
             return false;
         }
-        if(Float::isPositiveInfinity(Float::NaN)) {
+        if (Float::isPositiveInfinity(Float::NaN)) {
             return false;
         }
         float v = 0.0f;
-        if(!Float::isPositiveInfinity(5.0f / v)) {
+        if (!Float::isPositiveInfinity(5.0f / v)) {
             return false;
         }
-        if(!Float::isPositiveInfinity(Float::PositiveInfinity)) {
+        if (!Float::isPositiveInfinity(Float::PositiveInfinity)) {
             return false;
         }
-        if(Float::isPositiveInfinity(0.0f)) {
+        if (Float::isPositiveInfinity(0.0f)) {
             return false;
         }
-        if(!Float::isPositiveInfinity(Math::exp(800.0f))) {
+        if (!Float::isPositiveInfinity(Math::exp(800.0f))) {
             return false;
         }
-        if(Float::isPositiveInfinity(Float::MinValue / 2.0f)) {
+        if (Float::isPositiveInfinity(Float::MinValue / 2.0f)) {
             return false;
         }
     }
@@ -1652,50 +1652,50 @@ bool testFloatComparison() {
     // isNormal
     {
         Float test = 1.0f;
-        if(!test.isNormal()) {
+        if (!test.isNormal()) {
             return false;
         }
-        if(Float::isNormal(Float::NaN)) {
+        if (Float::isNormal(Float::NaN)) {
             return false;
         }
-        if(Float::isNormal(Float::PositiveInfinity)) {
+        if (Float::isNormal(Float::PositiveInfinity)) {
             return false;
         }
-        if(Float::isNormal(Float::NegativeInfinity)) {
+        if (Float::isNormal(Float::NegativeInfinity)) {
             return false;
         }
-        if(Float::isNormal(0.0f)) {
+        if (Float::isNormal(0.0f)) {
             return false;
         }
-        if(!Float::isNormal(1.0f)) {
+        if (!Float::isNormal(1.0f)) {
             return false;
         }
-        if(!Float::isNormal(Float::MinValue / 2.0f)) {
+        if (!Float::isNormal(Float::MinValue / 2.0f)) {
             return false;
         }
     }
 
     // isSubnormal
     {
-        if(Float(0.0f).isSubnormal()) {
+        if (Float(0.0f).isSubnormal()) {
             return false;
         }
-        if(Float::isSubnormal(Float::NaN)) {
+        if (Float::isSubnormal(Float::NaN)) {
             return false;
         }
-        if(Float::isSubnormal(Float::PositiveInfinity)) {
+        if (Float::isSubnormal(Float::PositiveInfinity)) {
             return false;
         }
-        if(Float::isSubnormal(Float::NegativeInfinity)) {
+        if (Float::isSubnormal(Float::NegativeInfinity)) {
             return false;
         }
-        if(Float::isSubnormal(0.0f)) {
+        if (Float::isSubnormal(0.0f)) {
             return false;
         }
-        if(Float::isSubnormal(1.0f)) {
+        if (Float::isSubnormal(1.0f)) {
             return false;
         }
-        if(!Float::isSubnormal(FLT_MIN / 2.0f)) {
+        if (!Float::isSubnormal(FLT_MIN / 2.0f)) {
             return false;
         }
     }
@@ -1707,82 +1707,82 @@ bool testDoubleComparison() {
     // isNaN
     {
         Double test = Double::NaN;
-        if(!test.isNaN()) {
+        if (!test.isNaN()) {
             return false;
         }
-        if(!Double::isNaN(Double::NaN)) {
+        if (!Double::isNaN(Double::NaN)) {
             return false;
         }
-        if(Double::isNaN(Double::PositiveInfinity)) {
+        if (Double::isNaN(Double::PositiveInfinity)) {
             return false;
         }
-        if(Double::isNaN(Double::NegativeInfinity)) {
+        if (Double::isNaN(Double::NegativeInfinity)) {
             return false;
         }
-        if(Double::isNaN(0.0)) {
+        if (Double::isNaN(0.0)) {
             return false;
         }
-        if(Double::isNaN(Double::MinValue / 2.0)) {
+        if (Double::isNaN(Double::MinValue / 2.0)) {
             return false;
         }
         double v = 0.0;
-        if(!Double::isNaN(v / v)) {
+        if (!Double::isNaN(v / v)) {
             return false;
         }
-        if(!Double::isNaN(Double::PositiveInfinity - Double::PositiveInfinity)) {
+        if (!Double::isNaN(Double::PositiveInfinity - Double::PositiveInfinity)) {
             return false;
         }
     }
 
     // isFinite
     {
-        if(!Double(0.0).isFinite()) {
+        if (!Double(0.0).isFinite()) {
             return false;
         }
-        if(Double(Math::exp(800.0)).isFinite()) {
+        if (Double(Math::exp(800.0)).isFinite()) {
             return false;
         }
-        if(Double::isFinite(Double::NaN)) {
+        if (Double::isFinite(Double::NaN)) {
             return false;
         }
-        if(Double::isFinite(Double::PositiveInfinity)) {
+        if (Double::isFinite(Double::PositiveInfinity)) {
             return false;
         }
-        if(Double::isFinite(Double::NegativeInfinity)) {
+        if (Double::isFinite(Double::NegativeInfinity)) {
             return false;
         }
-        if(!Double::isFinite(0.0)) {
+        if (!Double::isFinite(0.0)) {
             return false;
         }
-        if(Double::isFinite(Math::exp(800.0))) {
+        if (Double::isFinite(Math::exp(800.0))) {
             return false;
         }
-        if(!Double::isFinite(Double::MinValue / 2.0)) {
+        if (!Double::isFinite(Double::MinValue / 2.0)) {
             return false;
         }
     }
 
     // isInfinity
     {
-        if(Double(0.0).isInfinity()) {
+        if (Double(0.0).isInfinity()) {
             return false;
         }
-        if(Double::isInfinity(Double::NaN)) {
+        if (Double::isInfinity(Double::NaN)) {
             return false;
         }
-        if(!Double::isInfinity(Double::PositiveInfinity)) {
+        if (!Double::isInfinity(Double::PositiveInfinity)) {
             return false;
         }
-        if(!Double::isInfinity(Double::NegativeInfinity)) {
+        if (!Double::isInfinity(Double::NegativeInfinity)) {
             return false;
         }
-        if(Double::isInfinity(0.0)) {
+        if (Double::isInfinity(0.0)) {
             return false;
         }
-        if(!Double::isInfinity(Math::exp(800.0))) {
+        if (!Double::isInfinity(Math::exp(800.0))) {
             return false;
         }
-        if(Double::isInfinity(Double::MinValue / 2.0)) {
+        if (Double::isInfinity(Double::MinValue / 2.0)) {
             return false;
         }
     }
@@ -1790,65 +1790,65 @@ bool testDoubleComparison() {
     // isNegative
     {
         Double test(-0.0);
-        if(!test.isNegative()) {
+        if (!test.isNegative()) {
             return false;
         }
-        if(Double::isNegative(+0.0)) {
+        if (Double::isNegative(+0.0)) {
             return false;
         }
-        if(!Double::isNegative(-0.0)) {
+        if (!Double::isNegative(-0.0)) {
             return false;
         }
     }
 
     // isNegativeInfinity
     {
-        if(Double(0.0).isNegativeInfinity()) {
+        if (Double(0.0).isNegativeInfinity()) {
             return false;
         }
-        if(Double::isNegativeInfinity(Double::NaN)) {
+        if (Double::isNegativeInfinity(Double::NaN)) {
             return false;
         }
         double v = 0.0;
-        if(!Double::isNegativeInfinity(-5.0 / v)) {
+        if (!Double::isNegativeInfinity(-5.0 / v)) {
             return false;
         }
-        if(!Double::isNegativeInfinity(Double::NegativeInfinity)) {
+        if (!Double::isNegativeInfinity(Double::NegativeInfinity)) {
             return false;
         }
-        if(Double::isNegativeInfinity(0.0)) {
+        if (Double::isNegativeInfinity(0.0)) {
             return false;
         }
-        if(!Double::isNegativeInfinity(-Math::exp(800.0))) {
+        if (!Double::isNegativeInfinity(-Math::exp(800.0))) {
             return false;
         }
-        if(Double::isNegativeInfinity(Double::MinValue / 2.0)) {
+        if (Double::isNegativeInfinity(Double::MinValue / 2.0)) {
             return false;
         }
     }
 
     // isPositiveInfinity
     {
-        if(!Double(Double::PositiveInfinity).isPositiveInfinity()) {
+        if (!Double(Double::PositiveInfinity).isPositiveInfinity()) {
             return false;
         }
-        if(Double::isPositiveInfinity(Double::NaN)) {
+        if (Double::isPositiveInfinity(Double::NaN)) {
             return false;
         }
         double v = 0.0;
-        if(!Double::isPositiveInfinity(5.0 / v)) {
+        if (!Double::isPositiveInfinity(5.0 / v)) {
             return false;
         }
-        if(!Double::isPositiveInfinity(Double::PositiveInfinity)) {
+        if (!Double::isPositiveInfinity(Double::PositiveInfinity)) {
             return false;
         }
-        if(Double::isPositiveInfinity(0.0)) {
+        if (Double::isPositiveInfinity(0.0)) {
             return false;
         }
-        if(!Double::isPositiveInfinity(Math::exp(800.0))) {
+        if (!Double::isPositiveInfinity(Math::exp(800.0))) {
             return false;
         }
-        if(Double::isPositiveInfinity(Double::MinValue / 2.0)) {
+        if (Double::isPositiveInfinity(Double::MinValue / 2.0)) {
             return false;
         }
     }
@@ -1856,50 +1856,50 @@ bool testDoubleComparison() {
     // isNormal
     {
         Double test = 1.0f;
-        if(!test.isNormal()) {
+        if (!test.isNormal()) {
             return false;
         }
-        if(Double::isNormal(Double::NaN)) {
+        if (Double::isNormal(Double::NaN)) {
             return false;
         }
-        if(Double::isNormal(Double::PositiveInfinity)) {
+        if (Double::isNormal(Double::PositiveInfinity)) {
             return false;
         }
-        if(Double::isNormal(Double::NegativeInfinity)) {
+        if (Double::isNormal(Double::NegativeInfinity)) {
             return false;
         }
-        if(Double::isNormal(0.0)) {
+        if (Double::isNormal(0.0)) {
             return false;
         }
-        if(!Double::isNormal(1.0)) {
+        if (!Double::isNormal(1.0)) {
             return false;
         }
-        if(!Double::isNormal(Double::MinValue / 2.0)) {
+        if (!Double::isNormal(Double::MinValue / 2.0)) {
             return false;
         }
     }
 
     // isSubnormal
     {
-        if(Double(0.0).isSubnormal()) {
+        if (Double(0.0).isSubnormal()) {
             return false;
         }
-        if(Double::isSubnormal(Double::NaN)) {
+        if (Double::isSubnormal(Double::NaN)) {
             return false;
         }
-        if(Double::isSubnormal(Double::PositiveInfinity)) {
+        if (Double::isSubnormal(Double::PositiveInfinity)) {
             return false;
         }
-        if(Double::isSubnormal(Double::NegativeInfinity)) {
+        if (Double::isSubnormal(Double::NegativeInfinity)) {
             return false;
         }
-        if(Double::isSubnormal(0.0)) {
+        if (Double::isSubnormal(0.0)) {
             return false;
         }
-        if(Double::isSubnormal(1.0)) {
+        if (Double::isSubnormal(1.0)) {
             return false;
         }
-        if(!Double::isSubnormal(DBL_MIN / 2.0)) {
+        if (!Double::isSubnormal(DBL_MIN / 2.0)) {
             return false;
         }
     }

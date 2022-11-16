@@ -2,7 +2,7 @@
 #define POOLSERVICE_H
 
 #include "data/TimeSpan.h"
-#include "data/LoopVector.h"
+#include "data/LoopPList.h"
 #include "thread/Thread.h"
 
 namespace Common {
@@ -53,7 +53,7 @@ namespace Common {
         void invoke() override;
 
     protected:
-        LoopVector<IPoolEntry> _values;
+        LoopPList<IPoolEntry> _values;
         Mutex _valuesMutex;
 
         bool _batch;

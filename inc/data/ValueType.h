@@ -64,7 +64,7 @@ namespace Common {
 
     };
 
-    struct Boolean : public IEquatable<Boolean>, public IEvaluation<Boolean> {
+    struct Boolean : public IEquatable<Boolean>, public IEquatable<Boolean, bool>, public IEvaluation<Boolean> {
     public:
         Boolean(const bool &value = false);
 
@@ -74,6 +74,8 @@ namespace Common {
 
         bool equals(const Boolean &other) const override;
 
+        bool equals(const bool &other) const override;
+
         void evaluates(const Boolean &other) override;
 
         operator bool() const;
@@ -81,10 +83,6 @@ namespace Common {
         Boolean &operator=(const Boolean &other);
 
         Boolean &operator=(const bool &value);
-
-        bool operator==(const bool &value) const;
-
-        bool operator!=(const bool &value) const;
 
         void write(Stream *stream) const;
 
@@ -128,12 +126,20 @@ namespace Common {
 
     template<typename type>
     struct ValueType
-            : public BaseValueType,
-              public IEquatable<ValueType<type>>,
-              public IEvaluation<ValueType<type>>,
-              public IComparable<ValueType<type>> {
+            : public BaseValueType, public IEvaluation<ValueType<type>>,
+              public IEquatable<ValueType<type>>, public IEquatable<ValueType<type>, type>,
+              public IComparable<ValueType<type>>, public IComparable<type> {
     public:
-        ValueType(const type &value) : _value(value) {
+        using IComparable<ValueType<type>>::operator>;
+        using IComparable<ValueType<type>>::operator>=;
+        using IComparable<ValueType<type>>::operator<;
+        using IComparable<ValueType<type>>::operator<=;
+        using IComparable<type>::operator>;
+        using IComparable<type>::operator>=;
+        using IComparable<type>::operator<;
+        using IComparable<type>::operator<=;
+
+        explicit ValueType(const type &value) : _value(value) {
         }
 
         ValueType(const ValueType &value) : _value(value._value) {
@@ -144,6 +150,10 @@ namespace Common {
 
         inline bool equals(const ValueType &other) const override {
             return _value == other._value;
+        }
+
+        inline bool equals(const type &other) const override {
+            return _value == other;
         }
 
         inline void evaluates(const ValueType &other) override {
@@ -158,8 +168,32 @@ namespace Common {
             return 0;
         }
 
+        inline int compareTo(const type &other) const override {
+            // Need to use compare because subtraction will wrap
+            // to positive for very large neg numbers, etc.
+            if (_value < other) return -1;
+            if (_value > other) return 1;
+            return 0;
+        }
+
         inline operator type() const {
             return _value;
+        }
+
+        friend bool operator==(const type &a, ValueType &b) noexcept {
+            return b.equals(a);
+        }
+
+        friend bool operator==(type &a, ValueType &b) noexcept {
+            return b.equals(a);
+        }
+
+        friend bool operator==(const type &a, const ValueType &b) noexcept {
+            return b.equals(a);
+        }
+
+        friend bool operator==(type &a, const ValueType &b) noexcept {
+            return b.equals(a);
         }
 
         inline ValueType &operator+=(const ValueType &value) {
@@ -178,34 +212,10 @@ namespace Common {
             return result;
         }
 
-        ValueType operator-(const ValueType &value) {
+        inline ValueType operator-(const ValueType &value) {
             ValueType result = _value;
             result._value -= value._value;
             return result;
-        }
-
-        inline bool operator==(const type &value) const {
-            return _value == value;
-        }
-
-        inline bool operator!=(const type &value) const {
-            return !operator==(value);
-        }
-
-        inline bool operator>(const type &value) const {
-            return _value > value;
-        }
-
-        inline bool operator>=(const type &value) const {
-            return _value >= value;
-        }
-
-        inline bool operator<(const type &value) const {
-            return _value < value;
-        }
-
-        inline bool operator<=(const type &value) const {
-            return _value <= value;
         }
 
         inline ValueType operator+=(const type &value) {
@@ -219,13 +229,13 @@ namespace Common {
         }
 
         inline ValueType operator+(const type &value) {
-            ValueType result = _value;
+            ValueType result(_value);
             result._value += value;
             return result;
         }
 
         inline ValueType operator-(const type &value) {
-            ValueType result = _value;
+            ValueType result(_value);
             result._value -= value;
             return result;
         }

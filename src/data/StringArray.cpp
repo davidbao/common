@@ -6,12 +6,11 @@
 //  Copyright © 2017 com. All rights reserved.
 //
 
-#include <stdarg.h>
+#include <cstdarg>
 #include "data/StringArray.h"
 #include "data/Convert.h"
 #include "data/ValueType.h"
 #include "IO/Stream.h"
-#include "exception/Exception.h"
 
 namespace Common {
     const StringArray StringArray::Empty;
@@ -19,17 +18,17 @@ namespace Common {
     StringArray::StringArray(size_t capacity) : SortedVector<String>(capacity) {
     }
 
-    StringArray::StringArray(const StringArray &array) : SortedVector<String>(array) {
-    }
+    StringArray::StringArray(const StringArray &array) = default;
 
     StringArray::StringArray(StringArray &&array) noexcept: SortedVector<String>(std::move(array)) {
     }
 
-    StringArray::StringArray(const StringArray &array, off_t offset, size_t count) : SortedVector<String>(array, offset, count) {
+    StringArray::StringArray(const StringArray &array, off_t offset, size_t count) : SortedVector<String>(array, offset,
+                                                                                                          count) {
     }
 
     StringArray::StringArray(const String *array, size_t count, size_t capacity) : SortedVector<String>(array, count,
-                                                                                                  capacity) {
+                                                                                                        capacity) {
     }
 
     StringArray::StringArray(const String &value, size_t count) : SortedVector<String>(value, count) {
@@ -43,9 +42,7 @@ namespace Common {
         va_list ap;
         va_start(ap, item);
         while (str != nullptr && str[0] != '\0') {
-            if (str != nullptr) {
-                add(str);
-            }
+            add(str);
             str = va_arg(ap, const char*);
         }
         va_end(ap);
@@ -56,9 +53,7 @@ namespace Common {
         va_list ap;
         va_start(ap, item);
         while (str != nullptr && str[0] != '\0') {
-            if (str != nullptr) {
-                add(str);
-            }
+            add(str);
             str = va_arg(ap, const char*);
         }
         va_end(ap);
@@ -126,7 +121,7 @@ namespace Common {
         }
     }
 
-    const String StringArray::toString(const char symbol) const {
+    String StringArray::toString(const char &symbol) const {
         String str;
         for (uint i = 0; i < count(); i++) {
             if (str.length() > 0)
@@ -136,13 +131,13 @@ namespace Common {
         return str;
     }
 
-    bool StringArray::parse(const String &str, StringArray &texts, const char splitSymbol) {
+    bool StringArray::parse(const String &str, StringArray &texts, const char &splitSymbol) {
         Convert::splitStr(str, texts, splitSymbol);
         return true;
     }
 
-    bool StringArray::parseMultiSymbol(const String &str, StringArray &texts, const char splitSymbol1,
-                                       const char splitSymbol2, const char splitSymbol3) {
+    bool StringArray::parseMultiSymbol(const String &str, StringArray &texts, const char &splitSymbol1,
+                                       const char &splitSymbol2, const char &splitSymbol3) {
         if (splitSymbol1 != '\0' && str.find(splitSymbol1) >= 0)
             StringArray::parse(str, texts, splitSymbol1);
         else if (splitSymbol2 != '\0' && str.find(splitSymbol2) >= 0)
@@ -152,14 +147,21 @@ namespace Common {
         return StringArray::parse(str, texts, splitSymbol1);
     }
 
-    void StringArray::operator=(const String &str) {
+    StringArray &StringArray::operator=(const String &str) {
         clear();
         parse(str, *this);
+        return *this;
     }
 
-    void StringArray::operator=(const char *str) {
+    StringArray &StringArray::operator=(const char *str) {
         if (str != nullptr) {
             this->operator=((String) str);
         }
+        return *this;
+    }
+
+    StringArray &StringArray::operator=(const StringArray &value) {
+        this->evaluates(value);
+        return *this;
     }
 }

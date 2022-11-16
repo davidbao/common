@@ -18,7 +18,7 @@
 
 using namespace Drivers;
 
-namespace Common
+namespace Net
 {
     class Timeout
     {

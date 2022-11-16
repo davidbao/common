@@ -22,7 +22,7 @@ namespace Common {
         return position() >= length();
     }
 
-    void Stream::writeStr(const String &str, int lengthCount) {
+    void Stream::writeStr(const String &str, String::StreamLength lengthCount) {
 #ifdef DEBUG
         size_t length = str.length();
         if (lengthCount == 2 && length > 0xFFFF) {
@@ -36,7 +36,7 @@ namespace Common {
         size_t len = 0;
         if (lengthCount == 2) {
             len = str.length();
-            writeUInt16((ushort) len);
+            writeUInt16((uint16_t) len);
         } else if (lengthCount == 1) {
             len = str.length();
             writeByte((uint8_t) len);
@@ -50,7 +50,7 @@ namespace Common {
         write((uint8_t *) str.c_str(), 0, len);
     }
 
-    String Stream::readStr(int lengthCount) {
+    String Stream::readStr(String::StreamLength lengthCount) {
         uint len = 0;
         if (lengthCount == 2) {
             len = readUInt16();
@@ -242,7 +242,7 @@ namespace Common {
         write(buffer, 0, sizeof(buffer));
     }
 
-    void Stream::writeInt16(short value, bool bigEndian) {
+    void Stream::writeInt16(int16_t value, bool bigEndian) {
         uint8_t buffer[2];
         if (bigEndian) {
             buffer[0] = ((value >> 8) & 0xFF);
@@ -254,7 +254,7 @@ namespace Common {
         write(buffer, 0, sizeof(buffer));
     }
 
-    void Stream::writeUInt16(ushort value, bool bigEndian) {
+    void Stream::writeUInt16(uint16_t value, bool bigEndian) {
         writeInt16(value, bigEndian);
     }
 
@@ -364,16 +364,16 @@ namespace Common {
         return value;
     }
 
-    short Stream::readInt16(bool bigEndian) {
+    int16_t Stream::readInt16(bool bigEndian) {
         uint8_t buffer[2];
         read(buffer, 0, sizeof(buffer));
-        short value = 0;
+        int16_t value = 0;
         value = bigEndian ? ((buffer[0] << 8) & 0xFF00) + buffer[1] : ((buffer[1] << 8) & 0xFF00) + buffer[0];
         return value;
     }
 
-    ushort Stream::readUInt16(bool bigEndian) {
-        return (ushort) readInt16(bigEndian);
+    uint16_t Stream::readUInt16(bool bigEndian) {
+        return (uint16_t) readInt16(bigEndian);
     }
 
     uint8_t Stream::readByte() {
@@ -432,20 +432,20 @@ namespace Common {
         return (uint8_t) readBCDValue(1);
     }
 
-    void Stream::writeBCDUInt16(ushort value) {
+    void Stream::writeBCDUInt16(uint16_t value) {
         writeBCDValue(value, 2);
     }
 
-    ushort Stream::readBCDUInt16() {
-        return (ushort) readBCDValue(2);
+    uint16_t Stream::readBCDUInt16() {
+        return (uint16_t) readBCDValue(2);
     }
 
-    void Stream::writeBCDInt16(short value) {
+    void Stream::writeBCDInt16(int16_t value) {
         writeBCDUInt16(value);
     }
 
-    short Stream::readBCDInt16() {
-        return (short) readBCDUInt16();
+    int16_t Stream::readBCDInt16() {
+        return (int16_t) readBCDUInt16();
     }
 
     void Stream::writeBCDValue(int64_t value, int length) {

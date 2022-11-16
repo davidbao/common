@@ -27,6 +27,7 @@ namespace Common {
         };
 
         typedef Vector<KeyValue> KeyValues;
+        typedef Dictionary<String, String> Parent;
 
         explicit StringMap(bool ignoreKeyCase = false);
 
@@ -38,8 +39,6 @@ namespace Common {
 
         COMMON_ATTR_DEPRECATED("use StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false)")
         StringMap(const KeyValue *item, bool ignoreKeyCase = false);
-
-        void add(const String &key, const String &value);
 
         void add(const String &key, const string &value);
 
@@ -71,10 +70,8 @@ namespace Common {
 
         template<class T>
         void add(const String &key, const T &value) {
-            add(key, value.toString());
+            Parent::add(key, value.toString());
         }
-
-        bool at(const String &key, String &value) const;
 
         bool at(const String &key, string &value) const;
 
@@ -100,6 +97,18 @@ namespace Common {
 
         bool at(const String &key, double &value) const;
 
+        String &at(const String &key) override {
+            return Parent::at(key);
+        }
+
+        const String &at(const String &key) const override {
+            return Parent::at(key);
+        }
+
+        bool at(const String &key, String &value) const override {
+            return Parent::at(key, value);
+        }
+
         template<class T>
         bool at(const String &key, T &value) const {
             String str;
@@ -108,12 +117,6 @@ namespace Common {
             }
             return false;
         }
-
-        String &at(const String &key);
-
-        const String &at(const String &key) const;
-
-        bool set(const String &key, const String &value);
 
         bool set(const String &key, const string &value);
 
@@ -145,7 +148,7 @@ namespace Common {
 
         template<class T>
         bool set(const String &key, const T &value) {
-            return set(key, value.toString());
+            return Parent::set(key, value.toString());
         }
 
         void evaluates(const Dictionary &other) override;

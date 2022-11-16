@@ -15,7 +15,9 @@
 #include "thread/Thread.h"
 #include "system/Delegate.h"
 
-namespace Common
+using namespace Common;
+
+namespace Net
 {
     class RedisClient
     {

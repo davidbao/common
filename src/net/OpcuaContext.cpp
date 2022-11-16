@@ -9,7 +9,7 @@
 #include "net/OpcuaContext.h"
 #include "system/Regex.h"
 
-namespace Common
+namespace Net
 {
     ConnectOptions::ConnectOptions()
     {

@@ -9,11 +9,12 @@
 #ifndef Interactive_h
 #define Interactive_h
 
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "data/Convert.h"
 #include "exception/Exception.h"
 
 using namespace Common;
+using namespace Net;
 
 namespace Drivers
 {

@@ -12,7 +12,7 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 if (COMMON_ENABLE_TEST)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD ${COMMON_CXX_STANDARD})
 
     # include settings
     include_directories(${EXTERNALS_PATH}/install/${OS_NAME}/include)
@@ -76,8 +76,8 @@ if (COMMON_ENABLE_TEST)
             # crypto
             SmProviderTest Md5ProviderTest
             # data
-            ByteArrayTest DictionaryTest ListTest MapTest StringTest StringArrayTest StringMapTest PListTest UrlTest
-            TypeInfoTest UuidTest ValueTypeTest VectorTest WStringTest
+            ByteArrayTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest SizeTest StringTest StringArrayTest StringMapTest
+            PListTest PointTest NetTypeTest TypeInfoTest UuidTest ValueTypeTest VectorTest WStringTest
             # diag
             FileTraceListenerTest
             # IO

@@ -17,7 +17,9 @@
 #include "thread/Thread.h"
 #include "data/Variant.h"
 
-namespace Common
+using namespace Common;
+
+namespace Net
 {
     enum SecurityMode
     {

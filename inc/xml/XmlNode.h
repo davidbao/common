@@ -1,12 +1,6 @@
 #ifndef XMLNODE_H
 #define XMLNODE_H
 
-#include "data/DateTime.h"
-#include "data/TimeSpan.h"
-#include "data/Version.h"
-#include "data/Point.h"
-#include "data/Size.h"
-#include "data/Rectangle.h"
 #include "XmlAttribute.h"
 
 namespace Common
@@ -77,15 +71,7 @@ namespace Common
         bool appendAttribute(const String& name, const uint64_t& value);
         bool appendAttribute(const String& name, const float& value);
         bool appendAttribute(const String& name, const double& value);
-        bool appendAttribute(const String& name, const DateTime& value);
-        bool appendAttribute(const String& name, const TimeSpan& value);
-        bool appendAttribute(const String& name, const Version& value);
-        bool appendAttribute(const String& name, const Point& value);
-        bool appendAttribute(const String& name, const PointF& value);
-        bool appendAttribute(const String& name, const Size& value);
-        bool appendAttribute(const String& name, const SizeF& value);
-        bool appendAttribute(const String& name, const Rectangle& value);
-        bool appendAttribute(const String& name, const RectangleF& value);
+
         template <class T>
         bool appendAttribute(const String& name, const T& value)
         {
@@ -105,15 +91,7 @@ namespace Common
         bool updateAttribute(const String& name, const uint64_t& value);
         bool updateAttribute(const String& name, const float& value);
         bool updateAttribute(const String& name, const double& value);
-        bool updateAttribute(const String& name, const DateTime& value);
-        bool updateAttribute(const String& name, const TimeSpan& value);
-        bool updateAttribute(const String& name, const Version& value);
-        bool updateAttribute(const String& name, const Point& value);
-        bool updateAttribute(const String& name, const PointF& value);
-        bool updateAttribute(const String& name, const Size& value);
-        bool updateAttribute(const String& name, const SizeF& value);
-        bool updateAttribute(const String& name, const Rectangle& value);
-        bool updateAttribute(const String& name, const RectangleF& value);
+
         template <class T>
         bool updateAttribute(const String& name, const T& value)
         {
@@ -137,15 +115,7 @@ namespace Common
         bool getAttribute(const String& name, uint64_t& value) const;
         bool getAttribute(const String& name, float& value) const;
         bool getAttribute(const String& name, double& value) const;
-        bool getAttribute(const String& name, DateTime& value) const;
-        bool getAttribute(const String& name, TimeSpan& value) const;
-        bool getAttribute(const String& name, Version& value) const;
-        bool getAttribute(const String& name, Point& value) const;
-        bool getAttribute(const String& name, PointF& value) const;
-        bool getAttribute(const String& name, Size& value) const;
-        bool getAttribute(const String& name, SizeF& value) const;
-        bool getAttribute(const String& name, Rectangle& value) const;
-        bool getAttribute(const String& name, RectangleF& value) const;
+
         template <class T>
         bool getAttribute(const String& name, T& value) const
         {

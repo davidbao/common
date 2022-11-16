@@ -10,12 +10,12 @@
 #define NetInterface_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "data/TimeSpan.h"
 #include "data/StringArray.h"
 #include "data/Vector.h"
 
-namespace Common {
+namespace Net {
     class NetInterface {
     public:
         struct Data {

@@ -481,23 +481,7 @@ namespace Common
         }
         return false;
     }
-    bool XmlTextReader::getAttribute(const String& name, Version& value) const
-    {
-        return Version::parse(getAttribute(name), value);
-    }
-    bool XmlTextReader::getAttribute(const String& name, IPAddress& value) const
-    {
-        return IPAddress::parse(getAttribute(name), value);
-    }
-    bool XmlTextReader::getAttribute(const String& name, MacAddress& value) const
-    {
-        return MacAddress::parse(getAttribute(name), value);
-    }
-    bool XmlTextReader::getAttribute(const String& name, Uuid& value) const
-    {
-        return Uuid::parse(getAttribute(name), value);
-    }
-    
+
     const ConfigFile& XmlTextReader::configFile() const
     {
         return _configFile;

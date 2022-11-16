@@ -1,7 +1,6 @@
 #ifndef TCPSERVERINTERACTIVE_H
 #define TCPSERVERINTERACTIVE_H
 
-#include "data/LoopArray.h"
 #include "system/Delegate.h"
 #include "thread/Thread.h"
 #include "thread/TickTimeout.h"

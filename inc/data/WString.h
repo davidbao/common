@@ -23,12 +23,25 @@ namespace Common {
     class String;
 
     class WString
-            : public IEquatable<WString>,
+            : public IEquatable<WString>, public IEquatable<WString, wchar_t *>, public IEquatable<WString, wstring>,
+              public IComparable<WString>, public IComparable<wstring>, public IComparable<wchar_t *>,
               public IEvaluation<WString>,
-              public IComparable<WString>,
               public IIndexable<wchar_t, wchar_t>,
               public Iterator<wchar_t> {
     public:
+        using IComparable<WString>::operator>;
+        using IComparable<WString>::operator>=;
+        using IComparable<WString>::operator<;
+        using IComparable<WString>::operator<=;
+        using IComparable<wstring>::operator>;
+        using IComparable<wstring>::operator>=;
+        using IComparable<wstring>::operator<;
+        using IComparable<wstring>::operator<=;
+        using IComparable<wchar_t *>::operator>;
+        using IComparable<wchar_t *>::operator>=;
+        using IComparable<wchar_t *>::operator<;
+        using IComparable<wchar_t *>::operator<=;
+
         enum Base64FormattingOptions {
             Base64None = 0,
             InsertLineBreaks = 1
@@ -49,8 +62,6 @@ namespace Common {
         WString(const WString &value);
 
         WString(const wstring &value);
-
-//        WString(const String &value);
 
         WString(const wchar_t *value, size_t count = 0);
 
@@ -105,28 +116,28 @@ namespace Common {
         WString toUpper() const;
 
         WString
-        trim(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-             const wchar_t trimChar4 = '\0');
+        trim(wchar_t trimChar1 = ' ', wchar_t trimChar2 = '\0', wchar_t trimChar3 = '\0',
+             wchar_t trimChar4 = '\0') const;
 
-        WString trimStart(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-                          const wchar_t trimChar4 = '\0');
+        WString trimStart(wchar_t trimChar1 = ' ', wchar_t trimChar2 = '\0', wchar_t trimChar3 = '\0',
+                          wchar_t trimChar4 = '\0') const;
 
-        WString trimEnd(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-                        const wchar_t trimChar4 = '\0');
+        WString trimEnd(wchar_t trimChar1 = ' ', wchar_t trimChar2 = '\0', wchar_t trimChar3 = '\0',
+                        wchar_t trimChar4 = '\0') const;
 
         bool contains(const WString &str) const;
 
-        bool contains(const wchar_t ch) const;
+        bool contains(wchar_t ch) const;
 
-        void append(const wchar_t ch);
+        void append(wchar_t ch);
 
-        void append(const wchar_t *str, size_t count);
+        void append(const wchar_t *str, size_t count = 0);
 
         void append(const WString &str);
 
         void append(const WString &str, off_t offset, size_t count);
 
-        void appendLine(const wchar_t ch);
+        void appendLine(wchar_t ch);
 
         void appendLine(const wchar_t *str, size_t count);
 
@@ -142,24 +153,19 @@ namespace Common {
 
         WString insert(off_t offset, const WString &str);
 
-        WString insert(off_t offset, const wchar_t ch);
+        WString insert(off_t offset, wchar_t ch);
 
         bool removeAt(size_t pos);
 
         bool removeRange(size_t pos, size_t count);
 
-        WString trim(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-                     const wchar_t trimChar4 = '\0') const;
-
-        WString trimStart(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-                          const wchar_t trimChar4 = '\0') const;
-
-        WString trimEnd(const wchar_t trimChar1 = ' ', const wchar_t trimChar2 = '\0', const wchar_t trimChar3 = '\0',
-                        const wchar_t trimChar4 = '\0') const;
-
         void empty();
 
         bool equals(const WString &other) const override;
+
+        bool equals(const wchar_t *other) const override;
+
+        bool equals(const wstring &other) const override;
 
         void evaluates(const WString &other) override;
 
@@ -167,19 +173,27 @@ namespace Common {
 
         int compareTo(const WString &other, bool ignoreCase) const;
 
+        int compareTo(const wstring &other) const override;
+
+        int compareTo(const wstring &other, bool ignoreCase) const;
+
+        int compareTo(const wchar_t *other) const override;
+
+        int compareTo(const wchar_t *other, bool ignoreCase) const;
+
         // Find
         ssize_t find(const WString &str, off_t offset = 0) const;
 
-        ssize_t find(const wchar_t ch, off_t offset = 0) const;
+        ssize_t find(wchar_t ch, off_t offset = 0) const;
 
         ssize_t findLastOf(const WString &str) const;
 
-        ssize_t findLastOf(const wchar_t ch) const;
+        ssize_t findLastOf(wchar_t ch) const;
 
         // Operator.
         operator const wchar_t *() const;
 
-        operator const String() const;
+        operator String() const;
 
         WString operator+=(const WString &value);
 
@@ -200,42 +214,6 @@ namespace Common {
         WString &operator=(const wchar_t *value);
 
         WString &operator=(const String &value);
-
-        bool operator==(const WString &value) const;
-
-        bool operator==(const wchar_t *value) const;
-
-        bool operator==(const wstring &value) const;
-
-        bool operator!=(const WString &value) const;
-
-        bool operator!=(const wchar_t *value) const;
-
-        bool operator!=(const wstring &value) const;
-
-        bool operator>(const WString &value) const;
-
-        bool operator>(const wstring &value) const;
-
-        bool operator>(const wchar_t *value) const;
-
-        bool operator>=(const WString &value) const;
-
-        bool operator>=(const wstring &value) const;
-
-        bool operator>=(const wchar_t *value) const;
-
-        bool operator<(const WString &value) const;
-
-        bool operator<(const wstring &value) const;
-
-        bool operator<(const wchar_t *value) const;
-
-        bool operator<=(const WString &value) const;
-
-        bool operator<=(const wstring &value) const;
-
-        bool operator<=(const wchar_t *value) const;
 
         // Stream
         void write(Stream *stream, StreamLength streamLength = StreamLength1) const;
@@ -263,17 +241,15 @@ namespace Common {
 
         static int compare(const WString &value1, const WString &value2, bool ignoreCase = false);
 
+        static int compare(const WString &value1, const wstring &value2, bool ignoreCase = false);
+
+        static int compare(const WString &value1, const wchar_t *value2, bool ignoreCase = false);
+
         static WString GBKtoUTF8(const WString &value);
 
         static WString UTF8toGBK(const WString &value);
 
         static WString toBase64(const WString &value);
-
-        static WString toBase64(const uint8_t *inArray, off_t offset, size_t length,
-                                Base64FormattingOptions options = Base64FormattingOptions::Base64None);
-
-        static bool toBase64(const uint8_t *inArray, off_t offset, size_t length, WString &str,
-                             Base64FormattingOptions options = Base64FormattingOptions::Base64None);
 
         static WString fromBase64(const WString &value);
 
@@ -290,19 +266,19 @@ namespace Common {
         static WString substr(const WString &str, off_t offset, size_t count);
 
         static WString
-        trim(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2 = '\0',
-             const wchar_t trimChar3 = '\0',
-             const wchar_t trimChar4 = '\0');
+        trim(const WString &str, wchar_t trimChar1, wchar_t trimChar2 = '\0',
+             wchar_t trimChar3 = '\0',
+             wchar_t trimChar4 = '\0');
 
         static WString
-        trimStart(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2 = '\0',
-                  const wchar_t trimChar3 = '\0',
-                  const wchar_t trimChar4 = '\0');
+        trimStart(const WString &str, wchar_t trimChar1, wchar_t trimChar2 = '\0',
+                  wchar_t trimChar3 = '\0',
+                  wchar_t trimChar4 = '\0');
 
         static WString
-        trimEnd(const WString &str, const wchar_t trimChar1, const wchar_t trimChar2 = '\0',
-                const wchar_t trimChar3 = '\0',
-                const wchar_t trimChar4 = '\0');
+        trimEnd(const WString &str, wchar_t trimChar1, wchar_t trimChar2 = '\0',
+                wchar_t trimChar3 = '\0',
+                wchar_t trimChar4 = '\0');
 
         static bool isUTF8(const WString &str);
 
@@ -317,15 +293,7 @@ namespace Common {
 
         void setString(const wchar_t *value, size_t count);
 
-        void setString(const wstring &value);
-
-        void setString(wchar_t value);
-
-        void addString(const wchar_t *value);
-
-        void addString(const wchar_t *value, size_t count);
-
-        void addString(const wstring &value);
+        void addString(const wchar_t *value, size_t count = 0);
 
         void addString(wchar_t value);
 

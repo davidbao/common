@@ -42,7 +42,7 @@ namespace Common {
 
         StringArray(std::initializer_list<String> list);
 
-        StringArray(const char *item, ...);
+        explicit StringArray(const char *item, ...);
 
         void addArray(const char *item, ...);
 
@@ -50,23 +50,25 @@ namespace Common {
 
         bool remove(const String &str, bool ignoreCase = false);
 
-        void write(Stream *stream, CountLength countLength = CountLength2, String::StreamLength streamLength = String::StreamLength2) const;
+        void write(Stream *stream, CountLength countLength = CountLength2,
+                   String::StreamLength streamLength = String::StreamLength2) const;
 
-        void read(Stream *stream, CountLength countLength = CountLength2, String::StreamLength streamLength = String::StreamLength2);
+        void read(Stream *stream, CountLength countLength = CountLength2,
+                  String::StreamLength streamLength = String::StreamLength2);
 
-        const String toString(const char symbol = ';') const;
+        String toString(const char &symbol = ';') const;
 
-        void operator=(const StringArray &value);
+        StringArray &operator=(const StringArray &value);
 
-        void operator=(const String &str);
+        StringArray &operator=(const String &str);
 
-        void operator=(const char *str);
+        StringArray &operator=(const char *str);
 
     public:
-        static bool parse(const String &str, StringArray &texts, const char splitSymbol = ';');
+        static bool parse(const String &str, StringArray &texts, const char &splitSymbol = ';');
 
-        static bool parseMultiSymbol(const String &str, StringArray &texts, const char splitSymbol1 = ';',
-                                     const char splitSymbol2 = '\0', const char splitSymbol3 = '\0');
+        static bool parseMultiSymbol(const String &str, StringArray &texts, const char &splitSymbol1 = ';',
+                                     const char &splitSymbol2 = '\0', const char &splitSymbol3 = '\0');
 
     public:
         static const StringArray Empty;

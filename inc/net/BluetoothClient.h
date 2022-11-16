@@ -2,11 +2,11 @@
 #define BluetoothClient_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 
 using namespace Common;
 
-namespace Drivers
+namespace Net
 {
 	class BluetoothClient
 	{

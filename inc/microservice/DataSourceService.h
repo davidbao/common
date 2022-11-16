@@ -10,12 +10,13 @@
 #define DataSourceService_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "database/DbClient.h"
 #include "system/ServiceFactory.h"
 
 using namespace Common;
 using namespace Database;
+using namespace Net;
 
 namespace Microservice
 {

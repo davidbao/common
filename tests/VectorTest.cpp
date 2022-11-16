@@ -16,7 +16,8 @@ using namespace Common;
 typedef Vector<int> Integers;
 typedef SortedVector<int> SortedIntegers;
 
-class Value : public IComparable<Value>, public IEquatable<Value>, public IEvaluation<Value> {
+class Value : public IEquatable<Value>, public IEquatable<Value, int>, public IEquatable<Value, String>,
+              public IComparable<Value>, public IEvaluation<Value> {
 public:
     Value(int value = 0) : _iValue(value), _strValue(nullptr) {
     }
@@ -71,33 +72,17 @@ public:
         return compareTo(other) == 0;
     }
 
+    bool equals(const int &other) const override {
+        return _iValue == other;
+    }
+
+    bool equals(const String &other) const override {
+        return _strValue == other;
+    }
+
     Value &operator=(const Value &other) {
         evaluates(other);
         return *this;
-    }
-
-    bool operator==(const Value &other) const {
-        return this->equals(other);
-    }
-
-    bool operator!=(const Value &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const int &other) const {
-        return this->equals(Value(other));
-    }
-
-    bool operator!=(const int &other) const {
-        return !this->operator==(other);
-    }
-
-    bool operator==(const String &other) const {
-        return this->equals(Value(other));
-    }
-
-    bool operator!=(const String &other) const {
-        return !this->operator==(other);
     }
 
 private:
@@ -140,9 +125,7 @@ int comparison(const Value &x, const Value &y) {
 template<class T>
 class AscComparer : public IComparer<T> {
 public:
-    AscComparer() {
-
-    }
+    AscComparer() = default;
 
     int compare(const T &x, const T &y) const override {
         if (x > y)
@@ -325,39 +308,50 @@ bool testIntAdd() {
 }
 
 bool testIntAddRange() {
-    Integers test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(i);
-    }
-    Integers test2;
-    if (!test2.addRange(test)) {
-        return false;
-    }
-    if (test != test2) {
-        return false;
-    }
-
-    Integers test3;
-    if (!test3.addRange(test, 50, test.count() - 50)) {
-        return false;
-    }
-    if (!(test3[0] == 50 && test3[49] == 99)) {
-        return false;
-    }
-
-    Integers test4;
-    static const int count2 = 5;
-    int array[count2] = {1, 2, 3, 4, 5};
-    if (!test4.addRange(array, count2)) {
-        return false;
-    }
-    if (test4.count() != count2) {
-        return false;
-    }
-    for (int i = 0; i < count2; ++i) {
-        if (array[i] != test4[i]) {
+    {
+        Integers test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(i);
+        }
+        Integers test2;
+        if (!test2.addRange(test)) {
             return false;
+        }
+        if (test != test2) {
+            return false;
+        }
+    }
+
+    {
+        Integers test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(i);
+        }
+        Integers test3;
+        if (!test3.addRange(test, 50, test.count() - 50)) {
+            return false;
+        }
+        if (!(test3[0] == 50 && test3[49] == 99)) {
+            return false;
+        }
+    }
+
+    {
+        Integers test4;
+        static const int count2 = 5;
+        int array[count2] = {1, 2, 3, 4, 5};
+        if (!test4.addRange(array, count2)) {
+            return false;
+        }
+        if (test4.count() != count2) {
+            return false;
+        }
+        for (int i = 0; i < count2; ++i) {
+            if (array[i] != test4[i]) {
+                return false;
+            }
         }
     }
 
@@ -448,46 +442,48 @@ bool testIntInsert() {
 }
 
 bool testIntSetRange() {
-    Integers test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(i);
-    }
-    Integers test2;
-    test2.addRange(test);
-    Integers test3;
-    for (int i = 0; i < 10; ++i) {
-        test3.add(0);
-    }
-    if (!test2.setRange(10, test3)) {
-        return false;
-    }
-    if (!(test2[10] == 0 && test2[19] == 0 && test2.count() == test.count())) {
-        return false;
-    }
-
-    test2.clear();
-    test2.addRange(test);
-    if (!test2.setRange(10, test3, 0, 5)) {
-        return false;
-    }
-    if (!(test2[10] == 0 && test2[14] == 0 && test2[15] != 0 && test2.count() == test.count())) {
-        return false;
-    }
-
-    Integers test4;
-    test4.addRange(test);
-    static const int count2 = 5;
-    int array[count2] = {1, 2, 3, 4, 5};
-    if (!test4.setRange(29, array, count2)) {
-        return false;
-    }
-    if (test4.count() != test.count()) {
-        return false;
-    }
-    for (int i = 0; i < count2; ++i) {
-        if (test4[i + 29] != array[i]) {
+    {
+        Integers test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(i);
+        }
+        Integers test2;
+        test2.addRange(test);
+        Integers test3;
+        for (int i = 0; i < 10; ++i) {
+            test3.add(0);
+        }
+        if (!test2.setRange(10, test3)) {
             return false;
+        }
+        if (!(test2[10] == 0 && test2[19] == 0 && test2.count() == test.count())) {
+            return false;
+        }
+
+        test2.clear();
+        test2.addRange(test);
+        if (!test2.setRange(10, test3, 0, 5)) {
+            return false;
+        }
+        if (!(test2[10] == 0 && test2[14] == 0 && test2[15] != 0 && test2.count() == test.count())) {
+            return false;
+        }
+
+        Integers test4;
+        test4.addRange(test);
+        static const int count2 = 5;
+        int array[count2] = {1, 2, 3, 4, 5};
+        if (!test4.setRange(29, array, count2)) {
+            return false;
+        }
+        if (test4.count() != test.count()) {
+            return false;
+        }
+        for (int i = 0; i < count2; ++i) {
+            if (test4[i + 29] != array[i]) {
+                return false;
+            }
         }
     }
 
@@ -875,50 +871,65 @@ bool testIntLock() {
 
 // complex value.
 bool testConstructor() {
-    Values test(DefaultCapacity);
-    if (!(test.count() == 0 && test.capacity() == DefaultCapacity)) {
-        return false;
+    {
+        Values test(DefaultCapacity);
+        if (!(test.count() == 0 && test.capacity() == DefaultCapacity)) {
+            return false;
+        }
     }
 
-    Values test2(DefaultCapacity);
-    test2.add(Value(1));
-    test2.add(Value("abc"));
-    Values test3(test2);
-    if (test3 != test2) {
-        return false;
+    {
+        Values test2(DefaultCapacity);
+        test2.add(Value(1));
+        test2.add(Value("abc"));
+        Values test3(test2);
+        if (test3 != test2) {
+            return false;
+        }
     }
 
-    Values test2_1(DefaultCapacity);
-    test2_1.add(Value(1));
-    test2_1.add(Value("abc"));
-    Values test3_1(std::move(test2_1));
-    if (!test2_1.isEmpty()) {
-        return false;
-    }
-    if (!(test3_1.count() == 2 && test3_1[0] == 1 && test3_1[1] == "abc")) {
-        return false;
-    }
-
-    static const int count = 5;
-    Value array[count] = {
-            Value(1),
-            Value(2),
-            Value("abc"),
-            Value("bcd"),
-            Value(128)
-    };
-    Values test4(array, count);
-    if (test4.count() != count) {
-        return false;
-    }
-    for (int i = 0; i < count; ++i) {
-        if (array[i] != test4[i]) {
+    {
+        Values test2_1(DefaultCapacity);
+        test2_1.add(Value(1));
+        test2_1.add(Value("abc"));
+        Values test3_1(std::move(test2_1));
+        if (!test2_1.isEmpty()) {
+            return false;
+        }
+        if (!(test3_1.count() == 2 && test3_1[0] == 1 && test3_1[1] == "abc")) {
             return false;
         }
     }
 
     {
         static const int count = 5;
+        Value array[count] = {
+                Value(1),
+                Value(2),
+                Value("abc"),
+                Value("bcd"),
+                Value(128)
+        };
+        Values test4(array, count);
+        if (test4.count() != count) {
+            return false;
+        }
+        for (int i = 0; i < count; ++i) {
+            if (array[i] != test4[i]) {
+                return false;
+            }
+        }
+    }
+
+    {
+        static const int count = 5;
+        Value array[count] = {
+                Value(1),
+                Value(2),
+                Value("abc"),
+                Value("bcd"),
+                Value(128)
+        };
         Values test{Value(1),
                     Value(2),
                     Value("abc"),
@@ -1027,45 +1038,50 @@ bool testAdd() {
 }
 
 bool testAddRange() {
-    Values test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(Value(i));
-    }
-    Values test2;
-    if (!test2.addRange(test)) {
-        return false;
-    }
-    if (!valuesEquals(test, test2)) {
-        return false;
-    }
-
-    Values test3;
-    if (!test3.addRange(test, 50, test.count() - 50)) {
-        return false;
-    }
-    if (!(valueEquals(test3[0], 50) && valueEquals(test3[49], 99))) {
-        return false;
-    }
-
-    Values test4;
-    static const int count2 = 5;
-    Value array[count] = {
-            Value(1),
-            Value(2),
-            Value("abc"),
-            Value("bcd"),
-            Value(128)
-    };
-    if (!test4.addRange(array, count2)) {
-        return false;
-    }
-    if (test4.count() != count2) {
-        return false;
-    }
-    for (int i = 0; i < count2; ++i) {
-        if (!valueEquals(array[i], test4[i])) {
+    {
+        Values test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(Value(i));
+        }
+        Values test2;
+        if (!test2.addRange(test)) {
             return false;
+        }
+        if (!valuesEquals(test, test2)) {
+            return false;
+        }
+
+        Values test3;
+        if (!test3.addRange(test, 50, test.count() - 50)) {
+            return false;
+        }
+        if (!(valueEquals(test3[0], 50) && valueEquals(test3[49], 99))) {
+            return false;
+        }
+    }
+
+    {
+        Values test4;
+        static const int count = 100;
+        static const int count2 = 5;
+        Value array[count] = {
+                Value(1),
+                Value(2),
+                Value("abc"),
+                Value("bcd"),
+                Value(128)
+        };
+        if (!test4.addRange(array, count2)) {
+            return false;
+        }
+        if (test4.count() != count2) {
+            return false;
+        }
+        for (int i = 0; i < count2; ++i) {
+            if (!valueEquals(array[i], test4[i])) {
+                return false;
+            }
         }
     }
 
@@ -1086,53 +1102,55 @@ bool testAddRange() {
 }
 
 bool testInsertRange() {
-    Values test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(Value(i));
-    }
-    Values test2;
-    test2.addRange(test);
-    Values test3;
-    for (int i = 0; i < 10; ++i) {
-        test3.add(Value(0));
-    }
-    if (!test2.insertRange(10, test3)) {
-        return false;
-    }
-    if (!(valueEquals(test2[10], 0) && valueEquals(test2[19], 0) && test2.count() == test.count() + 10)) {
-        return false;
-    }
-
-    test2.clear();
-    test2.addRange(test);
-    if (!test2.insertRange(10, test3, 0, 5)) {
-        return false;
-    }
-    if (!(valueEquals(test2[10], 0) && valueEquals(test2[14], 0) && !valueEquals(test2[15], 0) &&
-          test2.count() == test.count() + 5)) {
-        return false;
-    }
-
-    Values test4;
-    test4.addRange(test);
-    static const int count2 = 5;
-    Value array[count] = {
-            Value(1),
-            Value(2),
-            Value("abc"),
-            Value("bcd"),
-            Value(128)
-    };
-    if (!test4.insertRange(29, array, count2)) {
-        return false;
-    }
-    if (test4.count() != test.count() + count2) {
-        return false;
-    }
-    for (int i = 0; i < count2; ++i) {
-        if (!valueEquals(test4[i + 29], array[i])) {
+    {
+        Values test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(Value(i));
+        }
+        Values test2;
+        test2.addRange(test);
+        Values test3;
+        for (int i = 0; i < 10; ++i) {
+            test3.add(Value(0));
+        }
+        if (!test2.insertRange(10, test3)) {
             return false;
+        }
+        if (!(valueEquals(test2[10], 0) && valueEquals(test2[19], 0) && test2.count() == test.count() + 10)) {
+            return false;
+        }
+
+        test2.clear();
+        test2.addRange(test);
+        if (!test2.insertRange(10, test3, 0, 5)) {
+            return false;
+        }
+        if (!(valueEquals(test2[10], 0) && valueEquals(test2[14], 0) && !valueEquals(test2[15], 0) &&
+              test2.count() == test.count() + 5)) {
+            return false;
+        }
+
+        Values test4;
+        test4.addRange(test);
+        static const int count2 = 5;
+        Value array[count] = {
+                Value(1),
+                Value(2),
+                Value("abc"),
+                Value("bcd"),
+                Value(128)
+        };
+        if (!test4.insertRange(29, array, count2)) {
+            return false;
+        }
+        if (test4.count() != test.count() + count2) {
+            return false;
+        }
+        for (int i = 0; i < count2; ++i) {
+            if (!valueEquals(test4[i + 29], array[i])) {
+                return false;
+            }
         }
     }
 
@@ -1177,53 +1195,55 @@ bool testInsert() {
 }
 
 bool testSetRange() {
-    Values test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(Value(i));
-    }
-    Values test2;
-    test2.addRange(test);
-    Values test3;
-    for (int i = 0; i < 10; ++i) {
-        test3.add(Value(0));
-    }
-    if (!test2.setRange(10, test3)) {
-        return false;
-    }
-    if (!(valueEquals(test2[10], 0) && valueEquals(test2[19], 0) && test2.count() == test.count())) {
-        return false;
-    }
-
-    test2.clear();
-    test2.addRange(test);
-    if (!test2.setRange(10, test3, 0, 5)) {
-        return false;
-    }
-    if (!(valueEquals(test2[10], 0) && valueEquals(test2[14], 0) && !valueEquals(test2[15], 0) &&
-          test2.count() == test.count())) {
-        return false;
-    }
-
-    Values test4;
-    test4.addRange(test);
-    static const int count2 = 5;
-    Value array[count] = {
-            Value(1),
-            Value(2),
-            Value("abc"),
-            Value("bcd"),
-            Value(128)
-    };
-    if (!test4.setRange(29, array, count2)) {
-        return false;
-    }
-    if (test4.count() != test.count()) {
-        return false;
-    }
-    for (int i = 0; i < count2; ++i) {
-        if (!valueEquals(test4[i + 29], array[i])) {
+    {
+        Values test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(Value(i));
+        }
+        Values test2;
+        test2.addRange(test);
+        Values test3;
+        for (int i = 0; i < 10; ++i) {
+            test3.add(Value(0));
+        }
+        if (!test2.setRange(10, test3)) {
             return false;
+        }
+        if (!(valueEquals(test2[10], 0) && valueEquals(test2[19], 0) && test2.count() == test.count())) {
+            return false;
+        }
+
+        test2.clear();
+        test2.addRange(test);
+        if (!test2.setRange(10, test3, 0, 5)) {
+            return false;
+        }
+        if (!(valueEquals(test2[10], 0) && valueEquals(test2[14], 0) && !valueEquals(test2[15], 0) &&
+              test2.count() == test.count())) {
+            return false;
+        }
+
+        Values test4;
+        test4.addRange(test);
+        static const int count2 = 5;
+        Value array[count] = {
+                Value(1),
+                Value(2),
+                Value("abc"),
+                Value("bcd"),
+                Value(128)
+        };
+        if (!test4.setRange(29, array, count2)) {
+            return false;
+        }
+        if (test4.count() != test.count()) {
+            return false;
+        }
+        for (int i = 0; i < count2; ++i) {
+            if (!valueEquals(test4[i + 29], array[i])) {
+                return false;
+            }
         }
     }
 
@@ -1501,7 +1521,7 @@ bool testIterator() {
     test.add(Value(3));
 
     int index = 1;
-    for (auto it: test) {
+    for (const auto& it: test) {
         if (!valueEquals(it, index)) {
             return false;
         }

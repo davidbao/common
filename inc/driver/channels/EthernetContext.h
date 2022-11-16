@@ -10,9 +10,10 @@
 #define EthernetContext_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 
 using namespace Common;
+using namespace Net;
 
 namespace Drivers
 {

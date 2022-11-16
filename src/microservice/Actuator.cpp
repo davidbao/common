@@ -634,7 +634,7 @@ namespace Microservice {
             assert(cs);
             String profile = "none";
             cs->getProperty("summer.profiles.active", profile);
-            StringArray profiles(profile, nullptr);
+            StringArray profiles{profile};
             rootNode.add(JsonNode("activeProfiles", profiles));
 
             JsonNode propertySourcesNode("propertySources", JsonNode::TypeArray);
@@ -903,7 +903,7 @@ namespace Microservice {
             assert(cs);
             String profile = "none";
             cs->getProperty("summer.profiles.active", profile);
-            StringArray profiles(profile, nullptr);
+            StringArray profiles{profile};
             rootNode.add(JsonNode("activeProfiles", profiles));
 
             response.setContent(rootNode);

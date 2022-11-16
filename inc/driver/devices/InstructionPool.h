@@ -2,7 +2,7 @@
 #define INSTRUCTIONPOOL_H
 
 #include "thread/Mutex.h"
-#include "data/LoopVector.h"
+#include "data/LoopPList.h"
 #include "thread/Thread.h"
 #include "driver/channels/Channel.h"
 #include "driver/channels/ChannelDescription.h"
@@ -55,8 +55,8 @@ namespace Drivers
 			bool _processed;
 			InstructionContext* _ic;
 		};
-//		typedef LoopVector<Packet> LoopInstructions;
-        class LoopInstructions : public LoopVector<Packet>
+//		typedef LoopPList<Packet> LoopInstructions;
+        class LoopInstructions : public LoopPList<Packet>
         {
         public:
             LoopInstructions(int maxLength = 512, bool autoDelete = true, bool hasPriority = false);

@@ -12,34 +12,36 @@
 #if WIN32
 #include <Rpc.h>
 #else
+
 #include <uuid/uuid.h>
+
 #endif
 
 namespace Common {
     const Uuid Uuid::Empty = Uuid();
 
-    Uuid::Uuid() {
+    Uuid::Uuid() : _value{} {
         clear();
     }
 
-    Uuid::Uuid(const Uuid &value) {
+    Uuid::Uuid(const Uuid &value) : _value{} {
         this->operator=(value);
     }
 
-    Uuid::Uuid(const String &value) {
+    Uuid::Uuid(const String &value) : _value{} {
         parse(value, *this);
     }
 
-    Uuid::~Uuid() {
-    }
+    Uuid::~Uuid() = default;
 
-    void Uuid::operator=(const Uuid &value) {
+    Uuid &Uuid::operator=(const Uuid &value) {
 #if WIN32
         memcpy(&this->_value, &value._value, Size);
 #else
         uuid_copy(this->_value, value._value);
 #endif
         assert(this->operator==(value));
+        return *this;
     }
 
     bool Uuid::operator==(const Uuid &value) const {
@@ -55,11 +57,12 @@ namespace Common {
         return !operator==(value);
     }
 
-    void Uuid::operator=(const String &value) {
+    Uuid &Uuid::operator=(const String &value) {
         Uuid id;
         if (Uuid::parse(value, id)) {
             this->operator=(id);
         }
+        return *this;
     }
 
     bool Uuid::operator==(const String &value) const {

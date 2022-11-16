@@ -10,7 +10,7 @@
 #include "system/Math.h"
 
 namespace Common {
-    const ByteArray ByteArray::Empty = ByteArray();
+    const ByteArray ByteArray::Empty;
     const char *ByteArray::HexFormat = "%02X";
     const char *ByteArray::DecFormat = "%02d";
     const char *ByteArray::OtcFormat = "%02o";
@@ -29,11 +29,10 @@ namespace Common {
                                                                                                 capacity) {
     }
 
-    ByteArray::ByteArray(const uint8_t value, size_t count) : Vector<uint8_t>(value, count) {
+    ByteArray::ByteArray(const uint8_t& value, size_t count) : Vector<uint8_t>(value, count) {
     }
 
-    ByteArray::ByteArray(const ByteArray &array) : Vector<uint8_t>(array) {
-    }
+    ByteArray::ByteArray(const ByteArray &array) = default;
 
     ByteArray::ByteArray(const ByteArray &value, off_t offset, size_t count) : Vector<uint8_t>(value, offset, count) {
     }
@@ -42,7 +41,7 @@ namespace Common {
     }
 
     void ByteArray::write(Stream *stream, bool bigEndian) const {
-        uint32_t c = (uint32_t) count();
+        auto c = (uint32_t) count();
         stream->writeUInt32(c, bigEndian);
         if (c > 0) {
             stream->write(data(), 0, c);
@@ -50,12 +49,12 @@ namespace Common {
     }
 
     void ByteArray::read(Stream *stream, bool bigEndian) {
-        uint32_t c = stream->readUInt32(bigEndian);
+        auto c = stream->readUInt32(bigEndian);
         if (c > 0) {
             const size_t size = 65535;
             for (size_t i = 0; i < c / size + 1; i++) {
                 size_t cc = i == c / size ? (c % size) : size;
-                uint8_t *buffer = new uint8_t[cc];
+                auto *buffer = new uint8_t[cc];
                 stream->read(buffer, 0, cc);
                 addRange(buffer, 0, cc);
                 delete[] buffer;
@@ -63,7 +62,7 @@ namespace Common {
         }
     }
 
-    const String ByteArray::toString(const char *format, const char *splitStr) const {
+    String ByteArray::toString(const char *format, const char *splitStr) const {
         String result;
         char temp[32];
         memset(temp, 0, sizeof(temp));
@@ -77,7 +76,7 @@ namespace Common {
         return result;
     }
 
-    const String ByteArray::toLimitString(size_t length, const char *format, const char *splitStr) const {
+    String ByteArray::toLimitString(size_t length, const char *format, const char *splitStr) const {
         String str;
         if (count() > length) {
             ByteArray array(data(), Math::min(length, count()));
@@ -88,7 +87,7 @@ namespace Common {
         return str;
     }
 
-    const String ByteArray::toHexString() const {
+    String ByteArray::toHexString() const {
         return toString(ByteArray::HexFormat, String::Empty);
     }
 
@@ -160,9 +159,8 @@ namespace Common {
         const uint8_t *src = buffer.data() + offset;
         const uint8_t *dst = array.data();
         ssize_t index = 0;
-        ssize_t n = 0;
         while (index < (ssize_t) count) {
-            for (n = 0; *(src + n) == *(dst + n); n++)
+            for (ssize_t n = 0; *(src + n) == *(dst + n); n++)
                 if (!*(dst + n + 1)) {
                     return (ssize_t) (src - first + offset);
                 }
@@ -172,11 +170,11 @@ namespace Common {
         return -1;
     }
 
-    ByteArray ByteArray::replace(off_t offset, size_t count, const ByteArray &src, const ByteArray &dst) {
+    ByteArray ByteArray::replace(off_t offset, size_t count, const ByteArray &src, const ByteArray &dst) const {
         return replace(*this, offset, count, src, dst);
     }
 
-    ByteArray ByteArray::replace(const ByteArray &src, const ByteArray &dst) {
+    ByteArray ByteArray::replace(const ByteArray &src, const ByteArray &dst) const {
         return replace(0, count(), src, dst);
     }
 

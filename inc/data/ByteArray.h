@@ -17,15 +17,15 @@
 namespace Common {
     class ByteArray : public Vector<uint8_t> {
     public:
-        ByteArray(size_t capacity = DefaultCapacity);
+        explicit ByteArray(size_t capacity = DefaultCapacity);
 
-        ByteArray(const Vector<uint8_t> &array);
+        explicit ByteArray(const Vector<uint8_t> &array);
 
         ByteArray(const Vector<uint8_t> &array, off_t offset, size_t count);
 
         ByteArray(const uint8_t *array, size_t count, size_t capacity = DefaultCapacity);
 
-        ByteArray(const uint8_t value, size_t count);
+        ByteArray(const uint8_t &value, size_t count);
 
         ByteArray(const ByteArray &array);
 
@@ -37,20 +37,19 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        const String toString(const char *format = HexFormat, const char *splitStr = "-") const;
+        String toString(const char *format = HexFormat, const char *splitStr = "-") const;
 
-        const String
-        toLimitString(size_t length = 128, const char *format = HexFormat, const char *splitStr = "-") const;
+        String toLimitString(size_t length = 128, const char *format = HexFormat, const char *splitStr = "-") const;
 
-        const String toHexString() const;
+        String toHexString() const;
 
         ssize_t find(const ByteArray &array) const;
 
         ssize_t find(off_t offset, size_t count, const ByteArray &array) const;
 
-        ByteArray replace(off_t offset, size_t count, const ByteArray &src, const ByteArray &dst);
+        ByteArray replace(off_t offset, size_t count, const ByteArray &src, const ByteArray &dst) const;
 
-        ByteArray replace(const ByteArray &src, const ByteArray &dst);
+        ByteArray replace(const ByteArray &src, const ByteArray &dst) const;
 
         ByteArray &operator=(const ByteArray &value);
 

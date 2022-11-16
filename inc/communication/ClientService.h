@@ -132,7 +132,7 @@ namespace Communication
         class PacketSender : public BasePacketSender
         {
         public:
-            typedef LoopVector<K> Buffer;
+            typedef LoopPList<K> Buffer;
             
             PacketSender(BaseCommService* service, const String& name, const TimeSpan& interval, int packetCount = 10) : BasePacketSender(service, name, interval), _buffer(MaxBufferLength)
             {
@@ -232,7 +232,7 @@ namespace Communication
         class PacketSyncSender : public BasePacketSender
         {
         public:
-            typedef LoopVector<K> Buffer;
+            typedef LoopPList<K> Buffer;
             typedef void (*FailedAction)(void*, const T&);
             
             PacketSyncSender(BaseCommService* service, const String& name, const TimeSpan& interval, FailedAction failedAction, void* owner, int packetCount = 10) : BasePacketSender(service, name, interval), _buffer(MaxBufferLength)

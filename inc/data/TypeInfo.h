@@ -10,6 +10,7 @@
 #define TypeInfo_h
 
 #include <type_traits>
+#include "system/OsDefine.h"
 
 namespace Common {
     template<typename T>

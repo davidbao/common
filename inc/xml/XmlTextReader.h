@@ -10,7 +10,7 @@
 #define XmlTextReader_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "IO/Zip.h"
 #include "configuration/ConfigFile.h"
 #include "xml/XmlNode.h"
@@ -71,10 +71,6 @@ namespace Common
                           DateTime minValue = DateTime::MinValue, DateTime maxValue = DateTime::MaxValue) const;
         bool getAttribute(const String& name, TimeSpan& value,
                           const TimeSpan& minValue = TimeSpan::MinValue, const TimeSpan& maxValue = TimeSpan::MaxValue) const;
-        bool getAttribute(const String& name, Version& value) const;
-        bool getAttribute(const String& name, IPAddress& value) const;
-        bool getAttribute(const String& name, MacAddress& value) const;
-        bool getAttribute(const String& name, Uuid& value) const;
         template <class T>
         bool getAttribute(const String& name, T& value) const
         {

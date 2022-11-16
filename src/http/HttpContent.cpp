@@ -809,6 +809,7 @@ namespace Common {
         return properties.count() > 0;
     }
 
+    const char HttpRequest::PathSplitSymbol = '/';
     HttpRequest::HttpRequest(const Url &url, const HttpMethod &method) : url(url), method(method), content(nullptr),
                                                                          version("1.1"), verb(false) {
         headers.add("Accept", "*/*");

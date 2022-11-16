@@ -7,7 +7,7 @@
 #include "diag/Stopwatch.h"
 #include "system/Application.h"
 
-namespace Common
+namespace Net
 {
     Receiver::Receiver()
     {
@@ -587,7 +587,7 @@ namespace Common
         ssize_t totalCount = 0;
         do
         {
-            readCount = this->receive(temp, 0, Math::min(count-totalCount, BufferLength));
+            readCount = this->receive(temp, 0, Math::min(count-(size_t)totalCount, BufferLength));
             if(readCount > 0)
             {
                 buffer->addRange(temp, readCount);

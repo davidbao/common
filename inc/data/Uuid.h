@@ -9,7 +9,7 @@
 #ifndef Uuid_h
 #define Uuid_h
 
-#include <stdio.h>
+#include <cstdio>
 
 #if WIN32
 #ifndef GUID_DEFINED
@@ -39,17 +39,17 @@ namespace Common {
 
         Uuid(const Uuid &value);
 
-        Uuid(const String &value);
+        explicit Uuid(const String &value);
 
         ~Uuid();
 
-        void operator=(const Uuid &value);
+        Uuid &operator=(const Uuid &value);
 
         bool operator==(const Uuid &value) const;
 
         bool operator!=(const Uuid &value) const;
 
-        void operator=(const String &value);
+        Uuid &operator=(const String &value);
 
         bool operator==(const String &value) const;
 

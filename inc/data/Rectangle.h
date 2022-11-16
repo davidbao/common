@@ -9,18 +9,20 @@
 #ifndef Rectangle_h
 #define Rectangle_h
 
-#include "data/ValueType.h"
-#include "Point.h"
-#include "Size.h"
+#include "data/String.h"
+#include "data/Point.h"
+#include "data/Size.h"
 
-namespace Common {
+using namespace Common;
+
+namespace Drawing {
     struct Rectangle;
 
     struct RectangleF {
     public:
-        RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
+        explicit RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
 
-        RectangleF(PointF location, SizeF size);
+        RectangleF(const PointF &location, const SizeF &size);
 
         RectangleF(const RectangleF &size);
 
@@ -54,7 +56,7 @@ namespace Common {
 
         PointF rightBottom() const;
 
-        void operator=(const RectangleF &value);
+        RectangleF &operator=(const RectangleF &value);
 
         bool operator==(const RectangleF &value) const;
 
@@ -110,9 +112,9 @@ namespace Common {
 
     struct Rectangle {
     public:
-        Rectangle(int x = 0, int y = 0, int width = 0, int height = 0);
+        explicit Rectangle(int x = 0, int y = 0, int width = 0, int height = 0);
 
-        Rectangle(Point location, Size size);
+        Rectangle(const Point &location, const Size &size);
 
         Rectangle(const Rectangle &rect);
 
@@ -138,7 +140,7 @@ namespace Common {
 
         int bottom() const;
 
-        void operator=(const Rectangle &value);
+        Rectangle &operator=(const Rectangle &value);
 
         bool operator==(const Rectangle &value) const;
 

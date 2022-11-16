@@ -17,7 +17,6 @@ SET(DATA_SRC
         Culture.cpp
         DateTime.cpp
         Enum.cpp
-        NetType.cpp
         Point.cpp
         PositionCoord.cpp
         PrimitiveInterface.cpp

@@ -11,7 +11,7 @@
 #include "diag/Trace.h"
 #include "thread/ThreadPool.h"
 
-namespace Common
+namespace Net
 {
     MqttClient::ConnectOptions::ConnectOptions()
     {

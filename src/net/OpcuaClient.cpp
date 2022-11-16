@@ -19,7 +19,7 @@
 #include <open62541/client_subscriptions.h>
 #include <open62541/client_highlevel_async.h>
 
-namespace Common
+namespace Net
 {
     OpcuaClient::OpcuaClient() : _client(nullptr), _statusCode(UA_STATUSCODE_GOOD), _subscriptionTimer(nullptr)
     {

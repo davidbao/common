@@ -6,7 +6,6 @@
 #include "TcpServerChannelContext.h"
 #include "net/TcpClient.h"
 #include "net/TcpServer.h"
-#include "data/LoopArray.h"
 #include "thread/Thread.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"

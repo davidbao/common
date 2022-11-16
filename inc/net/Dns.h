@@ -21,7 +21,9 @@
 #include <netinet/tcp.h>
 #endif
 
-namespace Common
+using namespace Common;
+
+namespace Net
 {
 	class Dns
 	{

@@ -271,44 +271,4 @@ namespace Common
     {
         writeAttributeTimeSpan(name, value, format);
     }
-    void JsonTextWriter::writeAttribute(const String& name, const Version& value)
-    {
-        writeAttributeVersion(name, value);
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const IPAddress& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const MacAddress& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const Uuid& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const RectangleF& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const Rectangle& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const PointF& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const Point& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const SizeF& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    void JsonTextWriter::writeAttribute(const String& name, const Size& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
 }

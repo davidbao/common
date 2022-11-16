@@ -36,6 +36,10 @@ namespace Common {
         return _value == other._value;
     }
 
+    bool Boolean::equals(const bool &other) const {
+        return _value == other;
+    }
+
     void Boolean::evaluates(const Boolean &other) {
         _value = other._value;
     }
@@ -52,14 +56,6 @@ namespace Common {
     Boolean &Boolean::operator=(const bool &value) {
         evaluates(value);
         return *this;
-    }
-
-    bool Boolean::operator==(const bool &value) const {
-        return this->equals(value);
-    }
-
-    bool Boolean::operator!=(const bool &value) const {
-        return !this->operator==(value);
     }
 
     void Boolean::write(Stream *stream) const {
@@ -1732,15 +1728,15 @@ namespace Common {
     }
 
     bool Float::isNaN(const Float &value) {
-        return isnan(value._value);
+        return ::isnan(value._value);
     }
 
     bool Float::isFinite(const Float &value) {
-        return isfinite(value._value);
+        return ::isfinite(value._value);
     }
 
     bool Float::isInfinity(const Float &value) {
-        return isinf(value._value);
+        return ::isinf(value._value);
     }
 
     bool Float::isNegative(const Float &value) {
@@ -1756,11 +1752,11 @@ namespace Common {
     }
 
     bool Float::isNormal(const Float &value) {
-        return isnormal(value._value);
+        return ::isnormal(value._value);
     }
 
     bool Float::isSubnormal(const Float &value) {
-        return fpclassify(value._value) == FP_SUBNORMAL;
+        return ::fpclassify(value._value) == FP_SUBNORMAL;
     }
 
     const Double Double::MaxValue = Double(DBL_MAX);
@@ -1848,15 +1844,15 @@ namespace Common {
     }
 
     bool Double::isNaN(const Double &value) {
-        return isnan(value._value);
+        return ::isnan(value._value);
     }
 
     bool Double::isFinite(const Double &value) {
-        return isfinite(value._value);
+        return ::isfinite(value._value);
     }
 
     bool Double::isInfinity(const Double &value) {
-        return isinf(value._value);
+        return ::isinf(value._value);
     }
 
     bool Double::isNegative(const Double &value) {
@@ -1872,10 +1868,10 @@ namespace Common {
     }
 
     bool Double::isNormal(const Double &value) {
-        return isnormal(value._value);
+        return ::isnormal(value._value);
     }
 
     bool Double::isSubnormal(const Double &value) {
-        return fpclassify(value._value) == FP_SUBNORMAL;
+        return ::fpclassify(value._value) == FP_SUBNORMAL;
     }
 }

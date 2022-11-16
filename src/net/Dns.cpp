@@ -38,7 +38,7 @@
 #else
 #endif
 
-namespace Common
+namespace Net
 {
     StringMap Dns::_hostNames;
     Dns::Dns()

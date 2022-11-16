@@ -38,8 +38,6 @@ namespace Common {
 
         virtual size_t length() const = 0;
 
-        bool isEnd() const;
-
         virtual bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) = 0;
 
         virtual bool canWrite() const;
@@ -48,9 +46,11 @@ namespace Common {
 
         virtual bool canSeek() const;
 
-        void writeStr(const String &str, int lengthCount = 1);
+        bool isEnd() const;
 
-        String readStr(int lengthCount = 1);
+        void writeStr(const String &str, String::StreamLength lengthCount = String::StreamLength1);
+
+        String readStr(String::StreamLength lengthCount = String::StreamLength1);
 
         void writeFixedLengthStr(const String &str, int length);
 
@@ -92,13 +92,13 @@ namespace Common {
 
         int readInt24(bool bigEndian = true);
 
-        void writeInt16(short value, bool bigEndian = true);
+        void writeInt16(int16_t value, bool bigEndian = true);
 
-        short readInt16(bool bigEndian = true);
+        int16_t readInt16(bool bigEndian = true);
 
-        void writeUInt16(ushort value, bool bigEndian = true);
+        void writeUInt16(uint16_t value, bool bigEndian = true);
 
-        ushort readUInt16(bool bigEndian = true);
+        uint16_t readUInt16(bool bigEndian = true);
 
         void writeInt8(int8_t value);
 
@@ -132,13 +132,13 @@ namespace Common {
 
         uint8_t readBCDByte();
 
-        void writeBCDUInt16(ushort value);
+        void writeBCDUInt16(uint16_t value);
 
-        ushort readBCDUInt16();
+        uint16_t readBCDUInt16();
 
-        void writeBCDInt16(short value);
+        void writeBCDInt16(int16_t value);
 
-        short readBCDInt16();
+        int16_t readBCDInt16();
 
         void writeBCDValue(int64_t value, int length);
 

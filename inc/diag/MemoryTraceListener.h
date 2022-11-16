@@ -10,7 +10,7 @@
 #define MemoryTraceListener_h
 
 #include "TraceListener.h"
-#include "data/LoopVector.h"
+#include "data/LoopPList.h"
 #include "data/StringArray.h"
 #include "thread/Mutex.h"
 #include "system/Delegate.h"
@@ -45,7 +45,7 @@ namespace Common
         
     private:
         Mutex _messagesMutex;
-        LoopVector<String> _messages;
+        LoopPList<String> _messages;
         
         Delegates _updateDelegates;
 

@@ -14,10 +14,12 @@
 #include "data/StringArray.h"
 #include "data/PList.h"
 #include "data/Map.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
 #include "IO/MemoryStream.h"
+
+using namespace Net;
 
 namespace Common {
     enum HttpStatus {
@@ -573,7 +575,7 @@ namespace Common {
         HttpCookie cookie;
 
     public:
-        static const char PathSplitSymbol = '/';
+        static const char PathSplitSymbol;
     };
 
     class HttpResponse {

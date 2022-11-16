@@ -14,13 +14,15 @@
 #include "data/ByteArray.h"
 #include "data/Dictionary.h"
 #include "data/TimeSpan.h"
-#include "data/LoopVector.h"
+#include "data/LoopPList.h"
 #include "system/Delegate.h"
 #include "thread/Thread.h"
 #include "thread/Timer.h"
 #include "MQTTClient.h"
 
-namespace Common
+using namespace Common;
+
+namespace Net
 {
     class MqttClient
     {
@@ -167,7 +169,7 @@ namespace Common
         
         Timer* _messageTimer;
         Mutex _messagesMutex;
-        LoopVector<Message> _messages;
+        LoopPList<Message> _messages;
         
         Timer* _checkTimer;
         bool _connecting;

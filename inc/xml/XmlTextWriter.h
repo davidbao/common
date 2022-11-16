@@ -10,14 +10,9 @@
 #define XmlTextWriter_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "data/DateTime.h"
 #include "data/TimeSpan.h"
-#include "data/Version.h"
-#include "data/Rectangle.h"
-#include "data/Point.h"
-#include "data/Size.h"
-#include "data/Uuid.h"
 
 namespace Common
 {
@@ -86,16 +81,7 @@ namespace Common
         void writeAttribute(const String& localName, const String& value);
         void writeAttribute(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
         void writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
-        void writeAttribute(const String& localName, const Version& value);
-        void writeAttribute(const String& localName, const IPAddress& value);
-        void writeAttribute(const String& localName, const MacAddress& value);
-        void writeAttribute(const String& localName, const Uuid& value);
-        void writeAttribute(const String& localName, const RectangleF& value);
-        void writeAttribute(const String& localName, const Rectangle& value);
-        void writeAttribute(const String& localName, const PointF& value);
-        void writeAttribute(const String& localName, const Point& value);
-        void writeAttribute(const String& localName, const SizeF& value);
-        void writeAttribute(const String& localName, const Size& value);
+
         template <class T>
         void writeAttribute(const String& localName, const T& value)
         {

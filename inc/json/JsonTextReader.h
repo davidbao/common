@@ -10,7 +10,6 @@
 #define JsonTextReader_h
 
 #include "data/ValueType.h"
-#include "data/NetType.h"
 #include "IO/Zip.h"
 #include "configuration/ConfigFile.h"
 #include "json/JsonNode.h"
@@ -67,11 +66,7 @@ namespace Common
                           DateTime minValue = DateTime::MinValue, DateTime maxValue = DateTime::MaxValue);
         bool getAttribute(const String& name, TimeSpan& value,
                           const TimeSpan& minValue = TimeSpan::MinValue, const TimeSpan& maxValue = TimeSpan::MaxValue);
-        bool getAttribute(const String& name, Version& value);
-        bool getAttribute(const String& name, IPAddress& value);
-        bool getAttribute(const String& name, MacAddress& value);
-        bool getAttribute(const String& name, Uuid& value);
-        
+
         template <class T>
         bool getAttribute(const String& name, T& value)
         {

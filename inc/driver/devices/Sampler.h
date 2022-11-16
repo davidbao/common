@@ -3,7 +3,6 @@
 
 #include "thread/Mutex.h"
 #include "system/Delegate.h"
-#include "data/LoopArray.h"
 #include "thread/Thread.h"
 #include "driver/channels/Channel.h"
 #include "driver/channels/ChannelDescription.h"

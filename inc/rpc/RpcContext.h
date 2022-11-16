@@ -11,9 +11,9 @@
 
 #include "data/ValueType.h"
 #include "data/Dictionary.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 
-using namespace Common;
+using namespace Net;
 
 namespace rpc
 {

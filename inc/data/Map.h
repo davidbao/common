@@ -30,7 +30,7 @@ namespace Common {
         Map(const Map &other) : _map(other._map), _autoDeleteValue(other._autoDeleteValue) {
         }
 
-        Map(Map &&other) : _map(std::move(other._map)), _autoDeleteValue(other._autoDeleteValue) {
+        Map(Map &&other)  noexcept : _map(std::move(other._map)), _autoDeleteValue(other._autoDeleteValue) {
         }
 
         Map(std::initializer_list<ValueType> list, bool autoDeleteValue = false) : _map(list),

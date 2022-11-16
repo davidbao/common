@@ -8,7 +8,6 @@
 
 #include "data/StringMap.h"
 #include "data/ValueType.h"
-#include "IO/Stream.h"
 
 namespace Common {
     const StringMap StringMap::Empty;
@@ -31,15 +30,9 @@ namespace Common {
     StringMap::StringMap(const KeyValue *item, bool ignoreKeyCase) : StringMap(ignoreKeyCase) {
         const KeyValue *kv = item;
         while (kv != nullptr && !kv->key.isNullOrEmpty()) {
-            if (kv != nullptr) {
-                add(kv->key, kv->value);
-            }
+            add(kv->key, kv->value);
             kv++;
         }
-    }
-
-    void StringMap::add(const String &key, const String &value) {
-        Dictionary<String, String>::add(key, value);
     }
 
     void StringMap::add(const String &key, const string &value) {
@@ -96,18 +89,6 @@ namespace Common {
 
     void StringMap::add(const String &key, const double &value) {
         add(key, Double(value).toString());
-    }
-
-    String &StringMap::at(const String &key) {
-        return Dictionary<String, String>::at(key);
-    }
-
-    const String &StringMap::at(const String &key) const {
-        return Dictionary<String, String>::at(key);
-    }
-
-    bool StringMap::at(const String &key, String &value) const {
-        return Dictionary<String, String>::at(key, value);
     }
 
     bool StringMap::at(const String &key, string &value) const {
@@ -205,10 +186,6 @@ namespace Common {
             return true;
         }
         return false;
-    }
-
-    bool StringMap::set(const String &key, const String &value) {
-        return Dictionary<String, String>::set(key, value);
     }
 
     bool StringMap::set(const String &key, const string &value) {

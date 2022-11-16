@@ -6,14 +6,15 @@
 //  Copyright © 2016 com. All rights reserved.
 //
 
+#include <cfloat>
 #include "data/Size.h"
 #include "system/Math.h"
 #include "data/Convert.h"
 
-namespace Common {
+namespace Drawing {
     const SizeF SizeF::Empty;
-    const SizeF SizeF::MinValue = SizeF(Float::MinValue, Float::MinValue);
-    const SizeF SizeF::MaxValue = SizeF(Float::MaxValue, Float::MaxValue);
+    const SizeF SizeF::MinValue = SizeF(-FLT_MAX, -FLT_MAX);
+    const SizeF SizeF::MaxValue = SizeF(FLT_MAX, FLT_MAX);
 
     SizeF::SizeF(float width, float height) {
         this->width = width;
@@ -25,9 +26,41 @@ namespace Common {
         this->height = (float) height;
     }
 
+    SizeF::SizeF(long width, long height) {
+        this->width = (float) width;
+        this->height = (float) height;
+    }
+
     SizeF::SizeF(const SizeF &size) {
         this->width = size.width;
         this->height = size.height;
+    }
+
+    SizeF::~SizeF() = default;
+
+    bool SizeF::equals(const SizeF &other) const {
+        return this->width == other.width && this->height == other.height;
+    }
+
+    void SizeF::evaluates(const SizeF &other) {
+        this->width = other.width;
+        this->height = other.height;
+    }
+
+    int SizeF::compareTo(const SizeF &other) const {
+        if (width != other.width) {
+            if (width > other.width) {
+                return 1;
+            }
+            return -1;
+        }
+        if (height != other.height) {
+            if (height > other.height) {
+                return 1;
+            }
+            return -1;
+        }
+        return 0;
     }
 
     bool SizeF::isEmpty() const {
@@ -40,20 +73,13 @@ namespace Common {
     }
 
     String SizeF::toString() const {
-        return String::convert("%.0f,%.0f", width, height);
+        return String::convert("%g,%g", width, height);
     }
 
-    void SizeF::operator=(const SizeF &value) {
+    SizeF &SizeF::operator=(const SizeF &value) {
         this->width = value.width;
         this->height = value.height;
-    }
-
-    bool SizeF::operator==(const SizeF &value) const {
-        return this->width == value.width && this->height == value.height;
-    }
-
-    bool SizeF::operator!=(const SizeF &value) const {
-        return !operator==(value);
+        return *this;
     }
 
     bool SizeF::parse(const String &str, SizeF &size) {
@@ -70,13 +96,9 @@ namespace Common {
         return false;
     }
 
-    Size SizeF::round() const {
-        return Size((int) Math::round(width), (int) Math::round(height));
-    }
-
     const Size Size::Empty;
-    const Size Size::MinValue = Size(Int32::MinValue, Int32::MinValue);
-    const Size Size::MaxValue = Size(Int32::MaxValue, Int32::MaxValue);
+    const Size Size::MinValue = Size(INT32_MIN, INT32_MIN);
+    const Size Size::MaxValue = Size(INT32_MAX, INT32_MAX);
 
     Size::Size(int width, int height) {
         this->width = width;
@@ -86,6 +108,33 @@ namespace Common {
     Size::Size(const Size &size) {
         this->width = size.width;
         this->height = size.height;
+    }
+
+    Size::~Size() = default;
+
+    bool Size::equals(const Size &other) const {
+        return this->width == other.width && this->height == other.height;
+    }
+
+    void Size::evaluates(const Size &other) {
+        this->width = other.width;
+        this->height = other.height;
+    }
+
+    int Size::compareTo(const Size &other) const {
+        if (width != other.width) {
+            if (width > other.width) {
+                return 1;
+            }
+            return -1;
+        }
+        if (height != other.height) {
+            if (height > other.height) {
+                return 1;
+            }
+            return -1;
+        }
+        return 0;
     }
 
     bool Size::isEmpty() const {
@@ -101,17 +150,88 @@ namespace Common {
         return String::convert("%d,%d", width, height);
     }
 
-    void Size::operator=(const Size &value) {
+    Size &Size::operator=(const Size &value) {
         this->width = value.width;
         this->height = value.height;
+        return *this;
     }
 
-    bool Size::operator==(const Size &value) const {
-        return this->width == value.width && this->height == value.height;
+    Size Size::operator+=(const Size &other) {
+        *this = Size::add(*this, other);
+        return *this;
     }
 
-    bool Size::operator!=(const Size &value) const {
-        return !operator==(value);
+    Size Size::operator+(const Size &other) const {
+        return Size::add(*this, other);
+    }
+
+    Size Size::operator-=(const Size &other) {
+        *this = subtract(*this, other);
+        return *this;
+    }
+
+    Size Size::operator-(const Size &other) const {
+        return Size::subtract(*this, other);
+    }
+
+    Size Size::operator*=(float value) {
+        *this = Size::multiply(*this, value);
+        return *this;
+    }
+
+    Size Size::operator*(float value) const {
+        return Size::multiply(*this, value);
+    }
+
+    Size Size::operator*=(int value) {
+        *this = Size::multiply(*this, value);
+        return *this;
+    }
+
+    Size Size::operator*(int value) const {
+        return Size::multiply(*this, value);
+    }
+
+    Size Size::operator/=(float value) {
+        *this = Size::division(*this, value);
+        return *this;
+    }
+
+    Size Size::operator/(float value) const {
+        return Size::division(*this, value);
+    }
+
+    Size Size::operator/=(int value) {
+        *this = Size::division(*this, value);
+        return *this;
+    }
+
+    Size Size::operator/(int value) const {
+        return Size::division(*this, value);
+    }
+
+    void Size::add(const Size &size) {
+        *this = Size::add(*this, size);
+    }
+
+    void Size::subtract(const Size &size) {
+        *this = Size::subtract(*this, size);
+    }
+
+    void Size::multiply(float value) {
+        *this = Size::multiply(*this, value);
+    }
+
+    void Size::multiply(int value) {
+        *this = Size::multiply(*this, value);
+    }
+
+    void Size::division(float value) {
+        *this = Size::division(*this, value);
+    }
+
+    void Size::division(int value) {
+        *this = Size::division(*this, value);
     }
 
     bool Size::parse(const String &str, Size &size) {
@@ -126,5 +246,41 @@ namespace Common {
             }
         }
         return false;
+    }
+
+    Size Size::add(const Size &sz1, const Size &sz2) {
+        return Size(sz1.width + sz2.width, sz1.height + sz2.height);
+    }
+
+    Size Size::subtract(const Size &sz1, const Size &sz2) {
+        return Size(sz1.width - sz2.width, sz1.height - sz2.height);
+    }
+
+    Size Size::multiply(const Size& size, float value) {
+        return Size((int)Math::round((float)size.width * value), (int)Math::round((float)size.height * value));
+    }
+
+    Size Size::multiply(const Size& size, int value) {
+        return multiply(size, (float)(value));
+    }
+
+    Size Size::division(const Size& size, float value) {
+        return Size((int)Math::round((float)size.width / value), (int)Math::round((float)size.height / value));
+    }
+
+    Size Size::division(const Size& size, int value) {
+        return division(size, (float)(value));
+    }
+
+    Size Size::ceiling(const SizeF &size) {
+        return Size((int) Math::ceiling(size.width), (int) Math::ceiling(size.height));
+    }
+
+    Size Size::round(const SizeF &size) {
+        return Size((int) Math::round(size.width), (int) Math::round(size.height));
+    }
+
+    Size Size::truncate(const SizeF &size) {
+        return Size((int) size.width, (int) size.height);
     }
 }

@@ -23,12 +23,25 @@ namespace Common {
     class WString;
 
     class String
-            : public IEquatable<String>,
+            : public IEquatable<String>, public IEquatable<String, char *>, public IEquatable<String, string>,
+              public IComparable<String>, public IComparable<string>, public IComparable<char *>,
               public IEvaluation<String>,
-              public IComparable<String>,
               public IIndexable<char, char>,
               public Iterator<char> {
     public:
+        using IComparable<String>::operator>;
+        using IComparable<String>::operator>=;
+        using IComparable<String>::operator<;
+        using IComparable<String>::operator<=;
+        using IComparable<string>::operator>;
+        using IComparable<string>::operator>=;
+        using IComparable<string>::operator<;
+        using IComparable<string>::operator<=;
+        using IComparable<char *>::operator>;
+        using IComparable<char *>::operator>=;
+        using IComparable<char *>::operator<;
+        using IComparable<char *>::operator<=;
+
         enum Base64FormattingOptions {
             Base64None = 0,
             InsertLineBreaks = 1
@@ -44,7 +57,7 @@ namespace Common {
         static const String NA;     // Not applicable
 
         // Constructor & destructor
-        String(uint capacity = 256);
+        String(size_t capacity = 256);
 
         String(const String &value);
 
@@ -102,29 +115,19 @@ namespace Common {
 
         String toUpper() const;
 
-        String
-        trim(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-             const char trimChar4 = '\0');
-
-        String trimStart(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                         const char trimChar4 = '\0');
-
-        String trimEnd(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                       const char trimChar4 = '\0');
-
         bool contains(const String &str) const;
 
-        bool contains(const char ch) const;
+        bool contains(char ch) const;
 
-        void append(const char ch);
+        void append(char ch);
 
-        void append(const char *str, size_t count);
+        void append(const char *str, size_t count = 0);
 
         void append(const String &str);
 
         void append(const String &str, off_t offset, size_t count);
 
-        void appendLine(const char ch);
+        void appendLine(char ch);
 
         void appendLine(const char *str, size_t count);
 
@@ -140,24 +143,28 @@ namespace Common {
 
         String insert(off_t offset, const String &str);
 
-        String insert(off_t offset, const char ch);
+        String insert(off_t offset, char ch);
 
         bool removeAt(size_t pos);
 
         bool removeRange(size_t pos, size_t count);
 
-        String trim(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                    const char trimChar4 = '\0') const;
+        String trim(char trimChar1 = ' ', char trimChar2 = '\0', char trimChar3 = '\0',
+                    char trimChar4 = '\0') const;
 
-        String trimStart(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                         const char trimChar4 = '\0') const;
+        String trimStart(char trimChar1 = ' ', char trimChar2 = '\0', char trimChar3 = '\0',
+                         char trimChar4 = '\0') const;
 
-        String trimEnd(const char trimChar1 = ' ', const char trimChar2 = '\0', const char trimChar3 = '\0',
-                       const char trimChar4 = '\0') const;
+        String trimEnd(char trimChar1 = ' ', char trimChar2 = '\0', char trimChar3 = '\0',
+                       char trimChar4 = '\0') const;
 
         void empty();
 
         bool equals(const String &other) const override;
+
+        bool equals(const char *other) const override;
+
+        bool equals(const string &other) const override;
 
         void evaluates(const String &other) override;
 
@@ -165,19 +172,27 @@ namespace Common {
 
         int compareTo(const String &other, bool ignoreCase) const;
 
+        int compareTo(const string &other) const override;
+
+        int compareTo(const string &other, bool ignoreCase) const;
+
+        int compareTo(const char *other) const override;
+
+        int compareTo(const char *other, bool ignoreCase) const;
+
         // Find
         ssize_t find(const String &str, off_t offset = 0) const;
 
-        ssize_t find(const char ch, off_t offset = 0) const;
+        ssize_t find(char ch, off_t offset = 0) const;
 
         ssize_t findLastOf(const String &str) const;
 
-        ssize_t findLastOf(const char ch) const;
+        ssize_t findLastOf(char ch) const;
 
         // Operator.
         operator const char *() const;
 
-        operator const WString() const;
+        operator WString() const;
 
         String operator+=(const String &value);
 
@@ -196,42 +211,6 @@ namespace Common {
         String &operator=(const string &value);
 
         String &operator=(const char *value);
-
-        bool operator==(const String &value) const;
-
-        bool operator==(const char *value) const;
-
-        bool operator==(const string &value) const;
-
-        bool operator!=(const String &value) const;
-
-        bool operator!=(const char *value) const;
-
-        bool operator!=(const string &value) const;
-
-        bool operator>(const String &value) const;
-
-        bool operator>(const string &value) const;
-
-        bool operator>(const char *value) const;
-
-        bool operator>=(const String &value) const;
-
-        bool operator>=(const string &value) const;
-
-        bool operator>=(const char *value) const;
-
-        bool operator<(const String &value) const;
-
-        bool operator<(const string &value) const;
-
-        bool operator<(const char *value) const;
-
-        bool operator<=(const String &value) const;
-
-        bool operator<=(const string &value) const;
-
-        bool operator<=(const char *value) const;
 
         // Stream
         void write(Stream *stream, StreamLength streamLength = StreamLength1) const;
@@ -258,6 +237,10 @@ namespace Common {
         static bool equals(const String &value1, const String &value2, bool ignoreCase = false);
 
         static int compare(const String &value1, const String &value2, bool ignoreCase = false);
+
+        static int compare(const String &value1, const string &value2, bool ignoreCase = false);
+
+        static int compare(const String &value1, const char *value2, bool ignoreCase = false);
 
         static String GBKtoUTF8(const String &value);
 
@@ -288,16 +271,16 @@ namespace Common {
         static String substr(const String &str, off_t offset, size_t count);
 
         static String
-        trim(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-             const char trimChar4 = '\0');
+        trim(const String &str, char trimChar1, char trimChar2 = '\0', char trimChar3 = '\0',
+             char trimChar4 = '\0');
 
         static String
-        trimStart(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-                  const char trimChar4 = '\0');
+        trimStart(const String &str, char trimChar1, char trimChar2 = '\0', char trimChar3 = '\0',
+                  char trimChar4 = '\0');
 
         static String
-        trimEnd(const String &str, const char trimChar1, const char trimChar2 = '\0', const char trimChar3 = '\0',
-                const char trimChar4 = '\0');
+        trimEnd(const String &str, char trimChar1, char trimChar2 = '\0', char trimChar3 = '\0',
+                char trimChar4 = '\0');
 
         static bool isUTF8(const String &str);
 
@@ -306,19 +289,11 @@ namespace Common {
         static String unicode2String(const String &unicode);
 
     private:
-        void setString(const char *value);
+        void setString(const String &value);
 
-        void setString(const char *value, size_t count);
+        void setString(const char *value, size_t count = 0);
 
-        void setString(const string &value);
-
-        void setString(char value);
-
-        void addString(const char *value);
-
-        void addString(const char *value, size_t count);
-
-        void addString(const string &value);
+        void addString(const char *value, size_t count = 0);
 
         void addString(char value);
 
@@ -350,7 +325,7 @@ namespace Common {
         Vector<char> _buffer;
 
         static const char base64Table[65];
-        static const int base64LineBreakPosition = 76;
+        static const size_t base64LineBreakPosition = 76;
         static const int MaxFormatStrLength = 65535;
     };
 }

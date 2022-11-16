@@ -25,8 +25,7 @@ namespace Common {
         TKey key;
         TValue value;
 
-        KeyValuePair() {
-        }
+        KeyValuePair() = default;
 
         KeyValuePair(const TKey &key, const TValue &value) : key(key), value(value) {
         }
@@ -76,8 +75,7 @@ namespace Common {
         typedef ValueType &Reference;
         typedef const ValueType &ConstReference;
 
-        explicit Dictionary() {
-        }
+        explicit Dictionary() = default;
 
         Dictionary(const Dictionary &other) : _map(other._map) {
         }
@@ -148,7 +146,7 @@ namespace Common {
             return _map.empty();
         }
 
-        inline bool at(const TKey &key, TValue &value) const {
+        virtual inline bool at(const TKey &key, TValue &value) const {
             auto it = _map.find(key);
             if (it != _map.end()) {
                 value = it->second;
@@ -158,7 +156,7 @@ namespace Common {
             }
         }
 
-        inline TValue &at(const TKey &key) {
+        virtual inline TValue &at(const TKey &key) {
             if (contains(key)) {
                 return _map.at(key);
             } else {
@@ -167,7 +165,7 @@ namespace Common {
             }
         }
 
-        inline const TValue &at(const TKey &key) const {
+        virtual inline const TValue &at(const TKey &key) const {
             if (contains(key)) {
                 return _map.at(key);
             } else {

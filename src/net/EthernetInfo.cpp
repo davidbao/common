@@ -10,7 +10,7 @@
 #include "data/StringArray.h"
 #include "data/Convert.h"
 
-namespace Common
+namespace Net
 {
     Timeout::Timeout() : send(0, 0, 3), receive(0, 0, 3), open(0, 0, 3), close(0, 0, 3)
     {

@@ -182,7 +182,7 @@ bool testAt() {
         return false;
     }
     const String &v2 = test[200];
-    if (v2 != nullptr) {
+    if (!v2.isNullOrEmpty()) {
         return false;
     }
     const String &v3 = test.at(99);
@@ -190,7 +190,7 @@ bool testAt() {
         return false;
     }
     const String &v4 = test.at(200);
-    if (v4 != nullptr) {
+    if (!v4.isNullOrEmpty()) {
         return false;
     }
     return true;

@@ -65,7 +65,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
-namespace Common
+namespace Net
 {
     static struct InitializeTcpClient {
         InitializeTcpClient() {

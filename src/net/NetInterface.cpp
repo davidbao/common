@@ -74,7 +74,7 @@
 #define SUPPORT_IP6
 #endif
 
-namespace Common {
+namespace Net {
     String NetInterface::Client::stateStr() const {
         return NetInterface::toClientStateStr(state);
     }

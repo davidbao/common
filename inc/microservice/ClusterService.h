@@ -275,7 +275,7 @@ namespace Microservice
         Timer* _sendTimer;
         int _maxPacketCount;
         Mutex _senderContextsMutex;
-        LoopVector<ClusterContext> _senderContexts;
+        LoopPList<ClusterContext> _senderContexts;
     };
 }
 

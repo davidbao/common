@@ -1,64 +1,57 @@
 //
-//  Mutex.h
+//  Mutex.cpp
 //  common
 //
 //  Created by baowei on 2018/12/8.
 //  Copyright © 2018 com. All rights reserved.
 //
 
-
 #include "thread/Mutex.h"
 
-namespace Common
-{
-    IMutex::IMutex()
-    {
-    }
-    IMutex::~IMutex()
-    {
+namespace Common {
+    IMutex::IMutex() {
     }
 
-    Mutex::Mutex()
-    {
+    IMutex::~IMutex() {
+    }
+
+    Mutex::Mutex() {
         _mutex = new mutex();
     }
-    Mutex::~Mutex()
-    {
+
+    Mutex::~Mutex() {
         delete _mutex;
     }
 
-    void Mutex::lock()
-    {
+    void Mutex::lock() {
         _mutex->lock();
     }
-    bool Mutex::tryLock()
-    {
+
+    bool Mutex::tryLock() {
         return _mutex->try_lock();
     }
-    void Mutex::unlock()
-    {
+
+    void Mutex::unlock() {
         _mutex->unlock();
     }
 
-    RecursiveMutex::RecursiveMutex()
-    {
+    RecursiveMutex::RecursiveMutex() {
         _mutex = new recursive_mutex();
     }
-    RecursiveMutex::~RecursiveMutex()
-    {
+
+    RecursiveMutex::~RecursiveMutex() {
         delete _mutex;
     }
 
-    void RecursiveMutex::lock()
-    {
+    void RecursiveMutex::lock() {
         _mutex->lock();
     }
-    bool RecursiveMutex::tryLock()
-    {
+
+    bool RecursiveMutex::tryLock() {
         return _mutex->try_lock();
     }
-    void RecursiveMutex::unlock()
-    {
+
+    void RecursiveMutex::unlock() {
         _mutex->unlock();
     }
 }

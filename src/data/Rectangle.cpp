@@ -1,8 +1,16 @@
+//
+//  Rectangle.cpp
+//  common
+//
+//  Created by baowei on 2016/9/6.
+//  Copyright © 2016 com. All rights reserved.
+//
+
 #include "data/Rectangle.h"
 #include "system/Math.h"
 #include "data/Convert.h"
 
-namespace Common {
+namespace Drawing {
     const RectangleF RectangleF::Empty;
     const RectangleF RectangleF::MaxValue = RectangleF(-65535.0f, -65535.0f, 65535.0f * 2.0f, 65535.0f * 2.0f);
 
@@ -13,7 +21,7 @@ namespace Common {
         this->height = height;
     }
 
-    RectangleF::RectangleF(PointF location, SizeF size) {
+    RectangleF::RectangleF(const PointF& location, const SizeF& size) {
         this->x = location.x;
         this->y = location.y;
         this->width = size.width;
@@ -89,11 +97,12 @@ namespace Common {
         return PointF(right(), bottom());
     }
 
-    void RectangleF::operator=(const RectangleF &value) {
+    RectangleF &RectangleF::operator=(const RectangleF &value) {
         this->x = value.x;
         this->y = value.y;
         this->width = value.width;
         this->height = value.height;
+        return *this;
     }
 
     bool RectangleF::operator==(const RectangleF &value) const {
@@ -240,7 +249,7 @@ namespace Common {
         this->height = height;
     }
 
-    Rectangle::Rectangle(Point location, Size size) {
+    Rectangle::Rectangle(const Point& location, const Size& size) {
         this->x = location.x;
         this->y = location.y;
         this->width = size.width;
@@ -296,11 +305,12 @@ namespace Common {
         return y + height;
     }
 
-    void Rectangle::operator=(const Rectangle &value) {
+    Rectangle &Rectangle::operator=(const Rectangle &value) {
         this->x = value.x;
         this->y = value.y;
         this->width = value.width;
         this->height = value.height;
+        return *this;
     }
 
     bool Rectangle::operator==(const Rectangle &value) const {

@@ -1,7 +1,7 @@
 #ifndef ESCAPEOPTION_H
 #define ESCAPEOPTION_H
 
-namespace Common
+namespace Net
 {
 	struct EscapeOption
 	{

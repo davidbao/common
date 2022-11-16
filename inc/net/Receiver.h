@@ -5,7 +5,9 @@
 #include "data/TimeSpan.h"
 #include "EscapeOption.h"
 
-namespace Common
+using namespace Common;
+
+namespace Net
 {
 	class Receiver
 	{

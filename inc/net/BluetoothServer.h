@@ -1,7 +1,7 @@
 #ifndef BLUETOOTHSERVER_H
 #define BLUETOOTHSERVER_H
 
-namespace Drivers
+namespace Net
 {
 	class BluetoothServer
 	{

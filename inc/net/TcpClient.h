@@ -12,12 +12,12 @@
 #include "data/ValueType.h"
 #include "data/ByteArray.h"
 #include "data/TimeSpan.h"
-#include "data/NetType.h"
+#include "net/NetType.h"
 #include "net/Sender.h"
 #include "net/Receiver.h"
 #include "thread/Mutex.h"
 
-namespace Common
+namespace Net
 {
     class TcpClient : public Sender, public Receiver
 	{

@@ -72,13 +72,13 @@ namespace Drivers
             return 0;
     }
 
-    InstructionPool::LoopInstructions::LoopInstructions(int maxLength, bool autoDelete, bool hasPriority) : LoopVector<Packet>(maxLength, autoDelete)
+    InstructionPool::LoopInstructions::LoopInstructions(int maxLength, bool autoDelete, bool hasPriority) : LoopPList<Packet>(maxLength, autoDelete)
     {
         _hasPriority = hasPriority;
     }
     void InstructionPool::LoopInstructions::copyTo(Packet** value)
     {
-        LoopVector<Packet>::copyTo(value);
+        LoopPList<Packet>::copyTo(value);
         if(_hasPriority)    // sort by priority
         {
             size_t c = count();

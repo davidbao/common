@@ -17,7 +17,7 @@
 #include <sys/time.h>
 #endif
 
-namespace Common
+namespace Net
 {
     RedisClient::ConnectOptions::ConnectOptions()
     {

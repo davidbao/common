@@ -20,6 +20,8 @@
 #include "system/Application.h"
 #include "system/Environment.h"
 
+using namespace Net;
+
 namespace Microservice {
     bool IConfigService::contains(const String &key) const {
         return properties().contains(key);

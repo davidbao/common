@@ -174,14 +174,14 @@ namespace Communication
     {
         stream->writeUInt32(fileLength);
         stream->write(filemd5, 0, MD5_COUNT);
-        stream->writeStr(file_name, 1);
+        stream->writeStr(file_name, String::StreamLength1);
         stream->writeUInt32(packetCount);
     }
     void FileHeader::read(Stream* stream)
     {
         fileLength = stream->readUInt32();
         stream->read(filemd5, 0, MD5_COUNT);
-        file_name = stream->readStr(1);
+        file_name = stream->readStr(String::StreamLength1);
         packetCount = stream->readUInt32();
     }
     void FileHeader::copyFrom(const FileHeader* obj)

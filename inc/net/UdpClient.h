@@ -1,48 +1,56 @@
-/*
- * UdpClient.h
- *
- *  Created on: May 15, 2014
- *      Author: baowei
- */
+//
+//  UdpClient.h
+//  common
+//
+//  Created by baowei on 2014/5/15.
+//  Copyright © 2014 com. All rights reserved.
+//
 
-#ifndef UDPCLIENT_H_
-#define UDPCLIENT_H_
+#ifndef UdpClient_h
+#define UdpClient_h
 
 #include "data/ValueType.h"
 #include "data/PList.h"
 
-namespace Common
-{
-	class UdpClient
-	{
-	public:
-		UdpClient();
-		virtual ~UdpClient();
+using namespace Common;
 
-		bool open(const char* host, const ushort port);
-		bool open(const ushort port);
-		void close();
+namespace Net {
+    class UdpClient {
+    public:
+        UdpClient();
 
-		ssize_t write(const char* host, const ushort port, const uint8_t *data, size_t count);
-		ssize_t write(const ushort port, const uint8_t *data, size_t count);
-        ssize_t write(const ushort port, const ByteArray& buffer);
+        virtual ~UdpClient();
+
+        bool open(const String &host, uint16_t port);
+
+        bool open(uint16_t port);
+
+        void close();
+
+        ssize_t write(const String &host, uint16_t port, const uint8_t *data, size_t count);
+
+        ssize_t write(uint16_t port, const uint8_t *data, size_t count);
+
+        ssize_t write(uint16_t port, const ByteArray &buffer);
 
         int sendBufferSize() const;
-		void setSendBufferSize(int bufferSize);
-        
+
+        void setSendBufferSize(int bufferSize);
+
         bool setBlocking(bool blocking = false);
-        
+
     private:
-        bool isBroadcast(const char* host) const;
-        
+        bool isBroadcast(const String &host) const;
+
     public:
         static const int MaxSendBufferSize = 65535;
 
-	private:
-		int _socket;
-	};
+    private:
+        int _socket;
+    };
+
     typedef PList<UdpClient> UdpClients;
 
-} /* namespace Drivers */
+}
 
-#endif /* UDPCLIENT_H_ */
+#endif // UdpClient_h

@@ -258,11 +258,11 @@ namespace Common
 		_build = stream->readInt16(bigEndian);
 		_revision = stream->readInt16(bigEndian);
         
-        if(_minor == Int16::MaxValue)
+        if((int16_t)_minor == Int16::MaxValue)
             _minor = -1;
-        if(_build == Int16::MaxValue)
+        if((int16_t)_build == Int16::MaxValue)
             _build = -1;
-        if(_revision == Int16::MaxValue)
+        if((int16_t)_revision == Int16::MaxValue)
             _revision = -1;
 	}
 	void Version::writeBCDInt16(Stream* stream) const
@@ -279,11 +279,11 @@ namespace Common
 		_build = stream->readBCDInt16();
 		_revision = stream->readBCDInt16();
         
-        if(_minor == Int16::MaxValue)
+        if((int16_t)_minor == Int16::MaxValue)
             _minor = -1;
-        if(_build == Int16::MaxValue)
+        if((int16_t)_build == Int16::MaxValue)
             _build = -1;
-        if(_revision == Int16::MaxValue)
+        if((int16_t)_revision == Int16::MaxValue)
             _revision = -1;
 	}
 	void Version::writeBCDByte(Stream* stream) const
@@ -300,11 +300,11 @@ namespace Common
 		_build = stream->readBCDByte();
 		_revision = stream->readBCDByte();
         
-        if(_minor == Byte::MaxValue)
+        if((uint8_t)_minor == Byte::MaxValue)
             _minor = -1;
-        if(_build == Byte::MaxValue)
+        if((uint8_t)_build == Byte::MaxValue)
             _build = -1;
-        if(_revision == Byte::MaxValue)
+        if((uint8_t)_revision == Byte::MaxValue)
             _revision = -1;
 	}
     void Version::writeByte(Stream* stream) const
@@ -321,11 +321,11 @@ namespace Common
         _build = stream->readByte();
         _revision = stream->readByte();
         
-        if(_minor == Byte::MaxValue)
+        if((uint8_t)_minor == Byte::MaxValue)
             _minor = -1;
-        if(_build == Byte::MaxValue)
+        if((uint8_t)_build == Byte::MaxValue)
             _build = -1;
-        if(_revision == Byte::MaxValue)
+        if((uint8_t)_revision == Byte::MaxValue)
             _revision = -1;
     }
     void Version::write(Stream* stream) const
