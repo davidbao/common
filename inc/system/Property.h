@@ -69,21 +69,21 @@ namespace Common
         Property();
         Property(const Property& property);
         
-        Property(uint ownerId, const String& name, bool value);
-        Property(uint ownerId, const String& name, char value);
-        Property(uint ownerId, const String& name, uint8_t value);
-        Property(uint ownerId, const String& name, short value);
-        Property(uint ownerId, const String& name, ushort value);
-        Property(uint ownerId, const String& name, int value);
-        Property(uint ownerId, const String& name, uint value);
-        Property(uint ownerId, const String& name, int64_t value);
-        Property(uint ownerId, const String& name, uint64_t value);
-        Property(uint ownerId, const String& name, float value);
-        Property(uint ownerId, const String& name, double value);
-        Property(uint ownerId, const String& name, const String& value);
-        Property(uint ownerId, const String& name, const DateTime& value);
-        Property(uint ownerId, const String& name, const TimeSpan& value);
-        Property(uint ownerId, const String& name, const Value& value);
+        Property(uint32_t ownerId, const String& name, bool value);
+        Property(uint32_t ownerId, const String& name, char value);
+        Property(uint32_t ownerId, const String& name, uint8_t value);
+        Property(uint32_t ownerId, const String& name, short value);
+        Property(uint32_t ownerId, const String& name, uint16_t value);
+        Property(uint32_t ownerId, const String& name, int value);
+        Property(uint32_t ownerId, const String& name, uint32_t value);
+        Property(uint32_t ownerId, const String& name, int64_t value);
+        Property(uint32_t ownerId, const String& name, uint64_t value);
+        Property(uint32_t ownerId, const String& name, float value);
+        Property(uint32_t ownerId, const String& name, double value);
+        Property(uint32_t ownerId, const String& name, const String& value);
+        Property(uint32_t ownerId, const String& name, const DateTime& value);
+        Property(uint32_t ownerId, const String& name, const TimeSpan& value);
+        Property(uint32_t ownerId, const String& name, const Value& value);
         ~Property();
         
         void operator=(const Property& property);
@@ -98,14 +98,14 @@ namespace Common
         
         const String toString() const;
         
-        uint ownerId;
+        uint32_t ownerId;
         String name;
         Type type;
         FixedValue value;
         
     private:
-        Property(uint ownerId, const String& name, Type type);
-        Property(uint ownerId, const String& name, Type type, const FixedValue& value);
+        Property(uint32_t ownerId, const String& name, Type type);
+        Property(uint32_t ownerId, const String& name, Type type, const FixedValue& value);
         
         void setValue(Type type, const FixedValue& value);
         
@@ -131,21 +131,21 @@ namespace Common
     protected:
         void propertyChanged(const Property& property);
         
-        void propertyChanged(uint ownerId, const String& propName, bool value);
-        void propertyChanged(uint ownerId, const String& propName, char value);
-        void propertyChanged(uint ownerId, const String& propName, uint8_t value);
-        void propertyChanged(uint ownerId, const String& propName, short value);
-        void propertyChanged(uint ownerId, const String& propName, ushort value);
-        void propertyChanged(uint ownerId, const String& propName, int value);
-        void propertyChanged(uint ownerId, const String& propName, uint value);
-        void propertyChanged(uint ownerId, const String& propName, int64_t value);
-        void propertyChanged(uint ownerId, const String& propName, uint64_t value);
-        void propertyChanged(uint ownerId, const String& propName, float value);
-        void propertyChanged(uint ownerId, const String& propName, double value);
-        void propertyChanged(uint ownerId, const String& propName, const String& value);
-        void propertyChanged(uint ownerId, const String& propName, const DateTime& value);
-        void propertyChanged(uint ownerId, const String& propName, const TimeSpan& value);
-        void propertyChanged(uint ownerId, const String& propName, const Property::Value& value);
+        void propertyChanged(uint32_t ownerId, const String& propName, bool value);
+        void propertyChanged(uint32_t ownerId, const String& propName, char value);
+        void propertyChanged(uint32_t ownerId, const String& propName, uint8_t value);
+        void propertyChanged(uint32_t ownerId, const String& propName, short value);
+        void propertyChanged(uint32_t ownerId, const String& propName, uint16_t value);
+        void propertyChanged(uint32_t ownerId, const String& propName, int value);
+        void propertyChanged(uint32_t ownerId, const String& propName, uint32_t value);
+        void propertyChanged(uint32_t ownerId, const String& propName, int64_t value);
+        void propertyChanged(uint32_t ownerId, const String& propName, uint64_t value);
+        void propertyChanged(uint32_t ownerId, const String& propName, float value);
+        void propertyChanged(uint32_t ownerId, const String& propName, double value);
+        void propertyChanged(uint32_t ownerId, const String& propName, const String& value);
+        void propertyChanged(uint32_t ownerId, const String& propName, const DateTime& value);
+        void propertyChanged(uint32_t ownerId, const String& propName, const TimeSpan& value);
+        void propertyChanged(uint32_t ownerId, const String& propName, const Property::Value& value);
         
     protected:
         Delegates _propertyChangedDelegates;

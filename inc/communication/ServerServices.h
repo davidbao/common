@@ -122,7 +122,7 @@ namespace Communication
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 if(!ss->sendAsync<T, C>(endpoints, inputData, name))
@@ -137,7 +137,7 @@ namespace Communication
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 if(!ss->sendAsyncAll<T, C>(inputData, name))
@@ -165,7 +165,7 @@ namespace Communication
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 if(!ss->sendAsyncWithoutClient<T, C>(endpoints, inputData, name))
@@ -194,7 +194,7 @@ namespace Communication
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 if(!ss->sendSync<T, K, C>(endpoints, inputData, outputData, name))
@@ -218,7 +218,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     K* newData = data.clone();
                     ServerService* ss = services[i];
@@ -244,7 +244,7 @@ namespace Communication
         {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 K* newData = data.clone();
                 services[i]->addPacketSenderWithoutClient<T, K, C>(name, newData, peerEndpoint);
@@ -260,7 +260,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     ServerService* ss = services[i];
                     ss->startPacketSender<T, K, C>(name, interval, packetCount);
@@ -287,7 +287,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     ServerService* ss = services[i];
                     ss->startPacketSyncSender<T, K, C>(failedAction, owner, name, interval, packetCount);
@@ -311,7 +311,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     ServerService* ss = services[i];
                     ss->startPacketSyncSender<T, K, C>(name, interval, packetCount);
@@ -337,7 +337,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     K* newData = data.clone();
                     ServerService* ss = services[i];
@@ -365,7 +365,7 @@ namespace Communication
             {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint i=0; i<services.count(); i++)
+                for (uint32_t i=0; i<services.count(); i++)
                 {
                     T* newData = data.clone();
                     ServerService* ss = services[i];
@@ -391,7 +391,7 @@ namespace Communication
         {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 K* newData = data.clone();
                 services[i]->addPacketSyncSenderWithoutClient<T, K, C>(name, newData, peerEndpoint);
@@ -421,7 +421,7 @@ namespace Communication
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 if(!ss->sendVectorAsync<T, C>(endpoints, inputData, packetCount, name))
@@ -431,7 +431,7 @@ namespace Communication
         }
         // T is input data, P is item of T, C is context.
         template<class T, class P, class C>
-        void uploadPacketAsync(const Endpoint& endpoint, const T& inputData, const String& name, uint packetLength = 1 * 1024 * 1024) const
+        void uploadPacketAsync(const Endpoint& endpoint, const T& inputData, const String& name, uint32_t packetLength = 1 * 1024 * 1024) const
         {
             ServerService* ss = getService(endpoint);
             if(ss != nullptr)

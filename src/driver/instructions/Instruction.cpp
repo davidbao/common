@@ -46,27 +46,27 @@ namespace Drivers {
         return _exception != nullptr;
     }
 
-    void InstructionContext::setTimeStamp(uint stamp) {
+    void InstructionContext::setTimeStamp(uint32_t stamp) {
         _timestamp = stamp;
     }
 
-    uint InstructionContext::getTimeStamp() const {
+    uint32_t InstructionContext::getTimeStamp() const {
         return _timestamp;
     }
 
-    void InstructionContext::setQualityStamp(ushort stamp) {
+    void InstructionContext::setQualityStamp(uint16_t stamp) {
         _qualitystamp = stamp;
     }
 
-    ushort InstructionContext::getQualityStamp() const {
+    uint16_t InstructionContext::getQualityStamp() const {
         return _qualitystamp;
     }
 
-    uint InstructionContext::receiveTimeout() const {
+    uint32_t InstructionContext::receiveTimeout() const {
         return _receiveTimeout;
     }
 
-    void InstructionContext::setReceiveTimeout(uint timeout) {
+    void InstructionContext::setReceiveTimeout(uint32_t timeout) {
         _receiveTimeout = timeout;
     }
 
@@ -127,7 +127,7 @@ namespace Drivers {
         return _context->allowExecution();
     }
 
-    Instruction::LogContext::LogContext(bool allowInformation, bool allowMessage, uint logLength) : allowInformation(
+    Instruction::LogContext::LogContext(bool allowInformation, bool allowMessage, uint32_t logLength) : allowInformation(
             allowInformation), allowMessage(allowMessage), _logLength(logLength) {
     }
 
@@ -150,11 +150,11 @@ namespace Drivers {
         _logLength = other._logLength;
     }
 
-    uint Instruction::LogContext::logLength() const {
+    uint32_t Instruction::LogContext::logLength() const {
         return _logLength;
     }
 
-    void Instruction::LogContext::setLogLength(uint length) {
+    void Instruction::LogContext::setLogLength(uint32_t length) {
         if (length >= MinLogLength && length <= MaxLogLength) {
             _logLength = length;
         }
@@ -290,7 +290,7 @@ namespace Drivers {
         return nullptr;
     }
 
-    Instructions::Instructions(bool autoDelete, uint capacity) : PList<Instruction>(autoDelete, capacity) {
+    Instructions::Instructions(bool autoDelete, uint32_t capacity) : PList<Instruction>(autoDelete, capacity) {
     }
 
     void Instructions::setReceiveInstruction(Instructions *instructions) {

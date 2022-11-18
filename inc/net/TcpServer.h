@@ -33,10 +33,10 @@ namespace Net
         void setReceiveBufferSize(int bufferSize);
         
         int sendTimeout() const;
-        void setSendTimeout(uint timeout);
+        void setSendTimeout(uint32_t timeout);
         void setSendTimeout(const TimeSpan& timeout);
         int receiveTimeout() const;
-        void setReceiveTimeout(uint timeout);
+        void setReceiveTimeout(uint32_t timeout);
         void setReceiveTimeout(const TimeSpan& timeout);
         
         bool noDelay() const;

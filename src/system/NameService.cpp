@@ -54,7 +54,7 @@ namespace Common
         if(!(Char::isLetter(ch) || ch == '_'))
             return false;
         
-        for (uint i = 0; i < name.length(); i++)
+        for (uint32_t i = 0; i < name.length(); i++)
         {
             if (!Char::isLetterOrDigit(name[i]) && name[i] != '_')
                 return false;
@@ -62,8 +62,8 @@ namespace Common
         
         static const char* Keywords[] = {
             "class", "struct", "int", "const", "for", "while", "if", "else",
-            "throw", "long", "size_t", "uint", "bool", "string", "short",
-            "ushort", "char", "uint8_t", "int64_t", "uint64_t",
+            "throw", "long", "size_t", "uint32_t", "bool", "string", "short",
+            "uint16_t", "char", "uint8_t", "int64_t", "uint64_t",
             nullptr
         };
 

@@ -34,7 +34,7 @@ namespace Common
         return true;
     }
 
-    bool SHAProvider::computeHash(const uint8_t* src, uint length, ByteArray& output, KeySize size)
+    bool SHAProvider::computeHash(const uint8_t* src, uint32_t length, ByteArray& output, KeySize size)
     {
         if(size == KeySize::Key1)
         {

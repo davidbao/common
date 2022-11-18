@@ -443,7 +443,7 @@ namespace Common {
         memset(buffer, 0, len);
         stream->read(buffer, 0, len);
         bool isNull = true;
-        for (uint i = 0; i < sizeof(buffer); i++) {
+        for (uint32_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;
@@ -499,7 +499,7 @@ namespace Common {
         memset(buffer, 0, sizeof(buffer));
         stream->read(buffer, 0, sizeof(buffer));
         bool isNull = true;
-        for (uint i = 0; i < sizeof(buffer); i++) {
+        for (uint32_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;
@@ -539,7 +539,7 @@ namespace Common {
         memset(buffer, 0, sizeof(buffer));
         stream->read(buffer, 0, sizeof(buffer));
         bool isNull = true;
-        for (uint i = 0; i < sizeof(buffer); i++) {
+        for (uint32_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;
@@ -780,7 +780,7 @@ namespace Common {
         return addMonths(value * 12);
     }
 
-    uint DateTime::subtract(DateTime prev, Resolutions tr) const {
+    uint32_t DateTime::subtract(DateTime prev, Resolutions tr) const {
         DateTime value = *this;
         if (value < prev) {
 //            throw ArgumentException("value must be greater than prev", "prevTime");
@@ -792,19 +792,19 @@ namespace Common {
             return 0;
         }
 
-        uint time = 0;
+        uint32_t time = 0;
         switch (tr) {
             case Resolutions::ResMillisecond:
-                time = (uint) (value - prev).totalMilliseconds();
+                time = (uint32_t) (value - prev).totalMilliseconds();
                 break;
             case Resolutions::ResSecond:
-                time = (uint) (value - prev).totalSeconds();
+                time = (uint32_t) (value - prev).totalSeconds();
                 break;
             case Resolutions::ResMinute:
-                time = (uint) (value - prev).totalMinutes();
+                time = (uint32_t) (value - prev).totalMinutes();
                 break;
             case Resolutions::ResHour:
-                time = (uint) (value - prev).totalHours();
+                time = (uint32_t) (value - prev).totalHours();
                 break;
             default:
                 assert(false);
@@ -813,7 +813,7 @@ namespace Common {
         return time;
     }
 
-    DateTime DateTime::add(uint time, Resolutions tr) const {
+    DateTime DateTime::add(uint32_t time, Resolutions tr) const {
         DateTime value = *this;
         if (tr == Resolutions::ResNone) {
             throw ArgumentException("Resolutions must not be equal to None", "tr");

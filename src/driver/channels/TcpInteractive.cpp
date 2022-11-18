@@ -59,7 +59,7 @@ namespace Drivers
 #ifdef DEBUG
         Stopwatch sw("TcpMultiPlexingReceiver::Clients::remove", 3000);
 #endif
-        for (uint i=0; i<_clients.count(); i++)
+        for (uint32_t i=0; i<_clients.count(); i++)
         {
             Client* temp = _clients[i];
             if(temp->tcpClient() == client)
@@ -103,7 +103,7 @@ namespace Drivers
     
     TcpMultiPlexingReceiver::Client* TcpMultiPlexingReceiver::Clients::at(int socketId) const
     {
-        for (uint i=0; i<_clients.count(); i++)
+        for (uint32_t i=0; i<_clients.count(); i++)
         {
             Client* client = _clients[i];
             if(client->socketId() == socketId)
@@ -256,7 +256,7 @@ namespace Drivers
         _multiplexingLoop = true;
 //        static const TimeSpan timeout = TimeSpan::fromMilliseconds(100);
 //        struct timespec ts;
-//        uint waitms = (uint)timeout.totalMilliseconds();
+//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
 //        ts.tv_sec = waitms / 1000;
 //        ts.tv_nsec = (waitms % 1000) * 1000 * 1000;
         struct kevent* eventlist = new struct kevent[maxCount];
@@ -325,7 +325,7 @@ namespace Drivers
             {
                 const struct epoll_event& event = eventlist[i];
                 int sockfd = event.data.fd;
-                uint events = event.events;
+                uint32_t events = event.events;
                 
                 if(sockfd == _exitSockets[1])
                 {

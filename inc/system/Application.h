@@ -94,7 +94,7 @@ namespace Common
         TraceListeners _traceListeners;
         Culture _culture;
         
-        uint _startTime;
+        uint32_t _startTime;
         
     private:
         int _exitCode;

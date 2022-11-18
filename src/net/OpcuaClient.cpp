@@ -549,7 +549,7 @@ namespace Net
             UA_Client_DataChangeNotificationCallback* callbacks = new UA_Client_DataChangeNotificationCallback[count];
             UA_Client_DeleteMonitoredItemCallback* deleteCallbacks = new UA_Client_DeleteMonitoredItemCallback[count];
             Subscription** contexts = new Subscription*[count];
-            for(uint i=0;i<count;i++)
+            for(uint32_t i=0;i<count;i++)
             {
                 const OpcuaNodeId* nodeId = nodeIds[i];
                 if(nodeId->type == OpcuaNodeId::NumericType) {
@@ -573,7 +573,7 @@ namespace Net
             {
                 Trace::info(String::format("Monitoring count'%d'.", monResponse.resultsSize));
                 
-                for(uint i=0;i<monResponse.resultsSize;i++)
+                for(uint32_t i=0;i<monResponse.resultsSize;i++)
                 {
                     const UA_MonitoredItemCreateResult& result = monResponse.results[i];
                     Subscription* s = contexts[i];
@@ -593,7 +593,7 @@ namespace Net
                 delete[] items;
                 delete[] callbacks;
                 delete[] deleteCallbacks;
-                for(uint i=0;i<count;i++)
+                for(uint32_t i=0;i<count;i++)
                 {
                     delete contexts[i];
                 }
@@ -629,7 +629,7 @@ namespace Net
         Locker locker(&_subscriptionMutex);
         
         Trace::info(String::format("unsubscribe, count: %d", _subscriptionIds.count()));
-        for (uint i=0; i<_subscriptionIds.count(); i++)
+        for (uint32_t i=0; i<_subscriptionIds.count(); i++)
         {
             SubscriptionId* id = _subscriptionIds[i];
             uint32_t subscriptionId = id->subscriptionId;
@@ -641,7 +641,7 @@ namespace Net
             deleteRequest.subscriptionId = subscriptionId;
             deleteRequest.monitoredItemIds = newMonitoredItemIds;
             deleteRequest.monitoredItemIdsSize = subscriptions.count();
-            for (uint i=0; i<subscriptions.count(); i++)
+            for (uint32_t i=0; i<subscriptions.count(); i++)
             {
                 newMonitoredItemIds[i] = subscriptions[i]->monitoredItemId;
             }
@@ -791,7 +791,7 @@ namespace Net
 
         size_t count = browsePaths.count();
         UA_BrowsePath* bps = new UA_BrowsePath[count];
-        for(uint i=0;i<count;i++) {
+        for(uint32_t i=0;i<count;i++) {
             const String& path = browsePaths[i];
             Debug::writeFormatLine("opcua.translate, path: %s", path.c_str());
             
@@ -805,7 +805,7 @@ namespace Net
             browsePath.relativePath.elements = (UA_RelativePathElement*)UA_Array_new(pathSize, &UA_TYPES[UA_TYPES_RELATIVEPATHELEMENT]);
             browsePath.relativePath.elementsSize = pathSize;
 
-            for(uint j = 0; j < pathSize; j++) {
+            for(uint32_t j = 0; j < pathSize; j++) {
                 const TargetName* name = names[j];
                 Debug::writeFormatLine("opcua.translate, ns: %d, name: %s", name->nsIndex, name->name.c_str());
                 UA_RelativePathElement *elem = &browsePath.relativePath.elements[j];
@@ -822,7 +822,7 @@ namespace Net
         UA_TranslateBrowsePathsToNodeIdsResponse response = UA_Client_Service_translateBrowsePathsToNodeIds(_client, request);
         Debug::writeFormatLine("opcua.translate, result: %d, result size: %d", response.responseHeader.serviceResult, response.resultsSize);
         if(response.responseHeader.serviceResult == UA_STATUSCODE_GOOD && response.resultsSize == count) {
-            for(uint i=0;i<response.resultsSize;i++) {
+            for(uint32_t i=0;i<response.resultsSize;i++) {
                 OpcuaNodeId* nodeId = new OpcuaNodeId();
                 const UA_BrowsePathResult* bresult = response.results;
                 if(bresult[i].statusCode == UA_STATUSCODE_GOOD && bresult[i].targetsSize == 1) {
@@ -858,7 +858,7 @@ namespace Net
             result = true;
         }
         
-        for(uint i=0;i<count;i++) {
+        for(uint32_t i=0;i<count;i++) {
             UA_BrowsePath& browsePath = bps[i];
             UA_BrowsePath_deleteMembers(&browsePath);
         }

@@ -203,7 +203,7 @@ namespace Common
     {
         writeAttributeInt32(localName, Int32(value));
     }
-    void XmlTextWriter::writeAttributeUInt32(const String& localName, const uint& value)
+    void XmlTextWriter::writeAttributeUInt32(const String& localName, const uint32_t& value)
     {
         writeAttributeUInt32(localName, UInt32(value));
     }
@@ -212,7 +212,7 @@ namespace Common
     {
         writeAttributeInt16(localName, Int16(value));
     }
-    void XmlTextWriter::writeAttributeUInt16(const String& localName, const ushort& value)
+    void XmlTextWriter::writeAttributeUInt16(const String& localName, const uint16_t& value)
     {
         writeAttributeUInt16(localName, UInt16(value));
     }
@@ -261,7 +261,7 @@ namespace Common
     {
         writeAttributeInt16(localName, value);
     }
-    void XmlTextWriter::writeAttribute(const String& localName, const ushort& value)
+    void XmlTextWriter::writeAttribute(const String& localName, const uint16_t& value)
     {
         writeAttributeUInt16(localName, value);
     }
@@ -269,7 +269,7 @@ namespace Common
     {
         writeAttributeInt32(localName, value);
     }
-    void XmlTextWriter::writeAttribute(const String& localName, const uint& value)
+    void XmlTextWriter::writeAttribute(const String& localName, const uint32_t& value)
     {
         writeAttributeUInt32(localName, value);
     }

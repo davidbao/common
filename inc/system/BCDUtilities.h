@@ -19,13 +19,13 @@ namespace Common
         static uint8_t ByteToBCD(uint8_t value);
 		static uint8_t BCDToByte(uint8_t value);
 
-        static void UInt16ToBCD(ushort value, uint8_t* buffer);
-		static ushort BCDToUInt16(const uint8_t* buffer);
-        static ushort BCDToUInt16(ushort value, bool bigEndian = true);
+        static void UInt16ToBCD(uint16_t value, uint8_t* buffer);
+		static uint16_t BCDToUInt16(const uint8_t* buffer);
+        static uint16_t BCDToUInt16(uint16_t value, bool bigEndian = true);
 
-        static void UInt32ToBCD(uint value, uint8_t* buffer);
-		static uint BCDToUInt32(const uint8_t* buffer);
-        static uint BCDToUInt32(uint value, bool bigEndian = true);
+        static void UInt32ToBCD(uint32_t value, uint8_t* buffer);
+		static uint32_t BCDToUInt32(const uint8_t* buffer);
+        static uint32_t BCDToUInt32(uint32_t value, bool bigEndian = true);
 
 		static void Int64ToBCD(int64_t value, uint8_t* buffer, int length);
 		static int64_t BCDToInt64(const uint8_t* buffer, off_t offset, int count);

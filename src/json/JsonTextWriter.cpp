@@ -169,7 +169,7 @@ namespace Common
     {
         writeAttributeInt32(name, Int32(value));
     }
-    void JsonTextWriter::writeAttributeUInt32(const String& name, const uint& value)
+    void JsonTextWriter::writeAttributeUInt32(const String& name, const uint32_t& value)
     {
         writeAttributeUInt32(name, UInt32(value));
     }
@@ -178,7 +178,7 @@ namespace Common
     {
         writeAttributeInt16(name, Int16(value));
     }
-    void JsonTextWriter::writeAttributeUInt16(const String& name, const ushort& value)
+    void JsonTextWriter::writeAttributeUInt16(const String& name, const uint16_t& value)
     {
         writeAttributeUInt16(name, UInt16(value));
     }
@@ -227,7 +227,7 @@ namespace Common
     {
         writeAttributeInt16(name, value);
     }
-    void JsonTextWriter::writeAttribute(const String& name, const ushort& value)
+    void JsonTextWriter::writeAttribute(const String& name, const uint16_t& value)
     {
         writeAttributeUInt16(name, value);
     }
@@ -235,7 +235,7 @@ namespace Common
     {
         writeAttributeInt32(name, value);
     }
-    void JsonTextWriter::writeAttribute(const String& name, const uint& value)
+    void JsonTextWriter::writeAttribute(const String& name, const uint32_t& value)
     {
         writeAttributeUInt32(name, value);
     }

@@ -190,7 +190,7 @@ namespace Common
         {
             PList<XmlNode> nodes;
             subNodes(nodes);
-            for (uint i=0; i<nodes.count(); i++)
+            for (uint32_t i=0; i<nodes.count(); i++)
             {
                 const XmlNode* subNode = nodes[i];
                 if(subNode->getAttribute(name) == value)
@@ -253,7 +253,7 @@ namespace Common
     {
         return appendAttribute(name, Int16(value).toString());
     }
-    bool XmlNode::appendAttribute(const String& name, const ushort& value)
+    bool XmlNode::appendAttribute(const String& name, const uint16_t& value)
     {
         return appendAttribute(name, UInt16(value).toString());
     }
@@ -261,7 +261,7 @@ namespace Common
     {
         return appendAttribute(name, Int32(value).toString());
     }
-    bool XmlNode::appendAttribute(const String& name, const uint& value)
+    bool XmlNode::appendAttribute(const String& name, const uint32_t& value)
     {
         return appendAttribute(name, UInt32(value).toString());
     }
@@ -311,7 +311,7 @@ namespace Common
     {
         return updateAttribute(name, Int16(value).toString());
     }
-    bool XmlNode::updateAttribute(const String& name, const ushort& value)
+    bool XmlNode::updateAttribute(const String& name, const uint16_t& value)
     {
         return updateAttribute(name, UInt16(value).toString());
     }
@@ -319,7 +319,7 @@ namespace Common
     {
         return updateAttribute(name, Int32(value).toString());
     }
-    bool XmlNode::updateAttribute(const String& name, const uint& value)
+    bool XmlNode::updateAttribute(const String& name, const uint32_t& value)
     {
         return updateAttribute(name, UInt32(value).toString());
     }
@@ -364,7 +364,7 @@ namespace Common
         _node->node = value->_node->node;
         
         _attributes.copyFrom(&value->_attributes);
-        for (uint i=0; i<_attributes.count(); i++)
+        for (uint32_t i=0; i<_attributes.count(); i++)
         {
             _attributes.PList<XmlAttribute>::at(i)->_node = this;
         }
@@ -405,7 +405,7 @@ namespace Common
     {
         return Int16::parse(getAttribute(name), value);
     }
-    bool XmlNode::getAttribute(const String& name, ushort& value) const
+    bool XmlNode::getAttribute(const String& name, uint16_t& value) const
     {
         return UInt16::parse(getAttribute(name), value);
     }
@@ -413,7 +413,7 @@ namespace Common
     {
         return Int32::parse(getAttribute(name), value);
     }
-    bool XmlNode::getAttribute(const String& name, uint& value) const
+    bool XmlNode::getAttribute(const String& name, uint32_t& value) const
     {
         return UInt32::parse(getAttribute(name), value);
     }

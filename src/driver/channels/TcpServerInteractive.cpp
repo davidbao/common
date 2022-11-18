@@ -155,7 +155,7 @@ namespace Drivers
         if(deleteFlag)
             _deleteStart = TickTimeout::getCurrentTickCount();
     }
-    uint TcpServerInteractive::Client::deleteStart() const
+    uint32_t TcpServerInteractive::Client::deleteStart() const
     {
         return _deleteStart;
     }
@@ -309,7 +309,7 @@ namespace Drivers
                 Client* client = _clients.at(i);
                 if (client != nullptr && client->isOnline())
                 {
-                    for (uint j=0; j<endpoints.count(); j++)
+                    for (uint32_t j=0; j<endpoints.count(); j++)
                     {
                         const Endpoint endpoint = endpoints[j];
                         if(endpoint.isEmpty() || endpoint == client->peerEndpoint())
@@ -333,7 +333,7 @@ namespace Drivers
                 Client* client = _clients.at(i);
                 if (client != nullptr && client->isOnline())
                 {
-                    for (uint j=0; j<endpoints.count(); j++)
+                    for (uint32_t j=0; j<endpoints.count(); j++)
                     {
                         const Endpoint endpoint = endpoints[j];
                         if(endpoint.isEmpty() || endpoint != client->peerEndpoint())
@@ -360,7 +360,7 @@ namespace Drivers
     }
     bool TcpServerInteractive::Clients::closeClient(const Endpoint& peerEndpoint)
     {
-        for (uint i = 0; i < _clients.count(); i++)
+        for (uint32_t i = 0; i < _clients.count(); i++)
         {
             Client* temp = _clients.at(i);
             if (temp != nullptr)
@@ -379,7 +379,7 @@ namespace Drivers
     {
         Locker locker(&_clientsMutex);
         clients.setAutoDelete(false);
-        for (uint i = 0; i < _clients.count(); i++)
+        for (uint32_t i = 0; i < _clients.count(); i++)
         {
             Client* client = _clients.at(i);
             if (client != nullptr)
@@ -402,7 +402,7 @@ namespace Drivers
     
     TcpServerInteractive::Client* TcpServerInteractive::Clients::at(int socketId) const
     {
-        for (uint i=0; i<_clients.count(); i++)
+        for (uint32_t i=0; i<_clients.count(); i++)
         {
             Client* client = _clients[i];
             if(client->socketId() == socketId)
@@ -430,7 +430,7 @@ namespace Drivers
 	{
 		static int bindingCount = 0;
 		static const int MaxBindingCount = 5;
-		static const uint MaxDelayTime = 2000;	// 2s
+		static const uint32_t MaxDelayTime = 2000;	// 2s
 
 		_tcpServerMutex.lock();
 		if(_tcpServer != nullptr)
@@ -757,7 +757,7 @@ namespace Drivers
         PList<Client> clients;
         if(_clients.getUnusedClients(clients))
         {
-            for (uint i=0; i<clients.count(); i++)
+            for (uint32_t i=0; i<clients.count(); i++)
             {
                 Client* client = clients[i];
                 closeClient(client);
@@ -812,7 +812,7 @@ namespace Drivers
         _multiplexingLoop = true;
 //        static const TimeSpan timeout = TimeSpan::fromMilliseconds(100);
 //        struct timespec ts;
-//        uint waitms = (uint)timeout.totalMilliseconds();
+//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
 //        ts.tv_sec = waitms / 1000;
 //        ts.tv_nsec = (waitms % 1000) * 1000 * 1000;
         struct kevent* eventlist = new struct kevent[maxCount];
@@ -896,7 +896,7 @@ namespace Drivers
         epoll_ctl(_fd, EPOLL_CTL_ADD, _exitSockets[1], &ev);
         
         _multiplexingLoop = true;
-//        uint waitms = (uint)timeout.totalMilliseconds();
+//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
         struct epoll_event* eventlist = new struct epoll_event[maxCount];
         while (_multiplexingLoop)
         {
@@ -905,7 +905,7 @@ namespace Drivers
             {
                 const struct epoll_event& event = eventlist[i];
                 int sockfd = event.data.fd;
-                uint events = event.events;
+                uint32_t events = event.events;
 
                 if (sockfd == listenfd)
                 {

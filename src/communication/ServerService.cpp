@@ -75,7 +75,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ServerService::stopLoopSender, name: %s", name.c_str());
         Locker locker(&_loopSendersMutex);
-        for (uint i=0; i<_loopSenders.count(); i++)
+        for (uint32_t i=0; i<_loopSenders.count(); i++)
         {
             BaseLoopSender* sender = _loopSenders[i];
             if(sender->name() == name)
@@ -91,7 +91,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ServerService::stopPacketSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -107,7 +107,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ServerService::stopPacketSyncSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -121,7 +121,7 @@ namespace Communication
     bool ServerService::hasPacketSyncSender(const String& name)
     {
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -245,14 +245,14 @@ namespace Communication
         return "TcpServerInteractive";
     }
     
-    uint ServerService::maxPacketLength() const
+    uint32_t ServerService::maxPacketLength() const
     {
-        uint sendBufferSize = 65535;
+        uint32_t sendBufferSize = 65535;
         TcpServerInteractive* tsi = this->tsi();
         TcpServerChannelContext* context = tsi != nullptr ? tsi->getChannelContext() : nullptr;
         if(context != nullptr)
         {
-            sendBufferSize = (uint)context->sendBufferSize();
+            sendBufferSize = (uint32_t)context->sendBufferSize();
         }
         return sendBufferSize - 100;
     }
@@ -331,7 +331,7 @@ namespace Communication
             assert(dm);
             
             StringArray deviceNames;
-            for (uint i=0; i<endpoints.count(); i++)
+            for (uint32_t i=0; i<endpoints.count(); i++)
             {
                 const Endpoint endpoint = endpoints[i];
                 String deviceName = !endpoint.isEmpty() ?
@@ -366,7 +366,7 @@ namespace Communication
             assert(dm);
             
             StringArray deviceNames;
-            for (uint i=0; i<endpoints.count(); i++)
+            for (uint32_t i=0; i<endpoints.count(); i++)
             {
                 const Endpoint endpoint = endpoints[i];
                 String deviceName = !endpoint.isEmpty() ?
@@ -476,14 +476,14 @@ namespace Communication
         return "WebSocketServerInteractive";
     }
     
-    uint WebServerService::maxPacketLength() const
+    uint32_t WebServerService::maxPacketLength() const
     {
-        uint sendBufferSize = 65535;
+        uint32_t sendBufferSize = 65535;
         TcpServerInteractive* tsi = this->tsi();
         TcpServerChannelContext* context = tsi != nullptr ? tsi->getChannelContext() : nullptr;
         if(context != nullptr)
         {
-            sendBufferSize = (uint)context->sendBufferSize();
+            sendBufferSize = (uint32_t)context->sendBufferSize();
         }
         return sendBufferSize - 100;
     }
@@ -529,7 +529,7 @@ namespace Communication
         return "WebSocketSSLServerInteractive";
     }
     
-    uint WebSSLServerService::maxPacketLength() const
+    uint32_t WebSSLServerService::maxPacketLength() const
     {
         return ServerService::maxPacketLength();
     }

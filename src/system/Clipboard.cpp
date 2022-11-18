@@ -228,7 +228,7 @@ namespace Common
             OSStatus err = PasteboardGetItemCount(pasteboard, &itemCount);
             if (err == noErr)
             {
-                for (uint itemIndex=1; itemIndex<=itemCount; itemIndex++)
+                for (uint32_t itemIndex=1; itemIndex<=itemCount; itemIndex++)
                 {
                     PasteboardItemID    itemID = 0;
                     CFArrayRef          flavorTypeArray = NULL;
@@ -379,7 +379,7 @@ namespace Common
             OSStatus err = PasteboardGetItemCount(pasteboard, &itemCount);
             if (err == noErr)
             {
-                for (uint itemIndex=1; itemIndex<=itemCount; itemIndex++)
+                for (uint32_t itemIndex=1; itemIndex<=itemCount; itemIndex++)
                 {
                     PasteboardItemID    itemID = 0;
                     CFArrayRef          flavorTypeArray = NULL;

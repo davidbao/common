@@ -17,7 +17,7 @@
 
 namespace Common
 {
-	uint TickTimeout::getCurrentTickCount()
+	uint32_t TickTimeout::getCurrentTickCount()
 	{
 #if WIN32
 		return GetTickCount();
@@ -105,7 +105,7 @@ namespace Common
 		}
 
 		/* Returns the number of milliseconds from boot time: this should be monotonic */
-		uint TickTimeout::mono_msec_ticks ()
+		uint32_t TickTimeout::mono_msec_ticks ()
 		{
 			static int64_t boot_time = 0;
 			int64_t now;
@@ -113,11 +113,11 @@ namespace Common
 				boot_time = get_boot_time ();
 			now = mono_100ns_ticks ();
 //			printf ("now: %llu (boot: %llu) ticks: %llu\n", (int64_t)now, (int64_t)boot_time, (int64_t)(now - boot_time));
-			return (uint)((now - boot_time)/10000);
+			return (uint32_t)((now - boot_time)/10000);
 		}
 #endif
     
-    bool TickTimeout::isTimeout(uint start, uint end, uint now)
+    bool TickTimeout::isTimeout(uint32_t start, uint32_t end, uint32_t now)
     {
         if (end == start) return true;
         if (end > start)
@@ -127,39 +127,39 @@ namespace Common
         return now > end && now < start;
     }
     
-    bool TickTimeout::isTimeout(uint start, uint end)
+    bool TickTimeout::isTimeout(uint32_t start, uint32_t end)
     {
         return isTimeout(start, end, getCurrentTickCount());
     }
     
-    bool TickTimeout::isTimeout(uint start, const TimeSpan& timeout)
+    bool TickTimeout::isTimeout(uint32_t start, const TimeSpan& timeout)
     {
-        return isTimeout(start, getDeadTickCount(start, (uint)timeout.totalMilliseconds()));
+        return isTimeout(start, getDeadTickCount(start, (uint32_t)timeout.totalMilliseconds()));
     }
     
-    uint TickTimeout::getDeadTickCount(uint timeout)
+    uint32_t TickTimeout::getDeadTickCount(uint32_t timeout)
     {
         return getDeadTickCount(getCurrentTickCount(), timeout);
     }
     
-    uint TickTimeout::getDeadTickCount(uint start, uint timeout)
+    uint32_t TickTimeout::getDeadTickCount(uint32_t start, uint32_t timeout)
     {
         return getNextTickCount(start, timeout);
     }
     
-    uint TickTimeout::elapsed(uint start, uint end)
+    uint32_t TickTimeout::elapsed(uint32_t start, uint32_t end)
     {
         return (end >= start) ? end - start : MaxTickCount - end + start;
     }
-    uint TickTimeout::elapsed(uint start)
+    uint32_t TickTimeout::elapsed(uint32_t start)
     {
         return elapsed(start, getCurrentTickCount());
     }
     
-    uint TickTimeout::getPrevTickCount(uint start, uint elapsed)
+    uint32_t TickTimeout::getPrevTickCount(uint32_t start, uint32_t elapsed)
     {
-        uint result;
-        uint curTick = start == MaxTickCount ? getCurrentTickCount() : start;
+        uint32_t result;
+        uint32_t curTick = start == MaxTickCount ? getCurrentTickCount() : start;
         if (curTick >= elapsed)
         {
             result = curTick - elapsed;
@@ -170,10 +170,10 @@ namespace Common
         }
         return result;
     }
-    uint TickTimeout::getNextTickCount(uint start, uint elapsed)
+    uint32_t TickTimeout::getNextTickCount(uint32_t start, uint32_t elapsed)
     {
-        uint result;
-        uint curTick = start == MaxTickCount ? getCurrentTickCount() : start;
+        uint32_t result;
+        uint32_t curTick = start == MaxTickCount ? getCurrentTickCount() : start;
         if ((uint64_t)(curTick + elapsed) <= MaxTickCount)
         {
             result = curTick + elapsed;
@@ -185,18 +185,18 @@ namespace Common
         return result;
     }
     
-    bool TickTimeout::sdelay(uint sec, delay_callback condition, void* parameter, uint sleepms)
+    bool TickTimeout::sdelay(uint32_t sec, delay_callback condition, void* parameter, uint32_t sleepms)
     {
         return msdelay(sec * 1000, condition, parameter, sleepms);
     }
-    bool TickTimeout::delay(const TimeSpan& timeout, delay_callback condition, void* parameter, uint sleepms)
+    bool TickTimeout::delay(const TimeSpan& timeout, delay_callback condition, void* parameter, uint32_t sleepms)
     {
-        return msdelay((uint)timeout.totalMilliseconds(), condition, parameter, sleepms);
+        return msdelay((uint32_t)timeout.totalMilliseconds(), condition, parameter, sleepms);
     }
-    bool TickTimeout::msdelay(uint msec, delay_callback condition, void* parameter, uint sleepms)
+    bool TickTimeout::msdelay(uint32_t msec, delay_callback condition, void* parameter, uint32_t sleepms)
     {
-        uint startTime = getCurrentTickCount();
-        uint deadTime = getDeadTickCount(startTime, msec);
+        uint32_t startTime = getCurrentTickCount();
+        uint32_t deadTime = getDeadTickCount(startTime, msec);
         
         do
         {

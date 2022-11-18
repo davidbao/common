@@ -71,7 +71,7 @@ namespace Common {
         _inner = new JSONNode(name.c_str(), value);
     }
 
-    JsonNode::JsonNode(const String &name, const ushort &value) : _attach(false) {
+    JsonNode::JsonNode(const String &name, const uint16_t &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
 
@@ -79,7 +79,7 @@ namespace Common {
         _inner = new JSONNode(name.c_str(), value);
     }
 
-    JsonNode::JsonNode(const String &name, const uint &value) : _attach(false) {
+    JsonNode::JsonNode(const String &name, const uint32_t &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
 
@@ -110,7 +110,7 @@ namespace Common {
     }
 
     JsonNode::JsonNode(const String &name, const StringArray &value) : JsonNode(name, Type::TypeArray) {
-        for (uint i = 0; i < value.count(); i++) {
+        for (uint32_t i = 0; i < value.count(); i++) {
             add(JsonNode("item", value[i]));
         }
     }
@@ -174,7 +174,7 @@ namespace Common {
             String value;
             StringArray names;
             if (node.getAttributeNames(names)) {
-                for (uint i = 0; i < names.count(); i++) {
+                for (uint32_t i = 0; i < names.count(); i++) {
                     const String &name = names[i];
                     if (node.getAttribute(name, value)) {
                         values.add(name, value);
@@ -265,7 +265,7 @@ namespace Common {
         return false;
     }
 
-    bool JsonNode::getAttribute(const String &name, ushort &value) const {
+    bool JsonNode::getAttribute(const String &name, uint16_t &value) const {
         UInt16 result;
         if (getAttribute(name, result)) {
             value = result;
@@ -283,7 +283,7 @@ namespace Common {
         return false;
     }
 
-    bool JsonNode::getAttribute(const String &name, uint &value) const {
+    bool JsonNode::getAttribute(const String &name, uint32_t &value) const {
         UInt32 result;
         if (getAttribute(name, result)) {
             value = result;
@@ -376,7 +376,7 @@ namespace Common {
     bool JsonNode::getAttribute(StringMap &value) const {
         StringArray names;
         if (getAttributeNames(names)) {
-            for (uint i = 0; i < names.count(); i++) {
+            for (uint32_t i = 0; i < names.count(); i++) {
                 const String &name = names[i];
                 String v;
                 if (getAttribute(name, v)) {
@@ -441,7 +441,7 @@ namespace Common {
         }
     }
 
-    uint JsonNode::size() const {
+    uint32_t JsonNode::size() const {
         return _inner->size();
     }
 

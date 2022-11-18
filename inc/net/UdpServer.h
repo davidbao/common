@@ -27,7 +27,7 @@ namespace Net
 		void close();
 
 		ssize_t read(uint8_t *data, size_t count, bool peek = false);
-        ssize_t receive(uint8_t *data, size_t count, uint timeout);
+        ssize_t receive(uint8_t *data, size_t count, uint32_t timeout);
 
 		inline bool isValid() const
 		{

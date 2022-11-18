@@ -29,9 +29,9 @@ namespace Communication
         
     protected:
         // return the sample interval, unit: ms
-        uint detectionInterval() const override;
+        uint32_t detectionInterval() const override;
         // return the resume interval, unit: ms
-        uint resumeInterval() const override;
+        uint32_t resumeInterval() const override;
         // return the sample interval, unit: ms
         int detectionCount() const override;
         
@@ -41,8 +41,8 @@ namespace Communication
         bool checkOnlineFailed() override;
         
     private:
-        uint _detectionInterval;
-        uint _resumeInterval;
+        uint32_t _detectionInterval;
+        uint32_t _resumeInterval;
         int _detectionCount;
 
         sampler_callback _sampleCallback;
@@ -64,9 +64,9 @@ namespace Communication
         
     protected:
         // return the sample interval, unit: ms
-        uint detectionInterval() const override;
+        uint32_t detectionInterval() const override;
         // return the resume interval, unit: ms
-        uint resumeInterval() const override;
+        uint32_t resumeInterval() const override;
         // return the sample interval, unit: ms
         int detectionCount() const override;
         
@@ -81,8 +81,8 @@ namespace Communication
         static void instructionSingleProc(void* parameter);
         
     private:
-        uint _detectionInterval;
-        uint _resumeInterval;
+        uint32_t _detectionInterval;
+        uint32_t _resumeInterval;
         int _detectionCount;
 
         sampler_callback _sampleCallback;
@@ -103,17 +103,17 @@ namespace Communication
         
     protected:
         // return the sample interval, unit: ms
-        uint detectionInterval() const override;
+        uint32_t detectionInterval() const override;
         // return the resume interval, unit: ms
-        uint resumeInterval() const override;
+        uint32_t resumeInterval() const override;
         // return the sample interval, unit: ms
         int detectionCount() const override;
         
         InstructionDescription* sampleInstruction() override;
         
     private:
-        uint _detectionInterval;
-        uint _resumeInterval;
+        uint32_t _detectionInterval;
+        uint32_t _resumeInterval;
         int _detectionCount;
         
         Broadcast _broadcast;

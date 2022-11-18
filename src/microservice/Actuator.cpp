@@ -107,7 +107,7 @@ namespace Microservice {
             if (!cs->getProperty("summer.application.description", description))
                 description = name;
             if (!cs->getProperty("summer.application.version", version))
-                version = Version::Verson1_0.toString();
+                version = Version::Version1_0.toString();
 
             JsonNode rootNode, buildNode("build");
             buildNode.add(JsonNode("name", name));
@@ -171,7 +171,7 @@ namespace Microservice {
                 IServiceRegister *ss = factory->getService<IServiceRegister>();
                 assert(ss);
                 ss->getServiceIds(serviceIds);
-                for (uint i = 0; i < serviceIds.count(); i++) {
+                for (uint32_t i = 0; i < serviceIds.count(); i++) {
                     const String &serviceId = serviceIds[i];
                     servicesNode.add(JsonNode("item", serviceId));
                 }
@@ -507,7 +507,7 @@ namespace Microservice {
             StringMap tags;
             StringArray texts;
             StringArray::parse(tag, texts, ',');
-            for (uint i = 0; i < texts.count(); i++) {
+            for (uint32_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 StringArray texts2;
                 StringArray::parse(text, texts2, ':');
@@ -668,7 +668,7 @@ namespace Microservice {
 
                 StringArray keys;
                 argv.keys(keys);
-                for (uint i = 0; i < keys.count(); i++) {
+                for (uint32_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (argv.at(key, value)) {
@@ -709,7 +709,7 @@ namespace Microservice {
                 StringMap properties(kvs);
                 StringArray keys;
                 properties.keys(keys);
-                for (uint i = 0; i < keys.count(); i++) {
+                for (uint32_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {
@@ -733,7 +733,7 @@ namespace Microservice {
 
                 StringArray keys;
                 variables.keys(keys);
-                for (uint i = 0; i < keys.count(); i++) {
+                for (uint32_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (variables.at(key, value)) {
@@ -769,7 +769,7 @@ namespace Microservice {
 
                     StringArray keys;
                     properties.keys(keys);
-                    for (uint i = 0; i < keys.count(); i++) {
+                    for (uint32_t i = 0; i < keys.count(); i++) {
                         const String &key = keys[i];
                         String value;
                         if (properties.at(key, value) && !value.isNullOrEmpty()) {
@@ -806,7 +806,7 @@ namespace Microservice {
 
                     StringArray keys;
                     properties.keys(keys);
-                    for (uint i = 0; i < keys.count(); i++) {
+                    for (uint32_t i = 0; i < keys.count(); i++) {
                         const String &key = keys[i];
                         String value;
                         if (properties.at(key, value) && !value.isNullOrEmpty()) {
@@ -839,7 +839,7 @@ namespace Microservice {
                 StringMap properties(kvs);
                 StringArray keys;
                 properties.keys(keys);
-                for (uint i = 0; i < keys.count(); i++) {
+                for (uint32_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {
@@ -864,7 +864,7 @@ namespace Microservice {
                 StringMap properties(kvs);
                 StringArray keys;
                 properties.keys(keys);
-                for (uint i = 0; i < keys.count(); i++) {
+                for (uint32_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {

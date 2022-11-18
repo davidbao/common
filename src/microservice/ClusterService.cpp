@@ -66,7 +66,7 @@ namespace Microservice {
     }
 
     ClusterContexts::ClusterContexts(const ClusterContext **values, size_t count) {
-        for (uint i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < count; i++) {
             const ClusterContext *value = values[i];
             add(*value);
         }
@@ -174,7 +174,7 @@ namespace Microservice {
 
     void ClusterContexts::operator=(const ClusterContexts &value) {
         clear();
-        for (uint i = 0; i < value.count(); i++) {
+        for (uint32_t i = 0; i < value.count(); i++) {
             const ClusterContext context = value[i];
             add(context);
         }
@@ -184,7 +184,7 @@ namespace Microservice {
         if (count() != value.count())
             return false;
 
-        for (uint i = 0; i < value.count(); i++) {
+        for (uint32_t i = 0; i < value.count(); i++) {
             const ClusterContext context1 = value[i];
             const ClusterContext context2 = at(i);
             if (context1 != context2)
@@ -208,7 +208,7 @@ namespace Microservice {
     void ClusterContexts::read(Stream *stream) {
         clear();
         size_t count = stream->readUInt32();
-        for (uint i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < count; i++) {
             ClusterContext context;
             context.read(stream);
             add(context);
@@ -229,7 +229,7 @@ namespace Microservice {
                 return true;
             }
         } else {
-            ClusterContext temp(key, value, Version::Verson1_0);
+            ClusterContext temp(key, value, Version::Version1_0);
             add(temp);
             version = temp.version;
             return true;
@@ -404,7 +404,7 @@ namespace Microservice {
         const PushRequest *hrequest = dynamic_cast<const PushRequest *>(request);
 //        PushResponse* hresponse = dynamic_cast<PushResponse*>(response);
 //        assert(hrequest && hresponse);
-//        for(uint i=0; i<hrequest->contexts.count(); i++)
+//        for(uint32_t i=0; i<hrequest->contexts.count(); i++)
 //        {
 //            ClusterContext context = hrequest->contexts.at(i);
 //            Trace::info(String::format("onPush, key: %s, value: %s, version: %s",
@@ -433,7 +433,7 @@ namespace Microservice {
 //        PushResponse* hresponse = dynamic_cast<PushResponse*>(response);
 //        assert(hrequest && hresponse);
 //#ifdef DEBUG
-//        for(uint i=0; i<hrequest->contexts.count(); i++)
+//        for(uint32_t i=0; i<hrequest->contexts.count(); i++)
 //        {
 //            ClusterContext context = hrequest->contexts.at(i);
 //            Trace::info(String::format("onPush, key: %s, value: %s, version: %s",
@@ -527,7 +527,7 @@ namespace Microservice {
         }
 
         // connect the another cluster servers.
-        for (uint i = 0; i < _nodes.count(); i++) {
+        for (uint32_t i = 0; i < _nodes.count(); i++) {
             Endpoint endpoint = _nodes[i];
             if (!endpoint.isEmpty()) {
                 RpcClientContext context(endpoint);
@@ -546,7 +546,7 @@ namespace Microservice {
             _sendTimer = nullptr;
         }
 
-        for (uint i = 0; i < _clients.count(); i++) {
+        for (uint32_t i = 0; i < _clients.count(); i++) {
             RpcClient *client = _clients[i];
             client->disconnect();
         }
@@ -649,7 +649,7 @@ namespace Microservice {
 
             pushProc((const ClusterContext **) contexts, count);
 
-            for (uint i = 0; i < count; i++) {
+            for (uint32_t i = 0; i < count; i++) {
                 ClusterContext *context = contexts[i];
                 delete context;
             }
@@ -663,7 +663,7 @@ namespace Microservice {
         ClusterContexts contexts(values, count);
 
         // send to the other services.
-        for (uint i = 0; i < _clients.count(); i++) {
+        for (uint32_t i = 0; i < _clients.count(); i++) {
             RpcClient *client = _clients[i];
             RpcMethodContext context("push", 3);
             PushRequest request(contexts);

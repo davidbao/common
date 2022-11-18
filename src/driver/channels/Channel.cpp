@@ -146,12 +146,12 @@ namespace Drivers
         Interactive* i = interactive();
         return i != nullptr ? i->receive(buffer, offset, count) : 0;
     }
-    ssize_t Channel::receive(uint8_t* buffer, off_t offset, size_t count, uint timeout)
+    ssize_t Channel::receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout)
     {
         Interactive* i = interactive();
         return i != nullptr ? i->receive(buffer, offset, count, timeout) : 0;
     }
-    ssize_t Channel::receive(ByteArray* buffer, size_t count, uint timeout)
+    ssize_t Channel::receive(ByteArray* buffer, size_t count, uint32_t timeout)
     {
         Interactive* i = interactive();
         return i != nullptr ? i->receive(buffer, count, timeout) : 0;
@@ -213,7 +213,7 @@ namespace Drivers
         if(_opening)
         {
             // Waiting for opened.
-            TickTimeout::msdelay((uint)-1, isOpened, (void*)this);
+            TickTimeout::msdelay((uint32_t)-1, isOpened, (void*)this);
         }
         
         _opened = false;

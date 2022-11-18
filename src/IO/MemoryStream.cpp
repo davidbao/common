@@ -95,7 +95,7 @@ namespace Common
         }
         else if (_position < _buffer->count())
         {
-            _buffer->setRange((uint)_position, (array + offset), count);
+            _buffer->setRange((uint32_t)_position, (array + offset), count);
         }
         else	// _position > _buffer->count()
         {

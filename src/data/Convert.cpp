@@ -164,7 +164,7 @@ namespace Common {
         off_t offset = 0;
         int range = 0;
         char prevCh = '\0';
-        for (uint i = 0; i < str.length(); i++) {
+        for (uint32_t i = 0; i < str.length(); i++) {
             char ch = str[i];
             if (ch == splitSymbol && prevCh != escape) {
                 if (range == 0) {
@@ -191,7 +191,7 @@ namespace Common {
         StringArray texts;
         Convert::splitItems(str, texts, splitSymbol, escape, startRange, endRange);
         if (texts.count() > 0) {
-            for (uint i = 0; i < texts.count(); i++) {
+            for (uint32_t i = 0; i < texts.count(); i++) {
                 StringArray values;
                 Convert::splitItems(texts[i], values, ':');
                 if (values.count() == 2) {

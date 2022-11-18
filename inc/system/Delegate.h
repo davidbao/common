@@ -49,7 +49,7 @@ namespace Common
     class Delegates : public PList<Delegate>
     {
     public:
-        Delegates(bool autoDelete = true, uint capacity = 5);
+        Delegates(bool autoDelete = true, uint32_t capacity = 5);
 
         void add(const Delegate& delegate);
         void remove(const Delegate& delegate);

@@ -118,9 +118,9 @@ namespace Communication
         Connection connection;
         Timeout timeout;
         Secure secure;
-        uint packetLength;		// unit: bytes
-        uint sendBufferSize;
-        uint receiveBufferSize;
+        uint32_t packetLength;		// unit: bytes
+        uint32_t sendBufferSize;
+        uint32_t receiveBufferSize;
         bool noDelay;
         bool reuseAddress;
         bool blocking;
@@ -194,8 +194,8 @@ namespace Communication
         int maxConnections;
         Timeout timeout;
         Secure secure;
-        uint sendBufferSize;
-        uint receiveBufferSize;
+        uint32_t sendBufferSize;
+        uint32_t receiveBufferSize;
         bool reuseAddress;
         bool noDelay;
         TcpChannelContext::Types receiverType;

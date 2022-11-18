@@ -46,7 +46,7 @@ namespace Database
         OCIError* error;
         OCISvcCtx* context;
         
-        uint lastError;
+        uint32_t lastError;
         
         OracleInner()
         {
@@ -61,7 +61,7 @@ namespace Database
 	{
         _oracleDb = new OracleInner();
         
-		uint result;
+		uint32_t result;
 		result = OCIEnvCreate(&_oracleDb->env, OCI_THREADED, nullptr, nullptr, nullptr, nullptr, 0, nullptr);
 		if (result)
 		{
@@ -95,7 +95,7 @@ namespace Database
 	{
 		Locker locker(&_dbMutex);
 
-		uint result = OCILogon(_oracleDb->env, _oracleDb->error, &_oracleDb->context, (const OraText*)username.c_str(), (ub4)username.length(),
+		uint32_t result = OCILogon(_oracleDb->env, _oracleDb->error, &_oracleDb->context, (const OraText*)username.c_str(), (ub4)username.length(),
 			(const OraText*)password.c_str(), (ub4)password.length(), (const OraText*)database.c_str(), (ub4)database.length());
 		if (result)
 		{
@@ -134,7 +134,7 @@ namespace Database
 	{
 		Locker locker(&_dbMutex);
 
-		uint result = 0;
+		uint32_t result = 0;
 		if (_oracleDb->context != nullptr)
 		{
 			result = OCILogoff(_oracleDb->context, _oracleDb->error);
@@ -149,7 +149,7 @@ namespace Database
 	{
 		Locker locker(&_dbMutex);
 
-		uint result = executeSqlInner(sql);
+		uint32_t result = executeSqlInner(sql);
 		_oracleDb->lastError = result;
 		return isSuccessed(result);
 	}
@@ -157,7 +157,7 @@ namespace Database
 	{
 		Locker locker(&_dbMutex);
 
-		uint result = executeSqlQueryInner(sql, table);
+		uint32_t result = executeSqlQueryInner(sql, table);
 		_oracleDb->lastError = result;
 		return isSuccessed(result);
 	}
@@ -165,7 +165,7 @@ namespace Database
 	{
 		Locker locker(&_dbMutex);
 
-		uint result = replace ? executeSqlMergeInner(table) : executeSqlInsertInner(table);
+		uint32_t result = replace ? executeSqlMergeInner(table) : executeSqlInsertInner(table);
 		_oracleDb->lastError = result;
 		return isSuccessed(result);
 	}
@@ -187,7 +187,7 @@ namespace Database
 	{
 		if (_oracleDb->context != nullptr)
 		{
-			uint result = OCIBreak(_oracleDb->context, _oracleDb->error);
+			uint32_t result = OCIBreak(_oracleDb->context, _oracleDb->error);
 			if (result)
 			{
 				printErrorInfo("OCIBreak", result);
@@ -233,10 +233,10 @@ namespace Database
 		return getErrorMsg(_oracleDb->lastError);
 	}
 
-	String OracleClient::getErrorMsg(uint error)
+	String OracleClient::getErrorMsg(uint32_t error)
 	{
 		int result = (int)error;
-		uint origin_error = result;
+		uint32_t origin_error = result;
 		char error_buffer[1024];
 		result = OCIErrorGet(_oracleDb->error, 1, nullptr, &result, (OraText*)error_buffer, sizeof(error_buffer), OCI_HTYPE_ERROR);
 		if (!result)
@@ -248,13 +248,13 @@ namespace Database
 			return String::convert("cannot get error text, original error is %d", origin_error);
 		}
 	}
-	uint OracleClient::executeSqlInner(const String& sql)
+	uint32_t OracleClient::executeSqlInner(const String& sql)
 	{
 #ifdef DEBUG
 		Stopwatch sw("OracleClient::executeSqlInner", 100);
 #endif
 		OCIStmt* statement;
-		uint result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
+		uint32_t result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
 		if (result)
 		{
 			printErrorInfo("OCIHandleAlloc", result, sql);
@@ -284,7 +284,7 @@ namespace Database
 		OCIHandleFree(statement, OCI_HTYPE_STMT);
 		return OCI_SUCCESS;
 	}
-	uint OracleClient::executeSqlQueryInner(const String& sql, DataTable& table)
+	uint32_t OracleClient::executeSqlQueryInner(const String& sql, DataTable& table)
 	{
 #ifdef DEBUG
 		Stopwatch sw("OracleClient::executeSqlQueryInner", 100);
@@ -294,7 +294,7 @@ namespace Database
 		sw.setInfo(String::convert("executeSqlQueryInner, the table name is '%s'", table.name().c_str()));
 #endif
 
-		uint result;
+		uint32_t result;
 		OCIStmt* statement;
 		result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
 		if (result)
@@ -426,7 +426,7 @@ namespace Database
 			}
 
 			DataRow* row = new DataRow();
-			for (uint i = 0; i < table.columnCount(); i++)
+			for (uint32_t i = 0; i < table.columnCount(); i++)
 			{
 				DataColumn* column = table.columns()->at(i);
 				const InnerColumn* icolumn = icolumns[i];
@@ -445,11 +445,11 @@ namespace Database
 	String OracleClient::toInsertStr(const DataTable& table)
 	{
 		const char* insertStr = "INSERT INTO %s(%s) VALUES (%s)";
-		uint columnCount = table.columnCount();
+		uint32_t columnCount = table.columnCount();
 
 		String columsStr;
 		String valuesStr;
-		for (uint j = 0; j < columnCount; j++)
+		for (uint32_t j = 0; j < columnCount; j++)
 		{
 			if (!columsStr.isNullOrEmpty())
 			{
@@ -471,11 +471,11 @@ namespace Database
 	String OracleClient::toInsertStr(const DataTable& table, const DataRow* row)
 	{
 		const char* insertStr = "INSERT INTO %s(%s) VALUES (%s)";
-		uint columnCount = table.columnCount();
+		uint32_t columnCount = table.columnCount();
 
 		String columsStr;
 		String valuesStr;
-		for (uint j = 0; j < columnCount; j++)
+		for (uint32_t j = 0; j < columnCount; j++)
 		{
 			const DataCell* cell = row->cells()->at(j);
 			if (cell != nullptr)
@@ -499,9 +499,9 @@ namespace Database
 	}
 	String OracleClient::toMergeStr(const DataTable& table, const DataRow* row)
 	{
-		uint columnCount = table.columnCount();
+		uint32_t columnCount = table.columnCount();
         String primaryKey = String::Empty;
-		for (uint i = 0; i < columnCount; i++)
+		for (uint32_t i = 0; i < columnCount; i++)
 		{
 			if (table.columns()->at(i)->primaryKey())
 			{
@@ -531,7 +531,7 @@ namespace Database
 		String uvaluesStr;
 		String icolumsStr;
 		String ivaluesStr;
-		for (uint j = 0; j < columnCount; j++)
+		for (uint32_t j = 0; j < columnCount; j++)
 		{
 			const DataCell* cell = row->cells()->at(j);
 			if (cell != nullptr)
@@ -575,7 +575,7 @@ namespace Database
 			uvaluesStr.c_str(), icolumsStr.c_str(), ivaluesStr.c_str());
 		return sql;
 	}
-	uint OracleClient::executeSqlInsertInner(const DataTable& table)
+	uint32_t OracleClient::executeSqlInsertInner(const DataTable& table)
 	{
 #ifdef DEBUG
 		Stopwatch sw("OracleClient::executeSqlInsertInner", 100);
@@ -588,15 +588,15 @@ namespace Database
 			return -3;
 
 		OCIStmt* statement;
-		uint result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
+		uint32_t result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
 		if (result)
 		{
 			printErrorInfo("OCIHandleAlloc", result);
 			return result;
 		}
 
-		uint columnCount = table.columnCount();
-		uint rowCount = table.rowCount();
+		uint32_t columnCount = table.columnCount();
+		uint32_t rowCount = table.rowCount();
 		String sql = toInsertStr(table);
 		const char* sqlStr = sql.c_str();
 		result = OCIStmtPrepare(statement, _oracleDb->error, (const OraText*)sqlStr, (ub4)sql.length(), OCI_NTV_SYNTAX, OCI_DEFAULT);
@@ -611,7 +611,7 @@ namespace Database
 		char** buffer = new char*[columnCount];
 		ub2** alenps = new ub2*[columnCount];
 		OCIBind** binds = new OCIBind*[columnCount];
-		for (uint j = 0; j < columnCount; j++)
+		for (uint32_t j = 0; j < columnCount; j++)
 		{
 			char(*values)[StrLength] = new char[rowCount][StrLength];
 			memset(values, 0, rowCount * StrLength);
@@ -619,7 +619,7 @@ namespace Database
 
 			ub2 *alenp = new ub2[rowCount];
 			alenps[j] = alenp;
-			for (uint i = 0; i < rowCount; i++)
+			for (uint32_t i = 0; i < rowCount; i++)
 			{
 				const DataRow* row = table.rows()->at(i);
 				const DataCell* cell = row->cells()->at(j);
@@ -657,7 +657,7 @@ namespace Database
 		}
 
 	destroy:
-		for (uint j = 0; j < columnCount; j++)
+		for (uint32_t j = 0; j < columnCount; j++)
 		{
 			delete[] buffer[j];
 			delete[] alenps[j];
@@ -668,7 +668,7 @@ namespace Database
 		OCIHandleFree(statement, OCI_HTYPE_STMT);
 		return result;
 	}
-	uint OracleClient::executeSqlMergeInner(const DataTable& table)
+	uint32_t OracleClient::executeSqlMergeInner(const DataTable& table)
 	{
 #ifdef DEBUG
 		Stopwatch sw("OracleClient::executeSqlMergeInner", 100);
@@ -680,7 +680,7 @@ namespace Database
 		if (table.rowCount() == 0)
 			return -3;
 		bool primaryKey = false;
-		for (uint i = 0; i < table.columnCount(); i++)
+		for (uint32_t i = 0; i < table.columnCount(); i++)
 		{
 			if (table.columns()->at(i)->primaryKey())
 			{
@@ -692,7 +692,7 @@ namespace Database
 			return -4;
 
 		OCIStmt* statement;
-		uint result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
+		uint32_t result = OCIHandleAlloc(_oracleDb->env, (void**)&statement, OCI_HTYPE_STMT, 0, nullptr);
 		if (result)
 		{
 			printErrorInfo("OCIHandleAlloc", result);
@@ -700,9 +700,9 @@ namespace Database
 		}
 
 		const int patchCount = 500;
-		uint rowCount = table.rowCount();
+		uint32_t rowCount = table.rowCount();
 		String sql;
-		for (uint i = 0; i < rowCount; i++)
+		for (uint32_t i = 0; i < rowCount; i++)
 		{
 			const DataRow* row = table.rows()->at(i);
 			sql = toMergeStr(table, row);
@@ -739,11 +739,11 @@ namespace Database
 		return OCI_SUCCESS;
 	}
     
-    bool OracleClient::isSuccessed(uint result) const
+    bool OracleClient::isSuccessed(uint32_t result) const
     {
         return result == OCI_SUCCESS;
     }
-    void OracleClient::printErrorInfo(const String& methodName, uint error, const String& sql)
+    void OracleClient::printErrorInfo(const String& methodName, uint32_t error, const String& sql)
     {
         DbClient::printErrorInfo(methodName, sql, getErrorMsg(error));
     }

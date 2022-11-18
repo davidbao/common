@@ -36,7 +36,7 @@ namespace Common
 	class XmlAttributes : public CopyPList<XmlAttribute>
 	{
 	public:
-        XmlAttributes(bool autoDelete = true, uint capacity = PList<XmlAttribute>::DefaultCapacity);
+        XmlAttributes(bool autoDelete = true, uint32_t capacity = PList<XmlAttribute>::DefaultCapacity);
 
         XmlAttribute* at(const String& name) const;
         XmlAttribute* operator[](const String& name) const;

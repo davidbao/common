@@ -165,12 +165,12 @@ namespace Drivers
         PList<ByteArray> buffers;
         if(instructionSet()->recombine(buffer, buffers))
         {
-            for (uint i=0; i<buffers.count(); i++)
+            for (uint32_t i=0; i<buffers.count(); i++)
             {
                 const ByteArray* singleBuffer = buffers[i];
 //#ifdef DEBUG
 //                String str;
-//                uint logLength = 128;
+//                uint32_t logLength = 128;
 //                size_t count = singleBuffer->count();
 //                if(count > logLength)
 //                {
@@ -208,7 +208,7 @@ namespace Drivers
 //            {
 //#ifdef DEBUG
 //                String str;
-//                uint logLength = 128;
+//                uint32_t logLength = 128;
 //                size_t count = buffer.count();
 //                if(count > logLength)
 //                {
@@ -322,7 +322,7 @@ namespace Drivers
         {
             _receiveDevices.add(device);
             
-            for (uint i=0; i<_instructions->count(); i++)
+            for (uint32_t i=0; i<_instructions->count(); i++)
             {
                 device->setReceiveInstruction(_instructions->at(i));
             }
@@ -332,7 +332,7 @@ namespace Drivers
     }
     void Device::setReceiveInstruction(Instruction* instruction)
     {
-        for (uint i=0; i<_instructions->count(); i++)
+        for (uint32_t i=0; i<_instructions->count(); i++)
         {
             Instruction* ri = _instructions->at(i);
             if(instruction->description()->name() == ri->description()->name())
@@ -393,7 +393,7 @@ namespace Drivers
             if(_deletedInstructions.count() > 0)
             {
                 size_t count = 0;
-                for (uint i=0; i<_deletedInstructions.count(); i++)
+                for (uint32_t i=0; i<_deletedInstructions.count(); i++)
                 {
                     if(!_deletedInstructions[i]->_isExecuting)
                     {
@@ -410,7 +410,7 @@ namespace Drivers
     
     Instruction* Device::getInstruction(Instructions* instructions, const String& instructionName)
     {
-        for (uint i = 0; i < instructions->count(); i++)
+        for (uint32_t i = 0; i < instructions->count(); i++)
         {
             Instruction* instruction = instructions->at(i);
             if(instructionName == instruction->description()->name())
@@ -422,7 +422,7 @@ namespace Drivers
     }
     Instruction* Device::matchInstruction(Instructions* instructions, const ByteArray& buffer)
     {
-        for (uint i = 0; i < instructions->count(); i++)
+        for (uint32_t i = 0; i < instructions->count(); i++)
         {
             Instruction* instruction = instructions->at(i);
             if(instruction->match(&buffer, description()))
@@ -434,7 +434,7 @@ namespace Drivers
     }    
     void Device::setAllowLog(Instructions* instructions, bool allowInformation, bool allowMessage)
     {
-        for (uint i = 0; i < instructions->count(); i++)
+        for (uint32_t i = 0; i < instructions->count(); i++)
         {
             Instruction* instruction = instructions->at(i);
             instruction->setAllowLog(allowInformation, allowMessage);

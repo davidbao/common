@@ -36,7 +36,7 @@ namespace Communication
             return false;
         }
         
-        uint timeout = device->description()->receiveTimeout();
+        uint32_t timeout = device->description()->receiveTimeout();
         
         int headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
         if (ClientContext::HeaderLength != headerLength ||
@@ -199,7 +199,7 @@ namespace Communication
 			return false;
 		}
 
-		uint timeout = device->description()->receiveTimeout();
+		uint32_t timeout = device->description()->receiveTimeout();
 
 		bool matchHeader = false;
 		do
@@ -274,7 +274,7 @@ namespace Communication
         assert(context != nullptr);
         context->setPeek(true);
         
-        uint timeout = device->description()->receiveTimeout();
+        uint32_t timeout = device->description()->receiveTimeout();
         
         int headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
         if (ClientContext::HeaderLength != headerLength ||

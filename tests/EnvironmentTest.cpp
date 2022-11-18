@@ -27,7 +27,7 @@ bool testGetVariables() {
     Environment::getVariables(variables);
     StringArray keys;
     variables.keys(keys);
-    for (uint i = 0; i < keys.count(); i++) {
+    for (uint32_t i = 0; i < keys.count(); i++) {
         const String &key = keys[i];
         String value;
         if (variables.at(key, value)) {

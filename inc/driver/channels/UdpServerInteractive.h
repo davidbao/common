@@ -29,7 +29,7 @@ namespace Drivers
 
         ssize_t send(const uint8_t* buffer, off_t offset, size_t count) override;
 		ssize_t receive(uint8_t* buffer, off_t offset, size_t count) override;
-        ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint timeout) override;
+        ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout) override;
         
         const Endpoint& peerEndpoint() const override;
         const Endpoint& endpoint() const override;

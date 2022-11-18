@@ -49,7 +49,7 @@ namespace Drivers
         {
             _closeTimeout = timeout;
         }
-		inline void setCloseTimeout(uint milliSeconds)
+		inline void setCloseTimeout(uint32_t milliSeconds)
         {
             _closeTimeout = TimeSpan::fromMilliseconds((double)milliSeconds);
         }
@@ -103,17 +103,17 @@ namespace Drivers
         {
         }
         
-        inline uint getOpenTimeout() const
+        inline uint32_t getOpenTimeout() const
         {
             return _openTimeout;
         }
-        inline void setOpenTimeout(uint timeout)
+        inline void setOpenTimeout(uint32_t timeout)
         {
             _openTimeout = timeout;
         }
         inline void setOpenTimeout(TimeSpan timeout)
         {
-            _openTimeout = (uint)timeout.totalMilliseconds();
+            _openTimeout = (uint32_t)timeout.totalMilliseconds();
         }
         
         void copyFrom(const BluetoothChannelBaseContext* context) override
@@ -128,7 +128,7 @@ namespace Drivers
         }
         
     private:
-        uint _openTimeout;
+        uint32_t _openTimeout;
     };
 }
 

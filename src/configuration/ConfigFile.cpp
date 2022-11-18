@@ -93,7 +93,7 @@ namespace Common
     ConfigFile::ConfigFile(const String& fullFileName, FileType type) : ConfigFile(nullptr, Path::getDirectoryName(fullFileName), Path::getFileName(fullFileName), type)
     {
     }
-    ConfigFile::ConfigFile(const String& text, uint length, FileType type) : ConfigFile(type)
+    ConfigFile::ConfigFile(const String& text, uint32_t length, FileType type) : ConfigFile(type)
     {
         this->text = text.substr(0, length);
     }

@@ -76,7 +76,7 @@ namespace Common {
 
 #ifndef WIN32
 
-    int readWithTimeout(int handle, char *data, uint maxlen, uint timeout) {
+    int readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout) {
         int len = -1;
         if (handle != -1) {
             const int MAX_COUNT = 512;
@@ -203,7 +203,7 @@ namespace Common {
         return result;
 #else
         char **argv = nullptr;
-        uint len = 0;
+        uint32_t len = 0;
         if (!arguments.isNullOrEmpty()) {
             String temp = arguments;
             StringArray as;
@@ -215,7 +215,7 @@ namespace Common {
             argv[0] = new char[tempLen];
             memset(argv[0], 0, tempLen);
             strcpy(argv[0], fileName);
-            for (uint i = 1; i <= len; i++) {
+            for (uint32_t i = 1; i <= len; i++) {
                 const String &valueStr = as[i - 1];
                 size_t tempLen = valueStr.length() + 1;
                 argv[i] = new char[tempLen];
@@ -224,7 +224,7 @@ namespace Common {
             }
             argv[len + 1] = nullptr;
 
-//            for(uint i=0;i<len+1;i++)
+//            for(uint32_t i=0;i<len+1;i++)
 //            {
 //                const char* str = argv[i];
 //                if(str != nullptr)

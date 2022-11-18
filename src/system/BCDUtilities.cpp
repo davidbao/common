@@ -22,15 +22,15 @@ namespace Common
 		return (uint8_t)BCDToInt64(buffer, 0, 1);
 	}
 
-    void BCDUtilities::UInt16ToBCD(ushort value, uint8_t* buffer)
+    void BCDUtilities::UInt16ToBCD(uint16_t value, uint8_t* buffer)
 	{
 		Int64ToBCD(value, buffer, 2);
 	}
-	ushort BCDUtilities::BCDToUInt16(const uint8_t* buffer)
+	uint16_t BCDUtilities::BCDToUInt16(const uint8_t* buffer)
 	{
-		return (ushort)BCDToInt64(buffer, 0, sizeof(ushort));
+		return (uint16_t)BCDToInt64(buffer, 0, sizeof(uint16_t));
 	}
-    ushort BCDUtilities::BCDToUInt16(ushort value, bool bigEndian)
+    uint16_t BCDUtilities::BCDToUInt16(uint16_t value, bool bigEndian)
     {
         uint8_t buffer[2];
         if (bigEndian)
@@ -46,15 +46,15 @@ namespace Common
         return BCDToUInt16(buffer);
     }
 
-	void BCDUtilities::UInt32ToBCD(uint value, uint8_t* buffer)
+	void BCDUtilities::UInt32ToBCD(uint32_t value, uint8_t* buffer)
 	{
 		Int64ToBCD(value, buffer, 4);
 	}
-	uint BCDUtilities::BCDToUInt32(const uint8_t* buffer)
+	uint32_t BCDUtilities::BCDToUInt32(const uint8_t* buffer)
 	{
-		return (uint)BCDToInt64(buffer, 0, sizeof(uint));
+		return (uint32_t)BCDToInt64(buffer, 0, sizeof(uint32_t));
 	}
-    uint BCDUtilities::BCDToUInt32(uint value, bool bigEndian)
+    uint32_t BCDUtilities::BCDToUInt32(uint32_t value, bool bigEndian)
     {
         uint8_t buffer[4];
         if (bigEndian)

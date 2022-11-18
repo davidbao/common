@@ -515,7 +515,7 @@ bool testKeys() {
         return false;
     }
     for (size_t i = 0; i < keys.count(); ++i) {
-        if (keys[i] != Int32(i + 1).toString()) {
+        if (keys[i] != Int32((int)i + 1).toString()) {
             return false;
         }
     }
@@ -533,7 +533,7 @@ bool testStrings() {
         return false;
     }
     for (size_t i = 0; i < values.count(); ++i) {
-        if (values[i] != Int32(i + 1).toString()) {
+        if (values[i] != Int32((int)i + 1).toString()) {
             return false;
         }
     }

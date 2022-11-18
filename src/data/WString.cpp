@@ -24,7 +24,7 @@ namespace Common {
     const WString WString::Empty = L"";
     const WString WString::NA = L"N/A";     // Not applicable
 
-    WString::WString(uint capacity) : _buffer(capacity) {
+    WString::WString(uint32_t capacity) : _buffer(capacity) {
     }
 
     WString::WString(const WString &value) {
@@ -696,18 +696,6 @@ namespace Common {
         return _buffer.removeRange(pos, count);
     }
 
-    WString WString::convert(const wchar_t *format, ...) {
-        auto *message = new wchar_t[MaxFormatStrLength];
-        wmemset(message, 0, MaxFormatStrLength);
-        va_list ap;
-        va_start(ap, format);
-        vswprintf(message, MaxFormatStrLength, format, ap);
-        va_end(ap);
-        WString result = message;
-        delete[] message;
-        return result;
-    }
-
     WString WString::format(const wchar_t *format, ...) {
         auto *message = new wchar_t[MaxFormatStrLength];
         wmemset(message, 0, MaxFormatStrLength);
@@ -754,7 +742,8 @@ namespace Common {
 
     WString WString::convert(const String &str) {
         if (str.length() > 0) {
-            std::string strLocale = setlocale(LC_ALL, "");
+            String oldLocaleName = setlocale(LC_ALL, nullptr);
+            setlocale(LC_ALL, "");
             const char *chSrc = str.c_str();
             size_t nDestSize = mbstowcs(nullptr, chSrc, 0) + 1;
             auto *wchDest = new wchar_t[nDestSize];
@@ -762,7 +751,7 @@ namespace Common {
             mbstowcs(wchDest, chSrc, nDestSize);
             WString wstrResult = wchDest;
             delete[]wchDest;
-            setlocale(LC_ALL, strLocale.c_str());
+            setlocale(LC_ALL, oldLocaleName);
             return wstrResult;
         }
         return WString::Empty;
@@ -771,14 +760,15 @@ namespace Common {
     String WString::convert(const WString &str) {
         if (str.length() > 0) {
             const wchar_t *src = str.c_str();
-            std::string strLocale = setlocale(LC_ALL, "");
+            String oldLocaleName = setlocale(LC_ALL, nullptr);
+            setlocale(LC_ALL, "");
             size_t nDestSize = wcstombs(nullptr, src, 0) + 1;
             char *chDest = new char[nDestSize];
             memset(chDest, 0, nDestSize);
             wcstombs(chDest, src, nDestSize);
             String strResult = chDest;
             delete[]chDest;
-            setlocale(LC_ALL, strLocale.c_str());
+            setlocale(LC_ALL, oldLocaleName);
             return strResult;
         }
         return String::Empty;

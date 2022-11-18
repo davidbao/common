@@ -14,29 +14,20 @@
 namespace Common {
     const PositionCoord PositionCoord::Empty = PositionCoord();
 
-    PositionCoord::PositionCoord(double
-                                 longitude, double
-                                 latitude) {
-        this->longitude = longitude;
-        this->latitude = latitude;
+    PositionCoord::PositionCoord(double longitude, double latitude) : longitude(longitude), latitude(latitude) {
     }
 
-    PositionCoord::PositionCoord(
-            const PositionCoord &coord) {
-        this->longitude = coord.longitude;
-        this->latitude = coord.latitude;
+    PositionCoord::PositionCoord(const PositionCoord &coord) : PositionCoord(coord.longitude, coord.latitude) {
     }
 
-    PositionCoord::PositionCoord(
-            const String &str) {
+    PositionCoord::PositionCoord(const String &str) : PositionCoord(Double::NaN, Double::NaN) {
         PositionCoord coord;
         if (PositionCoord::parse(str, coord)) {
             this->operator=(coord);
         }
     }
 
-    PositionCoord::PositionCoord(
-            const char *str) : PositionCoord(String(str)) {
+    PositionCoord::PositionCoord(const char *str) : PositionCoord(String(str)) {
     }
 
     bool PositionCoord::isEmpty() const {
@@ -48,7 +39,7 @@ namespace Common {
         latitude = Double::NaN;
     }
 
-    const String PositionCoord::toString() const {
+    String PositionCoord::toString() const {
         if (isEmpty())
             return String::Empty;
         else
@@ -74,9 +65,10 @@ namespace Common {
         return false;
     }
 
-    void PositionCoord::operator=(const PositionCoord &value) {
+    PositionCoord &PositionCoord::operator=(const PositionCoord &value) {
         longitude = value.longitude;
         latitude = value.latitude;
+        return *this;
     }
 
     bool PositionCoord::operator==(const PositionCoord &value) const {
@@ -94,11 +86,11 @@ namespace Common {
     }
 
     void PositionCoord::read(Stream *stream, bool bigEndian) {
-        Double longitude, latitude;
-        longitude.read(stream, bigEndian);
-        latitude.read(stream, bigEndian);
+        Double lo, la;
+        lo.read(stream, bigEndian);
+        la.read(stream, bigEndian);
 
-        this->latitude = latitude;
-        this->longitude = longitude;
+        this->latitude = la;
+        this->longitude = lo;
     }
 }

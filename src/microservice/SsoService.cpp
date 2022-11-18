@@ -332,9 +332,9 @@ namespace Microservice {
                 }
 
                 String oname, opassword, key;
-                static const uint maxUserCount = 8;
+                static const uint32_t maxUserCount = 8;
                 bool correct = false;
-                for (uint i = 0; i < maxUserCount; i++) {
+                for (uint32_t i = 0; i < maxUserCount; i++) {
                     cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
                     cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
                     correct = name == oname && oldPassword == opassword;
@@ -474,9 +474,9 @@ namespace Microservice {
         assert(cs);
 
         String oname, opassword;
-        static const uint maxUserCount = 8;
+        static const uint32_t maxUserCount = 8;
         bool correct = false;
-        for (uint i = 0; i < maxUserCount; i++) {
+        for (uint32_t i = 0; i < maxUserCount; i++) {
             cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
             cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
             correct = name == oname && password == opassword;
@@ -502,9 +502,9 @@ namespace Microservice {
         assert(cs);
 
         String oname, opassword;
-        static const uint maxUserCount = 8;
+        static const uint32_t maxUserCount = 8;
         bool correct = false;
-        for (uint i = 0; i < maxUserCount; i++) {
+        for (uint32_t i = 0; i < maxUserCount; i++) {
             cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
             correct = name == oname;
             if (correct)
@@ -528,9 +528,9 @@ namespace Microservice {
         assert(cs);
 
         String oname, opassword, key;
-        static const uint maxUserCount = 8;
+        static const uint32_t maxUserCount = 8;
         bool correct = false;
-        for (uint i = 0; i < maxUserCount; i++) {
+        for (uint32_t i = 0; i < maxUserCount; i++) {
             cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
             cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
             correct = name == oname && oldPassword == opassword;

@@ -41,9 +41,9 @@ namespace Common
         YmlNode(const char& value);
         YmlNode(const uint8_t& value);
         YmlNode(const short& value);
-        YmlNode(const ushort& value);
+        YmlNode(const uint16_t& value);
         YmlNode(const int& value);
-        YmlNode(const uint& value);
+        YmlNode(const uint32_t& value);
         YmlNode(const int64_t& value);
         YmlNode(const uint64_t& value);
         YmlNode(const float& value);
@@ -60,7 +60,7 @@ namespace Common
         template <class T>
         YmlNode(const Vector<T>& value) : YmlNode(Type::TypeMap)
         {
-            for (uint i=0; i<value.count(); i++)
+            for (uint32_t i=0; i<value.count(); i++)
             {
                 add(YmlNode("item", value[i]));
             }
@@ -68,7 +68,7 @@ namespace Common
         template <class T>
         YmlNode(const PList<T>& value) : YmlNode(Type::TypeMap)
         {
-            for (uint i=0; i<value.count(); i++)
+            for (uint32_t i=0; i<value.count(); i++)
             {
                 add(YmlNode("item", value[i]));
             }
@@ -91,7 +91,7 @@ namespace Common
         bool getAttribute(const String& name, bool& value) const;
         bool getAttribute(const String& name, uint8_t& value) const;
         bool getAttribute(const String& name, int& value) const;
-        bool getAttribute(const String& name, uint& value) const;
+        bool getAttribute(const String& name, uint32_t& value) const;
         bool getAttribute(const String& name, int64_t& value) const;
         bool getAttribute(const String& name, uint64_t& value) const;
         bool getAttribute(const String& name, float& value) const;
@@ -103,7 +103,7 @@ namespace Common
             if(!getAttribute(name, texts))
                 return false;
             
-            for (uint i=0; i<texts.count(); i++)
+            for (uint32_t i=0; i<texts.count(); i++)
             {
                 T item;
                 if(T::parse(texts[i], item))
@@ -123,7 +123,7 @@ namespace Common
         bool setAttribute(const String& name, const bool& value);
         bool setAttribute(const String& name, const uint8_t& value);
         bool setAttribute(const String& name, const int& value);
-        bool setAttribute(const String& name, const uint& value);
+        bool setAttribute(const String& name, const uint32_t& value);
         bool setAttribute(const String& name, const int64_t& value);
         bool setAttribute(const String& name, const uint64_t& value);
         bool setAttribute(const String& name, const float& value);

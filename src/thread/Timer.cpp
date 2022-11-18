@@ -104,7 +104,7 @@ namespace Common
 #endif
         }
     }
-    void Timer::stop(uint delaySeconds)
+    void Timer::stop(uint32_t delaySeconds)
     {
         Debug::writeFormatLine("Stop a timer. name: '%s', period: %d", name().c_str(), _period);
         
@@ -199,7 +199,7 @@ namespace Common
             
             if(timer->_period > 0)
             {
-                uint msec = timer->_period < 10 ? 10 : timer->_period;
+                uint32_t msec = timer->_period < 10 ? 10 : timer->_period;
                 glutTimerFunc(msec, call_from_timer, value);
             }
         }

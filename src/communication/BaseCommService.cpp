@@ -235,7 +235,7 @@ namespace Communication
         _instructionPool = nullptr;
         
         _loopSendersMutex.lock();
-        for (uint i=0; i<_loopSenders.count(); i++)
+        for (uint32_t i=0; i<_loopSenders.count(); i++)
         {
             BaseLoopSender* sender = _loopSenders[i];
             sender->stop();
@@ -244,7 +244,7 @@ namespace Communication
         _loopSendersMutex.unlock();
         
         _packetSendersMutex.lock();
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             sender->stop();

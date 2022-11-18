@@ -144,7 +144,7 @@ namespace Drivers
         DriverManager* _manager;
         
         // key: instruction name, value: tick count.
-        Dictionary<String, uint> _nameTicks;
+        Dictionary<String, uint32_t> _nameTicks;
 	};
     typedef PList<InstructionPool> InstructionPools;
 }

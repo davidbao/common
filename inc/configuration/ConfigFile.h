@@ -68,7 +68,7 @@ namespace Common
         ConfigFile(Zip* zip, const String& fileName, FileType type = FileType::XmlFile);
         ConfigFile(const String& pathName, const String& fileName, FileType type = FileType::XmlFile);
         ConfigFile(const String& fullFileName, FileType type = FileType::XmlFile);
-        ConfigFile(const String& text, uint length, FileType type = FileType::XmlFile);
+        ConfigFile(const String& text, uint32_t length, FileType type = FileType::XmlFile);
         ConfigFile(DbClient* dbClient, const Uuid& id);
         ConfigFile(const ConfigFile& cf);
         ~ConfigFile() override;

@@ -109,7 +109,7 @@ namespace Net
     {
         return read(buffer + offset, count);
     }
-    ssize_t TcpClient::receive(uint8_t* buffer, off_t offset, size_t count, uint timeout)
+    ssize_t TcpClient::receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout)
     {
         if(timeout == 0)
         {
@@ -118,7 +118,7 @@ namespace Net
         // use it if useReceiveTimeout() return true;
         throw NotImplementedException("Can not implement this method.");
     }
-    ssize_t TcpClient::receive(ByteArray* buffer, size_t count, uint timeout)
+    ssize_t TcpClient::receive(ByteArray* buffer, size_t count, uint32_t timeout)
     {
         if(timeout == 0)
         {
@@ -135,11 +135,11 @@ namespace Net
         throw NotImplementedException("Can not implement this method.");
     }
     
-    bool TcpClient::connectToHost(const char *host, ushort port, TimeSpan timeout, bool reuseAddress)
+    bool TcpClient::connectToHost(const char *host, uint16_t port, TimeSpan timeout, bool reuseAddress)
     {
-        return connectToHost(host, port, (uint)timeout.totalMilliseconds(), reuseAddress);
+        return connectToHost(host, port, (uint32_t)timeout.totalMilliseconds(), reuseAddress);
     }
-    bool TcpClient::connectToHost(const char *host, ushort port, uint timeout, bool reuseAddress)
+    bool TcpClient::connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress)
     {
 #ifdef __APPLE__
         return connectToHost_IPV6(host, port, timeout, reuseAddress);
@@ -152,7 +152,7 @@ namespace Net
         return connectToHost(host.address, host.port, timeout, reuseAddress);
     }
 
-    bool TcpClient::connectToHost_IPV6(const char *host, ushort port, uint timeout, bool reuseAddress)
+    bool TcpClient::connectToHost_IPV6(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress)
     {
         // Fix bug: support IPV6.
         struct addrinfo hints, *res, *res0;
@@ -247,7 +247,7 @@ namespace Net
         return connected();
     }
     
-    bool TcpClient::connectToHost_IPV4(const char *host, ushort port, uint timeout, bool reuseAddress)
+    bool TcpClient::connectToHost_IPV4(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress)
     {
         struct sockaddr_in sin;     /* an Internet endpoint address  */
         
@@ -900,7 +900,7 @@ namespace Net
         }
     }
     
-    bool TcpSSLClient::connectToHost(const char *host, ushort port, uint timeout, bool reuseAddress)
+    bool TcpSSLClient::connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress)
     {
         const SSL_METHOD *meth;
         switch (_version)
@@ -1013,8 +1013,8 @@ namespace Net
             return false;
         }
         
-        uint start = TickTimeout::getCurrentTickCount();
-        uint end = TickTimeout::getDeadTickCount(start, timeout);
+        uint32_t start = TickTimeout::getCurrentTickCount();
+        uint32_t end = TickTimeout::getDeadTickCount(start, timeout);
         bool loop = true;
         while(loop)
         {

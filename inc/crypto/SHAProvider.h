@@ -31,7 +31,7 @@ namespace Common
         static bool computeHash(const String& src, String& output, KeySize size = KeySize::Default);
         
     private:
-        static bool computeHash(const uint8_t* src, uint length, ByteArray& output, KeySize size = KeySize::Default);
+        static bool computeHash(const uint8_t* src, uint32_t length, ByteArray& output, KeySize size = KeySize::Default);
     };
 }
 

@@ -56,11 +56,11 @@ namespace Common {
 
         JsonNode(const String &name, const short &value);
 
-        JsonNode(const String &name, const ushort &value);
+        JsonNode(const String &name, const uint16_t &value);
 
         JsonNode(const String &name, const int &value);
 
-        JsonNode(const String &name, const uint &value);
+        JsonNode(const String &name, const uint32_t &value);
 
         JsonNode(const String &name, const int64_t &value);
 
@@ -84,14 +84,14 @@ namespace Common {
 
         template<class T>
         JsonNode(const String &name, const Vector<T> &value) : JsonNode(name, Type::TypeArray) {
-            for (uint i = 0; i < value.count(); i++) {
+            for (uint32_t i = 0; i < value.count(); i++) {
                 add(JsonNode("item", value[i]));
             }
         }
 
         template<class T>
         JsonNode(const String &name, const PList<T> &value) : JsonNode(name, Type::TypeArray) {
-            for (uint i = 0; i < value.count(); i++) {
+            for (uint32_t i = 0; i < value.count(); i++) {
                 add(JsonNode("item", value[i]));
             }
         }
@@ -122,11 +122,11 @@ namespace Common {
 
         bool getAttribute(const String &name, short &value) const;
 
-        bool getAttribute(const String &name, ushort &value) const;
+        bool getAttribute(const String &name, uint16_t &value) const;
 
         bool getAttribute(const String &name, int &value) const;
 
-        bool getAttribute(const String &name, uint &value) const;
+        bool getAttribute(const String &name, uint32_t &value) const;
 
         bool getAttribute(const String &name, int64_t &value) const;
 
@@ -148,7 +148,7 @@ namespace Common {
             if (!getAttribute(name, texts))
                 return false;
 
-            for (uint i = 0; i < texts.count(); i++) {
+            for (uint32_t i = 0; i < texts.count(); i++) {
                 T item;
                 if (T::parse(texts[i], item)) {
                     value.add(item);
@@ -175,7 +175,7 @@ namespace Common {
 
         Type type() const;
 
-        uint size() const;
+        uint32_t size() const;
 
         bool isEmpty() const;
 

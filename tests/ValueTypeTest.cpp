@@ -7,9 +7,12 @@
 //
 
 #include <cfloat>
+#include <limits.h>
 #include "data/ValueType.h"
+#include "data/WString.h"
 #include "system/Math.h"
 #include "IO/MemoryStream.h"
+#include "data/Culture.h"
 
 using namespace Common;
 
@@ -590,61 +593,313 @@ bool testValueComparison() {
 bool testFormatString() {
     // "C" or "c"
     {
+        Double test(1234.56);
+        NumberFormatInfo info;
+        info.currencyPositivePattern = 0;   // $n
+        String str = test.toString("C", &info);
+        if (str != "¤1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(1234.56);
+        NumberFormatInfo info;
+        info.currencyPositivePattern = 1;   // n$
+        String str = test.toString("C", &info);
+        if (str != "1,234.56¤") {
+            return false;
+        }
+    }
+    {
+        Double test(1234.56);
+        NumberFormatInfo info;
+        info.currencyPositivePattern = 2;   // $ n
+        String str = test.toString("C", &info);
+        if (str != "¤ 1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(1234.56);
+        NumberFormatInfo info;
+        info.currencyPositivePattern = 3;   // n $
+        String str = test.toString("C", &info);
+        if (str != "1,234.56 ¤") {
+            return false;
+        }
+    }
+
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 0;   // ($n)
+        String str = test.toString("C", &info);
+        if (str != "(¤1,234.56)") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 1;   // -$n
+        String str = test.toString("C", &info);
+        if (str != "-¤1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 2;   // $-n
+        String str = test.toString("C", &info);
+        if (str != "¤-1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 3;   // $n-
+        String str = test.toString("C", &info);
+        if (str != "¤1,234.56-") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 4;   // (n$)
+        String str = test.toString("C", &info);
+        if (str != "(1,234.56¤)") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 5;   // -n$
+        String str = test.toString("C", &info);
+        if (str != "-1,234.56¤") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 6;   // n-$
+        String str = test.toString("C", &info);
+        if (str != "1,234.56-¤") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 7;   // n$-
+        String str = test.toString("C", &info);
+        if (str != "1,234.56¤-") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 8;   // -n $
+        String str = test.toString("C", &info);
+        if (str != "-1,234.56 ¤") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 9;   // -$ n
+        String str = test.toString("C", &info);
+        if (str != "-¤ 1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 10;   // n $-
+        String str = test.toString("C", &info);
+        if (str != "1,234.56 ¤-") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 11;   // $ n-
+        String str = test.toString("C", &info);
+        if (str != "¤ 1,234.56-") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 12;   // $ -n
+        String str = test.toString("C", &info);
+        if (str != "¤ -1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 13;   // n- $
+        String str = test.toString("C", &info);
+        if (str != "1,234.56- ¤") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 14;   // ($ n)
+        String str = test.toString("C", &info);
+        if (str != "(¤ 1,234.56)") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        NumberFormatInfo info;
+        info.currencyNegativePattern = 15;   // (n $)
+        String str = test.toString("C", &info);
+        if (str != "(1,234.56 ¤)") {
+            return false;
+        }
+    }
+
+    {
         Double test(123.456);
         String str = test.toString("C");
-        if (str != "$123.46") {
+        if (str != "¤123.46") {
             return false;
         }
     }
     {
         Double test(123.456);
         String str = test.toString("c");
-        if (str != "$123.46") {
+        if (str != "¤123.46") {
             return false;
         }
     }
     {
         Double test(123.456);
         String str = test.toString("C3");
-        if (str != "$123.456") {
+        if (str != "¤123.456") {
             return false;
         }
     }
     {
         Double test(123.456);
         String str = test.toString("c3");
-        if (str != "$123.456") {
+        if (str != "¤123.456") {
             return false;
         }
     }
     {
         Double test(-123.456);
         String str = test.toString("C");
-        if (!(str == "-$123.46" || str == "($123.46)")) {
+        if (str != "-¤123.46") {
             return false;
         }
     }
     {
         Double test(-123.456);
         String str = test.toString("c");
-        if (!(str == "-$123.46" || str == "($123.46)")) {
+        if (str != "-¤123.46") {
             return false;
         }
     }
     {
         Double test(-123.456);
         String str = test.toString("C3");
-        if (!(str == "-$123.456" || str == "($123.456)")) {
+        if (str != "-¤123.456") {
             return false;
         }
     }
     {
         Double test(-123.456);
         String str = test.toString("c3");
-        if (!(str == "-$123.456" || str == "($123.456)")) {
+        if (str != "-¤123.456") {
             return false;
         }
     }
+    {
+        Double test(-1234.56);
+        String str = test.toString("C");
+        if (str != "-¤1,234.56") {
+            return false;
+        }
+    }
+    {
+        Double test(-1234.56);
+        String str = test.toString("c");
+        if (str != "-¤1,234.56") {
+            return false;
+        }
+    }
+
+//    // zh-CN
+//    {
+//        Double test(1234.56);
+//        Culture culture("zh-CN");
+//        String str = test.toString("c", &culture);
+//        if (str != "￥1,234.56") {
+//            return false;
+//        }
+//    }
+//    {
+//        Double test(-1234.56);
+//        Culture culture("zh-CN");
+//        String str = test.toString("c", &culture);
+//        if (str != "￥-1,234.56") {
+//            return false;
+//        }
+//    }
+
+//    // fr-FR
+//    {
+//        Double test(1234.56);
+//        Culture culture("fr-FR");
+//        String str = test.toString("c", &culture);
+//        if (str != "1 234,56 Eu") {
+//            return false;
+//        }
+//    }
+//    {
+//
+//        Double test(-1234.56);
+//        Culture culture("fr-FR");
+//        String str = test.toString("c", &culture);
+//        if (str != "1 234,56 Eu-") {
+//            return false;
+//        }
+//    }
+
+//    // ja-JP
+//    {
+//        Double test(1234.56);
+//        Culture culture("ja-JP");
+//        String str = test.toString("c", &culture);
+//        if (str != "¥1,234.56") {
+//            return false;
+//        }
+//    }
+//    {
+//
+//        Double test(-1234.56);
+//        Culture culture("ja-JP");
+//        String str = test.toString("c", &culture);
+//        if (str != "¥-1,234.56") {
+//            return false;
+//        }
+//    }
 
     // "D" or "d"
     {
@@ -926,14 +1181,16 @@ bool testMinMaxString() {
     {
         Char test(Char::MinValue);
         String str = test.toString("D");
-        if (str != "-128") {
+        String str2 = Int64(CHAR_MIN).toString("D");
+        if (str != str2) {
             return false;
         }
     }
     {
         Char test(Char::MaxValue);
         String str = test.toString("D");
-        if (str != "127") {
+        String str2 = Int64(CHAR_MAX).toString("D");
+        if (str != str2) {
             return false;
         }
     }
@@ -941,14 +1198,16 @@ bool testMinMaxString() {
     {
         WChar test(WChar::MinValue);
         String str = test.toString("D");
-        if (str != "-2147483648") {
+        String str2 = Int64(WCHAR_MIN).toString("D");
+        if (str != str2) {
             return false;
         }
     }
     {
         WChar test(WChar::MaxValue);
         String str = test.toString("D");
-        if (str != "2147483647") {
+        String str2 = Int64(WCHAR_MAX).toString("D");
+        if (str != str2) {
             return false;
         }
     }

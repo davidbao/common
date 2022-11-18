@@ -240,7 +240,7 @@ namespace Common {
         TimeSpan _expiredTime;
         bool _kickout;
 
-        uint _start;
+        uint32_t _start;
     };
 
     class HttpSessions {

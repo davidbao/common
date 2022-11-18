@@ -19,7 +19,7 @@ namespace Net
 		size_t available();
 		ssize_t write(const uint8_t *data, size_t count);
 		ssize_t read(uint8_t *data, size_t count);
-		ssize_t receiveBySize(BluetoothClient* client, uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint timeout = 3000);
+		ssize_t receiveBySize(BluetoothClient* client, uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout = 3000);
 
 		bool connected();
 

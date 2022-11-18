@@ -329,9 +329,9 @@ namespace Common {
         //
         DateTime addYears(int value);
 
-        uint subtract(DateTime prev, Resolutions tr) const;
+        uint32_t subtract(DateTime prev, Resolutions tr) const;
 
-        DateTime add(uint time, Resolutions tr) const;
+        DateTime add(uint32_t time, Resolutions tr) const;
 
         static Resolutions fromResolutionStr(const String &str);
 

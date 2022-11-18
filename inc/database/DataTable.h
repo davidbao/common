@@ -45,7 +45,7 @@ namespace Database {
 
     class DataColumns : public PList<DataColumn> {
     public:
-        DataColumns(bool autoDelete = true, uint capacity = PList<DataColumn>::DefaultCapacity);
+        DataColumns(bool autoDelete = true, uint32_t capacity = PList<DataColumn>::DefaultCapacity);
 
         DataColumn *operator[](size_t pos) const;
 
@@ -68,11 +68,11 @@ namespace Database {
 
         DataCell(const DataColumn *column, short value);
 
-        DataCell(const DataColumn *column, ushort value);
+        DataCell(const DataColumn *column, uint16_t value);
 
         DataCell(const DataColumn *column, int value);
 
-        DataCell(const DataColumn *column, uint value);
+        DataCell(const DataColumn *column, uint32_t value);
 
         DataCell(const DataColumn *column, int64_t value);
 
@@ -128,7 +128,7 @@ namespace Database {
 
     class DataCells : public PList<DataCell> {
     public:
-        DataCells(bool autoDelete = true, uint capacity = PList<DataCell>::DefaultCapacity);
+        DataCells(bool autoDelete = true, uint32_t capacity = PList<DataCell>::DefaultCapacity);
 
         DataCell *operator[](const char *columnName) const;
 
@@ -219,7 +219,7 @@ namespace Database {
 //    typedef PList<DataTable> DataTables;
     class DataTables : public PList<DataTable> {
     public:
-        DataTables(uint capacity = PList<DataTable>::DefaultCapacity);
+        DataTables(uint32_t capacity = PList<DataTable>::DefaultCapacity);
 
         bool contains(const String &tableName) const;
 

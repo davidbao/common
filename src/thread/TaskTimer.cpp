@@ -87,7 +87,7 @@ namespace Common
     bool TaskTimer::remove(timer_callback callback)
     {
         Locker locker(&_groupsMutex);
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             if(_groups[i]->callback == callback)
             {
@@ -100,7 +100,7 @@ namespace Common
     bool TaskTimer::remove(const String& name)
     {
         Locker locker(&_groupsMutex);
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             if(_groups[i]->name == name)
             {
@@ -119,7 +119,7 @@ namespace Common
             _groupsMutex.lock();
         }
         
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             Group* group = _groups[i];
             if(group->name == name)
@@ -145,7 +145,7 @@ namespace Common
     bool TaskTimer::contains(timer_callback callback)
     {
         Locker locker(&_groupsMutex);
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             if(_groups[i]->callback == callback)
             {
@@ -157,7 +157,7 @@ namespace Common
     bool TaskTimer::contains(const String& name)
     {
         Locker locker(&_groupsMutex);
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             if(_groups[i]->name == name)
             {
@@ -184,21 +184,21 @@ namespace Common
     	else
     		_timer = new Timer(name, taskTimeUp, this, (int)dueTime.totalMilliseconds(), 1);
         
-//        uint interval = 0;      // ms
+//        uint32_t interval = 0;      // ms
 //        if(_groups.count() == 1)
 //        {
-//            interval = (uint)_groups[0]->interval.totalMilliseconds();
+//            interval = (uint32_t)_groups[0]->interval.totalMilliseconds();
 //        }
 //        else if(_groups.count() > 1)
 //        {
 //            Group* group1 = _groups[0];
 //            Group* group2 = _groups[1];
-//            interval = Math::getGreatestCommonDivisor((uint)group1->interval.totalMilliseconds(), (uint)group2->interval.totalMilliseconds());
+//            interval = Math::getGreatestCommonDivisor((uint32_t)group1->interval.totalMilliseconds(), (uint32_t)group2->interval.totalMilliseconds());
 //            
-//            for (uint i=2; i<_groups.count(); i++)
+//            for (uint32_t i=2; i<_groups.count(); i++)
 //            {
 //                Group* group = _groups[i];
-//                interval = Math::getGreatestCommonDivisor(interval, (uint)group->interval.totalMilliseconds());
+//                interval = Math::getGreatestCommonDivisor(interval, (uint32_t)group->interval.totalMilliseconds());
 //            }
 //        }
 //        
@@ -236,7 +236,7 @@ namespace Common
         
         Locker locker(&_groupsMutex);
         
-        for (uint i=0; i<_groups.count(); i++)
+        for (uint32_t i=0; i<_groups.count(); i++)
         {
             Group* group = _groups[i];
             if(group->isTimeup())

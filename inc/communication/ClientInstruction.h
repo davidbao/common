@@ -375,7 +375,7 @@ namespace Communication
                 ms.writeByte(rcontext->transfer());
                 if(transfer == BasePacketContext::TransferHeader)
                 {
-                    uint packetCount = rcontext->calcPacketCount();
+                    uint32_t packetCount = rcontext->calcPacketCount();
                     rcontext->setPacketCount(packetCount);
                     ms.writeUInt32(packetCount);
                     ms.writeUInt32(rcontext->inputData()->count());
@@ -383,7 +383,7 @@ namespace Communication
                 else if(transfer == BasePacketContext::TransferData)
                 {
                     // send the elements.
-                    uint packetNo = rcontext->getPacketNo();
+                    uint32_t packetNo = rcontext->getPacketNo();
                     assert(packetNo < rcontext->ranges().count());
                     T* t = rcontext->ranges().at(packetNo);
                     t->write(&ms);
@@ -441,14 +441,14 @@ namespace Communication
         }
         
 //    private:
-//        uint calcPacketCount(PacketContext<T, K>* context)
+//        uint32_t calcPacketCount(PacketContext<T, K>* context)
 //        {
 //            const T* inputData = context->inputData();
 //            assert(inputData);
 //            MemoryStream ms;
 //            size_t count = 0;
 //            _ranges.clear();
-//            for (uint i = 0; i < inputData->count(); i++)
+//            for (uint32_t i = 0; i < inputData->count(); i++)
 //            {
 //                P* p = inputData->at(i);
 //                p->write(&ms);
@@ -511,10 +511,10 @@ namespace Communication
         bool saveFileInner(const FileHeader* header, const FileDatas* fds);
         bool saveFileInner(const FileHeader* header, const FileData* fd);
         
-        bool readFile(Stream* stream, const FileHeader* header, uint packetNo, uint packetLength) const;
+        bool readFile(Stream* stream, const FileHeader* header, uint32_t packetNo, uint32_t packetLength) const;
         
     protected:
-        static uint calcPacketCount(FileHeader* header, uint packetLength);
+        static uint32_t calcPacketCount(FileHeader* header, uint32_t packetLength);
         
     private:
         FileHeader _header;
@@ -534,7 +534,7 @@ namespace Communication
         }
         
     public:
-        static uint calcPacketCount(FileContext<T>* context)
+        static uint32_t calcPacketCount(FileContext<T>* context)
         {
             return FileInstructionEntry::calcPacketCount(context->header(), context->packetLength());
 //            FileHeader* header = context->header();
@@ -547,10 +547,10 @@ namespace Communication
 //                        return 0;
 //
 //                    FileStream fs(fileName.c_str(), FileMode::FileOpen, FileAccess::FileRead);
-//                    uint packetLength = context->packetLength();
+//                    uint32_t packetLength = context->packetLength();
 //                    assert(packetLength > 0);
 //                    int64_t fileLength = fs.length();
-//                    return (fileLength % packetLength == 0) ? (uint)(fileLength / packetLength) : (uint)(fileLength / packetLength + 1);
+//                    return (fileLength % packetLength == 0) ? (uint32_t)(fileLength / packetLength) : (uint32_t)(fileLength / packetLength + 1);
 //                }
 //                else
 //                {
@@ -579,12 +579,12 @@ namespace Communication
 //                    Debug::writeFormatLine("FileInstruction::readFile, can not open file, file name: %s", fileName.c_str());
 //                    return false;
 //                }
-//                uint packetNo = rcontext->getPacketNo();
-//                uint position = packetNo * rcontext->packetLength();
+//                uint32_t packetNo = rcontext->getPacketNo();
+//                uint32_t position = packetNo * rcontext->packetLength();
 //                fs.seek(position);
-//                uint fileLength = header->fileLength;
-//                uint lastLength = fileLength - position;
-//                uint dataLength = rcontext->packetLength() <= lastLength ? rcontext->packetLength() : lastLength;
+//                uint32_t fileLength = header->fileLength;
+//                uint32_t lastLength = fileLength - position;
+//                uint32_t dataLength = rcontext->packetLength() <= lastLength ? rcontext->packetLength() : lastLength;
 //                uint8_t* buffer = new uint8_t[dataLength];
 //                memset(buffer, 0, dataLength);
 //                fs.read(buffer, 0, dataLength);
@@ -757,7 +757,7 @@ namespace Communication
                 if(transfer == BasePacketContext::TransferHeader)
                 {
                     rcontext->inputData()->write(&ms);
-                    uint packetCount = this->calcPacketCount(rcontext);
+                    uint32_t packetCount = this->calcPacketCount(rcontext);
                     rcontext->setPacketCount(packetCount);
                     rcontext->header()->write(&ms);
                     return true;

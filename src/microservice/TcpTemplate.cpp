@@ -141,7 +141,7 @@ namespace Microservice {
 
     RpcClient *TcpTemplate::getOrNewClient(const Url &url) {
         RpcClient *client = nullptr;
-        for (uint i = 0; i < _clients.count(); i++) {
+        for (uint32_t i = 0; i < _clients.count(); i++) {
             RpcClient *temp = _clients[i];
             const Endpoint &endpoint = temp->endpoint();
             if (endpoint == url.endpoint()) {

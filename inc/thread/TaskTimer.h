@@ -23,7 +23,7 @@ namespace Common
             String name;
             timer_callback callback;
             TimerExecution* execution;
-            uint start;
+            uint32_t start;
             TimeSpan interval;
             void* owner;
             
@@ -58,7 +58,7 @@ namespace Common
         bool remove(const TimerCallback<T>& callback)
         {
             Locker locker(&_groupsMutex);
-            for (uint i=0; i<_groups.count(); i++)
+            for (uint32_t i=0; i<_groups.count(); i++)
             {
                 if(_groups[i]->execution != nullptr &&
                    _groups[i]->execution->equals(callback))

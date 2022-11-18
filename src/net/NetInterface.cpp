@@ -582,7 +582,7 @@ namespace Net {
     //  eth0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
     bool NetInterface::getData(const String& iface, Data& data)
     {
-        uint nDevLen = iface.length();
+        uint32_t nDevLen = iface.length();
         if (nDevLen < 1 || nDevLen > 100)
         {
             printf("dev length too long\n");
@@ -680,7 +680,7 @@ namespace Net {
 //        String str = "192.168.2.100 lladdr 40:81:4e:9a:7a:9a DELAY\n192.168.2.101 lladdr d0:e1:40:9a:71:da REACHABLE";
         StringArray texts;
         StringArray::parse(str, texts, '\n');
-        for (uint i = 0; i < texts.count(); i++) {
+        for (uint32_t i = 0; i < texts.count(); i++) {
             const String &text = texts[i];
             StringArray items;
             StringArray::parse(text, items, ' ');

@@ -911,7 +911,7 @@ bool testKeys() {
         return false;
     }
     for (size_t i = 0; i < keys.count(); ++i) {
-        if (keys[i] != i + 1) {
+        if (keys[i] != (int)(i + 1)) {
             return false;
         }
     }
@@ -929,7 +929,7 @@ bool testValues() {
         return false;
     }
     for (size_t i = 0; i < values.count(); ++i) {
-        if (values[i] != i + 1) {
+        if (values[i] != (int)(i + 1)) {
             return false;
         }
     }

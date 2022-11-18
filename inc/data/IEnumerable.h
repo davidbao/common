@@ -15,11 +15,9 @@ namespace Common {
     template<typename T>
     class Iterator {
     public:
-        Iterator() {
-        }
+        Iterator() = default;
 
-        virtual ~Iterator() {
-        }
+        virtual ~Iterator() = default;
 
         struct iterator;
 

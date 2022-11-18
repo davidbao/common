@@ -48,7 +48,7 @@ namespace Drivers
 
 	private:
 		BluetoothClient* _client;
-		uint _startTime;
+		uint32_t _startTime;
         bool _autoDelete;
 
 		BluetoothChannelBaseContext* _context;

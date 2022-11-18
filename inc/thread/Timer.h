@@ -124,7 +124,7 @@ namespace Common
         ~Timer();
         
         void start();
-        void stop(uint delaySeconds = 10);
+        void stop(uint32_t delaySeconds = 10);
         
         bool change(int dueTime, int period);
         bool change(TimeSpan dueTime, TimeSpan period);
@@ -171,7 +171,7 @@ namespace Common
         int _period;
         
         bool _firstInvoke;
-        uint _start;
+        uint32_t _start;
         
         TimerExecution* _execution;
 

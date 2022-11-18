@@ -108,7 +108,7 @@ namespace Communication
             
             Debug::writeFormatLine("ClientService::startLoopSender, name: %s", name.c_str());
             Locker locker(&_loopSendersMutex);
-            for (uint i=0; i<_loopSenders.count(); i++)
+            for (uint32_t i=0; i<_loopSenders.count(); i++)
             {
                 BaseLoopSender* sender = _loopSenders[i];
                 if(sender->name() == name)
@@ -188,7 +188,7 @@ namespace Communication
             
             Debug::writeFormatLine("ClientService::startPacketSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 BasePacketSender* sender = _packetSenders[i];
                 if(sender->name() == name)
@@ -212,7 +212,7 @@ namespace Communication
         bool addPacketSender(const String& name, const K* data)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 PacketSender<T, K, C>* sender = dynamic_cast<PacketSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -253,7 +253,7 @@ namespace Communication
             void addRange(const T& data)
             {
                 Locker locker(&_bufferMutex);
-                for (uint i=0; i<data.count(); i++)
+                for (uint32_t i=0; i<data.count(); i++)
                 {
                     _buffer.enqueue(data[i]->clone());
                 }
@@ -313,7 +313,7 @@ namespace Communication
             
             Debug::writeFormatLine("ClientService::startPacketSyncSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 BasePacketSender* sender = _packetSenders[i];
                 if(sender->name() == name)
@@ -336,7 +336,7 @@ namespace Communication
         bool addPacketSyncSender(const String& name, const K* data)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 PacketSyncSender<T, K, C>* sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -355,7 +355,7 @@ namespace Communication
         bool addPacketSyncSender(const String& name, const T& data)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 PacketSyncSender<T, K, C>* sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -424,7 +424,7 @@ namespace Communication
         StatusContext sendVectorSync(const T& inputData, int packetCount, const String& name, int trySendCount = -1)
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -464,7 +464,7 @@ namespace Communication
         bool sendVectorAsync(const T& inputData, int packetCount, const String& name)
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -495,8 +495,8 @@ namespace Communication
             if (isSendSuccessfully(ids->name(), rcontext))
             {
                 result = true;
-                uint packetCount = rcontext->packetCount();
-                for (uint i = 0; i < packetCount; i++)
+                uint32_t packetCount = rcontext->packetCount();
+                for (uint32_t i = 0; i < packetCount; i++)
                 {
                     context->setPacketNo(i);
                     context->transferData();
@@ -521,7 +521,7 @@ namespace Communication
         }
         // T is input data, C is context.
         template<class T, class C>
-        bool downloadPacketAsync(const T& inputData, const String& name, uint packetNo = (uint)-1) const
+        bool downloadPacketAsync(const T& inputData, const String& name, uint32_t packetNo = (uint32_t)-1) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ClientService::downloadPacketAsync, name: %s", name.c_str()), 500);
@@ -533,7 +533,7 @@ namespace Communication
             
             C* context = new C();
             context->setInputData(&inputData);
-            if(packetNo == (uint)-1)
+            if(packetNo == (uint32_t)-1)
             {
                 context->transferHeader();
                 context->outputData()->clear();
@@ -560,7 +560,7 @@ namespace Communication
                 return DownloadFileResult::CommunicationError;
 
 #ifdef DEBUG
-            uint start = TickTimeout::getCurrentTickCount();
+            uint32_t start = TickTimeout::getCurrentTickCount();
 #endif
             DownloadFileResult result = DownloadFileResult::CommunicationError;
             C* context = new C();
@@ -589,12 +589,12 @@ namespace Communication
                     
                     String fileName = header->file_name;
 #ifdef DEBUG
-                    uint length = header->fileLength;
+                    uint32_t length = header->fileLength;
 #endif
-                    uint packetCount = rcontext->packetCount();
+                    uint32_t packetCount = rcontext->packetCount();
                     result = DownloadFileResult::Succeed;
                     
-                    for (uint i = 0; i < packetCount; i++)
+                    for (uint32_t i = 0; i < packetCount; i++)
                     {
                         C* context = new C();
                         context->setInputData(&inputData);
@@ -660,7 +660,7 @@ namespace Communication
                         {
                             lengthStr = String::convert("%.1fM", (double)length / 1024.0 / 1024.0);
                         }
-                        uint elapsed = TickTimeout::elapsed(start);
+                        uint32_t elapsed = TickTimeout::elapsed(start);
                         const char* elapsedStr = elapsed <= 10 * 1000 ? "elapsed: %.0f ms" : "elapsed: %.3f s";
                         String info = (String)"download a file %s, file name: %s, file length: %s, speed: %.1f K/s, " + elapsedStr;
                         Trace::writeFormatLine(info.c_str(),
@@ -686,13 +686,13 @@ namespace Communication
         
         // T is input data, C is context.
         template<class T, class C>
-        bool downloadFileHeaderAsync(const T& inputData, const String& name, uint packetLength = 1 * 1024 * 1024) const
+        bool downloadFileHeaderAsync(const T& inputData, const String& name, uint32_t packetLength = 1 * 1024 * 1024) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ClientService::downloadFileHeaderAsync, name: %s", name.c_str()), 200);
 #endif
 
-            uint maxPacketLength = this->maxPacketLength();
+            uint32_t maxPacketLength = this->maxPacketLength();
 			if(packetLength > maxPacketLength)
 				packetLength = maxPacketLength;
 
@@ -711,13 +711,13 @@ namespace Communication
         }
         // T is input data, C is context.
         template<class T, class C>
-        bool downloadFileDataAsync(const T& inputData, const String& name, const FileHeader* header, uint packetNo, uint packetLength = 1 * 1024 * 1024) const
+        bool downloadFileDataAsync(const T& inputData, const String& name, const FileHeader* header, uint32_t packetNo, uint32_t packetLength = 1 * 1024 * 1024) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ClientService::downloadFileDataAsync, name: %s", name.c_str()), 200);
 #endif
             
-            uint maxPacketLength = this->maxPacketLength();
+            uint32_t maxPacketLength = this->maxPacketLength();
             if(packetLength > maxPacketLength)
                 packetLength = maxPacketLength;
             
@@ -764,8 +764,8 @@ namespace Communication
             if (isSendSuccessfully(ids->name(), rcontext))
             {
                 result = true;
-                uint packetCount = rcontext->packetCount();
-                for (uint i = 0; i < packetCount; i++)
+                uint32_t packetCount = rcontext->packetCount();
+                for (uint32_t i = 0; i < packetCount; i++)
                 {
                     context->setPacketNo(i);
                     context->transferData();
@@ -791,14 +791,14 @@ namespace Communication
         
         // T is input data, C is context.
         template<class T, class C>
-        bool uploadFileSync(const FileHeader& header, const T& inputData, const String& name, FileCommEntry* entry = nullptr, uint packetLength = (uint)-1, const TimeSpan& interval = TimeSpan::Zero) const
+        bool uploadFileSync(const FileHeader& header, const T& inputData, const String& name, FileCommEntry* entry = nullptr, uint32_t packetLength = (uint32_t)-1, const TimeSpan& interval = TimeSpan::Zero) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ClientService::uploadFileSync, name: %s", name.c_str()), 200);
 #endif
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
             {
-                uint maxPacketLength = this->maxPacketLength();
+                uint32_t maxPacketLength = this->maxPacketLength();
                 if(packetLength > maxPacketLength)
                     packetLength = maxPacketLength;
             }
@@ -819,23 +819,23 @@ namespace Communication
 
             String fileName = temp.file_name;
 #ifdef DEBUG
-            uint start = TickTimeout::getCurrentTickCount();
-            uint length = temp.fileLength;
+            uint32_t start = TickTimeout::getCurrentTickCount();
+            uint32_t length = temp.fileLength;
 #endif
             bool result = false;
             C* context = new C();
             context->setHeader(&temp);
             context->setInputData(&inputData);
             context->transferHeader();
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
                 context->setPacketLength(packetLength);
             InstructionDescription* ids = new InstructionDescription(name, context);
             C* rcontext = dynamic_cast<C*>(_instructionPool->executeInstructionSync(ids));
             if (isSendSuccessfully(ids->name(), rcontext))
             {
                 result = true;
-                uint packetCount = rcontext->packetCount();
-                for (uint i = 0; i < packetCount; i++)
+                uint32_t packetCount = rcontext->packetCount();
+                for (uint32_t i = 0; i < packetCount; i++)
                 {
                     InstructionDescription* id = new InstructionDescription(name, context, false);
                     context->setPacketNo(i);
@@ -888,7 +888,7 @@ namespace Communication
             {
                 lengthStr = String::convert("%.1fM", (double)length / 1024.0 / 1024.0);
             }
-            uint elapsed = TickTimeout::elapsed(start);
+            uint32_t elapsed = TickTimeout::elapsed(start);
             const char* elapsedStr = elapsed <= 10 * 1000 ? "elapsed: %.0f ms" : "elapsed: %.3f s";
             String info = (String)"upload a file %s, file name: %s, file length: %s, speed: %.1f K/s, " + elapsedStr;
             Trace::writeFormatLine(info.c_str(),
@@ -903,12 +903,12 @@ namespace Communication
         
         // T is input data, P is item of T, C is context.
         template<class T, class P, class C>
-        void uploadPacketAsync(const T& inputData, const String& name, uint packetLength = 1 * 1024 * 1024) const
+        void uploadPacketAsync(const T& inputData, const String& name, uint32_t packetLength = 1 * 1024 * 1024) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ClientService::uploadPacketAsync, name: %s", name.c_str()), 200);
 #endif
-            uint maxPacketLength = this->maxPacketLength();
+            uint32_t maxPacketLength = this->maxPacketLength();
             if(packetLength > maxPacketLength)
                 packetLength = maxPacketLength;
             
@@ -923,8 +923,8 @@ namespace Communication
             context->setInputData(&inputData);
             InstructionDescription* ids = new InstructionDescription(name, context);
             _instructionPool->addInstruction(ids);
-            uint packetCount = context->calcPacketCount();
-            for (uint i = 0; i < packetCount; i++)
+            uint32_t packetCount = context->calcPacketCount();
+            for (uint32_t i = 0; i < packetCount; i++)
             {
                 Thread::msleep(10);
                 
@@ -969,7 +969,7 @@ namespace Communication
         
         virtual String interactiveName() const;
         
-        virtual uint maxPacketLength() const;
+        virtual uint32_t maxPacketLength() const;
         
     private:
         void createTcpDevice(const InstructionCallback& callback, bool enabled = true);
@@ -1006,7 +1006,7 @@ namespace Communication
         ~SSLClientService() override;
         
     protected:
-        uint maxPacketLength() const override;
+        uint32_t maxPacketLength() const override;
         
         String interactiveName() const override;
     };

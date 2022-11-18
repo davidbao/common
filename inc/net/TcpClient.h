@@ -32,16 +32,16 @@ namespace Net
         ssize_t send(const uint8_t* buffer, off_t offset, size_t count) override;
 
         ssize_t receive(uint8_t* buffer, off_t offset, size_t count) override;
-        ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint timeout) override;
-        ssize_t receive(ByteArray* buffer, size_t count, uint timeout) override;
+        ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout) override;
+        ssize_t receive(ByteArray* buffer, size_t count, uint32_t timeout) override;
         
         virtual ssize_t write(const uint8_t *data, size_t count);
         ssize_t write(const ByteArray& data);
         ssize_t write(const String& str);
         virtual ssize_t read(uint8_t *data, size_t count);
 
-		virtual bool connectToHost(const char *host, ushort port, uint timeout = 3000, bool reuseAddress = false);
-        bool connectToHost(const char *host, ushort port, TimeSpan timeout, bool reuseAddress = false);
+		virtual bool connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
+        bool connectToHost(const char *host, uint16_t port, TimeSpan timeout, bool reuseAddress = false);
         bool connectToHost(const Endpoint& host, TimeSpan timeout, bool reuseAddress = false);
 
 		virtual void close();
@@ -78,8 +78,8 @@ namespace Net
     private:
         bool updateEndpoints(int ai_family);
         
-        bool connectToHost_IPV4(const char *host, ushort port, uint timeout = 3000, bool reuseAddress = false);
-        bool connectToHost_IPV6(const char *host, ushort port, uint timeout = 3000, bool reuseAddress = false);
+        bool connectToHost_IPV4(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
+        bool connectToHost_IPV6(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
         
         bool hasNoError() const;
         bool isWriteSet(const TimeSpan& timeout) const;
@@ -113,7 +113,7 @@ namespace Net
         TcpSSLClient(SSLVersion version = SSLVersion::TLSv1_2, int sockId = -1, bool ipv4 = true);
         ~TcpSSLClient() override;
         
-        bool connectToHost(const char *host, ushort port, uint timeout = 3000, bool reuseAddress = false) override;
+        bool connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false) override;
         void close() override;
 
         ssize_t write(const uint8_t *data, size_t count) override;

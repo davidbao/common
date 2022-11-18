@@ -172,8 +172,8 @@ namespace Communication
         bool isTransferData() const;
         bool isTransferStatus() const;
 
-        uint packetLength() const;
-        void setPacketLength(uint packetLength);
+        uint32_t packetLength() const;
+        void setPacketLength(uint32_t packetLength);
         
     public:
         static const uint8_t TransferHeader = 0x01;
@@ -199,10 +199,10 @@ namespace Communication
         static const int MD5_COUNT = 16;
         
     public:
-        uint fileLength;
+        uint32_t fileLength;
         uint8_t filemd5[MD5_COUNT];
         String file_name;
-        uint packetCount;
+        uint32_t packetCount;
         String path;	// use by local db, it is not necessary to use in communications.
         
         FileHeader();
@@ -227,7 +227,7 @@ namespace Communication
     class FileData
     {
     public:
-        uint packetNo;
+        uint32_t packetNo;
         ByteArray data;
         
         FileData();
@@ -275,7 +275,7 @@ namespace Communication
         static const uint8_t PacketNotFound = 1;
         
     protected:
-        uint _count;
+        uint32_t _count;
         bool _autoDelete;
     };
     // download packet instruction's context.
@@ -307,14 +307,14 @@ namespace Communication
         {
         }
         
-        uint calcPacketCount()
+        uint32_t calcPacketCount()
         {
             _ranges.clear();
             const T* inputData = this->inputData();
             assert(inputData);
             MemoryStream ms;
             size_t count = 0;
-            for (uint i = 0; i < inputData->count(); i++)
+            for (uint32_t i = 0; i < inputData->count(); i++)
             {
                 P* p = inputData->at(i);
                 p->write(&ms);
@@ -407,7 +407,7 @@ namespace Communication
             FileDatas* fdatas = ElementContext<T, FileDatas>::outputData();
             if(fdatas != nullptr)
             {
-                for (uint i=0; i<fdatas->count(); i++)
+                for (uint32_t i=0; i<fdatas->count(); i++)
                 {
                     const FileData* fdata = fdatas->at(i);
                     if(fdata->packetNo == 0)
@@ -422,7 +422,7 @@ namespace Communication
             FileDatas* fdatas = ElementContext<T, FileDatas>::outputData();
             if(fdatas != nullptr)
             {
-                for (uint i=0; i<fdatas->count(); i++)
+                for (uint32_t i=0; i<fdatas->count(); i++)
                 {
                     const FileData* fdata = fdatas->at(i);
                     if(_header.packetCount - 1 == fdata->packetNo)
@@ -451,22 +451,22 @@ namespace Communication
             }
         }
         
-        inline uint calcPacketCount()
+        inline uint32_t calcPacketCount()
         {
-            uint fileLength = _header.FileHeader::fileLength;
-            uint packetLength = this->packetLength();
+            uint32_t fileLength = _header.FileHeader::fileLength;
+            uint32_t packetLength = this->packetLength();
             return (fileLength / packetLength) + ((fileLength % packetLength) != 0 ? 1 : 0);
         }
         
-        inline uint fileLength() const
+        inline uint32_t fileLength() const
         {
             return _header.fileLength;
         }
-        inline uint filePacketCount() const
+        inline uint32_t filePacketCount() const
         {
             return _header.packetCount;
         }
-        inline uint filePacketNo() const
+        inline uint32_t filePacketNo() const
         {
             FileDatas* fdatas = ElementContext<T, FileDatas>::outputData();
             if(fdatas != nullptr && fdatas->count() > 0)
@@ -483,9 +483,9 @@ namespace Communication
     class FileCommInfo : public IEquatable<FileCommInfo>, public IEvaluation<FileCommInfo>
     {
     public:
-        uint packetCount;
-        uint packetNo;
-        uint fileLength;
+        uint32_t packetCount;
+        uint32_t packetNo;
+        uint32_t fileLength;
         String fileName;
         
         FileCommInfo();

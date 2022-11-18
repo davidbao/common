@@ -1,4 +1,4 @@
-//
+﻿//
 //  Culture.h
 //  common
 //
@@ -12,95 +12,150 @@
 #include "data/ValueType.h"
 
 namespace Common {
-    class NumberFormat : public IEquatable<NumberFormat>, public IEvaluation<NumberFormat>, public IComparable<NumberFormat> {
-    public:
-        String currencySymbol;
-        bool p_cs_precedes;
-        bool n_cs_precedes;
-        bool p_sep_by_space;
-        bool n_sep_by_space;
-        int p_sign_posn;
-        int n_sign_posn;
-
-//        String decimal_point;
-//        String thousands_sep;
-//        String grouping;
-//        String positive_sign;
-//        String negative_sign;
-//
-//        String mon_decimal_point;
-//        String mon_thousands_sep;
-//        String mon_grouping;
-//
-//        char frac_digits;
-
-        NumberFormat();
-
-        ~NumberFormat() override;
-
-        bool equals(const NumberFormat &other) const override;
-
-        void evaluates(const NumberFormat &other) override;
-
-        int compareTo(const NumberFormat &other) const override;
+    enum DigitShapes {
+        DigitShapesContext = 0x0000,   // The shape depends on the previous text in the same output.
+        DigitShapesNone = 0x0001,   // Gives full Unicode compatibility.
+        DigitShapesNativeNational = 0x0002,   // National shapes determined by LOCALE_SNATIVEDIGITS
     };
 
-    class Culture {
+    //
+    // Property             Default Description
+    // PositiveSign           '+'   Character used to indicate positive values.
+    // NegativeSign           '-'   Character used to indicate negative values.
+    // NumberDecimalSeparator '.'   The character used as the decimal separator.
+    // NumberGroupSeparator   ','   The character used to separate groups of
+    //                              digits to the left of the decimal point.
+    // NumberDecimalDigits    2     The default number of decimal places.
+    // NumberGroupSizes       3     The number of digits in each group to the
+    //                              left of the decimal point.
+    // NaNSymbol             "NaN"  The string used to represent NaN values.
+    // PositiveInfinitySymbol"Infinity" The string used to represent positive
+    //                              infinities.
+    // NegativeInfinitySymbol"-Infinity" The string used to represent negative
+    //                              infinities.
+    //
+    //
+    //
+    // Property                  Default  Description
+    // CurrencyDecimalSeparator  '.'      The character used as the decimal
+    //                                    separator.
+    // CurrencyGroupSeparator    ','      The character used to separate groups
+    //                                    of digits to the left of the decimal
+    //                                    point.
+    // CurrencyDecimalDigits     2        The default number of decimal places.
+    // CurrencyGroupSizes        3        The number of digits in each group to
+    //                                    the left of the decimal point.
+    // CurrencyPositivePattern   0        The format of positive values.
+    // CurrencyNegativePattern   0        The format of negative values.
+    // CurrencySymbol            "$"      String used as local monetary symbol.
+    //
+    class NumberFormatInfo : public IFormatProvider<NumberFormatInfo> {
     public:
-        class Data {
+        int numberGroupSizes[5] = {3};
+        int currencyGroupSizes[5] = {3};
+        int percentGroupSizes[5] = {3};
+        String positiveSign = "+";
+        String negativeSign = "-";
+        String numberDecimalSeparator = ".";
+        String numberGroupSeparator = ",";
+        String currencyGroupSeparator = ",";
+        String currencyDecimalSeparator = ".";
+        String currencySymbol = "¤";  // U+00a4 is the symbol for International Monetary Fund.
+        String ansiCurrencySymbol;
+        String nanSymbol = "NaN";
+        String positiveInfinitySymbol = "Infinity";
+        String negativeInfinitySymbol = "-Infinity";
+        String percentDecimalSeparator = ".";
+        String percentGroupSeparator = ",";
+        String percentSymbol = "%";
+        String perMilleSymbol = "‰";
+        String nativeDigits[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        int numberDecimalDigits = 2;
+        int currencyDecimalDigits = 2;
+        int currencyPositivePattern = 0;
+        int currencyNegativePattern = 1;
+        int numberNegativePattern = 1;
+        int percentPositivePattern = 0;
+        int percentNegativePattern = 0;
+        int percentDecimalDigits = 2;
+        DigitShapes digitSubstitution = DigitShapesNone;
+
+        NumberFormatInfo();
+
+        ~NumberFormatInfo() override;
+
+        const NumberFormatInfo *getFormat(const char *typeName) const override;
+
+    public:
+        static const NumberFormatInfo *getInstance(const IFormatProvider<NumberFormatInfo> *provider);
+
+        static const NumberFormatInfo &currentInfo();
+    };
+
+    class Culture : public IEquatable<Culture>, public IEvaluation<Culture>, public IFormatProvider<NumberFormatInfo> {
+    public:
+        class Data : public IEquatable<Data>, public IEvaluation<Data> {
         public:
-            uint lcid;
+            uint32_t lcid;
             String name;
             String region;
             String language;
-            uint ansiPageCode;
-            uint oemPageCode;
+            uint32_t ansiPageCode;
+            uint32_t oemPageCode;
 
-            Data(uint lcid = 0x0009, const String &name = "en", const String &region = "English",
-                 const String &language = "English", uint ansiPageCode = 1252, uint oemPageCode = 437);
+            explicit Data(uint32_t lcid = 0x0009, const String &name = "en", const String &region = "English",
+                          const String &language = "English", uint32_t ansiPageCode = 1252, uint32_t oemPageCode = 437);
 
             Data(const Data &data);
 
-            ~Data();
+            ~Data() override;
+
+            bool equals(const Data &other) const override;
+
+            void evaluates(const Data &other) override;
 
             Data &operator=(const Data &value);
-
-            bool operator==(const Data &value) const;
-
-            bool operator!=(const Data &value) const;
         };
 
         Culture();
 
         Culture(const String &name);
 
-        Culture(uint lcid);
+        Culture(uint32_t lcid);
 
         Culture(const Culture &culture);
 
-        ~Culture();
+        ~Culture() override;
+
+        bool equals(const Culture &other) const override;
+
+        void evaluates(const Culture &other) override;
+
+        const NumberFormatInfo *getFormat(const char *typeName) const override;
 
         const String &name() const;
 
-        uint lcid() const;
+        uint32_t lcid() const;
 
         const String &region() const;
 
         const String &language() const;
 
-        uint ansiPageCode() const;
+        uint32_t ansiPageCode() const;
 
-        uint oemPageCode() const;
+        uint32_t oemPageCode() const;
 
-        const NumberFormat &numberFormat() const;
+        const NumberFormatInfo &numberFormatInfo() const;
 
         Culture &operator=(const Culture &value);
 
-        bool operator==(const Culture &value) const;
-
-        bool operator!=(const Culture &value) const;
-
         bool isChinese() const;
+
+    public:
+        static void updateNumberFormatInfo(NumberFormatInfo *info);
+
+    private:
+        void updateNumberFormatInfo(const String &cultureName);
 
     public:
         static const Culture &currentCulture();
@@ -108,7 +163,7 @@ namespace Common {
     private:
         Data _data;
 
-        NumberFormat _numberFormat;
+        NumberFormatInfo _numberFormat;
 
     private:
         static Culture _current;

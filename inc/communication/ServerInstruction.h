@@ -156,7 +156,7 @@ namespace Communication
                 ms.writeByte(transfer);
                 if(transfer == BasePacketContext::TransferHeader)
                 {
-                    uint packetCount = this->calcPacketCount(rcontext);
+                    uint32_t packetCount = this->calcPacketCount(rcontext);
                     if(packetCount == 0)
                     {
                         ms.writeByte(PacketContext<T, K>::PacketNotFound);
@@ -171,7 +171,7 @@ namespace Communication
                 else if(transfer == BasePacketContext::TransferData)
                 {
                     // send the elements.
-                    uint packetNo = rcontext->getPacketNo();
+                    uint32_t packetNo = rcontext->getPacketNo();
                     if(packetNo >= 0 && packetNo < this->_ranges.count())
                     {
                         ms.writeBoolean(true);
@@ -228,7 +228,7 @@ namespace Communication
         }
         
     private:
-        uint calcPacketCount(PacketContext<T, K>* context)
+        uint32_t calcPacketCount(PacketContext<T, K>* context)
         {
             const K* outputData = context->outputData();
             assert(outputData);
@@ -236,7 +236,7 @@ namespace Communication
             ms.setVersion(version());
             int count = 0;
             _ranges.clear();
-            for (uint i = 0; i < outputData->count(); i++)
+            for (uint32_t i = 0; i < outputData->count(); i++)
             {
                 P* p = outputData->at(i);
                 p->write(&ms);
@@ -248,7 +248,7 @@ namespace Communication
                     p->write(&ms);
                 }
                 K* k;
-                if (_ranges.count() == (uint)count)
+                if (_ranges.count() == (uint32_t)count)
                 {
                     k = new K(context->autoDelete());
                     k->copyContextFrom(outputData);
@@ -393,7 +393,7 @@ namespace Communication
                     ms.writeByte(rcontext->status);
                     if(rcontext->status == FileContext<T>::Succeed)
                     {
-                        uint packetCount = this->calcPacketCount(rcontext);
+                        uint32_t packetCount = this->calcPacketCount(rcontext);
                         if(packetCount == 0)
                         {
                             ms.writeByte(FileContext<T>::FileNotFound);

@@ -21,7 +21,7 @@ namespace Drivers
         
         const TimeSpan& closeTimeout() const override;
         void setCloseTimeout(const TimeSpan& timeout);
-        void setCloseTimeout(uint milliSeconds);
+        void setCloseTimeout(uint32_t milliSeconds);
         
         void copyFrom(const TcpChannelContext* context) override;
 

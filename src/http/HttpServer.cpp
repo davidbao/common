@@ -630,7 +630,7 @@ namespace Common {
             }
 
             bool hasContentType = false;
-            for (uint i = 0; i < response.headers.count(); i++) {
+            for (uint32_t i = 0; i < response.headers.count(); i++) {
                 const HttpHeader *header = response.headers[i];
                 if (header->name == "Content-Type")
                     hasContentType = true;

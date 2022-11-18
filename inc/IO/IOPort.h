@@ -40,9 +40,9 @@ namespace Common
 		size_t available();
 		ssize_t write(const char *data, size_t count);
 		ssize_t read(char *data, size_t count);
-		ssize_t read(char *data, size_t count, uint timeout);
-        ssize_t readLine(char *data, size_t count, uint timeout, const char* newLine = "\n");
-        ssize_t readEndBytes(char *buffer, size_t bufferLength, const char* endBuffer, size_t ebLength, int suffix, uint timeout);
+		ssize_t read(char *data, size_t count, uint32_t timeout);
+        ssize_t readLine(char *data, size_t count, uint32_t timeout, const char* newLine = "\n");
+        ssize_t readEndBytes(char *buffer, size_t bufferLength, const char* endBuffer, size_t ebLength, int suffix, uint32_t timeout);
 
 	protected:
 		handle _handle;

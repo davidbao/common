@@ -27,75 +27,75 @@ namespace Common
     {
         this->operator=(property);
     }
-    Property::Property(uint ownerId, const String& name, Type type, const FixedValue& value) : Property(ownerId, name, type)
+    Property::Property(uint32_t ownerId, const String& name, Type type, const FixedValue& value) : Property(ownerId, name, type)
     {
         setValue(type, value);
     }
-    Property::Property(uint ownerId, const String& name, Type type)
+    Property::Property(uint32_t ownerId, const String& name, Type type)
     {
         this->ownerId = ownerId;
         this->name = name;
         this->type = type;
         this->value.lValue = 0;
     }
-    Property::Property(uint ownerId, const String& name, bool value) : Property(ownerId, name, Type::Digital)
+    Property::Property(uint32_t ownerId, const String& name, bool value) : Property(ownerId, name, Type::Digital)
     {
         this->value.bValue = value;
     }
-    Property::Property(uint ownerId, const String& name, char value) : Property(ownerId, name, Type::Integer8)
+    Property::Property(uint32_t ownerId, const String& name, char value) : Property(ownerId, name, Type::Integer8)
     {
         this->value.cValue = value;
     }
-    Property::Property(uint ownerId, const String& name, uint8_t value) : Property(ownerId, name, Type::Integer8)
+    Property::Property(uint32_t ownerId, const String& name, uint8_t value) : Property(ownerId, name, Type::Integer8)
     {
         this->value.cValue = value;
     }
-    Property::Property(uint ownerId, const String& name, short value) : Property(ownerId, name, Type::Integer16)
+    Property::Property(uint32_t ownerId, const String& name, short value) : Property(ownerId, name, Type::Integer16)
     {
         this->value.sValue = value;
     }
-    Property::Property(uint ownerId, const String& name, ushort value) : Property(ownerId, name, Type::Integer16)
+    Property::Property(uint32_t ownerId, const String& name, uint16_t value) : Property(ownerId, name, Type::Integer16)
     {
         this->value.sValue = value;
     }
-    Property::Property(uint ownerId, const String& name, int value) : Property(ownerId, name, Type::Integer32)
+    Property::Property(uint32_t ownerId, const String& name, int value) : Property(ownerId, name, Type::Integer32)
     {
         this->value.nValue = value;
     }
-    Property::Property(uint ownerId, const String& name, uint value) : Property(ownerId, name, Type::Integer32)
+    Property::Property(uint32_t ownerId, const String& name, uint32_t value) : Property(ownerId, name, Type::Integer32)
     {
         this->value.nValue = value;
     }
-    Property::Property(uint ownerId, const String& name, int64_t value) : Property(ownerId, name, Type::Integer64)
+    Property::Property(uint32_t ownerId, const String& name, int64_t value) : Property(ownerId, name, Type::Integer64)
     {
         this->value.lValue = value;
     }
-    Property::Property(uint ownerId, const String& name, uint64_t value) : Property(ownerId, name, Type::Integer64)
+    Property::Property(uint32_t ownerId, const String& name, uint64_t value) : Property(ownerId, name, Type::Integer64)
     {
         this->value.tValue = value;
     }
-    Property::Property(uint ownerId, const String& name, float value) : Property(ownerId, name, Type::Float32)
+    Property::Property(uint32_t ownerId, const String& name, float value) : Property(ownerId, name, Type::Float32)
     {
         this->value.fValue = value;
     }
-    Property::Property(uint ownerId, const String& name, double value) : Property(ownerId, name, Type::Float64)
+    Property::Property(uint32_t ownerId, const String& name, double value) : Property(ownerId, name, Type::Float64)
     {
         this->value.dValue = value;
     }    
-    Property::Property(uint ownerId, const String& name, const String& value) : Property(ownerId, name, Type::Text)
+    Property::Property(uint32_t ownerId, const String& name, const String& value) : Property(ownerId, name, Type::Text)
     {
         this->value.strValue = nullptr;
         setStringValue(value, Type::Text, this->value);
     }
-    Property::Property(uint ownerId, const String& name, const DateTime& value) : Property(ownerId, name, Type::Date)
+    Property::Property(uint32_t ownerId, const String& name, const DateTime& value) : Property(ownerId, name, Type::Date)
     {
         this->value.tValue = value.ticks();
     }
-    Property::Property(uint ownerId, const String& name, const TimeSpan& value) : Property(ownerId, name, Type::TimeRange)
+    Property::Property(uint32_t ownerId, const String& name, const TimeSpan& value) : Property(ownerId, name, Type::TimeRange)
     {
         this->value.tValue = value.ticks();
     }
-    Property::Property(uint ownerId, const String& name, const Value& value) : Property(ownerId, name, Type::Custom)
+    Property::Property(uint32_t ownerId, const String& name, const Value& value) : Property(ownerId, name, Type::Custom)
     {
         this->value.objValue = value.clone();
     }
@@ -499,63 +499,63 @@ namespace Common
         _propertyChangedDelegates.invoke(this, &args);
     }
     
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, bool value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, bool value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, char value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, char value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, uint8_t value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint8_t value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, short value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, short value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, ushort value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint16_t value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, int value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, int value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, uint value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint32_t value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, int64_t value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, int64_t value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, uint64_t value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint64_t value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, float value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, float value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, double value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, double value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, const String& value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const String& value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, const DateTime& value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const DateTime& value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, const TimeSpan& value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const TimeSpan& value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint ownerId, const String& propName, const Property::Value& value)
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const Property::Value& value)
     {
         propertyChanged(Property(ownerId, propName, value));
     }

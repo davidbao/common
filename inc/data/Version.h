@@ -1,72 +1,98 @@
-#ifndef VERSION_H
-#define VERSION_H
+//
+//  Version.h
+//  common
+//
+//  Created by baowei on 2015/7/20.
+//  Copyright © 2015 com. All rights reserved.
+//
 
-#include <stdio.h>
+#ifndef Version_h
+#define Version_h
+
+#include <cstdio>
 #include "data/String.h"
 #include "data/Vector.h"
 
-namespace Common
-{
+namespace Common {
     class Stream;
-	struct Version
-	{
-	public:
-		Version(const char* version);
-		Version(const String& version);
-        Version(const Version& version);
-		Version(int major = 0, int minor = 0, int build = -1, int revision = -1);
-		~Version();
 
-		String toString() const;
+    struct Version : public IEquatable<Version>, public IEvaluation<Version>, public IComparable<Version> {
+    public:
+        Version(int major = 0, int minor = 0, int build = -1, int revision = -1);
+
+        Version(const char *version);
+
+        Version(const String &version);
+
+        Version(const Version &version);
+
+        ~Version() override;
+
+        bool equals(const Version &other) const override;
+
+        void evaluates(const Version &other) override;
+
+        int compareTo(const Version &other) const override;
+
         bool isEmpty() const;
 
-        void operator=(const Version& version);
-		bool operator==(const Version& version) const;
-		bool operator!=(const Version& version) const;
-		bool operator>=(const Version& version) const;
-		bool operator>(const Version& version) const;
-		bool operator<=(const Version& version) const;
-		bool operator<(const Version& version) const;
+        String toString() const;
 
-		void writeInt32(Stream* stream, bool bigEndian = true) const;
-		void readInt32(Stream* stream, bool bigEndian = true);
-		void writeInt16(Stream* stream, bool bigEndian = true) const;
-		void readInt16(Stream* stream, bool bigEndian = true);
-		void writeBCDInt16(Stream* stream) const;
-		void readBCDInt16(Stream* stream);
-		void writeBCDByte(Stream* stream) const;
-		void readBCDByte(Stream* stream);
-        void writeByte(Stream* stream) const;
-        void readByte(Stream* stream);
-        void write(Stream* stream) const;
-        void read(Stream* stream);
-        
+        Version &operator=(const Version &version);
+
+        explicit operator String() const;
+
+        void writeInt32(Stream *stream, bool bigEndian = true) const;
+
+        void readInt32(Stream *stream, bool bigEndian = true);
+
+        void writeInt16(Stream *stream, bool bigEndian = true) const;
+
+        void readInt16(Stream *stream, bool bigEndian = true);
+
+        void writeBCDInt16(Stream *stream) const;
+
+        void readBCDInt16(Stream *stream);
+
+        void writeBCDByte(Stream *stream) const;
+
+        void readBCDByte(Stream *stream);
+
+        void writeByte(Stream *stream) const;
+
+        void readByte(Stream *stream);
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
+
     public:
-        static bool parse(const String& str, Version& version);
-        static bool parseByte(const String& str, Version& version);
-        static const Version increase(const Version& version);
-        
+        static bool parse(const String &str, Version &version);
+
+        static bool parseByte(const String &str, Version &version);
+
+        static Version increase(const Version &version);
+
     public:
         static const Version Empty;
-        static const Version Verson1_0;
+        static const Version Version1_0;
 
-	private:
-		String toString(int fieldCount) const;
-
-		int compareTo(const Version& version) const;
-        
     private:
-        template <class T>
-        static bool parseInner(const String& str, Version& version);
+        String toString(int fieldCount) const;
 
-	private:
-		int _major;
-		int _minor;
-		int _build;
-		int _revision;
-	};
+    private:
+        template<class T>
+        static bool parseInner(const String &str, Version &version);
+
+    private:
+        int _major;
+        int _minor;
+        int _build;
+        int _revision;
+    };
+
     typedef Vector<Version> Versions;
 }
 
-#endif // VERSION_H
+#endif // Version_h
 

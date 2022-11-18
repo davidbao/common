@@ -36,23 +36,23 @@ namespace Drivers
             _addressStr = addressStr;
         }
         
-        inline uint sendTimeout() const
+        inline uint32_t sendTimeout() const
         {
             return _sendTimeout;
         }
-        inline void setSendTimeout(uint timeout)
+        inline void setSendTimeout(uint32_t timeout)
         {
             _sendTimeout = timeout;
         }
         inline void setSendTimeout(TimeSpan timeout)
         {
-            _sendTimeout = (uint)timeout.totalMilliseconds();
+            _sendTimeout = (uint32_t)timeout.totalMilliseconds();
         }
-        inline uint receiveTimeout(const InstructionContext* ic = nullptr) const
+        inline uint32_t receiveTimeout(const InstructionContext* ic = nullptr) const
         {
             if(ic != NULL)
             {
-                uint timeout = ic->receiveTimeout();
+                uint32_t timeout = ic->receiveTimeout();
                 if(timeout > 0)
                 {
                     return timeout;
@@ -60,18 +60,18 @@ namespace Drivers
             }
             return _receiveTimeout;
         }
-        inline uint receiveDelay(const InstructionContext* ic = nullptr) const
+        inline uint32_t receiveDelay(const InstructionContext* ic = nullptr) const
         {
             return receiveTimeout(ic);
         }
-        inline void setReceiveTimeout(uint timeout)
+        inline void setReceiveTimeout(uint32_t timeout)
         {
             if(timeout > 0)
                 _receiveTimeout = timeout;
         }
         inline void setReceiveTimeout(TimeSpan timeout)
         {
-            setReceiveTimeout((uint)timeout.totalMilliseconds());
+            setReceiveTimeout((uint32_t)timeout.totalMilliseconds());
         }
         
         virtual DeviceContext* clone() const
@@ -91,8 +91,8 @@ namespace Drivers
         }
         
     protected:
-        uint  _sendTimeout;
-        uint  _receiveTimeout;
+        uint32_t  _sendTimeout;
+        uint32_t  _receiveTimeout;
         
         int _address;
         String _addressStr;
@@ -166,11 +166,11 @@ namespace Drivers
 			return _instructionSet;
 		}
 
-		inline uint sendTimeout() const
+		inline uint32_t sendTimeout() const
 		{
             return _context->sendTimeout();
 		}
-		inline void setSendTimeout(uint timeout) 
+		inline void setSendTimeout(uint32_t timeout)
 		{
 			_context->setSendTimeout(timeout);
 		}
@@ -178,15 +178,15 @@ namespace Drivers
 		{
             _context->setSendTimeout(timeout);
 		}
-		inline uint receiveTimeout(const InstructionContext* ic = nullptr) const
+		inline uint32_t receiveTimeout(const InstructionContext* ic = nullptr) const
 		{
 			return _context->receiveTimeout(ic);
 		}
-		inline uint receiveDelay(const InstructionContext* ic = nullptr) const
+		inline uint32_t receiveDelay(const InstructionContext* ic = nullptr) const
 		{
 			return _context->receiveDelay(ic) * 3;
 		}
-		inline void setReceiveTimeout(uint timeout)
+		inline void setReceiveTimeout(uint32_t timeout)
 		{
             _context->setReceiveTimeout(timeout);
 		}

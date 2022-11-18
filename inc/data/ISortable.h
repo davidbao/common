@@ -23,8 +23,7 @@ namespace Common {
         // Greater than 0	    x is greater than y.
         typedef int(*Comparison)(const T &x, const T &y);
 
-        virtual ~ISortable() {
-        }
+        virtual ~ISortable() = default;
 
         virtual size_t count() const = 0;
 
@@ -198,8 +197,7 @@ namespace Common {
         // Greater than 0	    x is greater than y.
         typedef int(*Comparison)(const T &x, const T &y);
 
-        virtual ~ISortable() {
-        }
+        virtual ~ISortable() = default;
 
         virtual size_t count() const = 0;
 

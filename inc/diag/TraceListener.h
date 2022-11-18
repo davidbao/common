@@ -55,7 +55,7 @@ namespace Common
     class TraceListenerContexts : public PList<TraceListenerContext>
     {
     public:
-        TraceListenerContexts(bool autoDelete = true, uint capacity = DefaultCapacity);
+        TraceListenerContexts(bool autoDelete = true, uint32_t capacity = DefaultCapacity);
         TraceListenerContexts(const TraceListenerContexts& contexts);
         ~TraceListenerContexts() override;
         

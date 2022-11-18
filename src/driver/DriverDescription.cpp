@@ -33,7 +33,7 @@ namespace Drivers
     }
     const DeviceDescription* DriverDescription::getDevice(const String& name) const
     {
-        for (uint i=0; i<_devices->count(); i++)
+        for (uint32_t i=0; i<_devices->count(); i++)
         {
             const DeviceDescription* dd = _devices->at(i);
             if(dd->name() == name)

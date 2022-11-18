@@ -142,7 +142,7 @@ namespace Common {
 
         void writeBCDValue(int64_t value, int length);
 
-        uint readBCDValue(int length);
+        uint32_t readBCDValue(int length);
 
         const Version &version() const;
 
@@ -154,11 +154,11 @@ namespace Common {
 
         bool readText(String &text, int maxLength = 64);
 
-        bool readToEnd(ByteArray &array, uint cacheCount = 1024);
+        bool readToEnd(ByteArray &array, uint32_t cacheCount = 1024);
 
-        bool readToEnd(String &str, uint cacheCount = 1024);
+        bool readToEnd(String &str, uint32_t cacheCount = 1024);
 
-        String readLine(uint cacheCount = 64);
+        String readLine(uint32_t cacheCount = 64);
 
         void writeLine(const String &str);
 

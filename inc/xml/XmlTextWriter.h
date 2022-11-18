@@ -59,9 +59,9 @@ namespace Common
         void writeAttributeChar(const String& localName, const char& value);
         void writeAttributeByte(const String& localName, const uint8_t& value);
         void writeAttributeInt16(const String& localName, const short& value);
-        void writeAttributeUInt16(const String& localName, const ushort& value);
+        void writeAttributeUInt16(const String& localName, const uint16_t& value);
         void writeAttributeInt32(const String& localName, const int& value);
-        void writeAttributeUInt32(const String& localName, const uint& value);
+        void writeAttributeUInt32(const String& localName, const uint32_t& value);
         void writeAttributeInt64(const String& localName, const int64_t& value);
         void writeAttributeUInt64(const String& localName, const uint64_t& value);
         void writeAttributeFloat(const String& localName, const float& value);
@@ -71,9 +71,9 @@ namespace Common
         void writeAttribute(const String& localName, const char& value);
         void writeAttribute(const String& localName, const uint8_t& value);
         void writeAttribute(const String& localName, const short& value);
-        void writeAttribute(const String& localName, const ushort& value);
+        void writeAttribute(const String& localName, const uint16_t& value);
         void writeAttribute(const String& localName, const int& value);
-        void writeAttribute(const String& localName, const uint& value);
+        void writeAttribute(const String& localName, const uint32_t& value);
         void writeAttribute(const String& localName, const int64_t& value);
         void writeAttribute(const String& localName, const uint64_t& value);
         void writeAttribute(const String& localName, const float& value);

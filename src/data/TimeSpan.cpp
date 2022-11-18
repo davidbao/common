@@ -223,7 +223,7 @@ namespace Common {
         memset(buffer, 0, sizeof(buffer));
         stream->read(buffer, 0, sizeof(buffer));
         bool isNull = true;
-        for (uint i = 0; i < sizeof(buffer); i++) {
+        for (uint32_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;

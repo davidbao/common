@@ -143,11 +143,11 @@ namespace Communication
         return _transfer == TransferStatus;
     }
     
-    uint BasePacketContext::packetLength() const
+    uint32_t BasePacketContext::packetLength() const
     {
         return _packetLength < MaxPacketLength ? _packetLength : MaxPacketLength;
     }
-    void BasePacketContext::setPacketLength(uint packetLength)
+    void BasePacketContext::setPacketLength(uint32_t packetLength)
     {
         if (packetLength < MinPacketLength)
             _packetLength = MinPacketLength;
@@ -202,7 +202,7 @@ namespace Communication
                 FileStream fs(fileName.c_str(), FileMode::FileOpen, FileAccess::FileRead);
                 if(!fs.isOpen())
                     return false;
-                fileLength = (uint)fs.length();
+                fileLength = (uint32_t)fs.length();
             }
             return true;
         }
@@ -282,13 +282,13 @@ namespace Communication
     void FileData::write(Stream* stream) const
     {
         stream->writeUInt32(packetNo);
-        stream->writeUInt32((uint)data.count());
+        stream->writeUInt32((uint32_t)data.count());
         stream->write(data.data(), 0, data.count());
     }
     void FileData::read(Stream* stream)
     {
         packetNo = stream->readUInt32();
-        uint length = stream->readUInt32();
+        uint32_t length = stream->readUInt32();
         uint8_t* buffer = new uint8_t[length];
         stream->read(buffer, 0, length);
         data.addRange(buffer, length);

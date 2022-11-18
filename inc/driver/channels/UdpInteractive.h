@@ -28,7 +28,7 @@ namespace Drivers
             
             bool open(UdpChannelContext* ucc);
             
-            ssize_t send(const ushort port, const uint8_t *data, size_t len);
+            ssize_t send(const uint16_t port, const uint8_t *data, size_t len);
             
         private:
             bool isOpened() const;

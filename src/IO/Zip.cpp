@@ -163,7 +163,7 @@ namespace Common
                 len = zip_fread(zf->_handle->file, temp, count);
                 if(len > 0)
                 {
-                    buffer.addRange(temp, (uint)len);
+                    buffer.addRange(temp, (uint32_t)len);
                 }
             }while(len > 0);
             
@@ -186,7 +186,7 @@ namespace Common
                 len = zip_fread(zf->_handle->file, temp, count);
                 if(len > 0)
                 {
-                    text.append(temp, (uint)len);
+                    text.append(temp, (uint32_t)len);
                 }
             }while(len > 0);
             
@@ -351,7 +351,7 @@ namespace Common
         if (za == nullptr)
             return false;
 
-        for (uint i=0; i<filenames.count(); i++)
+        for (uint32_t i=0; i<filenames.count(); i++)
         {
             const String& fileName = filenames[i];
             if(File::exists(fileName))
@@ -401,7 +401,7 @@ namespace Common
         if (za == nullptr)
             return false;
 
-        for (uint i=0; i<filenames.count(); i++)
+        for (uint32_t i=0; i<filenames.count(); i++)
         {
             const String& fileName = filenames[i];
             if(File::exists(fileName))

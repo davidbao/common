@@ -42,7 +42,7 @@ namespace Common {
             writeByte((uint8_t) len);
         } else if (lengthCount == 4) {
             len = str.length();
-            writeUInt32((uint) len);
+            writeUInt32((uint32_t) len);
         } else {
             assert(false);
         }
@@ -51,7 +51,7 @@ namespace Common {
     }
 
     String Stream::readStr(String::StreamLength lengthCount) {
-        uint len = 0;
+        uint32_t len = 0;
         if (lengthCount == 2) {
             len = readUInt16();
         } else if (lengthCount == 1) {
@@ -409,19 +409,19 @@ namespace Common {
     }
 
     uint32_t Stream::readUInt24(bool bigEndian) {
-        return (uint) readInt24(bigEndian);
+        return (uint32_t) readInt24(bigEndian);
     }
 
     void Stream::writeUInt24(uint32_t value, bool bigEndian) {
         writeInt24((int32_t) value, bigEndian);
     }
 
-    void Stream::writeBCDUInt32(uint value) {
+    void Stream::writeBCDUInt32(uint32_t value) {
         writeBCDValue(value, 4);
     }
 
-    uint Stream::readBCDUInt32() {
-        return (uint) readBCDValue(4);
+    uint32_t Stream::readBCDUInt32() {
+        return (uint32_t) readBCDValue(4);
     }
 
     void Stream::writeBCDByte(uint8_t value) {
@@ -455,11 +455,11 @@ namespace Common {
         write(buffer, 0, length);
     }
 
-    uint Stream::readBCDValue(int length) {
+    uint32_t Stream::readBCDValue(int length) {
         uint8_t buffer[8];
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, length);
-        return (uint) BCDUtilities::BCDToInt64(buffer, 0, length);
+        return (uint32_t) BCDUtilities::BCDToInt64(buffer, 0, length);
     }
 
     bool Stream::canWrite() const {
@@ -499,7 +499,7 @@ namespace Common {
             off_t offset = 0;
             if (count > 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF) // UTF8 BOM
                 offset = 3;
-            String temp = String((const char *) buffer + offset, (uint) (count - offset));
+            String temp = String((const char *) buffer + offset, (uint32_t) (count - offset));
             text = temp.substr(0, Math::min(maxLength, (int) temp.length()));
         }
         delete[] buffer;
@@ -507,13 +507,13 @@ namespace Common {
         return true;
     }
 
-    bool Stream::readToEnd(ByteArray &array, uint cacheCount) {
+    bool Stream::readToEnd(ByteArray &array, uint32_t cacheCount) {
         uint8_t *buffer = new uint8_t[cacheCount];
         int64_t count = 0;
         do {
             count = read(buffer, 0, cacheCount);
             if (count > 0) {
-                array.addRange(buffer, (uint) count);
+                array.addRange(buffer, (uint32_t) count);
             }
         } while (count > 0);
         delete[] buffer;
@@ -521,14 +521,14 @@ namespace Common {
         return true;
     }
 
-    bool Stream::readToEnd(String &str, uint cacheCount) {
+    bool Stream::readToEnd(String &str, uint32_t cacheCount) {
         str.empty();
         uint8_t *buffer = new uint8_t[cacheCount];
         int64_t count = 0;
         do {
             count = read(buffer, 0, cacheCount);
             if (count > 0) {
-                str.append((const char *) buffer, (uint) count);
+                str.append((const char *) buffer, (uint32_t) count);
             }
         } while (count > 0);
         delete[] buffer;
@@ -536,7 +536,7 @@ namespace Common {
         return true;
     }
 
-    String Stream::readLine(uint cacheCount) {
+    String Stream::readLine(uint32_t cacheCount) {
         String str;
         uint8_t *buffer = new uint8_t[cacheCount];
         int64_t count = 0;
@@ -547,7 +547,7 @@ namespace Common {
                 off_t offset = 0;
                 if (count > 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF) // UTF8 BOM
                     offset = 3;
-                String temp = String((const char *) buffer + offset, (uint) (count - offset));
+                String temp = String((const char *) buffer + offset, (uint32_t) (count - offset));
                 int index = temp.find('\n');
                 if (index >= 0) {
                     str.append(temp.substr(0, index));

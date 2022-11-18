@@ -179,13 +179,13 @@ namespace Common
 		return len;
 	}
 
-	ssize_t IOPort::read(char *data, size_t count, uint timeout)
+	ssize_t IOPort::read(char *data, size_t count, uint32_t timeout)
 	{
 		ssize_t len = 0;
 		if(isOpen())
 		{
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
             do
             {
                 size_t available = this->available();
@@ -209,7 +209,7 @@ namespace Common
 		return len;
 	}
     
-    ssize_t IOPort::readEndBytes(char *buffer, size_t bufferLength, const char* endBuffer, size_t ebLength, int suffix, uint timeout)
+    ssize_t IOPort::readEndBytes(char *buffer, size_t bufferLength, const char* endBuffer, size_t ebLength, int suffix, uint32_t timeout)
     {
         ssize_t received = 0;
         if (isOpen())
@@ -219,8 +219,8 @@ namespace Common
             
             bool bReceiveEndBytes = false;
             int nSuffix = 0, nStartByte = 0;
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
             do
             {
                 if (bReceiveEndBytes && nSuffix >= suffix)
@@ -233,7 +233,7 @@ namespace Common
                         break;
                     continue;
                 }
-                if (received + 1 <= (uint)bufferLength)
+                if (received + 1 <= (uint32_t)bufferLength)
                 {
                     received += read(buffer + received, 1);
                 }
@@ -277,7 +277,7 @@ namespace Common
         }
         return received;
     }
-    ssize_t IOPort::readLine(char *data, size_t count, uint timeout, const char* newLine)
+    ssize_t IOPort::readLine(char *data, size_t count, uint32_t timeout, const char* newLine)
     {
         return readEndBytes(data, count, newLine, strlen(newLine), 0, timeout);
     }

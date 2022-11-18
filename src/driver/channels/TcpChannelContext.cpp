@@ -46,7 +46,7 @@ namespace Drivers
     {
         return _sendTimeout;
     }
-    void TcpChannelContext::setSendTimeout(uint timeout)
+    void TcpChannelContext::setSendTimeout(uint32_t timeout)
     {
         if(timeout > 0)
         {
@@ -65,7 +65,7 @@ namespace Drivers
     {
         return _recvTimeout;
     }
-    void TcpChannelContext::setReceiveTimeout(uint timeout)
+    void TcpChannelContext::setReceiveTimeout(uint32_t timeout)
     {
         if(timeout > 0)
         {
@@ -220,7 +220,7 @@ namespace Drivers
     {
         return _openTimeout;
     }
-    void TcpClientChannelContext::setOpenTimeout(uint timeout)
+    void TcpClientChannelContext::setOpenTimeout(uint32_t timeout)
     {
         if(timeout > 0)
         {

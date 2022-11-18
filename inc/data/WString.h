@@ -57,7 +57,7 @@ namespace Common {
         static const WString NA;     // Not applicable
 
         // Constructor & destructor
-        WString(uint capacity = 256);
+        WString(uint32_t capacity = 256);
 
         WString(const WString &value);
 
@@ -254,8 +254,6 @@ namespace Common {
         static WString fromBase64(const WString &value);
 
         static bool fromBase64(const WString &value, ByteArray &array);
-
-        static WString convert(const wchar_t *format, ...);
 
         static WString format(const wchar_t *format, ...);
 

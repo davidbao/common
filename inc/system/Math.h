@@ -16,7 +16,10 @@
 #if WIN32
 #undef min
 #undef max
-#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
+#endif // WIN32
 
 namespace Common {
     // https://en.cppreference.com/w/c/numeric/math
@@ -257,7 +260,7 @@ namespace Common {
 
         template<typename type>
         inline static type getSmallestCommonMultiple(const type& a, const type& b) {
-            uint m, n, c;
+            type m, n, c;
             m = a;
             n = b;
             while (b != 0) {

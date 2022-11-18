@@ -47,7 +47,7 @@ namespace Drivers
 	{
 		static int bindingCount = 0;
 		static const int MaxBindingCount = 5;
-		static const uint MaxDelayTime = 2000;	// 2s
+		static const uint32_t MaxDelayTime = 2000;	// 2s
 
 		if(_udpServer != nullptr)
 		{
@@ -155,7 +155,7 @@ namespace Drivers
         }
         return len;
 	}
-    ssize_t UdpServerInteractive::receive(uint8_t* buffer, off_t offset, size_t count, uint timeout)
+    ssize_t UdpServerInteractive::receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout)
 	{
 #ifdef DEBUG
 		Stopwatch sw("socket recv2", 1000);
@@ -189,7 +189,7 @@ namespace Drivers
                 Device* first = _devices[0];
                 if(first->receive(&buffer))
                 {
-                    for (uint i=0; i<_devices.count(); i++)
+                    for (uint32_t i=0; i<_devices.count(); i++)
                     {
                         Device* device = _devices[i];
                         if(device->executeInstruction(buffer))

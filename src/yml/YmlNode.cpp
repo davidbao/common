@@ -65,13 +65,13 @@ namespace Common
     YmlNode::YmlNode(const short& value) : YmlNode(((Int16)value).toString())
     {
     }
-    YmlNode::YmlNode(const ushort& value) : YmlNode(((UInt16)value).toString())
+    YmlNode::YmlNode(const uint16_t& value) : YmlNode(((UInt16)value).toString())
     {
     }
     YmlNode::YmlNode(const int& value) : YmlNode(((Int32)value).toString())
     {
     }
-    YmlNode::YmlNode(const uint& value) : YmlNode(((UInt32)value).toString())
+    YmlNode::YmlNode(const uint32_t& value) : YmlNode(((UInt32)value).toString())
     {
     }
     YmlNode::YmlNode(const int64_t& value) : YmlNode(((Int64)value).toString())
@@ -207,7 +207,7 @@ namespace Common
 
             StringArray keys;
             properties.keys(keys);
-            for (uint i=0; i<keys.count(); i++)
+            for (uint32_t i=0; i<keys.count(); i++)
             {
                 String key = keys[i];
                 String value;
@@ -216,7 +216,7 @@ namespace Common
                     StringArray texts;
                     StringArray::parse(key, texts, '.');
                     YAML::Node* subNode = nullptr;
-                    for (uint j=0; j<texts.count(); j++)
+                    for (uint32_t j=0; j<texts.count(); j++)
                     {
                         const String& text = texts[j];
                         YAML::Node* item = j == 0 ? &node : subNode;
@@ -296,7 +296,7 @@ namespace Common
         }
         return false;
     }
-    bool YmlNode::getAttribute(const String& name, uint& value) const
+    bool YmlNode::getAttribute(const String& name, uint32_t& value) const
     {
         UInt32 result;
         if(getAttribute(name, result))
@@ -376,7 +376,7 @@ namespace Common
     {
         return setAttribute<Int32>(name, value);
     }
-    bool YmlNode::setAttribute(const String& name, const uint& value)
+    bool YmlNode::setAttribute(const String& name, const uint32_t& value)
     {
         return setAttribute<UInt32>(name, value);
     }
@@ -400,7 +400,7 @@ namespace Common
     {
         StringArray keys;
         values.keys(keys);
-        for (uint i=0; i<keys.count(); i++)
+        for (uint32_t i=0; i<keys.count(); i++)
         {
             const String& key = keys[i];
             String value;
@@ -467,7 +467,7 @@ namespace Common
 //#ifdef DEBUG
 //        PList<String> keys;
 //        properties.keys(keys);
-//        for (uint i=0; i<keys.count(); i++)
+//        for (uint32_t i=0; i<keys.count(); i++)
 //        {
 //            const String *key = keys[i];
 //            String value;

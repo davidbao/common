@@ -397,9 +397,9 @@ namespace Common
         }
         return false;
     }
-    bool XmlTextReader::getAttribute(const String& name, ushort& value, ushort minValue, ushort maxValue) const
+    bool XmlTextReader::getAttribute(const String& name, uint16_t& value, uint16_t minValue, uint16_t maxValue) const
     {
-        ushort temp;
+        uint16_t temp;
         if(UInt16::parse(getAttribute(name), temp) && (temp >= minValue && temp <= maxValue))
         {
             value = temp;
@@ -417,9 +417,9 @@ namespace Common
         }
         return false;
     }
-    bool XmlTextReader::getAttribute(const String& name, uint& value, uint minValue, uint maxValue) const
+    bool XmlTextReader::getAttribute(const String& name, uint32_t& value, uint32_t minValue, uint32_t maxValue) const
     {
-        uint temp;
+        uint32_t temp;
         if(UInt32::parse(getAttribute(name), temp) && (temp >= minValue && temp <= maxValue))
         {
             value = temp;

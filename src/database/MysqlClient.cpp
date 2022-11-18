@@ -312,7 +312,7 @@ namespace Database
         
         // such like '"INSERT INTO users(name, age) VALUES (.....),(.....),(.....),(.....)";'
         String columsStr, valuesStr;
-        for (uint j = 0; j < table.columnCount(); j++)
+        for (uint32_t j = 0; j < table.columnCount(); j++)
         {
             if (!columsStr.isNullOrEmpty())
             {
@@ -322,7 +322,7 @@ namespace Database
         }
         
         const DataRows* rows = table.rows();
-        for (uint i = 0; i < rows->count(); i++)
+        for (uint32_t i = 0; i < rows->count(); i++)
         {
             const DataRow* row = rows->at(i);
             
@@ -331,7 +331,7 @@ namespace Database
                 valuesStr.append(", ");
             }
             valuesStr.append('(');
-            for (uint j = 0; j < row->cells()->count(); j++)
+            for (uint32_t j = 0; j < row->cells()->count(); j++)
             {
                 const DataCell* cell = row->cells()->at(j);
                 

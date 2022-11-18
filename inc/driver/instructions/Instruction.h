@@ -41,7 +41,7 @@ namespace Drivers {
             bool allowInformation;
             bool allowMessage;
 
-            LogContext(bool allowInformation = true, bool allowMessage = false, uint logLength = DefaultLogLength);
+            LogContext(bool allowInformation = true, bool allowMessage = false, uint32_t logLength = DefaultLogLength);
 
             LogContext(const LogContext &value);
 
@@ -51,17 +51,17 @@ namespace Drivers {
 
             void evaluates(const LogContext &other) override;
 
-            uint logLength() const;
+            uint32_t logLength() const;
 
-            void setLogLength(uint length);
-
-        private:
-            uint _logLength;
+            void setLogLength(uint32_t length);
 
         private:
-            static const uint DefaultLogLength = 256;
-            static const uint MinLogLength = 1;
-            static const uint MaxLogLength = 128 * 1024;
+            uint32_t _logLength;
+
+        private:
+            static const uint32_t DefaultLogLength = 256;
+            static const uint32_t MinLogLength = 1;
+            static const uint32_t MaxLogLength = 128 * 1024;
         };
 
         Instruction(InstructionDescription *id);
@@ -130,7 +130,7 @@ namespace Drivers {
 //	typedef PList<Instruction> Instructions;
     class Instructions : public PList<Instruction> {
     public:
-        Instructions(bool autoDelete = true, uint capacity = PList<Instruction>::DefaultCapacity);
+        Instructions(bool autoDelete = true, uint32_t capacity = PList<Instruction>::DefaultCapacity);
 
         void setReceiveInstruction(Instructions *instructions);
     };

@@ -28,7 +28,7 @@ namespace Common
             Debug::writeFormatLine("Failed to construct JsonTextReader! file name: %s", fileName.c_str());
 #endif
 	}
-//    JsonTextReader::JsonTextReader(const String& text, uint length)
+//    JsonTextReader::JsonTextReader(const String& text, uint32_t length)
 //    {
 //        _reader = new JsonTextReaderInner();
 //
@@ -203,7 +203,7 @@ namespace Common
     {
         return Int16::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
     }
-    bool JsonTextReader::getAttribute(const String& name, ushort& value, ushort minValue, ushort maxValue)
+    bool JsonTextReader::getAttribute(const String& name, uint16_t& value, uint16_t minValue, uint16_t maxValue)
     {
         return UInt16::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
     }
@@ -211,7 +211,7 @@ namespace Common
     {
         return Int32::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
     }
-    bool JsonTextReader::getAttribute(const String& name, uint& value, uint minValue, uint maxValue)
+    bool JsonTextReader::getAttribute(const String& name, uint32_t& value, uint32_t minValue, uint32_t maxValue)
     {
         return UInt32::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
     }

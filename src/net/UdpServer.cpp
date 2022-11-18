@@ -211,13 +211,13 @@ namespace Net
         }
         return 0;
     }
-    ssize_t UdpServer::receive(uint8_t *data, size_t count, uint timeout)
+    ssize_t UdpServer::receive(uint8_t *data, size_t count, uint32_t timeout)
     {
         ssize_t len = 0;
         if(_socket != -1)
         {
-            uint startTime = (uint)TickTimeout::getCurrentTickCount();
-            uint deadTime = (uint)TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = (uint32_t)TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = (uint32_t)TickTimeout::getDeadTickCount(startTime, timeout);
             do
             {
                 size_t available = this->available();

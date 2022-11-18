@@ -10,10 +10,10 @@
 
 namespace Common
 {
-    Stopwatch::Stopwatch(uint deadTime) : Stopwatch(String::Empty, deadTime)
+    Stopwatch::Stopwatch(uint32_t deadTime) : Stopwatch(String::Empty, deadTime)
     {
     }
-    Stopwatch::Stopwatch(const String& info, uint deadTime) : _deadTime(deadTime), _startTime(0), _endTime(0), _info(info)
+    Stopwatch::Stopwatch(const String& info, uint32_t deadTime) : _deadTime(deadTime), _startTime(0), _endTime(0), _info(info)
     {
 #ifdef DEBUG
         start(deadTime);
@@ -32,7 +32,7 @@ namespace Common
         start(_deadTime);
 #endif
     }
-    void Stopwatch::start(uint deadTime)
+    void Stopwatch::start(uint32_t deadTime)
     {
 #ifdef DEBUG
         _deadTime = deadTime;
@@ -48,7 +48,7 @@ namespace Common
             _endTime = TickTimeout::getCurrentTickCount();
             if (showInfo && !_info.isNullOrEmpty())
             {
-                uint e = elapsedInner();
+                uint32_t e = elapsedInner();
                 if (e >= _deadTime)
                 {
                     if (e <= 10 * 1000)	// less than 10 seconds
@@ -72,17 +72,17 @@ namespace Common
     {
         _info = info;
     }
-    uint Stopwatch::elapsed() const
+    uint32_t Stopwatch::elapsed() const
     {
         return elapsedInner(true);
     }
     TimeSpan Stopwatch::elapsed2() const
     {
-        uint e = elapsed();
+        uint32_t e = elapsed();
         return TimeSpan::fromMilliseconds((double)e);
     }
     
-    uint Stopwatch::dateTime() const
+    uint32_t Stopwatch::dateTime() const
     {
         return _deadTime;
     }
@@ -91,11 +91,11 @@ namespace Common
         return TimeSpan::fromMilliseconds((double)dateTime());
     }
     
-    uint Stopwatch::elapsedInner(bool currentTime) const
+    uint32_t Stopwatch::elapsedInner(bool currentTime) const
     {
 #ifdef DEBUG
-        uint endTime = currentTime ? TickTimeout::getCurrentTickCount() : _endTime;
-        uint elapsed = TickTimeout::elapsed(_startTime, endTime);
+        uint32_t endTime = currentTime ? TickTimeout::getCurrentTickCount() : _endTime;
+        uint32_t elapsed = TickTimeout::elapsed(_startTime, endTime);
         return elapsed;
 #else
 		return 0;

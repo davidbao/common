@@ -339,7 +339,7 @@ namespace Net {
 
     bool IPAddress::parse(const String &str, IPAddress &address) {
         int addr[Count];
-        uint len = 0;
+        uint32_t len = 0;
         String temp = str.trim();
         int result = sscanf(temp.c_str(), "%d.%d.%d.%d%n",
                             &addr[0], &addr[1], &addr[2], &addr[3], &len);
@@ -418,9 +418,9 @@ namespace Net {
     }
 
     bool IPAddress::isStartToEnd(const IPAddress &start, const IPAddress &end, const IPAddress &netmask) {
-        uint n = ~netmask.toUInt32();
-        uint s = start.toUInt32() & n;
-        uint e = end.toUInt32() & n;
+        uint32_t n = ~netmask.toUInt32();
+        uint32_t s = start.toUInt32() & n;
+        uint32_t e = end.toUInt32() & n;
         return s <= e;
     }
 

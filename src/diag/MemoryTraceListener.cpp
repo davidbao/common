@@ -56,7 +56,7 @@ namespace Common
         {
             String** values = new String*[count];
             _messages.copyTo(values);
-            for (uint i=0; i<count; i++)
+            for (uint32_t i=0; i<count; i++)
             {
                 messages.add(*values[i]);
             }

@@ -44,7 +44,7 @@ namespace Net
         return -1;
     }
 
-    ssize_t Receiver::receiveBySize(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint timeout, const EscapeOption* escape)
+    ssize_t Receiver::receiveBySize(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout, const EscapeOption* escape)
     {
         if (buffer == nullptr)
         {
@@ -72,15 +72,15 @@ namespace Net
         }
         return 0;
     }
-    ssize_t Receiver::receiveBySize(uint8_t* buffer, size_t bufferLength, size_t size, uint timeout)
+    ssize_t Receiver::receiveBySize(uint8_t* buffer, size_t bufferLength, size_t size, uint32_t timeout)
     {
         return receiveBySize(buffer, bufferLength, 0, size, timeout);
     }
     ssize_t Receiver::receiveBySize(uint8_t* buffer, size_t bufferLength, size_t size, const TimeSpan& timeout)
     {
-        return receiveBySize(buffer, bufferLength, 0, size, (uint)timeout.totalMilliseconds());
+        return receiveBySize(buffer, bufferLength, 0, size, (uint32_t)timeout.totalMilliseconds());
     }
-    ssize_t Receiver::receiveBySize(ByteArray* buffer, size_t count, uint timeout, const EscapeOption* escape)
+    ssize_t Receiver::receiveBySize(ByteArray* buffer, size_t count, uint32_t timeout, const EscapeOption* escape)
     {
         if (count < 0)
         {
@@ -101,10 +101,10 @@ namespace Net
     }
     ssize_t Receiver::receiveBySize(ByteArray* buffer, size_t count, const TimeSpan& timeout, const EscapeOption* escape)
     {
-        return receiveBySize(buffer, count, (uint)timeout.totalMilliseconds(), escape);
+        return receiveBySize(buffer, count, (uint32_t)timeout.totalMilliseconds(), escape);
     }
 
-    ssize_t Receiver::receiveByEndBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* endBuffer, size_t ebLength, int suffix, uint timeout)
+    ssize_t Receiver::receiveByEndBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* endBuffer, size_t ebLength, int suffix, uint32_t timeout)
     {
         if (buffer == nullptr)
         {
@@ -117,7 +117,7 @@ namespace Net
         
         if(!useReceiveTimeout())
         {
-            uint received = 0;
+            uint32_t received = 0;
             if (connected())
             {
                 if (buffer == nullptr || endBuffer == nullptr)
@@ -125,8 +125,8 @@ namespace Net
                 
                 bool bReceiveEndBytes = false;
                 int nSuffix = 0, nStartByte = 0;
-                uint startTime = TickTimeout::getCurrentTickCount();
-                uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+                uint32_t startTime = TickTimeout::getCurrentTickCount();
+                uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
                 do
                 {
                     if (bReceiveEndBytes && nSuffix >= suffix)
@@ -139,7 +139,7 @@ namespace Net
                             break;
                         continue;
                     }
-                    if (received + 1 <= (uint)bufferLength)
+                    if (received + 1 <= (uint32_t)bufferLength)
                     {
                         received += this->receive(buffer, received, 1);
                     }
@@ -151,7 +151,7 @@ namespace Net
                     if (!bReceiveEndBytes)
                     {
 //#ifdef DEBUG
-//                        if (received - 1 > (uint)bufferLength || nStartByte > ebLength)
+//                        if (received - 1 > (uint32_t)bufferLength || nStartByte > ebLength)
 //                        {
 //                            Debug::writeFormatLine("nStartByte: %d, received: %d", nStartByte, received);
 //                            ByteArray sBuffer(buffer, received);
@@ -193,7 +193,7 @@ namespace Net
         }
         else
         {
-            uint received = 0;
+            uint32_t received = 0;
             if (connected())
             {
                 if (buffer == nullptr || endBuffer == nullptr)
@@ -211,7 +211,7 @@ namespace Net
                     {
                         return 0;
                     }
-                    if (received + 1 <= (uint)bufferLength)
+                    if (received + 1 <= (uint32_t)bufferLength)
                     {
                         received += readlen;
                     }
@@ -255,7 +255,7 @@ namespace Net
         }
     }
 
-    ssize_t Receiver::receiveByEndBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* startBuffer, size_t sbLength, const uint8_t* endBuffer, size_t ebLength, int suffix, uint timeout)
+    ssize_t Receiver::receiveByEndBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* startBuffer, size_t sbLength, const uint8_t* endBuffer, size_t ebLength, int suffix, uint32_t timeout)
     {
         if (buffer == nullptr)
         {
@@ -292,14 +292,14 @@ namespace Net
         return 0;
     }
 
-    ssize_t Receiver::readLine(uint8_t* buffer, size_t bufferLength, uint timeout, const char* newLine)
+    ssize_t Receiver::readLine(uint8_t* buffer, size_t bufferLength, uint32_t timeout, const char* newLine)
     {
         if(newLine == nullptr)
             return 0;
         return receiveByEndBytes(buffer, bufferLength, (const uint8_t*)newLine, (int)strlen(newLine), 0, timeout);
     }
 
-    ssize_t Receiver::getLengthByEndBytes(const ByteArray& endBuffer, uint timeout)
+    ssize_t Receiver::getLengthByEndBytes(const ByteArray& endBuffer, uint32_t timeout)
     {
         ssize_t received = 0;
         if (connected())
@@ -307,8 +307,8 @@ namespace Net
             if (endBuffer.count() == 0)
                 return 0;
             
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
             do
             {
                 if (TickTimeout::isTimeout(startTime, deadTime))
@@ -333,16 +333,16 @@ namespace Net
         }
         return received;
     }
-    ssize_t Receiver::getLengthByLine(uint timeout, const char* newLine)
+    ssize_t Receiver::getLengthByLine(uint32_t timeout, const char* newLine)
     {
         if(newLine == nullptr)
             return 0;
         
-        ByteArray newLineArray((const uint8_t*)newLine, (uint)strlen(newLine));
+        ByteArray newLineArray((const uint8_t*)newLine, (uint32_t)strlen(newLine));
         return getLengthByEndBytes(newLineArray, timeout);
     }
     
-    bool Receiver::receiveByte(uint8_t& data, uint timeout)
+    bool Receiver::receiveByte(uint8_t& data, uint32_t timeout)
     {
         uint8_t buffer[8];
         memset(buffer, 0, sizeof(buffer));
@@ -351,7 +351,7 @@ namespace Net
         return result;
     }
     
-    bool Receiver::receiveStartBytes(const uint8_t* startBuffer, size_t sbLength, uint timeout)
+    bool Receiver::receiveStartBytes(const uint8_t* startBuffer, size_t sbLength, uint32_t timeout)
     {
         if (startBuffer == nullptr)
         {
@@ -362,7 +362,7 @@ namespace Net
         return receiveStartBytes(buffer, sizeof(buffer), startBuffer, sbLength, timeout);
     }
     
-    bool Receiver::receiveStartBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* startBuffer, size_t sbLength, uint timeout)
+    bool Receiver::receiveStartBytes(uint8_t* buffer, size_t bufferLength, const uint8_t* startBuffer, size_t sbLength, uint32_t timeout)
     {
         if (buffer == nullptr)
         {
@@ -373,21 +373,21 @@ namespace Net
             throw ArgumentNullException("startBuffer");
         }
         
-        uint nReadStartCount = (uint)receiveByEndBytes(buffer, bufferLength, startBuffer, sbLength, 0, timeout);
-        return nReadStartCount >= (uint)sbLength;
+        uint32_t nReadStartCount = (uint32_t)receiveByEndBytes(buffer, bufferLength, startBuffer, sbLength, 0, timeout);
+        return nReadStartCount >= (uint32_t)sbLength;
     }
 
-    ssize_t Receiver::receiveBySizeWithEscape(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint timeout, const EscapeOption* escape)
+    ssize_t Receiver::receiveBySizeWithEscape(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout, const EscapeOption* escape)
     {
         if(!useReceiveTimeout())
         {
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
 
             size_t targetLength = escape->escapeBuffer[0] == 0 ? 0 : escape->escapeLength;
             size_t adjustCount = targetLength - (escape->toEscapeBuffer[0] == 0 ? 0 : escape->toEscapeLength);
             ssize_t received = 0;
-            uint startByte = 0;
+            uint32_t startByte = 0;
             do
             {
                 size_t available = this->available();
@@ -410,7 +410,7 @@ namespace Net
                 if (buffer[received + offset - 1] == escape->toEscapeBuffer[startByte])
                 {
                     startByte++;
-                    if (startByte >= (uint)escape->toEscapeLength)
+                    if (startByte >= (uint32_t)escape->toEscapeLength)
                     {
                         if (escape->escapeBuffer[0] != 0)
                         {
@@ -441,7 +441,7 @@ namespace Net
             size_t targetLength = escape->escapeBuffer[0] == 0 ? 0 : escape->escapeLength;
             size_t adjustCount = targetLength - (escape->toEscapeBuffer[0] == 0 ? 0 : escape->toEscapeLength);
             ssize_t received = 0;
-            uint startByte = 0;
+            uint32_t startByte = 0;
             do
             {
                 ssize_t readlen = this->receive(buffer, received + offset, 1, timeout);
@@ -461,7 +461,7 @@ namespace Net
                 if (buffer[received + offset - 1] == escape->toEscapeBuffer[startByte])
                 {
                     startByte++;
-                    if (startByte >= (uint)escape->toEscapeLength)
+                    if (startByte >= (uint32_t)escape->toEscapeLength)
                     {
                         if (escape->escapeBuffer[0] != 0)
                         {
@@ -488,12 +488,12 @@ namespace Net
         }
     }
 
-    ssize_t Receiver::receiveBySizeWithoutEscape(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint timeout)
+    ssize_t Receiver::receiveBySizeWithoutEscape(uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout)
     {
         if(!useReceiveTimeout())
         {
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
 
             size_t available = this->available();
             bool dataReady = false;
@@ -504,7 +504,7 @@ namespace Net
                     dataReady = true;
                     break;
                 }
-                uint now = TickTimeout::getCurrentTickCount();
+                uint32_t now = TickTimeout::getCurrentTickCount();
                 if (this->available() == available)
                 {
                     Thread::msleep(1);
@@ -532,15 +532,15 @@ namespace Net
         }
     }
 
-    ssize_t Receiver::receiveBySizeWithoutEscape(ByteArray* buffer, size_t count, uint timeout)
+    ssize_t Receiver::receiveBySizeWithoutEscape(ByteArray* buffer, size_t count, uint32_t timeout)
     {
         if(buffer == nullptr)
             return 0;
         
         if(!useReceiveTimeout())
         {
-            uint startTime = TickTimeout::getCurrentTickCount();
-            uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+            uint32_t startTime = TickTimeout::getCurrentTickCount();
+            uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
             
             uint8_t temp[BufferLength];
             memset(temp, 0, sizeof(temp));

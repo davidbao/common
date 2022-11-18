@@ -15,6 +15,7 @@
 
 namespace Common {
     class Stream;
+    class NumberFormatInfo;
 
     enum NumberStyles : uint32_t {
         // Bit flag indicating that leading whitespace is allowed. Character values
@@ -111,7 +112,7 @@ namespace Common {
 
     protected:
         template<typename type>
-        static String toValueString(const type &value, const String &format = String::Empty);
+        static String toValueString(const type &value, const String &format, const IFormatProvider<NumberFormatInfo>* provider);
 
         static bool parseInt64(const String &str, int64_t &value, NumberStyles style = NSInteger);
 
@@ -121,7 +122,10 @@ namespace Common {
         parseDouble(const String &str, double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
     private:
-        static void addThousandSeparator(const char *str, char *result);
+        template<typename type>
+        static String toValueString(const type &value, const String &format, const NumberFormatInfo *info);
+
+        static String addThousandSeparator(const String &str, const String& decimalSeparator, const String &groupSeparator);
     };
 
     template<typename type>
@@ -471,7 +475,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
         Char toLower() const;
 
@@ -740,7 +744,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
         WChar toLower() const;
 
@@ -837,7 +841,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, Int8 &value, NumberStyles style = NSInteger);
@@ -865,7 +869,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, UInt8 &value, NumberStyles style = NSInteger);
@@ -895,7 +899,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, Int16 &value, NumberStyles style = NSInteger);
@@ -925,7 +929,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, UInt16 &value, NumberStyles style = NSInteger);
@@ -955,7 +959,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, Int32 &value, NumberStyles style = NSInteger);
@@ -983,7 +987,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, UInt32 &value, NumberStyles style = NSInteger);
@@ -1011,7 +1015,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, Int64 &value, NumberStyles style = NSInteger);
@@ -1039,7 +1043,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
     public:
         static bool parse(const String &str, UInt64 &value, NumberStyles style = NSInteger);
@@ -1067,7 +1071,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
         // Determines if the given floating point number value is nan.
         // value	-	floating point value
@@ -1181,7 +1185,7 @@ namespace Common {
 
         void read(Stream *stream, bool bigEndian = true);
 
-        String toString(const String &format = String::Empty) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
 
         // Determines if the given floating point number value is nan.
         // value	-	floating point value

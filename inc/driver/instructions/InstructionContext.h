@@ -29,25 +29,25 @@ namespace Drivers {
 
         bool hasException() const;
 
-        void setTimeStamp(uint stamp);
+        void setTimeStamp(uint32_t stamp);
 
-        uint getTimeStamp() const;
+        uint32_t getTimeStamp() const;
 
-        void setQualityStamp(ushort stamp);
+        void setQualityStamp(uint16_t stamp);
 
-        ushort getQualityStamp() const;
+        uint16_t getQualityStamp() const;
 
-        uint receiveTimeout() const;
+        uint32_t receiveTimeout() const;
 
-        void setReceiveTimeout(uint timeout);
+        void setReceiveTimeout(uint32_t timeout);
 
         virtual bool allowExecution() const;
 
     private:
         Exception *_exception;
-        uint _timestamp;
-        ushort _qualitystamp;
-        uint _receiveTimeout;
+        uint32_t _timestamp;
+        uint16_t _qualitystamp;
+        uint32_t _receiveTimeout;
 
         static const int Good = 0;
         static const int Bad = 1;

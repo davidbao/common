@@ -185,7 +185,7 @@ namespace Net
         String path = String::replace(browsePath, ObjectsStr, String::Empty);
         StringArray texts;
         StringArray::parse(path, texts, '/');
-        for(uint i=0;i<texts.count();i++)
+        for(uint32_t i=0;i<texts.count();i++)
         {
             TargetName* tn = nullptr;
             const String& text = texts[i];

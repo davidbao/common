@@ -56,7 +56,7 @@ namespace Database {
         return valueType;
     }
 
-    DataColumns::DataColumns(bool autoDelete, uint capacity) : PList<DataColumn>(autoDelete, capacity) {
+    DataColumns::DataColumns(bool autoDelete, uint32_t capacity) : PList<DataColumn>(autoDelete, capacity) {
     }
 
     DataColumn *DataColumns::operator[](size_t i) const {
@@ -72,7 +72,7 @@ namespace Database {
     }
 
     DataColumn *DataColumns::at(const String &columnName) const {
-        for (uint i = 0; i < count(); i++) {
+        for (uint32_t i = 0; i < count(); i++) {
             DataColumn *column = at(i);
             if (String::equals(column->name(), columnName, true)) {
                 return column;
@@ -185,7 +185,7 @@ namespace Database {
         }
     }
 
-    DataCell::DataCell(const DataColumn *column, ushort value) : DataCell(column, (short) value) {
+    DataCell::DataCell(const DataColumn *column, uint16_t value) : DataCell(column, (short) value) {
     }
 
     DataCell::DataCell(const DataColumn *column, int value) {
@@ -215,7 +215,7 @@ namespace Database {
         }
     }
 
-    DataCell::DataCell(const DataColumn *column, uint value) : DataCell(column, (int) value) {
+    DataCell::DataCell(const DataColumn *column, uint32_t value) : DataCell(column, (int) value) {
     }
 
     DataCell::DataCell(const DataColumn *column, int64_t value) {
@@ -379,7 +379,7 @@ namespace Database {
         setStringValue(_value, str);
     }
 
-    DataCells::DataCells(bool autoDelete, uint capacity) : PList<DataCell>(autoDelete, capacity) {
+    DataCells::DataCells(bool autoDelete, uint32_t capacity) : PList<DataCell>(autoDelete, capacity) {
     }
 
     DataCell *DataCells::operator[](const char *columnName) const {
@@ -557,11 +557,11 @@ namespace Database {
 
     void DataTable::toJsonNode(JsonNode &node) const {
         node = JsonNode(JsonNode::TypeArray);
-        for (uint i = 0; i < rowCount(); i++) {
+        for (uint32_t i = 0; i < rowCount(); i++) {
             const DataRow *row = rows()->at(i);
             const DataCells *cells = row->cells();
             JsonNode rowNode;
-            for (uint j = 0; j < cells->count(); j++) {
+            for (uint32_t j = 0; j < cells->count(); j++) {
                 const DataCell *cell = cells->at(j);
                 rowNode.add(JsonNode(cell->columnName(), !cell->isNullValue() ? cell->valueStr() : String::Empty));
             }
@@ -575,11 +575,11 @@ namespace Database {
         return node.toString();
     }
 
-    DataTables::DataTables(uint capacity) : PList<DataTable>(capacity) {
+    DataTables::DataTables(uint32_t capacity) : PList<DataTable>(capacity) {
     }
 
     bool DataTables::contains(const String &tableName) const {
-        for (uint i = 0; i < count(); i++) {
+        for (uint32_t i = 0; i < count(); i++) {
             const DataTable *table = at(i);
             if (table->name() == tableName)
                 return true;
@@ -588,7 +588,7 @@ namespace Database {
     }
 
     DataTable *DataTables::getTable(const String &tableName) const {
-        for (uint i = 0; i < count(); i++) {
+        for (uint32_t i = 0; i < count(); i++) {
             DataTable *table = at(i);
             if (table->name() == tableName)
                 return table;

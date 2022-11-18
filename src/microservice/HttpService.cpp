@@ -69,7 +69,7 @@ namespace Microservice {
     }
 
     void IHttpInterceptor::addWhitelist(const StringArray &list) {
-        for (uint i = 0; i < list.count(); i++) {
+        for (uint32_t i = 0; i < list.count(); i++) {
             String path = list[i].trim();
             _whitelist.add(path, path);
         }
@@ -126,8 +126,8 @@ namespace Microservice {
         }
 
         // add http header from yml file.
-        static const uint MaxHeader = 200;
-        for (uint i = 0; i < MaxHeader; i++) {
+        static const uint32_t MaxHeader = 200;
+        for (uint32_t i = 0; i < MaxHeader; i++) {
             const String prefix = String::format("server.http.headers[%d]", i);
             const String k = String::format("%s.name", prefix.c_str());
             const String v = String::format("%s.value", prefix.c_str());
@@ -152,8 +152,8 @@ namespace Microservice {
         }
 
         // ext mine types.
-        static const uint MaxTypes = 200;
-        for (uint i = 0; i < MaxTypes; i++) {
+        static const uint32_t MaxTypes = 200;
+        for (uint32_t i = 0; i < MaxTypes; i++) {
             const String prefix = String::format("server.http.mineTypes[%d]", i);
             const String k = String::format("%s.extName", prefix.c_str());
             const String v = String::format("%s.type", prefix.c_str());
@@ -243,7 +243,7 @@ namespace Microservice {
 
     HttpStatus HttpService::onActionProcess(const HttpRequest &request, HttpResponse &response) {
         Locker locker(&_actionsMutex);
-        for (uint i = 0; i < _actions.count(); i++) {
+        for (uint32_t i = 0; i < _actions.count(); i++) {
             IHttpAction *action = _actions[i];
             HttpStatus status = action->onAction(request, response);
             if (status != HttpStatus::HttpNotFound)
@@ -254,7 +254,7 @@ namespace Microservice {
 
     HttpStatus HttpService::onMappingProcess(const HttpRequest &request, HttpResponse &response) {
         Locker locker(&_mappingsMutex);
-        for (uint i = 0; i < _mappings.count(); i++) {
+        for (uint32_t i = 0; i < _mappings.count(); i++) {
             BaseHttpMapping *mapping = _mappings[i];
             if (mapping->match(request)) {
                 if (mapping->method() == HttpMethod::Options) {
@@ -299,7 +299,7 @@ namespace Microservice {
     }
 
     String HttpService::existHomePage() const {
-        for (uint i = 0; i < _homePages.count(); i++) {
+        for (uint32_t i = 0; i < _homePages.count(); i++) {
             const String &homePage = _homePages[i];
             if (File::exists(Path::combine(_webPath, homePage)))
                 return homePage;
@@ -389,7 +389,7 @@ namespace Microservice {
 
         StringArray paths;
         _whitelist.keys(paths);
-        for (uint i = 0; i < paths.count(); i++) {
+        for (uint32_t i = 0; i < paths.count(); i++) {
             const String &p = paths[i];
             String directoryName = Path::getDirectoryName(p);
             String fileName = Path::getFileName(p);

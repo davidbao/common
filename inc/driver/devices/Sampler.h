@@ -32,9 +32,9 @@ namespace Drivers
         
     protected:
         // return the sample interval, unit: ms
-        virtual uint detectionInterval() const;
+        virtual uint32_t detectionInterval() const;
         // return the resume interval, unit: ms
-        virtual uint resumeInterval() const;
+        virtual uint32_t resumeInterval() const;
         // return the sample interval, unit: ms
         virtual int detectionCount() const;
         
@@ -54,13 +54,13 @@ namespace Drivers
         void errorHandle(const DeviceDescription* dd, const InstructionDescription* id, bool error) override;
         
     private:
-        uint _sampleStart;
+        uint32_t _sampleStart;
         Device::Status _connected;
         
         int _checkOnlineFailedCount;
         bool _isInvalidStatus;
         int _connetedFailedCount;
-        uint _sampleInterval;
+        uint32_t _sampleInterval;
         
         bool _skipSampler;
         

@@ -113,7 +113,7 @@ namespace Drivers
         bool processBuffer(const ByteArray& buffer) override;
         
     private:
-        uint _startTime;
+        uint32_t _startTime;
     };
 
     class TcpServerAsyncReceiver : public TcpAsyncReceiver
@@ -131,7 +131,7 @@ namespace Drivers
         void stop() override;
         
     private:
-        uint _startTime;
+        uint32_t _startTime;
     };
 
     class TcpServerSyncReceiver : public TcpSyncReceiver
@@ -150,7 +150,7 @@ namespace Drivers
         bool processBuffer(const ByteArray& buffer) override;
         
     private:
-        uint _startTime;
+        uint32_t _startTime;
     };
     
 	typedef PList<TcpBackgroundReceiver> TcpBackgroundReceivers;

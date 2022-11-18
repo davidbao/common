@@ -43,7 +43,7 @@ namespace Drivers
         }
         return result;
     }
-    ssize_t UdpInteractive::Client::send(const ushort port, const uint8_t *data, size_t len)
+    ssize_t UdpInteractive::Client::send(const uint16_t port, const uint8_t *data, size_t len)
     {
 #ifdef WIN32
 		return this->client->write(port, data, len);
@@ -79,7 +79,7 @@ namespace Drivers
     }
     bool UdpInteractive::Clients::contains(const Client* client) const
     {
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             const Client* item = _items[i];
             if(item->iface == client->iface)
@@ -132,7 +132,7 @@ namespace Drivers
         {
             StringArray ifaces;
             NetInterface::getInterfaceNames(ifaces);
-            for(uint i=0;i<ifaces.count();i++)
+            for(uint32_t i=0;i<ifaces.count();i++)
             {
                 String iface = ifaces[i];
                 if(iface.find("lo") < 0)
@@ -172,7 +172,7 @@ namespace Drivers
 
 	void UdpInteractive::close()
 	{
-        for (uint i=0; i<_clients.count(); i++)
+        for (uint32_t i=0; i<_clients.count(); i++)
         {
             Client* client = _clients[i];
 			client->client->close();

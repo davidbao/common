@@ -38,7 +38,7 @@ namespace Common
 
 #ifdef WIN32
 		bool connect() const;
-		bool waitForConnection(uint timeout = 10 * 1000);
+		bool waitForConnection(uint32_t timeout = 10 * 1000);
 #endif
         
     public:

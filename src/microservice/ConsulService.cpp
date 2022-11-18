@@ -139,10 +139,10 @@ namespace Microservice {
     }
 
     bool ConsulService::chooseNext() {
-        for (uint i = 0; i < _endpoints.count(); i++) {
+        for (uint32_t i = 0; i < _endpoints.count(); i++) {
             const Endpoint &endpoint = _endpoints[i];
             if (endpoint == _current) {
-                uint pos = i == _endpoints.count() - 1 ? 0 : i + 1;
+                uint32_t pos = i == _endpoints.count() - 1 ? 0 : i + 1;
                 _current = _endpoints[pos];
                 return true;
             }
@@ -174,13 +174,13 @@ namespace Microservice {
             JsonNode servicesNode("services");
             PList<JsonNode> nodes;
             if (tempNode.subNodes(nodes)) {
-                for (uint i = 0; i < nodes.count(); i++) {
+                for (uint32_t i = 0; i < nodes.count(); i++) {
                     JsonNode *subNode = nodes[i];
                     String serviceId;
                     StringArray tags;
                     if (subNode->getAttribute("Service", serviceId) && subNode->getAttribute("Tags", tags)) {
                         JsonNode serviceNode(serviceId, JsonNode::TypeArray);
-                        for (uint i = 0; i < tags.count(); i++) {
+                        for (uint32_t i = 0; i < tags.count(); i++) {
                             const String &tag = tags[i];
                             serviceNode.add(JsonNode("item", tag));
                         }
@@ -234,7 +234,7 @@ namespace Microservice {
         if (getAllServices(_baseUrl, content) && JsonNode::parse(content, node)) {
             PList<JsonNode> nodes;
             if (node.subNodes(nodes)) {
-                for (uint i = 0; i < nodes.count(); i++) {
+                for (uint32_t i = 0; i < nodes.count(); i++) {
                     JsonNode *subNode = nodes[i];
                     String serviceId;
                     if (subNode->getAttribute("Service", serviceId))
@@ -265,13 +265,13 @@ namespace Microservice {
         if (!JsonNode::parse(content, root) && root.type() == JsonNode::TypeArray)
             return false;
 
-        for (uint i = 0; i < instances.count(); i++) {
+        for (uint32_t i = 0; i < instances.count(); i++) {
             ServiceInstance *instance = instances.at(i);
             instance->setAlive(false);
         }
 
         ServiceInstance *instance = nullptr;
-        for (uint i = 0; i < root.size(); i++) {
+        for (uint32_t i = 0; i < root.size(); i++) {
             JsonNode serviceNode;
             if (root.at(i, serviceNode)) {
                 String serviceId;
@@ -296,7 +296,7 @@ namespace Microservice {
                         StringMap meta;
                         StringArray names;
                         metaNode.getAttributeNames(names);
-                        for (uint i = 0; i < names.count(); i++) {
+                        for (uint32_t i = 0; i < names.count(); i++) {
                             String value;
                             if (metaNode.getAttribute(names[i], value))
                                 meta.add(names[i], value);
@@ -315,7 +315,7 @@ namespace Microservice {
             return false;
 
         ServiceInstance *instance = nullptr;
-        for (uint i = 0; i < root.size(); i++) {
+        for (uint32_t i = 0; i < root.size(); i++) {
             JsonNode serviceNode;
             if (root.at(i, serviceNode)) {
                 String serviceId;
@@ -349,7 +349,7 @@ namespace Microservice {
             StringArray::parseMultiSymbol(host, texts, ',', ';', ' ');
             _endpoints.clear();
             if (texts.count() > 1) {
-                for (uint i = 0; i < texts.count(); i++) {
+                for (uint32_t i = 0; i < texts.count(); i++) {
                     const String &text = texts[i];
                     Endpoint endpoint;
                     if (Endpoint::parse(text, endpoint)) {
@@ -406,7 +406,7 @@ namespace Microservice {
 
         String healthCheckPath = "/actuator/health";
         cs->getProperty("summer.cloud.consul.discovery.healthCheckPath", healthCheckPath);
-        Url checkUrl = Url(String::format("http://%s:%d/", actuatorHost.c_str(), (ushort) actuatorPort),
+        Url checkUrl = Url(String::format("http://%s:%d/", actuatorHost.c_str(), (uint16_t) actuatorPort),
                            healthCheckPath);
 
         String value;
@@ -418,7 +418,7 @@ namespace Microservice {
         if (cs->getProperty("summer.cloud.consul.discovery.tags", value) && !value.isNullOrEmpty()) {
             StringArray texts;
             StringArray::parseMultiSymbol(value, texts, ',', ';', ' ');
-            for (uint i = 0; i < texts.count(); i++) {
+            for (uint32_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 if (tags.length() > 0)
                     tags.append(',');
@@ -430,7 +430,7 @@ namespace Microservice {
         if (cs->getProperty("summer.cloud.consul.discovery.meta", value) && !value.isNullOrEmpty()) {
             StringArray texts;
             StringArray::parseMultiSymbol(value, texts, ',', ';', ' ');
-            for (uint i = 0; i < texts.count(); i++) {
+            for (uint32_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 if (meta.length() > 0)
                     meta.append(',');
@@ -470,7 +470,7 @@ namespace Microservice {
                 serviceId.isNullOrEmpty() ? _serviceId.c_str() : serviceId.c_str(),
                 serviceName.isNullOrEmpty() ? name.c_str() : serviceName.c_str(),
                 serverHost.c_str(),
-                servicePort.isEmpty() ? (ushort) port : (ushort) servicePort,
+                servicePort.isEmpty() ? (uint16_t) port : (uint16_t) servicePort,
                 tags.c_str(),
                 meta.c_str(),
                 checkUrl.toString().c_str(),

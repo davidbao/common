@@ -20,27 +20,27 @@ namespace Common
 	class Stopwatch
 	{
 	public:
-        Stopwatch(uint deadTime = 0);
-        Stopwatch(const String& info, uint deadTime = 0);
+        Stopwatch(uint32_t deadTime = 0);
+        Stopwatch(const String& info, uint32_t deadTime = 0);
         ~Stopwatch();
 
         void reStart();
-        void start(uint deadTime = 0);
+        void start(uint32_t deadTime = 0);
         void stop(bool showInfo = true);
         void setInfo(const String& info);
         void setInfo(const char* info);
-        uint elapsed() const;
+        uint32_t elapsed() const;
         TimeSpan elapsed2() const;
-        uint dateTime() const;
+        uint32_t dateTime() const;
         TimeSpan dateTime2() const;
 
 	private:
-        uint elapsedInner(bool currentTime = false) const;
+        uint32_t elapsedInner(bool currentTime = false) const;
 
 	private:
-		uint _deadTime;
-		uint _startTime;
-		uint _endTime;
+		uint32_t _deadTime;
+		uint32_t _startTime;
+		uint32_t _endTime;
         String _info;
 	};
 }

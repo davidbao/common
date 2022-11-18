@@ -183,7 +183,7 @@ namespace Common
     {
         if (isOpen())
         {
-            return ::write(_fd, array + offset, (uint)count);
+            return ::write(_fd, array + offset, (uint32_t)count);
         }
         return 0;
     }
@@ -191,7 +191,7 @@ namespace Common
     {
         if (isOpen())
         {
-            return ::read(_fd, array + offset, (uint)count);
+            return ::read(_fd, array + offset, (uint32_t)count);
         }
         return 0;
     }

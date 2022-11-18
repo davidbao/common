@@ -31,7 +31,7 @@ namespace Common {
     template<class type>
     class StreamVector : public CopyPList<type>, public StreamAccessor {
     public:
-        StreamVector(bool autoDelete = true, uint capacity = CopyPList<type>::DefaultCapacity) : CopyPList<type>(
+        StreamVector(bool autoDelete = true, uint32_t capacity = CopyPList<type>::DefaultCapacity) : CopyPList<type>(
                 autoDelete, capacity) {
         }
 
@@ -52,10 +52,10 @@ namespace Common {
                     stream->writeByte((uint8_t) c);
                     break;
                 case 2:
-                    stream->writeUInt16((ushort) c);
+                    stream->writeUInt16((uint16_t) c);
                     break;
                 case 4:
-                    stream->writeUInt32((uint) c);
+                    stream->writeUInt32((uint32_t) c);
                     break;
                 default:
                     break;

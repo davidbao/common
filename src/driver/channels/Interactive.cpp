@@ -22,7 +22,7 @@ namespace Drivers
     {
         return false;
     }
-    ssize_t Interactive::receive(uint8_t* buffer, off_t offset, size_t count, uint timeout)
+    ssize_t Interactive::receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout)
     {
         if(timeout == 0)
         {
@@ -31,7 +31,7 @@ namespace Drivers
         // use it if useReceiveTimeout() return true;
         throw NotImplementedException("Can not implement this method.");
     }
-    ssize_t Interactive::receive(ByteArray* buffer, size_t count, uint timeout)
+    ssize_t Interactive::receive(ByteArray* buffer, size_t count, uint32_t timeout)
     {
         if(timeout == 0)
         {

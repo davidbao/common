@@ -19,7 +19,7 @@ namespace Microservice {
     }
 
     bool ServiceDiscovery::Items::contains(const String &serviceId) const {
-        for (uint i = 0; i < count(); i++) {
+        for (uint32_t i = 0; i < count(); i++) {
             const Item *item = at(i);
             if (item->serviceId == serviceId)
                 return true;
@@ -51,7 +51,7 @@ namespace Microservice {
         String name;
         StringArray names;
         sgfactory->getNames(names);
-        for (uint i = 0; i < names.count(); i++) {
+        for (uint32_t i = 0; i < names.count(); i++) {
             const String &n = names[i];
 
             bool enabled = false;
@@ -100,7 +100,7 @@ namespace Microservice {
         if (_service != nullptr) {
             Locker locker(&_itemsMutex);
 
-            for (uint i = 0; i < _items.count(); i++) {
+            for (uint32_t i = 0; i < _items.count(); i++) {
                 Item *item = _items.at(i);
                 if (serviceId.isNullOrEmpty() || item->serviceId == serviceId) {
                     if (_service->getServiceInstances(item->serviceId, item->instances)) {

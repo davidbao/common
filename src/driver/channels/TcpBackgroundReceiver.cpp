@@ -173,7 +173,7 @@ namespace Drivers
     {
         if (_receiveThread != nullptr)
         {
-            uint timeout = _dd->receiveDelay();
+            uint32_t timeout = _dd->receiveDelay();
             _receiveThread->stop(TimeSpan::fromSeconds(timeout));
             delete _receiveThread;
             _receiveThread = nullptr;

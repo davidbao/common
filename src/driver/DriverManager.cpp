@@ -48,14 +48,14 @@ namespace Drivers
         
 		createDevices();
         
-        for(uint i=0;i<_channels->count();i++)
+        for(uint32_t i=0;i<_channels->count();i++)
         {
             Channel* channel = _channels->at(i);
             channel->open();
         }
         
         // It is not server channel if it has a sampler.
-		for (uint i = 0; i < _pools->count(); i++)
+		for (uint32_t i = 0; i < _pools->count(); i++)
 		{
             InstructionPool* pool = _pools->at(i);
 			pool->start();
@@ -69,14 +69,14 @@ namespace Drivers
         
         createDevices();
         
-        for(uint i=0;i<_channels->count();i++)
+        for(uint32_t i=0;i<_channels->count();i++)
         {
             Channel* channel = _channels->at(i);
             channel->openAsync();
         }
         
         // It is not server channel if it has a sampler.
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* pool = _pools->at(i);
             pool->start();
@@ -88,7 +88,7 @@ namespace Drivers
     {
         if(channelName.isNullOrEmpty())
         {
-            for(uint i=0;i<_channels->count();i++)
+            for(uint32_t i=0;i<_channels->count();i++)
             {
                 Channel* channel = _channels->at(i);
                 reopen(channel, allowConnected);
@@ -118,14 +118,14 @@ namespace Drivers
         
         Debug::writeLine("DriverManager::reset");
         
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             _pools->at(i)->stop();
         }
         
         reopenAll(true);
         
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             _pools->at(i)->start();
         }
@@ -154,7 +154,7 @@ namespace Drivers
     {
         Locker locker(&_mutex);
         
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             _pools->at(i)->pause();
         }
@@ -163,7 +163,7 @@ namespace Drivers
     {
         Locker locker(&_mutex);
         
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             _pools->at(i)->resume();
         }
@@ -179,14 +179,14 @@ namespace Drivers
 
         Locker locker(&_mutex);
         
-		for (uint i = 0; i < _pools->count(); i++)
+		for (uint32_t i = 0; i < _pools->count(); i++)
 		{
 			_pools->at(i)->stop();
 		}
         _pools->clear();
 
 		DeviceDescriptions* dds = _description->getDevices();
-		for (uint i = 0; i < dds->count(); i++)
+		for (uint32_t i = 0; i < dds->count(); i++)
 		{
 			DeviceDescription* dd = dds->at(i);
 
@@ -209,7 +209,7 @@ namespace Drivers
 		DeviceDescriptions* dds = _description->getDevices();
 		if (!(dds == nullptr || dds->count() == 0))
 		{
-			for (uint i = 0; i < dds->count(); i++)
+			for (uint32_t i = 0; i < dds->count(); i++)
 			{
 				DeviceDescription* dd = dds->at(i);
 				if(dd->name() == deviceName)
@@ -225,7 +225,7 @@ namespace Drivers
     
     Device* DriverManager::getDevice(const String& deviceName) const
     {
-        for (uint i = 0; i < _devices->count(); i++)
+        for (uint32_t i = 0; i < _devices->count(); i++)
         {
             Device* device = _devices->at(i);
             if(device != nullptr &&
@@ -238,7 +238,7 @@ namespace Drivers
     }
     Device* DriverManager::getDevice(const Channel* channel) const
     {
-        for (uint i = 0; i < _devices->count(); i++)
+        for (uint32_t i = 0; i < _devices->count(); i++)
         {
             Device* device = _devices->at(i);
             if(device != nullptr &&
@@ -252,7 +252,7 @@ namespace Drivers
     void DriverManager::getDevices(const Channel* channel, Devices& devices) const
     {
         devices.setAutoDelete(false);
-        for (uint i = 0; i < _devices->count(); i++)
+        for (uint32_t i = 0; i < _devices->count(); i++)
         {
             Device* device = _devices->at(i);
             if(device != nullptr &&
@@ -273,7 +273,7 @@ namespace Drivers
     
     bool DriverManager::hasChannel(ChannelDescription* cd)
     {
-        for (uint i = 0; i < _channels->count(); i++)
+        for (uint32_t i = 0; i < _channels->count(); i++)
         {
             const Channel* channel = _channels->at(i);
             if(channel != nullptr &&
@@ -286,7 +286,7 @@ namespace Drivers
     }
     Channel* DriverManager::getChannel(const String& channelName) const
     {
-        for (uint i = 0; i < _channels->count(); i++)
+        for (uint32_t i = 0; i < _channels->count(); i++)
         {
             Channel* channel = _channels->at(i);
             if(channel->description()->name() == channelName)
@@ -310,7 +310,7 @@ namespace Drivers
     }
     InstructionPool* DriverManager::getPool(const String& deviceName) const
     {
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* ip = _pools->at(i);
             if(ip->containsDevice(deviceName))
@@ -322,7 +322,7 @@ namespace Drivers
     }
     InstructionPool* DriverManager::getPoolByChannelName(const String& channelName) const
     {
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* ip = _pools->at(i);
             if(ip->channelName() == channelName)
@@ -334,7 +334,7 @@ namespace Drivers
     }
     InstructionPool* DriverManager::getPoolByDeviceName(const String& deviceName) const
     {
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* ip = _pools->at(i);
             if(ip->deviceName() == deviceName)
@@ -347,10 +347,10 @@ namespace Drivers
     void DriverManager::getPoolsWithoutDevice(const StringArray& deviceNames, InstructionPools& ips) const
     {
         ips.setAutoDelete(false);
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* ip = _pools->at(i);
-            for (uint j=0; j<deviceNames.count(); j++)
+            for (uint32_t j=0; j<deviceNames.count(); j++)
             {
                 String deviceName = deviceNames[j];
                 if(deviceName.isNullOrEmpty() || ip->deviceName() != deviceName)
@@ -363,10 +363,10 @@ namespace Drivers
     void DriverManager::getPools(const StringArray& deviceNames, InstructionPools& ips) const
     {
         ips.setAutoDelete(false);
-        for (uint i = 0; i < _pools->count(); i++)
+        for (uint32_t i = 0; i < _pools->count(); i++)
         {
             InstructionPool* ip = _pools->at(i);
-            for (uint j=0; j<deviceNames.count(); j++)
+            for (uint32_t j=0; j<deviceNames.count(); j++)
             {
                 String deviceName = deviceNames[j];
                 if(deviceName.isNullOrEmpty() || ip->deviceName() == deviceName)
@@ -394,7 +394,7 @@ namespace Drivers
 			return;
 		}
 
-		for (uint i = 0; i < dds->count(); i++)
+		for (uint32_t i = 0; i < dds->count(); i++)
 		{
 			DeviceDescription* dd = dds->at(i);
             if(!containsDevice(dd))

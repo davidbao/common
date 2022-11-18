@@ -139,10 +139,10 @@ namespace Net
 		return _connected;
 	}
 
-	ssize_t BluetoothClient::receiveBySize(BluetoothClient* client, uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint timeout)
+	ssize_t BluetoothClient::receiveBySize(BluetoothClient* client, uint8_t* buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout)
 	{
-		uint startTime = TickTimeout::getCurrentTickCount();
-		uint deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
+		uint32_t startTime = TickTimeout::getCurrentTickCount();
+		uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
 
         size_t available = client->available();
 		bool dataReady = false;
@@ -153,7 +153,7 @@ namespace Net
 				dataReady = true;
 				break;
 			}
-			uint now = TickTimeout::getCurrentTickCount();
+			uint32_t now = TickTimeout::getCurrentTickCount();
 			if (client->available() == available)
 			{
 				Thread::msleep(1);

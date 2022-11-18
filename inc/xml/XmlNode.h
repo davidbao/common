@@ -64,9 +64,9 @@ namespace Common
         bool appendAttribute(const String& name, const char& value);
         bool appendAttribute(const String& name, const uint8_t& value);
         bool appendAttribute(const String& name, const short& value);
-        bool appendAttribute(const String& name, const ushort& value);
+        bool appendAttribute(const String& name, const uint16_t& value);
         bool appendAttribute(const String& name, const int& value);
-        bool appendAttribute(const String& name, const uint& value);
+        bool appendAttribute(const String& name, const uint32_t& value);
         bool appendAttribute(const String& name, const int64_t& value);
         bool appendAttribute(const String& name, const uint64_t& value);
         bool appendAttribute(const String& name, const float& value);
@@ -84,9 +84,9 @@ namespace Common
         bool updateAttribute(const String& name, const char& value);
         bool updateAttribute(const String& name, const uint8_t& value);
         bool updateAttribute(const String& name, const short& value);
-        bool updateAttribute(const String& name, const ushort& value);
+        bool updateAttribute(const String& name, const uint16_t& value);
         bool updateAttribute(const String& name, const int& value);
-        bool updateAttribute(const String& name, const uint& value);
+        bool updateAttribute(const String& name, const uint32_t& value);
         bool updateAttribute(const String& name, const int64_t& value);
         bool updateAttribute(const String& name, const uint64_t& value);
         bool updateAttribute(const String& name, const float& value);
@@ -108,9 +108,9 @@ namespace Common
         bool getAttribute(const String& name, char& value) const;
         bool getAttribute(const String& name, uint8_t& value) const;
         bool getAttribute(const String& name, short& value) const;
-        bool getAttribute(const String& name, ushort& value) const;
+        bool getAttribute(const String& name, uint16_t& value) const;
         bool getAttribute(const String& name, int& value) const;
-        bool getAttribute(const String& name, uint& value) const;
+        bool getAttribute(const String& name, uint32_t& value) const;
         bool getAttribute(const String& name, int64_t& value) const;
         bool getAttribute(const String& name, uint64_t& value) const;
         bool getAttribute(const String& name, float& value) const;

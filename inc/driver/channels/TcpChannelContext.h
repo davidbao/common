@@ -32,11 +32,11 @@ namespace Drivers
         void setReceiveBufferSize(int bufferSize);
         
         const TimeSpan& sendTimeout() const;
-        void setSendTimeout(uint timeout);
+        void setSendTimeout(uint32_t timeout);
         void setSendTimeout(TimeSpan timeout);
         
         const TimeSpan& receiveTimeout() const;
-        void setReceiveTimeout(uint timeout);
+        void setReceiveTimeout(uint32_t timeout);
         void setReceiveTimeout(TimeSpan timeout);
         
         bool noDelay() const;
@@ -94,7 +94,7 @@ namespace Drivers
         const TimeSpan& closeTimeout() const override;
         
         const TimeSpan& openTimeout() const;
-        void setOpenTimeout(uint timeout);
+        void setOpenTimeout(uint32_t timeout);
         void setOpenTimeout(TimeSpan timeout);
         
         void copyFrom(const TcpChannelContext* context) override;

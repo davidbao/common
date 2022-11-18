@@ -19,7 +19,7 @@ namespace Common {
         double latitude;
         double longitude;
 
-        PositionCoord(double longitude = Double::NaN, double latitude = Double::NaN);
+        explicit PositionCoord(double longitude = Double::NaN, double latitude = Double::NaN);
 
         PositionCoord(const PositionCoord &coord);
 
@@ -31,11 +31,11 @@ namespace Common {
 
         void empty();
 
-        const String toString() const;
+        String toString() const;
 
         static bool parse(const String &str, PositionCoord &value);
 
-        void operator=(const PositionCoord &value);
+        PositionCoord &operator=(const PositionCoord &value);
 
         bool operator==(const PositionCoord &value) const;
 

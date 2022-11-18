@@ -84,7 +84,7 @@ namespace Common {
                 stream->writeByte((uint8_t) c);
                 break;
             case CountLength2:
-                stream->writeUInt16((ushort) c);
+                stream->writeUInt16((uint16_t) c);
                 break;
             case CountLength4:
                 stream->writeUInt32((uint32_t) c);
@@ -115,7 +115,7 @@ namespace Common {
             default:
                 break;
         }
-        for (uint i = 0; i < c; i++) {
+        for (uint32_t i = 0; i < c; i++) {
             String value = stream->readStr(streamLength);
             add(value);
         }
@@ -123,7 +123,7 @@ namespace Common {
 
     String StringArray::toString(const char &symbol) const {
         String str;
-        for (uint i = 0; i < count(); i++) {
+        for (uint32_t i = 0; i < count(); i++) {
             if (str.length() > 0)
                 str.append(symbol);
             str.append(at(i));

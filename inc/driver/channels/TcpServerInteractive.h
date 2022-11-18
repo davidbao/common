@@ -59,7 +59,7 @@ namespace Drivers
             
             bool deleteFlag() const;
             void setDeleteManually(bool deleteFlag = true);
-            uint deleteStart() const;
+            uint32_t deleteStart() const;
             
             Device::Status senderStatus() const;
             bool isOnline() const;
@@ -77,7 +77,7 @@ namespace Drivers
             bool _closeFlag;
             
             bool _deleteFlag;
-            uint _deleteStart;
+            uint32_t _deleteStart;
         };
 //        typedef PList<Client> Clients;
         class Clients

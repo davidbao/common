@@ -33,7 +33,7 @@ namespace Common
     ThreadPool::~ThreadPool()
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             
@@ -93,7 +93,7 @@ namespace Common
     {
         int count = 0;
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             if(item->thread->isAlive())
@@ -128,7 +128,7 @@ namespace Common
     bool ThreadPool::isAliveInner(action_callback3 action)
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             if(item->action == action)
@@ -140,7 +140,7 @@ namespace Common
     bool ThreadPool::isAliveInner(const ThreadHolder* holder)
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             if(item->holder == holder)
@@ -152,7 +152,7 @@ namespace Common
     void ThreadPool::stopInner(action_callback3 action)
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             if(item->action == action &&
@@ -166,7 +166,7 @@ namespace Common
     void ThreadPool::stopInner(const ThreadHolder* holder)
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             if(item->holder == holder &&
@@ -181,7 +181,7 @@ namespace Common
     ThreadPool::Item* ThreadPool::getInvalidItem(action_callback3 action, ThreadHolder* holder)
     {
         Locker locker(&_itemsMutex);
-        for (uint i=0; i<_items.count(); i++)
+        for (uint32_t i=0; i<_items.count(); i++)
         {
             Item* item = _items[i];
             

@@ -66,7 +66,7 @@ namespace Drivers
         return len;
     }
 
-    ssize_t MockInteractive::receive(uint8_t* buffer, off_t offset, size_t count, uint timeout)
+    ssize_t MockInteractive::receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout)
     {
 #ifdef DEBUG
         Stopwatch sw("serial receive2", 1000);

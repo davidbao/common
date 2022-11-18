@@ -2,6 +2,13 @@
 #define METRICS_H
 
 #include "data/ValueType.h"
+#if WIN32
+#undef min
+#undef max
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
+#endif // WIN32
 
 namespace Common
 {

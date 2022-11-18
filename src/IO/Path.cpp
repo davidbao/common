@@ -170,7 +170,7 @@ namespace Common
 			return false;
 
 		size_t length = strlen(path);
-		for (uint i = 0; i < length; i++)
+		for (uint32_t i = 0; i < length; i++)
 		{
 			uint8_t num2 = path[i];
 			if (((num2 == 0x22) || (num2 == 60)) || (((num2 == 0x3e) || (num2 == 0x7c)) || (num2 < (uint8_t)0x20)))

@@ -15,6 +15,7 @@
 #include "data/StringArray.h"
 #include "IO/Stream.h"
 #include "system/Math.h"
+#include "data/Culture.h"
 
 // Limits of integer and floating-point types
 // https://en.cppreference.com/w/cpp/types/climits
@@ -103,7 +104,36 @@ namespace Common {
     }
 
     template<typename type>
-    String BaseValueType::toValueString(const type &value, const String &format) {
+    String BaseValueType::toValueString(const type &value, const String &format, const IFormatProvider<NumberFormatInfo>* provider) {
+        if(provider == nullptr) {
+            return toValueString(value, format, &NumberFormatInfo::currentInfo());
+        } else {
+            static Mutex localeMutex;
+            Locker locker(&localeMutex);
+
+            const NumberFormatInfo *info = NumberFormatInfo::getInstance(provider);
+
+            struct lconv *lc = localeconv();
+            struct lconv old;
+            memcpy(&old, lc, sizeof(lconv));
+            lc->mon_decimal_point = (char *) info->currencyDecimalSeparator.c_str();
+            lc->mon_thousands_sep = (char *) info->currencyGroupSeparator.c_str();
+            lc->currency_symbol = (char *) info->currencySymbol.c_str();
+            lc->negative_sign = (char *) info->negativeSign.c_str();
+            lc->decimal_point = (char *) info->numberDecimalSeparator.c_str();
+            lc->thousands_sep = (char *) info->numberGroupSeparator.c_str();
+            lc->positive_sign = (char *) info->positiveSign.c_str();
+
+            String str = toValueString(value, format, info);
+
+            memcpy(lc, &old, sizeof(lconv));
+
+            return str;
+        }
+    }
+
+    template<typename type>
+    String BaseValueType::toValueString(const type &value, const String &format, const NumberFormatInfo *info) {
         // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings
         String fmt = !format.isNullOrEmpty() ? format : "G";
         const char specifier = Char::toLower(fmt[0]);
@@ -112,124 +142,78 @@ namespace Common {
             String str = fmt.substr(1, fmt.length() - 1);
             Int32::parse(str, size);
         }
-        static const char *defLocale = "en_US";
+
+        String str;
         char result[255];
         memset(result, 0, sizeof(result));
         if (specifier == 'c') {
             // Result: A currency value.
             // Supported by: All numeric types.
             // Precision specifier: Number of decimal digits.
-            int pointSize = size > 0 ? size : 2;
-            String localeStr;
-            struct lconv *lc = localeconv();
-            if (lc->currency_symbol[0] == '\0') {
-                // The default locale has no currency symbol.
-                localeStr = setlocale(LC_MONETARY, nullptr);
-                setlocale(LC_MONETARY, defLocale);
-                lc = localeconv();
-            }
-            String fmtStr;
-            static const char *quantities = "%.*lf";
-            const double v = value >= 0 ? (double) value : -(double) value;
-            const bool hasSymbol = lc->currency_symbol[0] != '\0';
-            const char *space, *symbol, *sign;
-            char sign_pos, cs_precedes;
-            if (hasSymbol) {
-                space = lc->n_sep_by_space ? " " : "";
-                symbol = lc->currency_symbol;
-                sign = value >= 0 ? lc->positive_sign : lc->negative_sign;
-                sign_pos = hasSymbol ? (value >= 0 ? lc->p_sign_posn : lc->n_sign_posn) : 127;
-                cs_precedes = value >= 0 ? lc->p_cs_precedes : lc->n_cs_precedes;
+            int pointSize = size > 0 ? size : info->currencyDecimalDigits;
+            sprintf(result, "%.*lf", pointSize, (value >= 0 ? (double) value : -(double) value));
+            String n = addThousandSeparator(result, info->currencyDecimalSeparator, info->currencyGroupSeparator);
+            if(value >= 0) {
+                if (info->currencyPositivePattern == 0) {        // $n
+                    str = String::format("%s%s", info->currencySymbol.c_str(), n.c_str());
+                } else if (info->currencyPositivePattern == 1) { // n$
+                    str = String::format("%s%s", n.c_str(), info->currencySymbol.c_str());
+                } else if (info->currencyPositivePattern == 2) { // $ n
+                    str = String::format("%s %s", info->currencySymbol.c_str(), n.c_str());
+                } else if (info->currencyPositivePattern == 3) { // n $
+                    str = String::format("%s %s", n.c_str(), info->currencySymbol.c_str());
+                }
             } else {
-                space = "";
-                symbol = "$";
-                sign = value >= 0 ? "" : "-";
-                sign_pos = 127;
-                cs_precedes = 1;
-            }
-            if (sign_pos == 0) {
-                // Currency symbol and quantity surrounded by parentheses.
-                fmtStr.append('(');
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                if (info->currencyNegativePattern == 0) {	    //	($n)
+                    str = String::format("(%s%s)", info->currencySymbol.c_str(), n.c_str());
                 }
-                fmtStr.append(')');
-            } else if (sign_pos == 1) {
-                // Sign before the quantity and currency symbol.
-                fmtStr.append(sign);
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                else if (info->currencyNegativePattern == 1) {	//	-$n
+                    str = String::format("%s%s%s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
                 }
-            } else if (sign_pos == 2) {
-                // Sign after the quantity and currency symbol.
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                else if (info->currencyNegativePattern == 2) {	//	$-n
+                    str = String::format("%s%s%s", info->currencySymbol.c_str(), info->negativeSign.c_str(), n.c_str());
                 }
-                fmtStr.append(sign);
-            } else if (sign_pos == 3) {
-                // Sign right before currency symbol.
-                fmtStr.append(sign);
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                else if (info->currencyNegativePattern == 3) {	//	$n-
+                    str = String::format("%s%s%s", info->currencySymbol.c_str(), n.c_str(), info->negativeSign.c_str());
                 }
-            } else if (sign_pos == 4) {
-                // Sign right after currency symbol.
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                else if (info->currencyNegativePattern == 4) {	//	(n$)
+                    str = String::format("(%s%s)", n.c_str(), info->currencySymbol.c_str());
                 }
-                fmtStr.append(sign);
-            } else {
-                // Sign before the quantity and currency symbol.
-                fmtStr.append(sign);
-                if (cs_precedes) {
-                    // If this value is 1, the currency symbol should precede
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
-                    fmtStr.append(quantities);
-                } else {
-                    fmtStr.append(quantities);
-                    fmtStr.append(symbol);
-                    fmtStr.append(space);
+                else if (info->currencyNegativePattern == 5) {	//	-n$
+                    str = String::format("%s%s%s", info->negativeSign.c_str(), n.c_str(), info->currencySymbol.c_str());
                 }
-            }
-            sprintf(result, fmtStr.c_str(), pointSize, v);
-            if (!localeStr.isNullOrEmpty()) {
-                setlocale(LC_MONETARY, localeStr.c_str());
+                else if (info->currencyNegativePattern == 6) {	//	n-$
+                    str = String::format("%s%s%s", n.c_str(), info->negativeSign.c_str(), info->currencySymbol.c_str());
+                }
+                else if (info->currencyNegativePattern == 7) {	//	n$-
+                    str = String::format("%s%s%s", n.c_str(), info->currencySymbol.c_str(), info->negativeSign.c_str());
+                }
+                else if (info->currencyNegativePattern == 8) {	//	-n $
+                    str = String::format("%s%s %s", info->negativeSign.c_str(), n.c_str(), info->currencySymbol.c_str());
+                }
+                else if (info->currencyNegativePattern == 9) {	//	-$ n
+                    str = String::format("%s%s %s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
+                }
+                else if (info->currencyNegativePattern == 10) {	//	n $-
+                    str = String::format("%s %s%s", n.c_str(), info->currencySymbol.c_str(), info->negativeSign.c_str());
+                }
+                else if (info->currencyNegativePattern == 11) {	//	$ n-
+                    str = String::format("%s %s%s", info->currencySymbol.c_str(), n.c_str(), info->negativeSign.c_str());
+                }
+                else if (info->currencyNegativePattern == 12) {	//	$ -n
+                    str = String::format("%s %s%s", info->currencySymbol.c_str(), info->negativeSign.c_str(), n.c_str());
+                }
+                else if (info->currencyNegativePattern == 13) {	//	n- $
+                    str = String::format("%s%s %s", n.c_str(), info->negativeSign.c_str(), info->currencySymbol.c_str());
+                }
+                else if (info->currencyNegativePattern == 14) {	//	($ n)
+                    str = String::format("(%s %s)", info->currencySymbol.c_str(), n.c_str());
+                }
+                else if (info->currencyNegativePattern == 15) {	//	(n $)
+                    str = String::format("(%s %s)", n.c_str(), info->currencySymbol.c_str());
+                } else {    // same as 1.
+                    str = String::format("%s%s%s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
+                }
             }
         } else if (specifier == 'd') {
             // Result: Integer digits with optional negative sign.
@@ -241,6 +225,7 @@ namespace Common {
             } else {
                 sprintf(result, "%0*" PRIu64, integerSize, (uint64_t) value);
             }
+            str = result;
         } else if (specifier == 'e') {
             // Result: Exponential notation.
             // Supported by: All numeric types.
@@ -248,13 +233,15 @@ namespace Common {
             int integerSize = size + (size > 0 ? 1 : 0);
             int pointSize = size > 0 ? size : 6;
             sprintf(result, fmt[0] == 'e' ? "%0*.*e" : "%0*.*E", integerSize, pointSize, (double) value);
+            str = result;
         } else if (specifier == 'f') {
             // Result: Integral and decimal digits with optional negative sign.
             // Supported by: All numeric types.
             // Precision specifier: Number of decimal digits.
             int integerSize = size + (size > 0 ? 1 : 0);
-            int pointSize = size > 0 ? size : 2;
+            int pointSize = size > 0 ? size : info->numberDecimalDigits;
             sprintf(result, "%0*.*lf", integerSize, pointSize, (double) value);
+            str = result;
         } else if (specifier == 'g') {
             // Result: The more compact of either fixed-point or scientific notation.
             // Supported by: All numeric types.
@@ -265,20 +252,22 @@ namespace Common {
             } else {
                 sprintf(result, fmt[0] == 'g' ? "%lg" : "%lG", (double) value);
             }
+            str = result;
         } else if (specifier == 'n') {
             // Result: Integral and decimal digits, group separators, and a decimal separator with optional negative sign.
             // Supported by: All numeric types.
             // Precision specifier: Desired number of decimal places.
             int integerSize = 0;
-            int pointSize = size > 0 ? size : 2;
+            int pointSize = size > 0 ? size : info->numberDecimalDigits;
             sprintf(result, "%.*lf", pointSize, (double) value);
-            addThousandSeparator(result, result);
+            str = addThousandSeparator(result, info->numberDecimalSeparator, info->numberGroupSeparator);
         } else if (specifier == 'p') {
             // Result: Number multiplied by 100 and displayed with a percent symbol.
             // Supported by: All numeric types.
             // Precision specifier: Desired number of decimal places.
-            int pointSize = size > 0 ? size : 2;
+            int pointSize = size > 0 ? size : info->percentDecimalDigits;
             sprintf(result, "%.*lf %%", pointSize, ((double) value) * 100.0);
+            str = result;
         } else if (specifier == 'x') {
             // Result: A hexadecimal string.
             // Supported by: Integral types only.
@@ -303,6 +292,7 @@ namespace Common {
                     break;
             }
             sprintf(result, fmt[0] == 'x' ? "%0*" PRIx64 : "%0*" PRIX64, integerSize, v);
+            str = result;
         } else {
             StringArray texts;
             StringArray::parse(format, texts, '.');
@@ -326,50 +316,34 @@ namespace Common {
             } else {
                 sprintf(result, "%lg", (double) value);
             }
+            str = result;
         }
-//        printf("(%s: %s)\n", format.c_str(), result);
-        return result;
+        return str;
     }
 
-    void BaseValueType::addThousandSeparator(const char *str, char *result) {
-        String localeStr;
-        struct lconv *lc = localeconv();
-        static const char *defLocale = "en_US";
-        if (!(lc->thousands_sep != nullptr && lc->thousands_sep[0] != '\0')) {
-            // The default locale has no thousands' separator.
-            localeStr = setlocale(LC_NUMERIC, nullptr);
-            setlocale(LC_NUMERIC, defLocale);
-            lc = localeconv();
-        }
-        String decimalPoint = lc->decimal_point[0] != '\0' ? lc->decimal_point : ".";
-        String thousandsSep = lc->thousands_sep[0] != '\0' ? lc->thousands_sep : ",";
-
-        String temp = str;
-        ssize_t index = temp.findLastOf(decimalPoint);
+    String BaseValueType::addThousandSeparator(const String &str, const String& decimalSeparator, const String &groupSeparator) {
+        String result = str;
+        ssize_t index = result.findLastOf(decimalSeparator);
         if (index <= 0) {
-            index = (ssize_t) temp.length();
+            index = (ssize_t) result.length();
         }
         while (index > 0) {
             index -= 3;
             if (index > 0) {
-                temp.insert(index, thousandsSep);
+                result.insert(index, groupSeparator);
             }
         }
-        memcpy(result, temp.c_str(), temp.length());
-
-        if (!localeStr.isNullOrEmpty()) {
-            setlocale(LC_NUMERIC, localeStr.c_str());
-        }
+        return result;
     }
 
     bool BaseValueType::parseInt64(const String &str, int64_t &value, NumberStyles style) {
         if ((style & NumberStyles::NSAllowHexSpecifier) != 0) {
-            uint len = 0;
+            uint32_t len = 0;
             if (sscanf(str.c_str(), "%" PRIx64 "%n", &value, &len) == 1 && str.length() == len) {
                 return true;
             }
         } else {
-            uint len = 0;
+            uint32_t len = 0;
             if (sscanf(str.c_str(), "%" PRId64 "%n", &value, &len) == 1 && str.length() == len) {
                 return true;
             }
@@ -379,12 +353,12 @@ namespace Common {
 
     bool BaseValueType::parseUInt64(const String &str, uint64_t &value, NumberStyles style) {
         if ((style & NumberStyles::NSAllowHexSpecifier) != 0) {
-            uint len = 0;
+            uint32_t len = 0;
             if (sscanf(str.c_str(), "%" PRIx64 "%n", &value, &len) == 1 && str.length() == len) {
                 return true;
             }
         } else {
-            uint len = 0;
+            uint32_t len = 0;
             if (sscanf(str.c_str(), "%" PRIu64 "%n", &value, &len) == 1 && str.length() == len) {
                 return true;
             }
@@ -393,15 +367,15 @@ namespace Common {
     }
 
     bool BaseValueType::parseDouble(const String &str, double &value, NumberStyles style) {
-        uint len = 0;
+        uint32_t len = 0;
         if (sscanf(str.c_str(), "%lf%n", &value, &len) == 1 && str.length() == len) {
             return true;
         }
         return false;
     }
 
-    const Char Char::MaxValue = Char(INT8_MAX);
-    const Char Char::MinValue = Char(INT8_MIN);
+    const Char Char::MaxValue = Char(CHAR_MAX);
+    const Char Char::MinValue = Char(CHAR_MIN);
     const Char Char::NewLine = '\n';
     const uint8_t Char::categoryForLatin1[] = {
             (uint8_t) UnicodeCategory::Control, (uint8_t) UnicodeCategory::Control,
@@ -585,8 +559,8 @@ namespace Common {
         _value = (char) stream->readByte();
     }
 
-    String Char::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Char::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     Char Char::toLower() const {
@@ -1010,8 +984,8 @@ namespace Common {
         _value = stream->readUInt16();
     }
 
-    String WChar::toString(const String &format) const {
-        return toValueString(_value, format);
+    String WChar::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     WChar WChar::toLower() const {
@@ -1289,8 +1263,8 @@ namespace Common {
         _value = stream->readInt8();
     }
 
-    String Int8::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Int8::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Int8::parse(const String &str, Int8 &value, NumberStyles style) {
@@ -1337,8 +1311,8 @@ namespace Common {
         _value = stream->readUInt8();
     }
 
-    String UInt8::toString(const String &format) const {
-        return toValueString(_value, format);
+    String UInt8::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool UInt8::parse(const String &str, UInt8 &value, NumberStyles style) {
@@ -1385,8 +1359,8 @@ namespace Common {
         _value = stream->readInt16(bigEndian);
     }
 
-    String Int16::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Int16::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Int16::parse(const String &str, Int16 &value, NumberStyles style) {
@@ -1433,8 +1407,8 @@ namespace Common {
         _value = stream->readUInt16(bigEndian);
     }
 
-    String UInt16::toString(const String &format) const {
-        return toValueString(_value, format);
+    String UInt16::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool UInt16::parse(const String &str, UInt16 &value, NumberStyles style) {
@@ -1481,8 +1455,8 @@ namespace Common {
         _value = stream->readInt32(bigEndian);
     }
 
-    String Int32::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Int32::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Int32::parse(const String &str, Int32 &value, NumberStyles style) {
@@ -1529,8 +1503,8 @@ namespace Common {
         _value = stream->readUInt32(bigEndian);
     }
 
-    String UInt32::toString(const String &format) const {
-        return toValueString(_value, format);
+    String UInt32::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool UInt32::parse(const String &str, UInt32 &value, NumberStyles style) {
@@ -1577,8 +1551,8 @@ namespace Common {
         _value = stream->readInt64(bigEndian);
     }
 
-    String Int64::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Int64::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Int64::parse(const String &str, Int64 &value, NumberStyles style) {
@@ -1625,8 +1599,8 @@ namespace Common {
         _value = stream->readUInt64(bigEndian);
     }
 
-    String UInt64::toString(const String &format) const {
-        return toValueString(_value, format);
+    String UInt64::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool UInt64::parse(const String &str, UInt64 &value, NumberStyles style) {
@@ -1677,8 +1651,8 @@ namespace Common {
         _value = stream->readFloat(bigEndian);
     }
 
-    String Float::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Float::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Float::parse(const String &str, Float &value, NumberStyles style) {
@@ -1793,8 +1767,8 @@ namespace Common {
         _value = stream->readDouble(bigEndian);
     }
 
-    String Double::toString(const String &format) const {
-        return toValueString(_value, format);
+    String Double::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+        return toValueString(_value, format, provider);
     }
 
     bool Double::parse(const String &str, Double &value, NumberStyles style) {

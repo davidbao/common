@@ -467,7 +467,7 @@ namespace Net
             _messages.makeNull(false);
             _messagesMutex.unlock();
             
-            for (uint i=0; i<count; i++)
+            for (uint32_t i=0; i<count; i++)
             {
                 Message* message = messages[i];
                 MessageArrivedEventArgs args(message);

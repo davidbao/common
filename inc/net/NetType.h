@@ -198,6 +198,15 @@ namespace Net {
               public IEvaluation<int>,
               public IComparable<int> {
     public:
+        using IComparable<Port>::operator>;
+        using IComparable<Port>::operator>=;
+        using IComparable<Port>::operator<;
+        using IComparable<Port>::operator<=;
+        using IComparable<int>::operator>;
+        using IComparable<int>::operator>=;
+        using IComparable<int>::operator<;
+        using IComparable<int>::operator<=;
+
         Port(uint16_t value = DefaultValue);
 
         Port(const Port &port);

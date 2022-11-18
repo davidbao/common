@@ -30,7 +30,7 @@ namespace Common
         if(context != nullptr)
             add(context);
     }
-    TraceListenerContexts::TraceListenerContexts(bool autoDelete, uint capacity) : PList<TraceListenerContext>(autoDelete, capacity)
+    TraceListenerContexts::TraceListenerContexts(bool autoDelete, uint32_t capacity) : PList<TraceListenerContext>(autoDelete, capacity)
     {
     }
     TraceListenerContexts::TraceListenerContexts(const TraceListenerContexts& contexts) : PList<TraceListenerContext>(contexts)

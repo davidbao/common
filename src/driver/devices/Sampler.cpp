@@ -13,7 +13,7 @@ namespace Drivers
     Sampler::Sampler(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, bool skipSampler) : InstructionPool(dm, cd, dd)
     {
         _connected = Device::Unknown;
-        _sampleStart = (uint)-1;    // the first sample value.
+        _sampleStart = (uint32_t)-1;    // the first sample value.
         
         _showConnectedError = true;
         _isInvalidStatus = false;
@@ -44,12 +44,12 @@ namespace Drivers
         return getConnectStatus() == Device::Offline;
     }
     
-    uint Sampler::detectionInterval() const
+    uint32_t Sampler::detectionInterval() const
     {
         return 3000;
     }
     // return the resume interval, unit: ms
-    uint Sampler::resumeInterval() const
+    uint32_t Sampler::resumeInterval() const
     {
         return 10 * 1000;
     }
@@ -84,7 +84,7 @@ namespace Drivers
             _sampleStart = TickTimeout::getCurrentTickCount();
         }
         TimeSpan interval = TimeSpan::fromMilliseconds(_sampleInterval);
-        if(_sampleStart == (uint)-1 ||
+        if(_sampleStart == (uint32_t)-1 ||
            TickTimeout::isTimeout(_sampleStart, interval))
         {
             if (_isInvalidStatus)
@@ -111,7 +111,7 @@ namespace Drivers
 	{
 		if (!_pause)
 		{
-            if(_sampleStart == (uint)-1)
+            if(_sampleStart == (uint32_t)-1)
             {
                 TickTimeout::msdelay(5000, isChannelOpened, _channel);
             }
@@ -187,7 +187,7 @@ namespace Drivers
         InstructionPool::reset();
         
         _connected = Device::Unknown;
-        _sampleStart = (uint)-1;
+        _sampleStart = (uint32_t)-1;
         
         _isInvalidStatus = false;
         _checkOnlineFailedCount = 0;

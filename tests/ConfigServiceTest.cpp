@@ -141,7 +141,7 @@ bool testSystemVariables() {
         } else if (value == "${summer.cloud.client.ip-address}") {
             StringArray ifaces;
             NetInterface::getInterfaceNames(ifaces);
-            for (uint j = 0; j < ifaces.count(); j++) {
+            for (uint32_t j = 0; j < ifaces.count(); j++) {
                 String iface = ifaces[j];
                 if (iface.find("lo") < 0) {
                     IPAddress addr;

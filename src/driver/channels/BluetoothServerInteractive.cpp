@@ -52,7 +52,7 @@ namespace Drivers
 	{
 		static int bindingCount = 0;
 		static const int MaxBindingCount = 5;
-		static const uint MaxDelayTime = 2000;	// 2s
+		static const uint32_t MaxDelayTime = 2000;	// 2s
 
 		_bluetoothServerMutex.lock();
 		if (_bluetoothServer != nullptr)

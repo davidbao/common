@@ -143,7 +143,7 @@ namespace Common {
     }
 
     const String Application::logPath() const {
-        for (uint i = 0; i < _traceListeners.count(); i++) {
+        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
             FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->config().path;
@@ -153,7 +153,7 @@ namespace Common {
     }
 
     const String Application::logFileFilter() const {
-        for (uint i = 0; i < _traceListeners.count(); i++) {
+        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
             FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return String::convert("*%s", listener->config().extName.c_str());
@@ -163,7 +163,7 @@ namespace Common {
     }
 
     bool Application::parseLogFileName(const String &logFileName, DateTime &date) const {
-        for (uint i = 0; i < _traceListeners.count(); i++) {
+        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
             FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->parseLogFileName(logFileName, date);
@@ -173,7 +173,7 @@ namespace Common {
     }
 
     Delegates *Application::logUpdatedDelegates() {
-        for (uint i = 0; i < _traceListeners.count(); i++) {
+        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
             MemoryTraceListener *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->updatedDelegates();
@@ -183,7 +183,7 @@ namespace Common {
     }
 
     void Application::getAllMessages(StringArray &messages) {
-        for (uint i = 0; i < _traceListeners.count(); i++) {
+        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
             MemoryTraceListener *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->getAllMessages(messages);
@@ -193,7 +193,7 @@ namespace Common {
 
     void Application::initLog(const TraceListenerContexts &contexts) {
         if (contexts.count() > 0) {
-            for (uint i = 0; i < contexts.count(); i++) {
+            for (uint32_t i = 0; i < contexts.count(); i++) {
                 TraceListenerContext *context = contexts[i];
                 TraceListener *listener = TraceListener::create(context);
                 _traceListeners.add(listener);
@@ -312,9 +312,9 @@ namespace Common {
 #endif
 
     const TimeSpan Application::elapsedTime() const {
-        uint start = _startTime;
-        uint end = TickTimeout::getCurrentTickCount();
-        uint elapsed = TickTimeout::elapsed(start, end);
+        uint32_t start = _startTime;
+        uint32_t end = TickTimeout::getCurrentTickCount();
+        uint32_t elapsed = TickTimeout::elapsed(start, end);
         return TimeSpan::fromMilliseconds(elapsed);
     }
 

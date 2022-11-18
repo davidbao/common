@@ -122,7 +122,7 @@ namespace Drivers
         
         Instructions _deletedInstructions;
         Mutex _deletedInstructionsMutex;
-        uint _deletedTick;
+        uint32_t _deletedTick;
         
         Delegates _receivedDelegates;
 	};

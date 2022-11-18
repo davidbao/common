@@ -104,7 +104,7 @@ namespace Communication
         {
             Debug::writeFormatLine("ServerService::startLoopSender, name: %s", name.c_str());
             Locker locker(&_loopSendersMutex);
-            for (uint i=0; i<_loopSenders.count(); i++)
+            for (uint32_t i=0; i<_loopSenders.count(); i++)
             {
                 BaseLoopSender* sender = _loopSenders[i];
                 if(sender->name() == name)
@@ -164,7 +164,7 @@ namespace Communication
                     buffer = new Buffer(MaxBufferLength);
                     _includedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint i=0; i<data.count(); i++)
+                for (uint32_t i=0; i<data.count(); i++)
                 {
                     buffer->enqueue(data[i]->clone());
                 }
@@ -190,7 +190,7 @@ namespace Communication
                     buffer = new Buffer(MaxBufferLength);
                     _excludedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint i=0; i<data.count(); i++)
+                for (uint32_t i=0; i<data.count(); i++)
                 {
                     buffer->enqueue(data[i]->clone());
                 }
@@ -212,7 +212,7 @@ namespace Communication
                 Locker locker(&_includedBufferMutex);
                 PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
-                for(uint i=0;i<keys.count();i++)
+                for(uint32_t i=0;i<keys.count();i++)
                 {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer* buffer = nullptr;
@@ -227,7 +227,7 @@ namespace Communication
                             buffer->makeNull(false);
                             T data;
                             data.addRange((const K**)datas, count);
-//                            for(uint i=0;i<count;i++)
+//                            for(uint32_t i=0;i<count;i++)
 //                            {
 //                                Debug::writeFormatLine("async tag value, %s", datas[i]->toString().c_str());
 //                            }
@@ -246,7 +246,7 @@ namespace Communication
                 Locker locker(&_excludedBufferMutex);
                 PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
-                for(uint i=0;i<keys.count();i++)
+                for(uint32_t i=0;i<keys.count();i++)
                 {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer* buffer = nullptr;
@@ -286,7 +286,7 @@ namespace Communication
         {
             Debug::writeFormatLine("ServerService::startPacketSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 BasePacketSender* sender = _packetSenders[i];
                 if(sender->name() == name)
@@ -307,7 +307,7 @@ namespace Communication
         bool addPacketSender(const String& name, const K* data, const Endpoint& peerEndpoint = Endpoint::Empty)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -326,7 +326,7 @@ namespace Communication
         bool addPacketSender(const String& name, const T& data, const Endpoint& peerEndpoint = Endpoint::Empty)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -343,7 +343,7 @@ namespace Communication
         bool addPacketSenderWithoutClient(const String& name, const K* data, const Endpoint& peerEndpoint)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -398,7 +398,7 @@ namespace Communication
                     buffer = new Buffer(MaxBufferLength);
                     _includedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint i=0; i<data.count(); i++)
+                for (uint32_t i=0; i<data.count(); i++)
                 {
                     buffer->enqueue(data[i]->clone());
                 }
@@ -424,7 +424,7 @@ namespace Communication
                     buffer = new Buffer(MaxBufferLength);
                     _excludedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint i=0; i<data.count(); i++)
+                for (uint32_t i=0; i<data.count(); i++)
                 {
                     buffer->enqueue(data[i]->clone());
                 }
@@ -449,7 +449,7 @@ namespace Communication
                 _includedBufferMutex.lock();
                 PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
-                for(uint i=0;i<keys.count();i++)
+                for(uint32_t i=0;i<keys.count();i++)
                 {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer* buffer = nullptr;
@@ -462,7 +462,7 @@ namespace Communication
                 _includedBuffer.clear(false);
                 _includedBufferMutex.unlock();
                 
-                for (uint i=0; i<buffers.count(); i++)
+                for (uint32_t i=0; i<buffers.count(); i++)
                 {
                     const Endpoint peerEndpoint = peerEndpoints[i];
                     Buffer* buffer = buffers[i];
@@ -474,7 +474,7 @@ namespace Communication
                         buffer->makeNull(false);
                         T data;
                         data.addRange((const K**)datas, count);
-//                            for(uint i=0;i<count;i++)
+//                            for(uint32_t i=0;i<count;i++)
 //                            {
 //                                Debug::writeFormatLine("sync tag value, %s", datas[i]->toString().c_str());
 //                            }
@@ -496,7 +496,7 @@ namespace Communication
                 _excludedBufferMutex.lock();
                 PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
-                for(uint i=0;i<keys.count();i++)
+                for(uint32_t i=0;i<keys.count();i++)
                 {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer* buffer = nullptr;
@@ -509,7 +509,7 @@ namespace Communication
                 _excludedBuffer.clear(false);
                 _excludedBufferMutex.unlock();
                 
-                for (uint i=0; i<buffers.count(); i++)
+                for (uint32_t i=0; i<buffers.count(); i++)
                 {
                     const Endpoint peerEndpoint = peerEndpoints[i];
                     Buffer* buffer = buffers[i];
@@ -548,7 +548,7 @@ namespace Communication
         void startPacketSyncSender(typename PacketSyncSender<T, K, C>::FailedAction failedAction, void* owner, const String& name, const TimeSpan& interval, int packetCount = 10)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 BasePacketSender* sender = _packetSenders[i];
                 if(sender->name() == name)
@@ -567,7 +567,7 @@ namespace Communication
         void startPacketSyncSender(const String& name, const TimeSpan& interval, int packetCount = 10)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 BasePacketSender* sender = _packetSenders[i];
                 if(sender->name() == name)
@@ -589,7 +589,7 @@ namespace Communication
         bool addPacketSyncSender(const String& name, const K* data, const Endpoint& peerEndpoint = Endpoint::Empty)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -608,7 +608,7 @@ namespace Communication
         bool addPacketSyncSender(const String& name, const T& data, const Endpoint& peerEndpoint = Endpoint::Empty)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -625,7 +625,7 @@ namespace Communication
         bool addPacketSyncSenderWithoutClient(const String& name, const K* data, const Endpoint& peerEndpoint)
         {
             Locker locker(&_packetSendersMutex);
-            for (uint i=0; i<_packetSenders.count(); i++)
+            for (uint32_t i=0; i<_packetSenders.count(); i++)
             {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C>*>(_packetSenders[i]);
                 if(sender != nullptr && sender->name() == name)
@@ -661,7 +661,7 @@ namespace Communication
         bool sendVectorAsync(const Endpoints& endpoints, const T& inputData, int packetCount, const String& name) const
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -685,7 +685,7 @@ namespace Communication
         bool sendVectorAsyncWithoutClient(const Endpoints& endpoints, const T& inputData, int packetCount, const String& name) const
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -713,7 +713,7 @@ namespace Communication
             bool result = true;
             InstructionPools ips;
             getClientPools(endpoints, ips);
-            for (uint i=0; i<ips.count(); i++)
+            for (uint32_t i=0; i<ips.count(); i++)
             {
                 if(!sendAsync<T, C>(ips[i], inputData, name))
                     result = false;
@@ -742,7 +742,7 @@ namespace Communication
 //						name.c_str(), ips.count());
 //            }
 //#endif
-            for (uint i=0; i<ips.count(); i++)
+            for (uint32_t i=0; i<ips.count(); i++)
             {
                 if(!sendAsync<T, C>(ips[i], inputData, name))
                     result = false;
@@ -773,7 +773,7 @@ namespace Communication
             bool result = true;
             InstructionPools ips;
             getClientPools(endpoints, ips);
-            for (uint i=0; i<ips.count(); i++)
+            for (uint32_t i=0; i<ips.count(); i++)
             {
                 if(!sendSync<T, K, C>(ips[i], inputData, outputData, name, trySendCount))
                     result = false;
@@ -808,7 +808,7 @@ namespace Communication
 //                        name.c_str(), ips.count());
 //            }
 //#endif
-            for (uint i=0; i<ips.count(); i++)
+            for (uint32_t i=0; i<ips.count(); i++)
             {
                 if(!sendSync<T, K, C>(ips[i], inputData, outputData, name, trySendCount))
                     result = false;
@@ -874,7 +874,7 @@ namespace Communication
         StatusContext sendVectorSync(const Endpoints& endpoints, const T& inputData, int packetCount, const String& name, int trySendCount = -1) const
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -906,7 +906,7 @@ namespace Communication
         StatusContext sendVectorSyncWithoutClient(const Endpoints& endpoints, const T& inputData, int packetCount, const String& name, int trySendCount = -1) const
         {
             const size_t count = inputData.count();
-            for (uint i=0; i<count; i+=packetCount)
+            for (uint32_t i=0; i<count; i+=packetCount)
             {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int)(count-i)));
@@ -921,21 +921,21 @@ namespace Communication
         
         // T is input data, C is context.
         template<class T, class C>
-        bool uploadFileSync(const FileHeader& header, const T& inputData, const String& name, uint packetLength = (uint)-1, const TimeSpan& interval = TimeSpan::Zero) const
+        bool uploadFileSync(const FileHeader& header, const T& inputData, const String& name, uint32_t packetLength = (uint32_t)-1, const TimeSpan& interval = TimeSpan::Zero) const
         {
             return uploadFileSync<T, C>(Endpoint::Empty, header, inputData, name, packetLength, interval);
         }
         // T is input data, C is context.
         template<class T, class C>
-        bool uploadFileSync(const Endpoint& endpoint, const FileHeader& header, const T& inputData, const String& name, uint packetLength = (uint)-1, const TimeSpan& interval = TimeSpan::Zero) const
+        bool uploadFileSync(const Endpoint& endpoint, const FileHeader& header, const T& inputData, const String& name, uint32_t packetLength = (uint32_t)-1, const TimeSpan& interval = TimeSpan::Zero) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ServerService::uploadFileSync, name: %s", name.c_str()), 200);
 #endif
             
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
             {
-                uint maxPacketLength = this->maxPacketLength();
+                uint32_t maxPacketLength = this->maxPacketLength();
                 if(packetLength > maxPacketLength)
                     packetLength = maxPacketLength;
             }
@@ -956,15 +956,15 @@ namespace Communication
             }
             
 #ifdef DEBUG
-            uint start = TickTimeout::getCurrentTickCount();
-            uint length = temp.fileLength;
+            uint32_t start = TickTimeout::getCurrentTickCount();
+            uint32_t length = temp.fileLength;
             String fileName = temp.file_name;
 #endif
             bool result = false;
             C* context = new C();
             context->setHeader(&temp);
             context->transferHeader();
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
                 context->setPacketLength(packetLength);
             context->setInputData(&inputData);
             InstructionDescription* ids = new InstructionDescription(name, context);
@@ -972,8 +972,8 @@ namespace Communication
             if (isSendSuccessfully(ids->name(), rcontext))
             {
                 result = true;
-                uint packetCount = rcontext->packetCount();
-                for (uint i = 0; i < packetCount; i++)
+                uint32_t packetCount = rcontext->packetCount();
+                for (uint32_t i = 0; i < packetCount; i++)
                 {
                     InstructionDescription* id = new InstructionDescription(name, context, false);
                     context->setPacketNo(i);
@@ -1011,7 +1011,7 @@ namespace Communication
                 {
                     lengthStr = String::convert("%.1fM", (double)length / 1024.0 / 1024.0);
                 }
-                uint elapsed = TickTimeout::elapsed(start);
+                uint32_t elapsed = TickTimeout::elapsed(start);
                 const char* elapsedStr = elapsed <= 10 * 1000 ? "elapsed: %.0f ms" : "elapsed: %.3f s";
                 String info = (String)"upload a file %s, file name: %s, file length: %s, speed: %.1f K/s, " + elapsedStr;
                 Trace::writeFormatLine(info.c_str(),
@@ -1027,21 +1027,21 @@ namespace Communication
         
         // T is input data, C is context.
         template<class T, class C>
-        void uploadFileAsync(const FileHeader& header, const T& inputData, const String& name, uint packetLength = (uint)-1) const
+        void uploadFileAsync(const FileHeader& header, const T& inputData, const String& name, uint32_t packetLength = (uint32_t)-1) const
         {
             return uploadFileAsync<T, C>(Endpoint::Empty, header, inputData, name, packetLength);
         }
         // T is input data, C is context.
         template<class T, class C>
-        void uploadFileAsync(const Endpoint& endpoint, const FileHeader& header, const T& inputData, const String& name, uint packetLength = (uint)-1) const
+        void uploadFileAsync(const Endpoint& endpoint, const FileHeader& header, const T& inputData, const String& name, uint32_t packetLength = (uint32_t)-1) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ServerService::uploadFileAsync, name: %s", name.c_str()), 200);
 #endif
             
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
             {
-                uint maxPacketLength = this->maxPacketLength();
+                uint32_t maxPacketLength = this->maxPacketLength();
                 if(packetLength > maxPacketLength)
                     packetLength = maxPacketLength;
             }
@@ -1062,19 +1062,19 @@ namespace Communication
             }
             
 #ifdef DEBUG
-            uint length = temp.fileLength;
+            uint32_t length = temp.fileLength;
             String fileName = temp.file_name;
 #endif
             C* context = new C();
             context->setHeader(&temp);
             context->transferHeader();
-            if(packetLength != (uint)-1)
+            if(packetLength != (uint32_t)-1)
                 context->setPacketLength(packetLength);
             context->setInputData(&inputData);
             InstructionDescription* ids = new InstructionDescription(name, context);
             ip->addInstruction(ids);
-            uint packetCount = context->calcPacketCount();
-            for (uint i = 0; i < packetCount; i++)
+            uint32_t packetCount = context->calcPacketCount();
+            for (uint32_t i = 0; i < packetCount; i++)
             {
                 Thread::msleep(10);
 
@@ -1115,7 +1115,7 @@ namespace Communication
         }
         // T is input data, C is context.
         template<class T, class C>
-        void uploadFileStatusAsync(const Endpoint& endpoint, uint8_t status, const T& inputData, const String& name, uint packetLength = 1 * 1024 * 1024) const
+        void uploadFileStatusAsync(const Endpoint& endpoint, uint8_t status, const T& inputData, const String& name, uint32_t packetLength = 1 * 1024 * 1024) const
         {
             InstructionPool* ip = getClientPool(endpoint);
             if (!ip)
@@ -1133,12 +1133,12 @@ namespace Communication
         
         // T is input data, P is item of T, C is context.
         template<class T, class P, class C>
-        void uploadPacketAsync(const Endpoint& endpoint, const T& inputData, const String& name, uint packetLength = 1 * 1024 * 1024) const
+        void uploadPacketAsync(const Endpoint& endpoint, const T& inputData, const String& name, uint32_t packetLength = 1 * 1024 * 1024) const
         {
 #ifdef DEBUG
             Stopwatch sw(String::convert("ServerService::uploadPacketAsync, name: %s", name.c_str()), 200);
 #endif
-            uint maxPacketLength = this->maxPacketLength();
+            uint32_t maxPacketLength = this->maxPacketLength();
             if(packetLength > maxPacketLength)
                 packetLength = maxPacketLength;
             
@@ -1154,8 +1154,8 @@ namespace Communication
             context->setInputData(&inputData);
             InstructionDescription* ids = new InstructionDescription(name, context);
             ip->addInstruction(ids);
-            uint packetCount = context->calcPacketCount();
-            for (uint i = 0; i < packetCount; i++)
+            uint32_t packetCount = context->calcPacketCount();
+            for (uint32_t i = 0; i < packetCount; i++)
             {
                 Thread::msleep(10);
 
@@ -1176,7 +1176,7 @@ namespace Communication
         
         virtual String interactiveName() const;
         
-        virtual uint maxPacketLength() const;
+        virtual uint32_t maxPacketLength() const;
 
     private:
         void createTcpDevice(const InstructionCallback& callback);
@@ -1280,7 +1280,7 @@ namespace Communication
     protected:
         String interactiveName() const override;
         
-        uint maxPacketLength() const override;
+        uint32_t maxPacketLength() const override;
     };
     
     class WebSSLServerService : public ServerService
@@ -1295,7 +1295,7 @@ namespace Communication
         
         String interactiveName() const override;
         
-        uint maxPacketLength() const override;
+        uint32_t maxPacketLength() const override;
     };
 
     class ServerServiceFactory

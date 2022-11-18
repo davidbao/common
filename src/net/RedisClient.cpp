@@ -123,12 +123,12 @@ namespace Net
         _contextMutex.lock();
         redisOptions roptions = {0};
         REDIS_OPTIONS_SET_TCP(&roptions, options.address, options.port);
-        uint timeout = (uint)options.connectTimeout.totalMilliseconds();
+        uint32_t timeout = (uint32_t)options.connectTimeout.totalMilliseconds();
         struct timeval tv = {0};
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = 1000 * (timeout % 1000);
         roptions.connect_timeout = &tv;
-        timeout = (uint)options.commandTimeout.totalMilliseconds();
+        timeout = (uint32_t)options.commandTimeout.totalMilliseconds();
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = 1000 * (timeout % 1000);
         roptions.command_timeout = &tv;
@@ -220,7 +220,7 @@ namespace Net
                 if(expired == TimeSpan::Zero)
                     return true;
                 
-                String str = UInt32((uint)expired.totalMilliseconds()).toString();
+                String str = UInt32((uint32_t)expired.totalMilliseconds()).toString();
                 reply = (redisReply *)redisCommand(_context, "PEXPIRE %s %s", key.c_str(), str.c_str());
                 return reply->type != REDIS_REPLY_ERROR;
             }

@@ -255,14 +255,14 @@ namespace Communication
         return "TcpInteractive";
     }
     
-    uint ClientService::maxPacketLength() const
+    uint32_t ClientService::maxPacketLength() const
     {
-        uint sendBufferSize = 65535;
+        uint32_t sendBufferSize = 65535;
         TcpInteractive* ti = this->ti();
         TcpClientChannelContext* context = ti != nullptr ? ti->getChannelContext() : nullptr;
         if(context != nullptr)
         {
-            sendBufferSize = (uint)context->sendBufferSize();
+            sendBufferSize = (uint32_t)context->sendBufferSize();
         }
         return sendBufferSize - 100;
     }
@@ -302,7 +302,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ClientService::stopLoopSender, name: %s", name.c_str());
         Locker locker(&_loopSendersMutex);
-        for (uint i=0; i<_loopSenders.count(); i++)
+        for (uint32_t i=0; i<_loopSenders.count(); i++)
         {
             BaseLoopSender* sender = _loopSenders[i];
             if(sender->name() == name)
@@ -316,7 +316,7 @@ namespace Communication
     bool ClientService::hasLoopSender(const String& name)
     {
         Locker locker(&_loopSendersMutex);
-        for (uint i=0; i<_loopSenders.count(); i++)
+        for (uint32_t i=0; i<_loopSenders.count(); i++)
         {
             BaseLoopSender* sender = _loopSenders[i];
             if(sender->name() == name)
@@ -332,7 +332,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ClientService::stopPacketSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -346,7 +346,7 @@ namespace Communication
     bool ClientService::hasPacketSender(const String& name)
     {
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -362,7 +362,7 @@ namespace Communication
     {
         Debug::writeFormatLine("ClientService::stopPacketSyncSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -376,7 +376,7 @@ namespace Communication
     bool ClientService::hasPacketSyncSender(const String& name)
     {
         Locker locker(&_packetSendersMutex);
-        for (uint i=0; i<_packetSenders.count(); i++)
+        for (uint32_t i=0; i<_packetSenders.count(); i++)
         {
             BasePacketSender* sender = _packetSenders[i];
             if(sender->name() == name)
@@ -496,7 +496,7 @@ namespace Communication
     {
     }
     
-    uint SSLClientService::maxPacketLength() const
+    uint32_t SSLClientService::maxPacketLength() const
     {
         TcpSSLInteractive* si = dynamic_cast<TcpSSLInteractive*>(_ti);
         assert(si);
@@ -525,7 +525,7 @@ namespace Communication
     }
     ClientService* ClientServices::at(const Endpoint& endpoint) const
     {
-        for (uint i=0; i<_services.count(); i++)
+        for (uint32_t i=0; i<_services.count(); i++)
         {
             ClientService* cs = _services[i];
             if(cs->endpoint() == endpoint)

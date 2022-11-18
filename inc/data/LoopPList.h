@@ -84,7 +84,7 @@ namespace Common {
         }
 
         inline bool full() const {
-            return count() >= (uint) _maxLength;
+            return count() >= (size_t) _maxLength;
         }
 
         inline size_t count() const {
@@ -109,15 +109,15 @@ namespace Common {
             }
         }
 
-        inline type *at(uint i) const {
-            if (!empty() && i < count()) {
+        inline type *at(size_t pos) const {
+            if (!empty() && pos < count()) {
                 if (_rear > _front) {
-                    return _array[_front + i];
+                    return _array[_front + pos];
                 } else {
-                    if (_front + (int) i < _maxLength) {
-                        return _array[_front + i];
+                    if (_front + (int) pos < _maxLength) {
+                        return _array[_front + pos];
                     }
-                    return _array[_rear - (count() - i)];
+                    return _array[_rear - (count() - pos)];
                 }
             }
             return nullptr;
@@ -163,14 +163,14 @@ namespace Common {
         void deleteAllItems() {
             if (!empty()) {
                 if (_rear > _front) {
-                    deleteItem(_front, count());
+                    deleteItem(_front, (int)count());
                 } else {
                     int n = 0;
                     if (_front < _maxLength) {
                         n = _maxLength - _front;
                         deleteItem(_front, n);
                     }
-                    deleteItem(0, (count() - n));
+                    deleteItem(0, (int)(count() - n));
                 }
             }
         }

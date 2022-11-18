@@ -73,27 +73,6 @@
 #define OS_X32 1
 #endif
 
-#ifndef UINT64_MAX
-#define UINT64_MAX        18446744073709551615ULL
-#endif
-#ifndef UINT32_MAX
-#define UINT32_MAX        4294967295U
-#endif
-
-#ifndef uint
-typedef unsigned int uint;
-#endif
-
-#ifndef ushort
-typedef unsigned short ushort;
-#endif
-
-#if WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#endif
-
 #if defined(_MSC_VER)
 #include <BaseTsd.h>
 #ifndef HAS_SSIZE_T

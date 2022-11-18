@@ -38,8 +38,8 @@ namespace Drivers
 
 		virtual ssize_t send(const uint8_t* buffer, off_t offset, size_t count) = 0;
 		virtual ssize_t receive(uint8_t* buffer, off_t offset, size_t count) = 0;
-        virtual ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint timeout);
-        virtual ssize_t receive(ByteArray* buffer, size_t count, uint timeout);
+        virtual ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout);
+        virtual ssize_t receive(ByteArray* buffer, size_t count, uint32_t timeout);
         
         virtual bool isClosing() const;
 

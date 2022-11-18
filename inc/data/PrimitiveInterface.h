@@ -340,6 +340,14 @@ namespace Common {
 
 #endif
     };
+
+    template<typename T>
+    class IFormatProvider {
+    public:
+        virtual ~IFormatProvider() = default;
+
+        virtual const T *getFormat(const char *typeName) const = 0;
+    };
 }
 
 #endif // PrimitiveInterface_h

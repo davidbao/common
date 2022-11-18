@@ -1898,7 +1898,7 @@ namespace Common {
                 break;
             case Blob: {
                 size_t count = blobCount(value.blobValue);
-                stream->writeUInt16((ushort) count);
+                stream->writeUInt16((uint16_t) count);
                 if (count > 0) {
                     const uint8_t *buffer = blobBuffer(value.blobValue);
                     stream->write(buffer, 0, count);
@@ -2366,7 +2366,7 @@ namespace Common {
         if (value != nullptr) {
             uint8_t high = value[0];
             uint8_t low = value[1];
-            size_t count = (((uint) high >> 8) & 0xFF00) + low;
+            size_t count = (((uint32_t) high >> 8) & 0xFF00) + low;
             return count;
         }
         return 0;

@@ -13,8 +13,8 @@ namespace Communication
 {
     TcpMultiSampler::TcpMultiSampler(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, const Client::Connection& connection, sampler_callback action, void* owner) : Sampler(dm, cd, dd)
     {
-        _detectionInterval = (uint)connection.detectionInterval.totalMilliseconds();
-        _resumeInterval = (uint)connection.resumeInterval.totalMilliseconds();
+        _detectionInterval = (uint32_t)connection.detectionInterval.totalMilliseconds();
+        _resumeInterval = (uint32_t)connection.resumeInterval.totalMilliseconds();
         _detectionCount = connection.detectionCount;
 
         _sampleCallback = action;
@@ -24,12 +24,12 @@ namespace Communication
     {
     }
     
-    uint TcpMultiSampler::detectionInterval() const
+    uint32_t TcpMultiSampler::detectionInterval() const
     {
         return _detectionInterval;
     }
     // return the resume interval, unit: ms
-    uint TcpMultiSampler::resumeInterval() const
+    uint32_t TcpMultiSampler::resumeInterval() const
     {
         return _resumeInterval;
     }
@@ -85,8 +85,8 @@ namespace Communication
     PList<TcpSingleSampler> TcpSingleSampler::_pools(false);
     TcpSingleSampler::TcpSingleSampler(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, const Client::Connection& connection, sampler_callback action, void* owner) : Sampler(dm, cd, dd)
     {
-        _detectionInterval = (uint)connection.detectionInterval.totalMilliseconds();
-        _resumeInterval = (uint)connection.resumeInterval.totalMilliseconds();
+        _detectionInterval = (uint32_t)connection.detectionInterval.totalMilliseconds();
+        _resumeInterval = (uint32_t)connection.resumeInterval.totalMilliseconds();
         _detectionCount = connection.detectionCount;
 
         _sampleCallback = action;
@@ -97,12 +97,12 @@ namespace Communication
     {
     }
 
-    uint TcpSingleSampler::detectionInterval() const
+    uint32_t TcpSingleSampler::detectionInterval() const
     {
         return _detectionInterval;
     }
     // return the resume interval, unit: ms
-    uint TcpSingleSampler::resumeInterval() const
+    uint32_t TcpSingleSampler::resumeInterval() const
     {
         return _resumeInterval;
     }
@@ -202,7 +202,7 @@ namespace Communication
 #endif
             
         _poolsMutex.lock();
-        for (uint i=0; i<_pools.count(); i++)
+        for (uint32_t i=0; i<_pools.count(); i++)
         {
             TcpSingleSampler* pool = _pools[i];
             pool->addSampleInstruction();
@@ -227,7 +227,7 @@ namespace Communication
     UdpSampler::UdpSampler(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, const Broadcast& broadcast, sampler_callback action, void* owner)
     : Sampler(dm, cd, dd)
     {
-        _detectionInterval = (uint)broadcast.interval.totalMilliseconds();
+        _detectionInterval = (uint32_t)broadcast.interval.totalMilliseconds();
         _resumeInterval = _detectionInterval;
         _detectionCount = broadcast.count;
         
@@ -240,12 +240,12 @@ namespace Communication
     }
     
     // return the sample interval, unit: ms
-    uint UdpSampler::detectionInterval() const
+    uint32_t UdpSampler::detectionInterval() const
     {
         return _detectionInterval;
     }
     // return the resume interval, unit: ms
-    uint UdpSampler::resumeInterval() const
+    uint32_t UdpSampler::resumeInterval() const
     {
         return _resumeInterval;
     }

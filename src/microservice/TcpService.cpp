@@ -97,7 +97,7 @@ namespace Microservice {
 
     bool TcpService::onStringResponseInner(const IRpcSyncRequestData *request, IRpcSyncResponseData *response) {
         Locker locker(&_actionsMutex);
-        for (uint i = 0; i < _actions.count(); i++) {
+        for (uint32_t i = 0; i < _actions.count(); i++) {
             ITcpAction *action = _actions[i];
             const TcpStringRequest *trequest = dynamic_cast<const TcpStringRequest *>(request);
             TcpStringResponse *tresponse = dynamic_cast<TcpStringResponse *>(response);

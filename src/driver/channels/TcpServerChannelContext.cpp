@@ -31,7 +31,7 @@ namespace Drivers
     {
         _closeTimeout = timeout;
     }
-    void TcpServerChannelContext::setCloseTimeout(uint milliSeconds)
+    void TcpServerChannelContext::setCloseTimeout(uint32_t milliSeconds)
     {
         _closeTimeout = TimeSpan::fromMilliseconds((double)milliSeconds);
     }

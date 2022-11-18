@@ -132,7 +132,7 @@ namespace Database
                 int offset = -1;
                 int index;
                 String value, key, from, to;
-                for (uint i=0; i<names.count(); i++)
+                for (uint32_t i=0; i<names.count(); i++)
                 {
                     String name = names[i];
                     if(node.getAttribute(name, value))

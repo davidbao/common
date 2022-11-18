@@ -43,14 +43,14 @@ namespace Common
         }
     }
 
-    Delegates::Delegates(bool autoDelete, uint capacity) : PList<Delegate>(autoDelete, capacity)
+    Delegates::Delegates(bool autoDelete, uint32_t capacity) : PList<Delegate>(autoDelete, capacity)
     {
     }
     void Delegates::add(void* owner, EventHandler handler)
     {
         Locker locker(&_mutex);
 
-        for (uint i=0; i<count(); i++)
+        for (uint32_t i=0; i<count(); i++)
         {
             Delegate* delegate = at(i);
             if(delegate != nullptr)
@@ -68,7 +68,7 @@ namespace Common
     {
         Locker locker(&_mutex);
 
-        for (uint i=0; i<count(); i++)
+        for (uint32_t i=0; i<count(); i++)
         {
             Delegate* delegate = at(i);
             if(delegate != nullptr)
@@ -94,7 +94,7 @@ namespace Common
     {
 //        Locker locker(&_mutex);
 
-        for (uint i=0; i<count(); i++)
+        for (uint32_t i=0; i<count(); i++)
         {
             Delegate* delegate = at(i);
             if(delegate != nullptr)
@@ -112,7 +112,7 @@ namespace Common
     {
         Locker locker(&_mutex);
         
-        for (uint i=0; i<count(); i++)
+        for (uint32_t i=0; i<count(); i++)
         {
             Delegate* delegate = at(i);
             if(delegate != nullptr && delegate->handler == handler)

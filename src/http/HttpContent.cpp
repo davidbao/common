@@ -68,7 +68,7 @@ namespace Common {
         StringArray::parse(str, lines, Char::NewLine);
         if (lines.count() > 0) {
 //            const String& status = lines[0];
-            for (uint i = 0; i < lines.count(); i++) {
+            for (uint32_t i = 0; i < lines.count(); i++) {
 //                Debug::writeFormatLine("%s", lines[i].c_str());
 
                 const String &line = lines[i].trim('\r', ' ');
@@ -94,7 +94,7 @@ namespace Common {
     }
 
     bool HttpHeaders::getValue(const String &name, String &value) const {
-        for (uint i = 0; i < _values.count(); i++) {
+        for (uint32_t i = 0; i < _values.count(); i++) {
             const HttpHeader *header = _values[i];
             if (header->name == name) {
                 value = header->value;
@@ -109,7 +109,7 @@ namespace Common {
     }
 
     bool HttpHeaders::contains(const String &name) const {
-        for (uint i = 0; i < _values.count(); i++) {
+        for (uint32_t i = 0; i < _values.count(); i++) {
             const HttpHeader *header = _values[i];
             if (name == header->name)
                 return true;
@@ -119,7 +119,7 @@ namespace Common {
 
     void HttpHeaders::addInner(HttpHeader *header) {
         bool found = false;
-        for (uint i = 0; i < _values.count(); i++) {
+        for (uint32_t i = 0; i < _values.count(); i++) {
             HttpHeader *item = _values[i];
             if (item->name == header->name) {
                 found = true;
@@ -168,7 +168,7 @@ namespace Common {
     bool HttpHeaders::operator==(const HttpHeaders &value) const {
         if (_values.count() != value.count())
             return false;
-        for (uint i = 0; i < _values.count(); i++) {
+        for (uint32_t i = 0; i < _values.count(); i++) {
             if (_values[i]->operator!=(*value._values[i]))
                 return false;
         }
@@ -215,7 +215,7 @@ namespace Common {
         String str;
         StringArray names;
         _values.keys(names);
-        for (uint i = 0; i < names.count(); i++) {
+        for (uint32_t i = 0; i < names.count(); i++) {
             const String &name = names[i];
             String value;
             _values.at(name, value);
@@ -314,7 +314,7 @@ namespace Common {
     bool HttpCookie::parse(const String &str, HttpCookie &cookie) {
         StringArray texts;
         StringArray::parse(str, texts, ';');
-        for (uint i = 0; i < texts.count(); i++) {
+        for (uint32_t i = 0; i < texts.count(); i++) {
             String text = texts[i];
             text = text.trimStart(' ');
             text = text.trimEnd(' ');
@@ -456,7 +456,7 @@ namespace Common {
     HttpSession *HttpSessions::atByName(const String &name) const {
         Vector<String> keys;
         _sessions.keys(keys);
-        for (uint i = 0; i < keys.count(); i++) {
+        for (uint32_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             HttpSession *value = nullptr;
             if (_sessions.at(key, value) && value != nullptr && value->name() == name) {
@@ -470,7 +470,7 @@ namespace Common {
         Vector<String> keys;
         _sessions.keys(keys);
         StringArray removed;
-        for (uint i = 0; i < keys.count(); i++) {
+        for (uint32_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             HttpSession *session = nullptr;
             if (_sessions.at(key, session) && session != nullptr && session->isExpired()) {
@@ -478,7 +478,7 @@ namespace Common {
             }
         }
 
-        for (uint i = 0; i < removed.count(); i++) {
+        for (uint32_t i = 0; i < removed.count(); i++) {
             remove(removed[i]);
         }
     }
@@ -563,11 +563,11 @@ namespace Common {
     }
 
     void HttpStringContent::write(void *buffer, size_t size, size_t nmemb) {
-        _value.append(String((const char *) buffer, (uint) (size * nmemb)));
+        _value.append(String((const char *) buffer, (uint32_t) (size * nmemb)));
     }
 
     int64_t HttpStringContent::read(void *buffer, size_t size, size_t nmemb) {
-        return _stream->read((uint8_t *) buffer, 0, (uint) (size * nmemb));
+        return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
     int64_t HttpStringContent::size() {
@@ -635,11 +635,11 @@ namespace Common {
     }
 
     void HttpByteArrayContent::write(void *buffer, size_t size, size_t nmemb) {
-        _value.addRange((const unsigned char *) buffer, 0, (uint) (size * nmemb));
+        _value.addRange((const unsigned char *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
     int64_t HttpByteArrayContent::read(void *buffer, size_t size, size_t nmemb) {
-        return _stream->read((uint8_t *) buffer, 0, (uint) (size * nmemb));
+        return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
     int64_t HttpByteArrayContent::size() {
@@ -683,12 +683,12 @@ namespace Common {
 
     void HttpStreamContent::write(void *buffer, size_t size, size_t nmemb) {
         if (_stream != nullptr)
-            _stream->write((const uint8_t *) buffer, 0, (uint) (size * nmemb));
+            _stream->write((const uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
     int64_t HttpStreamContent::read(void *buffer, size_t size, size_t nmemb) {
         if (_stream != nullptr)
-            return _stream->read((uint8_t *) buffer, 0, (uint) (size * nmemb));
+            return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
         return 0;
     }
 
@@ -778,7 +778,7 @@ namespace Common {
         String result;
         StringArray keys;
         _values.keys(keys);
-        for (uint i = 0; i < keys.count(); i++) {
+        for (uint32_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             String value;
             if (_values.at(key, value)) {
@@ -798,7 +798,7 @@ namespace Common {
     bool HttpProperties::parse(const String &value, HttpProperties &properties) {
         StringArray texts;
         StringArray::parse(value, texts, '&');
-        for (uint i = 0; i < texts.count(); i++) {
+        for (uint32_t i = 0; i < texts.count(); i++) {
             const String &text = texts[i];
             StringArray texts2;
             StringArray::parse(text, texts2, '=');
@@ -885,7 +885,7 @@ namespace Common {
         StringArray paths, inputs;
         if (StringArray::parse(path, paths, PathSplitSymbol) &&
             StringArray::parse(url.relativeUrl(), inputs, PathSplitSymbol)) {
-            for (uint i = 0; i < paths.count(); i++) {
+            for (uint32_t i = 0; i < paths.count(); i++) {
                 const String &text = paths[i];
                 const String &input = i < inputs.count() ? inputs[i] : String::Empty;
                 if (text != input) {
@@ -912,7 +912,7 @@ namespace Common {
     String HttpRequest::getPathSegment(int segment) const {
         StringArray inputs;
         if (StringArray::parse(url.relativeUrl(), inputs, PathSplitSymbol)) {
-            return (uint) segment < inputs.count() ? inputs[segment] : String::Empty;
+            return (uint32_t) segment < inputs.count() ? inputs[segment] : String::Empty;
         }
         return String::Empty;
     }

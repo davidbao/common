@@ -385,7 +385,7 @@ namespace Common {
 
     void MappingStream::flush() {
         if (canWrite()) {
-            for (uint i = 0; i < _views.count(); i++) {
+            for (uint32_t i = 0; i < _views.count(); i++) {
                 View *view = _views[i];
                 view->flush();
             }

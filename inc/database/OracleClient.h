@@ -34,18 +34,18 @@ namespace Database
 		ValueTypes getColumnType(int type) override;
 
 	private:
-		uint executeSqlInner(const String& sql);
-		uint executeSqlQueryInner(const String& sql, DataTable& table);
-		uint executeSqlInsertInner(const DataTable& table);
-		uint executeSqlMergeInner(const DataTable& table);
+		uint32_t executeSqlInner(const String& sql);
+		uint32_t executeSqlQueryInner(const String& sql, DataTable& table);
+		uint32_t executeSqlInsertInner(const DataTable& table);
+		uint32_t executeSqlMergeInner(const DataTable& table);
 
 		String toInsertStr(const DataTable& table);
 		String toInsertStr(const DataTable& table, const DataRow* row);
 		String toMergeStr(const DataTable& table, const DataRow* row);
 
-        bool isSuccessed(uint result) const;
-        void printErrorInfo(const String& methodName, uint error, const String& sql = String::Empty);
-		String getErrorMsg(uint error);
+        bool isSuccessed(uint32_t result) const;
+        void printErrorInfo(const String& methodName, uint32_t error, const String& sql = String::Empty);
+		String getErrorMsg(uint32_t error);
 
 	private:
         OracleInner* _oracleDb;

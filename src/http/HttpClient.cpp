@@ -167,7 +167,7 @@ namespace Common {
             // request headers.
             struct curl_slist *headerList = nullptr;
             if (request.headers.count() > 0) {
-                for (uint i = 0; i < request.headers.count(); i++) {
+                for (uint32_t i = 0; i < request.headers.count(); i++) {
                     const HttpHeader *header = request.headers[i];
                     headerList = curl_slist_append(headerList, header->toString().c_str());
                 }
@@ -252,7 +252,7 @@ namespace Common {
         /* received header is nitems * size long in 'buffer' NOT ZERO TERMINATED */
         /* 'userdata' is set with CURLOPT_HEADERDATA */
         HttpHeaders *headers = (HttpHeaders *) userdata;
-        String str = String((const char *) buffer, (uint) (size * nitems));
+        String str = String((const char *) buffer, (uint32_t) (size * nitems));
         HttpHeaders::parse(str, *headers);
         return size * nitems;
     }

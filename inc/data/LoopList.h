@@ -42,7 +42,7 @@ namespace Common {
             size = (size >= MinSize && size <= MaxSize) ? size : DefaultSize;
             if (size > _size) {
                 size_t count = this->count();
-                typePtr *temp = new typePtr[count];
+                auto *temp = new typePtr[count];
                 copyTo(temp);
                 delete[] _array;
                 _array = new typePtr[size];

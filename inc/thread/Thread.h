@@ -182,7 +182,7 @@ namespace Common
 #ifdef WIN32
             Id(thread::id id);
 #elif __EMSCRIPTEN__
-            Id(uint id);
+            Id(uint32_t id);
 #else
             Id(pthread_t id);
 #endif
@@ -192,7 +192,7 @@ namespace Common
 #ifdef WIN32
             thread::id _id;
 #elif __EMSCRIPTEN__
-            uint _id;
+            uint32_t _id;
 #else
             pthread_t _id;
 #endif
@@ -202,20 +202,20 @@ namespace Common
         ~Thread();
         
         bool isAlive() const;
-        void setSleepPeriod(uint msec);
+        void setSleepPeriod(uint32_t msec);
         
         void start(action_callback startAction, action_callback stopAction = nullptr);
-        void startProc(action_callback procAction, uint msec = 1, action_callback startAction = nullptr, action_callback stopAction = nullptr);
+        void startProc(action_callback procAction, uint32_t msec = 1, action_callback startAction = nullptr, action_callback stopAction = nullptr);
         void startProc(action_callback procAction, TimeSpan interval = TimeSpan::fromMilliseconds(1), action_callback startAction = nullptr, action_callback stopAction = nullptr);
         
         void start(action_callback2 startAction, void* startParam, action_callback2 stopAction = nullptr, void* stopParam = nullptr);
-        void startProc(action_callback2 procAction, void* procParam, uint msec = 1, action_callback2 startAction = nullptr,
+        void startProc(action_callback2 procAction, void* procParam, uint32_t msec = 1, action_callback2 startAction = nullptr,
                        void* startParam = nullptr, action_callback2 stopAction = nullptr, void* stopParam = nullptr);
         void startProc(action_callback2 procAction, void* procParam, TimeSpan interval = TimeSpan::fromMilliseconds(1), action_callback2 startAction = nullptr,
                        void* startParam = nullptr, action_callback2 stopAction = nullptr, void* stopParam = nullptr);
         
         void start(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction = nullptr, ThreadHolder* stopParam = nullptr);
-        void startProc(action_callback3 procAction, ThreadHolder* procParam, uint msec = 1, action_callback3 startAction = nullptr,
+        void startProc(action_callback3 procAction, ThreadHolder* procParam, uint32_t msec = 1, action_callback3 startAction = nullptr,
                        ThreadHolder* startParam = nullptr, action_callback3 stopAction = nullptr, ThreadHolder* stopParam = nullptr);
         void startProc(action_callback3 procAction, ThreadHolder* procParam, TimeSpan interval = TimeSpan::fromMilliseconds(1), action_callback3 startAction = nullptr,
                        ThreadHolder* startParam = nullptr, action_callback3 stopAction = nullptr, ThreadHolder* stopParam = nullptr);
@@ -241,23 +241,23 @@ namespace Common
                 return;
             
             _procExecution = procAction.canExecution() ? procAction.clone() : nullptr;
-            _msec = (uint)interval.totalMilliseconds();
+            _msec = (uint32_t)interval.totalMilliseconds();
             _startExecution = startAction.canExecution() ? startAction.clone() : nullptr;
             _stopExecution = stopAction.canExecution() ? stopAction.clone() : nullptr;
             
             start();
         }
         
-        void stop(uint delaySeconds = 10);
+        void stop(uint32_t delaySeconds = 10);
         void stop(const TimeSpan& delay);
-        void stopmsec(uint delaymsec = 10*1000);
+        void stopmsec(uint32_t delaymsec = 10*1000);
         
         const String& name() const;
         
         void setPriority(int prio);
         
     public:
-        static void msleep(uint msecs);
+        static void msleep(uint32_t msecs);
         static void sleep(const TimeSpan& interval);
         
         static void beginInvoke(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction = nullptr, ThreadHolder* stopParam = nullptr);
@@ -273,7 +273,7 @@ namespace Common
         void runOnce();
         void start();
         
-        bool msleepWithBreak(uint start, uint msec);
+        bool msleepWithBreak(uint32_t start, uint32_t msec);
         
 //        void loop();
 //        void loop2();
@@ -315,7 +315,7 @@ namespace Common
         void* _stopParam;
         
         bool _break;
-        uint _msec;
+        uint32_t _msec;
         bool _autoDelete;
         
         static unique_ptr<Thread> _tcs;
@@ -332,7 +332,7 @@ namespace Common
         String _name;
         bool _alreadySetName;
         
-        uint _start;
+        uint32_t _start;
         bool _firstInvoke;
     };
 }

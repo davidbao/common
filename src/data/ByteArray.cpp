@@ -107,7 +107,7 @@ namespace Common {
         while (index < length) {
             strncpy(valueStr, &buffer[index], formatLen);
             int value;
-            uint len = 0;
+            uint32_t len = 0;
             if (sscanf(valueStr, format, &value, &len) == 1 && formatLen == len && value <= 255) {
                 temp.add((uint8_t) value);
             } else {

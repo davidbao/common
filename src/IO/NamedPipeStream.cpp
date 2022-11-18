@@ -216,7 +216,7 @@ namespace Common
 		else
 			return false;
 	}
-	bool NamedPipeStream::waitForConnection(uint timeout)
+	bool NamedPipeStream::waitForConnection(uint32_t timeout)
 	{
 		while (1)
 		{

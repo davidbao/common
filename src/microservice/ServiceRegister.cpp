@@ -36,7 +36,7 @@ namespace Microservice {
 
         StringArray names;
         sgfactory->getNames(names);
-        for (uint i = 0; i < names.count(); i++) {
+        for (uint32_t i = 0; i < names.count(); i++) {
             const String &name = names[i];
 
             bool enable = true;

@@ -124,7 +124,7 @@ namespace Common {
             createFile(_context.path.c_str());
 
             _processThread = new Thread("FileTraceListenerProc");
-            uint interval = 60 * 1000;        // 60 seconds.
+            uint32_t interval = 60 * 1000;        // 60 seconds.
             _processThread->startProc(processProc, this, interval, deleteUnusedFilesAction, this);
         }
     }
@@ -270,7 +270,7 @@ namespace Common {
         if (Directory::exists(_context.path)) {
             StringArray fileNames;
             Directory::getFiles(_context.path, filter, SearchOption::TopDirectoryOnly, fileNames);
-            for (uint i = 0; i < fileNames.count(); ++i) {
+            for (uint32_t i = 0; i < fileNames.count(); ++i) {
                 const String &fileName = fileNames[i];
                 String name = Path::getFileName(fileName);
                 removeFile(_context.path, name, days);

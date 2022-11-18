@@ -204,7 +204,7 @@ namespace Common
 //        }
 //        else
 //        {
-//            for (uint i=0; i<10; i++)
+//            for (uint32_t i=0; i<10; i++)
 //            {
 //                String str = rtcStr + Int32(i).toString();
 //                Debug::writeFormatLine("LocalTime::hwclock, fd: '%s'", str.c_str());

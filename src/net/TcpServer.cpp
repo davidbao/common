@@ -350,7 +350,7 @@ namespace Net
     {
         return (int)_sendTimeout.totalMilliseconds();
     }
-    void TcpServer::setSendTimeout(uint timeout)
+    void TcpServer::setSendTimeout(uint32_t timeout)
     {
         if(timeout > 0)
         {
@@ -369,7 +369,7 @@ namespace Net
     {
         return (int)_recvTimeout.totalMilliseconds();
     }
-    void TcpServer::setReceiveTimeout(uint timeout)
+    void TcpServer::setReceiveTimeout(uint32_t timeout)
     {
         if(timeout > 0)
         {
@@ -528,7 +528,7 @@ namespace Net
             Debug::writeFormatLine("TcpSSLServer::handshaking.ioctlsocket failed with error: %d\n", result);
         }
         
-        uint startTime = TickTimeout::getCurrentTickCount();
+        uint32_t startTime = TickTimeout::getCurrentTickCount();
         while(true)
         {
             // SSL accept

@@ -23,7 +23,7 @@ namespace Common
 	public:
         JsonTextReader();
         JsonTextReader(const String& fileName);
-//        JsonTextReader(const String& text, uint length);
+//        JsonTextReader(const String& text, uint32_t length);
         JsonTextReader(Zip* zip, const String& fileName);
 //        JsonTextReader(const String& zipFileName, const String& fileName);
 		~JsonTextReader();
@@ -47,12 +47,12 @@ namespace Common
                           uint8_t minValue = Byte::MinValue, uint8_t maxValue = Byte::MaxValue);
         bool getAttribute(const String& name, short& value,
                           short minValue = Int16::MinValue, short maxValue = Int16::MaxValue);
-        bool getAttribute(const String& name, ushort& value,
-                          ushort minValue = UInt16::MinValue, ushort maxValue = UInt16::MaxValue);
+        bool getAttribute(const String& name, uint16_t& value,
+                          uint16_t minValue = UInt16::MinValue, uint16_t maxValue = UInt16::MaxValue);
         bool getAttribute(const String& name, int& value,
                           int minValue = Int32::MinValue, int maxValue = Int32::MaxValue);
-        bool getAttribute(const String& name, uint& value,
-                          uint minValue = UInt32::MinValue, uint maxValue = UInt32::MaxValue);
+        bool getAttribute(const String& name, uint32_t& value,
+                          uint32_t minValue = UInt32::MinValue, uint32_t maxValue = UInt32::MaxValue);
         bool getAttribute(const String& name, int64_t& value,
                           int64_t minValue = Int64::MinValue, int64_t maxValue = Int64::MaxValue);
         bool getAttribute(const String& name, uint64_t& value,

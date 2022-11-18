@@ -117,7 +117,7 @@ namespace Common
     {
     }
 #elif __EMSCRIPTEN__
-    Thread::Id::Id(uint id) : _id(id)
+    Thread::Id::Id(uint32_t id) : _id(id)
     {
     }
 #else
@@ -232,7 +232,7 @@ namespace Common
     {
         startProc(nullptr, 1, startAction, stopAction);
     }
-    void Thread::startProc(action_callback procAction, uint msec, action_callback startAction, action_callback stopAction)
+    void Thread::startProc(action_callback procAction, uint32_t msec, action_callback startAction, action_callback stopAction)
     {
         if(_autoDelete)
         {
@@ -254,13 +254,13 @@ namespace Common
     }
     void Thread::startProc(action_callback procAction, TimeSpan interval, action_callback startAction, action_callback stopAction)
     {
-        startProc(procAction, (uint)interval.totalMilliseconds(), startAction, stopAction);
+        startProc(procAction, (uint32_t)interval.totalMilliseconds(), startAction, stopAction);
     }
     void Thread::start(action_callback2 startAction, void* startParam, action_callback2 stopAction, void* stopParam)
     {
         startProc(nullptr, nullptr, 1, startAction, startParam, stopAction, stopParam);
     }
-    void Thread::startProc(action_callback2 procAction, void* procParam, uint msec, action_callback2 startAction,
+    void Thread::startProc(action_callback2 procAction, void* procParam, uint32_t msec, action_callback2 startAction,
                                   void* startParam, action_callback2 stopAction, void* stopParam)
     {
         if(_autoDelete)
@@ -287,13 +287,13 @@ namespace Common
     void Thread::startProc(action_callback2 procAction, void* procParam, TimeSpan interval, action_callback2 startAction,
                            void* startParam, action_callback2 stopAction, void* stopParam)
     {
-        startProc(procAction, procParam, (uint)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
+        startProc(procAction, procParam, (uint32_t)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
     }
     void Thread::start(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
     {
         startProc(nullptr, nullptr, 1, startAction, startParam, stopAction, stopParam);
     }
-    void Thread::startProc(action_callback3 procAction, ThreadHolder* procParam, uint msec, action_callback3 startAction,
+    void Thread::startProc(action_callback3 procAction, ThreadHolder* procParam, uint32_t msec, action_callback3 startAction,
                            ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
     {
         if(_autoDelete)
@@ -320,7 +320,7 @@ namespace Common
     void Thread::startProc(action_callback3 procAction, ThreadHolder* procParam, TimeSpan interval, action_callback3 startAction,
                            ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
     {
-        startProc(procAction, procParam, (uint)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
+        startProc(procAction, procParam, (uint32_t)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
     }
     void Thread::beginInvoke(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
     {
@@ -328,7 +328,7 @@ namespace Common
         thread->start(startAction, startParam, stopAction, stopParam);
     }
     
-    void Thread::stopmsec(uint delaymsec)
+    void Thread::stopmsec(uint32_t delaymsec)
     {
         if(isAlive())
         {
@@ -377,14 +377,14 @@ namespace Common
             _running = false;
         }
     }
-    void Thread::stop(uint delaySeconds)
+    void Thread::stop(uint32_t delaySeconds)
     {
         Debug::writeFormatLine("Stop a thread. name: '%s'", _name.c_str());
         stopmsec(delaySeconds * 1000);
     }
     void Thread::stop(const TimeSpan& delay)
     {
-        stop((uint)delay.totalSeconds());
+        stop((uint32_t)delay.totalSeconds());
     }
     
     void Thread::start()
@@ -447,7 +447,7 @@ namespace Common
             
             if(thread->hasProc())
             {
-                uint msec = thread->_msec < 10 ? 10 : thread->_msec;
+                uint32_t msec = thread->_msec < 10 ? 10 : thread->_msec;
                 glutTimerFunc(msec, call_from_timer, value);
             }
         }
@@ -527,9 +527,9 @@ namespace Common
     {
         return _running;
     }
-    void Thread::setSleepPeriod(uint msec)
+    void Thread::setSleepPeriod(uint32_t msec)
     {
-        uint temp = _msec;
+        uint32_t temp = _msec;
         _msec = msec;
         Thread::msleep(temp);
     }
@@ -813,9 +813,9 @@ namespace Common
         }
     }
 
-    bool Thread::msleepWithBreak(uint start, uint msec)
+    bool Thread::msleepWithBreak(uint32_t start, uint32_t msec)
     {
-        const uint unitmsec = 10;		// 10 ms
+        const uint32_t unitmsec = 10;		// 10 ms
         if(msec <= unitmsec)
         {
             if(msec != 0)
@@ -827,7 +827,7 @@ namespace Common
         }
         else
         {
-            uint end = TickTimeout::getDeadTickCount(start, msec);
+            uint32_t end = TickTimeout::getDeadTickCount(start, msec);
             while (!_break)
             {
                 if(TickTimeout::isTimeout(start, end))
@@ -840,7 +840,7 @@ namespace Common
         }
     }
     
-    void Thread::msleep(uint msecs)
+    void Thread::msleep(uint32_t msecs)
     {
         if(msecs == 0)
             return;
@@ -894,7 +894,7 @@ namespace Common
         if(interval == TimeSpan::Zero)
             return;
         
-        Thread::msleep((uint)interval.totalMilliseconds());
+        Thread::msleep((uint32_t)interval.totalMilliseconds());
     }
     
     Thread::Id Thread::currentThreadId()

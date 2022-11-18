@@ -37,7 +37,7 @@ namespace Communication
         _currentFrameId = 0;
         _isSender = false;
         
-        _version = Version::Verson1_0;
+        _version = Version::Version1_0;
     }
     ClientInstruction::~ClientInstruction()
     {
@@ -183,7 +183,7 @@ namespace Communication
                                              device->name().c_str(), ci->description()->name().c_str());
                 Stopwatch sw(info, 1000);
 #endif
-                uint timeout = device->description()->receiveTimeout(context);
+                uint32_t timeout = device->description()->receiveTimeout(context);
                 ClientInstructionHolder holder(ci, dynamic_cast<TcpInteractive*>(interactive));
                 if(TickTimeout::msdelay(timeout, isReceiveFinished, &holder))
                     ci->copyReceiveBuffer(buffer);
@@ -298,7 +298,7 @@ namespace Communication
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
         
-        ushort crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int)(ms.length() - 1));
+        uint16_t crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int)(ms.length() - 1));
         ms.seek(position);
         ms.writeUInt16(crc16);
         
@@ -323,7 +323,7 @@ namespace Communication
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
         
-        ushort crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int)(ms.length() - 1));
+        uint16_t crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int)(ms.length() - 1));
         ms.seek(position);
         ms.writeUInt16(crc16);
     }
@@ -389,7 +389,7 @@ namespace Communication
         }
         if(buffer->count() <= 10 * 1024)
         {
-            ushort crc16 = Crc16Utilities::quickCheckByBit(buffer->data(), 1, count - 1 - 2);
+            uint16_t crc16 = Crc16Utilities::quickCheckByBit(buffer->data(), 1, count - 1 - 2);
             if (!((*buffer)[count - 2] == ((crc16 >> 8) & 0xFF) &&
                   (*buffer)[count - 1] == (crc16 & 0xFF)))
             {
@@ -511,7 +511,7 @@ namespace Communication
 
     bool FileInstructionEntry::saveFile(const FileHeader* header, const FileDatas* fds)
     {
-        for (uint i=0; i<fds->count(); i++)
+        for (uint32_t i=0; i<fds->count(); i++)
         {
             if(!saveFile(header, fds->at(i)))
                 return false;
@@ -548,7 +548,7 @@ namespace Communication
     }
     bool FileInstructionEntry::saveFileInner(const FileHeader* header, const FileDatas* fds)
     {
-        for (uint i=0; i<fds->count(); i++)
+        for (uint32_t i=0; i<fds->count(); i++)
         {
             if(!saveFileInner(header, fds->at(i)))
                 return false;
@@ -585,7 +585,7 @@ namespace Communication
 //            bool fileExists = File::exists(filename);
 //            const char* formatStr = "saveFile: packetNo: %d, position: %d, exists: %s, isLastPart: %s, dataCount: %d, fileLength: %d, packetCount: %d, filename: %s";
 //            String str = String::convert(formatStr,
-//                                         fd->packetNo, (uint)position,
+//                                         fd->packetNo, (uint32_t)position,
 //                                         Common::Boolean(fileExists).toString().c_str(),
 //                                         Common::Boolean(isLastPart).toString().c_str(), dataCount,
 //                                         header->fileLength, header->packetCount, header->file_name.c_str());
@@ -615,7 +615,7 @@ namespace Communication
         return true;
     }
     
-    bool FileInstructionEntry::readFile(Stream* stream, const FileHeader* header, uint packetNo, uint packetLength) const
+    bool FileInstructionEntry::readFile(Stream* stream, const FileHeader* header, uint32_t packetNo, uint32_t packetLength) const
     {
         String fileName = Path::combine(header->path, header->file_name);
         if(File::exists(fileName))
@@ -626,11 +626,11 @@ namespace Communication
                 Debug::writeFormatLine("FileInstruction::readFile, can not open file, file name: %s", fileName.c_str());
                 return false;
             }
-            uint position = packetNo * packetLength;
+            uint32_t position = packetNo * packetLength;
             fs.seek(position);
-            uint fileLength = header->fileLength;
-            uint lastLength = fileLength - position;
-            uint dataLength = packetLength <= lastLength ? packetLength : lastLength;
+            uint32_t fileLength = header->fileLength;
+            uint32_t lastLength = fileLength - position;
+            uint32_t dataLength = packetLength <= lastLength ? packetLength : lastLength;
             uint8_t* buffer = new uint8_t[dataLength];
             memset(buffer, 0, dataLength);
             fs.read(buffer, 0, dataLength);
@@ -652,7 +652,7 @@ namespace Communication
         return false;
     }
     
-    uint FileInstructionEntry::calcPacketCount(FileHeader* header, uint packetLength)
+    uint32_t FileInstructionEntry::calcPacketCount(FileHeader* header, uint32_t packetLength)
     {
         String fileName = Path::combine(header->path, header->file_name);
         if(!header->path.isNullOrEmpty() && !header->file_name.isNullOrEmpty())
@@ -665,7 +665,7 @@ namespace Communication
                 FileStream fs(fileName.c_str(), FileMode::FileOpen, FileAccess::FileRead);
                 assert(packetLength > 0);
                 int64_t fileLength = fs.length();
-                return (fileLength % packetLength == 0) ? (uint)(fileLength / packetLength) : (uint)(fileLength / packetLength + 1);
+                return (fileLength % packetLength == 0) ? (uint32_t)(fileLength / packetLength) : (uint32_t)(fileLength / packetLength + 1);
             }
             else
             {

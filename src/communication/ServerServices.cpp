@@ -55,7 +55,7 @@ namespace Communication
     
     ServerServices::~ServerServices()
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
             {
@@ -92,7 +92,7 @@ namespace Communication
     void ServerServices::updateConfig(const StringMap& properties)
     {
         String str;
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             String scheme;
             const String prefix = String::format("servers[%d]", i);
@@ -127,7 +127,7 @@ namespace Communication
     bool ServerServices::initialize(const BaseCommService::InstructionCallback& callback)
     {
         bool result[Type::Count];
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             result[i] = true;
         }
@@ -164,7 +164,7 @@ namespace Communication
             }
         }
         
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(!result[i])
                 return false;
@@ -174,7 +174,7 @@ namespace Communication
     bool ServerServices::unInitialize()
     {
         bool result[Type::Count];
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             result[i] = true;
         }
@@ -215,7 +215,7 @@ namespace Communication
             }
         }
         
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(!result[i])
                 return false;
@@ -226,7 +226,7 @@ namespace Communication
     void ServerServices::getAllServices(PList<ServerService>& services) const
     {
         services.setAutoDelete(false);
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
                 services.add(_services[i]);
@@ -235,7 +235,7 @@ namespace Communication
     
     ServerService* ServerServices::getService(const Endpoint& peerEndpoint) const
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             ServerService* ss = _services[i];
             if(ss != nullptr && ss->contains(peerEndpoint))
@@ -266,7 +266,7 @@ namespace Communication
     
     bool ServerServices::hasServices() const
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
                 return true;
@@ -276,7 +276,7 @@ namespace Communication
     
     TcpServerInteractive::Client* ServerServices::getClient(const Endpoint& peerEndpoint) const
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
             {
@@ -317,7 +317,7 @@ namespace Communication
     
     bool ServerServices::contains(const Endpoint& endpoint) const
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr && _services[i]->contains(endpoint))
                 return true;
@@ -332,7 +332,7 @@ namespace Communication
     
     InstructionPool* ServerServices::getClientPool(const Endpoint& endpoint)
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
             {
@@ -345,7 +345,7 @@ namespace Communication
     }
     void ServerServices::getClientPools(const Endpoints& endpoints, InstructionPools& ips) const
     {
-        for (uint i=0; i<Type::Count; i++)
+        for (uint32_t i=0; i<Type::Count; i++)
         {
             if(_services[i] != nullptr)
                 _services[i]->tsi()->getClientPools(endpoints, ips);
@@ -369,7 +369,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             TcpServerInteractive* tsi = ss->tsi();
@@ -383,7 +383,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             TcpServerInteractive* tsi = ss->tsi();
@@ -398,7 +398,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             TcpServerInteractive* tsi = ss->tsi();
@@ -412,7 +412,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             TcpServerInteractive* tsi = ss->tsi();
@@ -427,7 +427,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             ss->receivedDelegates()->add(delegate);
@@ -437,7 +437,7 @@ namespace Communication
     {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint i=0; i<services.count(); i++)
+        for (uint32_t i=0; i<services.count(); i++)
         {
             ServerService* ss = services[i];
             ss->receivedDelegates()->remove(delegate);
@@ -464,7 +464,7 @@ namespace Communication
         {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 ss->stopPacketSender(name);
@@ -486,7 +486,7 @@ namespace Communication
         {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint i=0; i<services.count(); i++)
+            for (uint32_t i=0; i<services.count(); i++)
             {
                 ServerService* ss = services[i];
                 ss->stopPacketSyncSender(name);

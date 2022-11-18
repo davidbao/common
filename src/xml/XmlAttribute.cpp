@@ -82,12 +82,12 @@ namespace Common
         _attr->attr = value->_attr->attr;
     }
     
-    XmlAttributes::XmlAttributes(bool autoDelete, uint capacity) : CopyPList<XmlAttribute>(autoDelete, capacity)
+    XmlAttributes::XmlAttributes(bool autoDelete, uint32_t capacity) : CopyPList<XmlAttribute>(autoDelete, capacity)
     {
     }
     XmlAttribute* XmlAttributes::at(const String& name) const
     {
-        for (uint i = 0; i < count(); i++)
+        for (uint32_t i = 0; i < count(); i++)
         {
             XmlAttribute* attr = PList<XmlAttribute>::at(i);
             if (attr->name() == name)
