@@ -19,7 +19,7 @@
 
 namespace Common {
     template<typename type>
-    class LoopList : public IIndexGetter<type>, public IMutex {
+    class LoopList : public IIndexGetter<const type&>, public IMutex {
     public:
         typedef type *typePtr;
 
@@ -94,7 +94,7 @@ namespace Common {
             return true;
         }
 
-        inline type at(size_t pos) const override {
+        inline const type &at(size_t pos) const override {
             if (!isEmpty() && pos < count()) {
                 if (_rear > _front) {
                     return *_array[_front + pos];
@@ -105,7 +105,8 @@ namespace Common {
                     return *_array[_rear - (count() - pos)];
                 }
             }
-            return type();
+            static type value;
+            return value;
         }
 
         inline type front() const {

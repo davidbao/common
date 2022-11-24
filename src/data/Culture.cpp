@@ -33,7 +33,7 @@ namespace Common {
             return numberFormat;
         }
         if (provider != nullptr) {
-            numberFormat = provider->getFormat("NumberFormatInfo");
+            numberFormat = provider->getFormat(typeid(NumberFormatInfo).name());
             if (numberFormat != nullptr) {
                 return numberFormat;
             }
@@ -43,6 +43,88 @@ namespace Common {
 
     const NumberFormatInfo &NumberFormatInfo::currentInfo() {
         return Culture::currentCulture().numberFormatInfo();
+    }
+
+    DateTimeFormatInfo::DateTimeFormatInfo() = default;
+
+    DateTimeFormatInfo::~DateTimeFormatInfo() = default;
+
+    const DateTimeFormatInfo *DateTimeFormatInfo::getFormat(const char *typeName) const {
+        if (String(typeName) == typeid(DateTimeFormatInfo).name()) {
+            return this;
+        }
+        return nullptr;
+    }
+
+    const DateTimeFormatInfo *DateTimeFormatInfo::getInstance(const IFormatProvider<DateTimeFormatInfo> *provider) {
+        const auto *culture = dynamic_cast<const Culture *>(provider);
+        if (culture != nullptr) {
+            return &culture->dateTimeFormatInfo();
+        }
+        const DateTimeFormatInfo *numberFormat = nullptr;
+        numberFormat = dynamic_cast<const DateTimeFormatInfo *>(provider);
+        if (numberFormat != nullptr) {
+            return numberFormat;
+        }
+        if (provider != nullptr) {
+            numberFormat = provider->getFormat(typeid(DateTimeFormatInfo).name());
+            if (numberFormat != nullptr) {
+                return numberFormat;
+            }
+        }
+        return &DateTimeFormatInfo::currentInfo();
+    }
+
+    const DateTimeFormatInfo &DateTimeFormatInfo::currentInfo() {
+        return Culture::currentCulture().dateTimeFormatInfo();
+    }
+
+    String DateTimeFormatInfo::getAbbreviatedDayName(DayOfWeek dayofweek) const {
+        if ((int)dayofweek < 0 || (int)dayofweek > 6) {
+            return String::Empty;
+        }
+        //
+        // Don't call the public property AbbreviatedDayNames here since a clone is needed in that
+        // property, so it will be slower.  Instead, use GetAbbreviatedDayOfWeekNames() directly.
+        //
+        return (abbreviatedDayNames[(int)dayofweek]);
+    }
+
+    String DateTimeFormatInfo::getDayName(DayOfWeek dayofweek) const {
+        if ((int)dayofweek < 0 || (int)dayofweek > 6) {
+            return String::Empty;
+        }
+
+        // Use the internal one so that we don't clone the array unnecessarily
+        return (dayNames[(int)dayofweek]);
+    }
+
+    String DateTimeFormatInfo::getAbbreviatedMonthName(int month) const {
+        if (month < 1 || month > 13) {
+            return String::Empty;
+        }
+
+        // Use the internal one so we don't clone the array unnecessarily
+        return (abbreviatedMonthNames[month-1]);
+    }
+
+    String DateTimeFormatInfo::getMonthName(int month) const {
+        if (month < 1 || month > 13) {
+            return String::Empty;
+        }
+
+        // Use the internal one so we don't clone the array unnecessarily
+        return (monthNames[month-1]);
+    }
+
+    String DateTimeFormatInfo::fullTimeSpanNegativePattern() const {
+        return String("'-'") + fullTimeSpanPositivePattern();
+    }
+
+    String DateTimeFormatInfo::fullTimeSpanPositivePattern() const {
+        String decimalSeparator = NumberFormatInfo::currentInfo().numberDecimalSeparator;
+
+        return String("d':'h':'mm':'ss'") + decimalSeparator + "'FFFFFFF";
     }
 
     Culture::Data::Data(uint32_t lcid, const String &name, const String &region, const String &language,
@@ -452,6 +534,10 @@ namespace Common {
 
     const NumberFormatInfo &Culture::numberFormatInfo() const {
         return _numberFormat;
+    }
+
+    const DateTimeFormatInfo &Culture::dateTimeFormatInfo() const {
+        return _dateTimeFormat;
     }
 
     Culture &Culture::operator=(const Culture &value) {

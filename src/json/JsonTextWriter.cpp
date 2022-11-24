@@ -156,10 +156,10 @@ namespace Common
     {
         writeAttributeString(name, value.toString(format));
     }
-    void JsonTextWriter::writeAttributeTimeSpan(const String& name, const TimeSpan& value, TimeSpan::Format format)
-    {
-        writeAttributeString(name, value.toString(format));
-    }
+//    void JsonTextWriter::writeAttributeTimeSpan(const String& name, const TimeSpan& value, TimeSpan::Format format)
+//    {
+//        writeAttributeString(name, value.toString(format));
+//    }
     void JsonTextWriter::writeAttributeVersion(const String& name, const Version& value)
     {
         writeAttributeString(name, value.toString());
@@ -267,8 +267,8 @@ namespace Common
     {
         writeAttributeDateTime(name, value, format);
     }
-    void JsonTextWriter::writeAttribute(const String& name, const TimeSpan& value, TimeSpan::Format format)
-    {
-        writeAttributeTimeSpan(name, value, format);
-    }
+//    void JsonTextWriter::writeAttribute(const String& name, const TimeSpan& value, TimeSpan::Format format)
+//    {
+//        writeAttributeTimeSpan(name, value, format);
+//    }
 }

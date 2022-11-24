@@ -471,6 +471,44 @@ bool testValueStream() {
     return true;
 }
 
+bool testCharString() {
+    {
+        Char test('0');
+        String str = test.toString();
+        if (str != "0") {
+            return false;
+        }
+    }
+    {
+        Char test('1');
+        String str = test.toString();
+        if (str != "1") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testWCharString() {
+    {
+        WChar test(L'0');
+        WString str = test.toString();
+        if (str != L"0") {
+            return false;
+        }
+    }
+    {
+        WChar test(L'1');
+        WString str = test.toString();
+        if (str != L"1") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 template<typename name, typename type>
 bool testValueString() {
     {
@@ -1178,36 +1216,64 @@ bool testFormatString() {
 }
 
 bool testMinMaxString() {
+//    {
+//        Char test(Char::MinValue);
+//        String str = test.toString();
+//        if (str != "\x80") {
+//            return false;
+//        }
+//    }
+//    {
+//        Char test(Char::MaxValue);
+//        String str = test.toString();
+//        if (str != "\U0000007f") {
+//            return false;
+//        }
+//    }
+//
+//    {
+//        WChar test(WChar::MinValue);
+//        String str = test.toString();
+//        String str2 = Int64(WCHAR_MIN).toString("D");
+//        if (str != str2) {
+//            return false;
+//        }
+//    }
+//    {
+//        WChar test(WChar::MaxValue);
+//        String str = test.toString();
+//        String str2 = Int64(WCHAR_MAX).toString("D");
+//        if (str != str2) {
+//            return false;
+//        }
+//    }
+
     {
-        Char test(Char::MinValue);
+        Int8 test(Int8::MinValue);
         String str = test.toString("D");
-        String str2 = Int64(CHAR_MIN).toString("D");
-        if (str != str2) {
+        if (str != "-128") {
             return false;
         }
     }
     {
-        Char test(Char::MaxValue);
+        Int8 test(Int8::MaxValue);
         String str = test.toString("D");
-        String str2 = Int64(CHAR_MAX).toString("D");
-        if (str != str2) {
+        if (str != "127") {
             return false;
         }
     }
 
     {
-        WChar test(WChar::MinValue);
+        UInt8 test(UInt8::MinValue);
         String str = test.toString("D");
-        String str2 = Int64(WCHAR_MIN).toString("D");
-        if (str != str2) {
+        if (str != "0") {
             return false;
         }
     }
     {
-        WChar test(WChar::MaxValue);
+        UInt8 test(UInt8::MaxValue);
         String str = test.toString("D");
-        String str2 = Int64(WCHAR_MAX).toString("D");
-        if (str != str2) {
+        if (str != "255") {
             return false;
         }
     }
@@ -2207,7 +2273,7 @@ int main() {
     if (!testValueStream<Char, char>()) {
         return 15;
     }
-    if (!testValueString<Char, char>()) {
+    if (!testCharString()) {
         return 16;
     }
     if (!testCharParse()) {
@@ -2235,7 +2301,7 @@ int main() {
     if (!testValueStream<WChar, wchar_t>()) {
         return 25;
     }
-    if (!testValueString<WChar, wchar_t>()) {
+    if (!testWCharString()) {
         return 26;
     }
     if (!testWCharParse()) {

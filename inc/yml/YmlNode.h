@@ -52,7 +52,7 @@ namespace Common
         YmlNode(const String& value);
         YmlNode(const Uuid& value);
         YmlNode(const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-        YmlNode(const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
+//        YmlNode(const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
         template <class T>
         YmlNode(const T& value) : YmlNode(value.toString())
         {

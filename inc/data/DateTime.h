@@ -9,7 +9,6 @@
 #ifndef DateTime_h
 #define DateTime_h
 
-#include <stdio.h>
 #include <chrono>
 #include "TimeSpan.h"
 #include "IO/Stream.h"
@@ -19,7 +18,7 @@ using namespace std;
 using namespace std::chrono;
 
 namespace Common {
-    struct DateTime {
+    struct DateTime : public IEquatable<DateTime>, public IEvaluation<DateTime>, public IComparable<DateTime> {
     public:
         enum Format {
             YYYYMMDDHHMMSSfff = 0,
@@ -63,17 +62,17 @@ namespace Common {
 
         DateTime(const DateTime &time);
 
-        ~DateTime();
+        ~DateTime() override;
 
-        static DateTime now();
+        bool equals(const DateTime &other) const override;
 
-        static DateTime utcNow();
+        void evaluates(const DateTime &other) override;
+
+        int compareTo(const DateTime &other) const override;
 
         DateTime toLocalTime() const;
 
         DateTime toUtcTime() const;
-
-        static bool parse(const String &str, DateTime &dateTime);
 
         String toString(const Format format = YYYYMMDDHHMMSS) const;
 
@@ -84,117 +83,74 @@ namespace Common {
         // Monday, 2 indicates Tuesday, 3 indicates Wednesday, 4 indicates
         // Thursday, 5 indicates Friday, and 6 indicates Saturday.
         //
-        inline DayOfWeek dayOfWeek() const {
-            return (DayOfWeek) ((internalTicks() / TicksPerDay + 1) % 7);
-        }
+        DayOfWeek dayOfWeek() const;
 
         // Returns the day-of-year part of this DateTime. The returned value
         // is an integer between 1 and 366.
         //
-        inline int dayOfYear() const {
-            return getDatePart(DatePartDayOfYear);
-        }
+        int dayOfYear() const;
 
         // Returns the year part of this DateTime. The returned value is an
         // integer between 1 and 9999.
         //
-        inline int year() const {
-            return getDatePart(DatePartYear);
-        }
+        int year() const;
 
         // Returns the day-of-month part of this DateTime. The returned
         // value is an integer between 1 and 31.
         //
-        inline int day() const {
-            return getDatePart(DatePartDay);
-        }
+        int day() const;
 
         // Returns the hour part of this DateTime. The returned value is an
         // integer between 0 and 23.
         //
-        inline int hour() const {
-            return (int) ((internalTicks() / TicksPerHour) % 24);
-        }
+        int hour() const;
 
         // Returns the minute part of this DateTime. The returned value is
         // an integer between 0 and 59.
         //
-        inline int minute() const {
-            return (int) ((internalTicks() / TicksPerMinute) % 60);
-        }
+        int minute() const;
 
         // Returns the date part of this DateTime. The resulting value
         // corresponds to this DateTime with the time-of-day part set to
         // zero (midnight).
         //
-        inline DateTime date() const {
-            uint64_t ticks = internalTicks();
-            return DateTime((uint64_t) (ticks - ticks % TicksPerDay) | internalKind());
-        }
+        DateTime date() const;
 
-        inline Kind kind() const {
-            switch (internalKind()) {
-                case Kind::Unspecified:
-                    return Kind::Unspecified;
-                case KindUtc:
-                    return Kind::Utc;
-                default:
-                    return Kind::Local;
-            }
-        }
+        Kind kind() const;
 
         // Returns the millisecond part of this DateTime. The returned value
         // is an integer between 0 and 999.
         //
-        inline int millisecond() const {
-            return (int) ((internalTicks() / TicksPerMillisecond) % 1000);
-        }
+        int millisecond() const;
 
         // Returns the month part of this DateTime. The returned value is an
         // integer between 1 and 12.
         //
-        inline int month() const {
-            return getDatePart(DatePartMonth);
-        }
+        int month() const;
 
         // Returns the second part of this DateTime. The returned value is
         // an integer between 0 and 59.
         //
-        inline int second() const {
-            return (int) ((internalTicks() / TicksPerSecond) % 60);
-        }
+        int second() const;
 
         // Returns the tick count for this DateTime. The returned value is
         // the number of 100-nanosecond intervals that have elapsed since 1/1/0001
         // 12:00am.
         //
-        inline uint64_t ticks() const {
-            return internalTicks();
-        }
+        uint64_t ticks() const;
 
         // Returns the time-of-day part of this DateTime. The returned value
         // is a TimeSpan that indicates the time elapsed since midnight.
         //
-        inline TimeSpan timeOfDay() const {
-            return TimeSpan(internalTicks() % TicksPerDay);
-        }
+        TimeSpan timeOfDay() const;
 
-        inline double total1970Milliseconds() const {
-            return DateTime::total1970Milliseconds(*this);
-        }
+        double total1970Milliseconds() const;
 
         // Returns a DateTime representing the current date. The date part
         // of the returned value is the current date, and the time-of-day part of
         // the returned value is zero (midnight).
         //
-        static DateTime today() {
-            return DateTime::now().date();
-        }
-
-        // Checks whether a given year is a leap year. This method returns true if
-        // year is a leap year, or false if not.
-        //
-        static bool isLeapYear(int year);
+        DateTime today();
 
         void writeBCDDateTime(Stream *stream, bool includedSec = true, bool includedMs = false) const;
 
@@ -216,19 +172,7 @@ namespace Common {
 
         void readMilliseconds(Stream *stream, bool bigEndian = true);
 
-        void operator=(const DateTime &value);
-
-        bool operator==(const DateTime &value) const;
-
-        bool operator!=(const DateTime &value) const;
-
-        bool operator>=(const DateTime &value) const;
-
-        bool operator>(const DateTime &value) const;
-
-        bool operator<=(const DateTime &value) const;
-
-        bool operator<(const DateTime &value) const;
+        DateTime &operator=(const DateTime &value);
 
         DateTime operator+(const TimeSpan &value) const;
 
@@ -239,11 +183,6 @@ namespace Common {
         TimeSpan operator-(const DateTime &value) const;
 
         DateTime operator-=(const TimeSpan &value);
-
-        // Returns the number of days in the month given by the year and
-        // month arguments.
-        //
-        static int daysInMonth(int year, int month);
 
         // Returns the DateTime resulting from adding the given
         // TimeSpan to this DateTime.
@@ -333,6 +272,23 @@ namespace Common {
 
         DateTime add(uint32_t time, Resolutions tr) const;
 
+    public:
+        static DateTime now();
+
+        static DateTime utcNow();
+
+        static bool parse(const String &str, DateTime &dateTime);
+
+        // Checks whether a given year is a leap year. This method returns true if
+        // year is a leap year, or false if not.
+        //
+        static bool isLeapYear(int year);
+
+        // Returns the number of days in the month given by the year and
+        // month arguments.
+        //
+        static int daysInMonth(int year, int month);
+
         static Resolutions fromResolutionStr(const String &str);
 
         static String toResolutionStr(Resolutions tr);
@@ -358,13 +314,9 @@ namespace Common {
         // to compute the year, day-of-year, month, or day part.
         int getDatePart(int part) const;
 
-        inline uint64_t internalTicks() const {
-            return (uint64_t) (_dateData & TicksMask);
-        }
+        uint64_t internalTicks() const;
 
-        inline uint64_t internalKind() const {
-            return (_dateData & FlagsMask);
-        }
+        uint64_t internalKind() const;
 
     public:
         static const DateTime MinValue;

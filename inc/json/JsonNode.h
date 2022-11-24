@@ -76,7 +76,7 @@ namespace Common {
 
         JsonNode(const String &name, const DateTime &value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
 
-        JsonNode(const String &name, const TimeSpan &value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
+//        JsonNode(const String &name, const TimeSpan &value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
 
         template<class T>
         JsonNode(const String &name, const T &value) : JsonNode(name, value.toString()) {

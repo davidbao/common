@@ -475,7 +475,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
+        String toString() const;
 
         Char toLower() const;
 
@@ -744,7 +744,7 @@ namespace Common {
 
         void read(Stream *stream);
 
-        String toString(const String &format = String::Empty, const IFormatProvider<NumberFormatInfo>* provider = nullptr) const;
+        String toString() const;
 
         WChar toLower() const;
 

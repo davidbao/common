@@ -255,6 +255,18 @@ namespace Common {
 #endif
     };
 
+    template<class valueType, class posType>
+    class IPositionGetter {
+    public:
+        virtual ~IPositionGetter() = default;
+
+        virtual valueType at(posType pos) const = 0;
+
+        valueType operator[](posType pos) const {
+            return this->at(pos);
+        }
+    };
+
     template<class Setter>
     class IIndexSetter {
     public:

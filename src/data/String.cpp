@@ -145,7 +145,7 @@ namespace Common {
         return _buffer.at(pos);
     }
 
-    char String::at(size_t pos) const {
+    const char &String::at(size_t pos) const {
         return _buffer.at(pos);
     }
 

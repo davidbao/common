@@ -92,6 +92,76 @@ namespace Common {
         static const NumberFormatInfo &currentInfo();
     };
 
+    enum CalendarWeekRule {
+        FirstDay = 0,           // Week 1 begins on the first day of the year
+        FirstFullWeek = 1,      // Week 1 begins on first FirstDayOfWeek not before the first day of the year
+        FirstFourDayWeek = 2    // Week 1 begins on first FirstDayOfWeek such that FirstDayOfWeek+3 is not before the first day of the year
+    };
+
+    enum DayOfWeek {
+        Sunday = 0,
+        Monday = 1,
+        Tuesday = 2,
+        Wednesday = 3,
+        Thursday = 4,
+        Friday = 5,
+        Saturday = 6,
+    };
+
+    class DateTimeFormatInfo : public IFormatProvider<DateTimeFormatInfo> {
+    public:
+        String abbreviatedDayNames[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        String abbreviatedMonthGenitiveNames[13] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+                                                    "Oct", "Nov", "Dec", String::Empty};
+        String abbreviatedMonthNames[13] = {"January", "February", "March", "April", "May", "June", "July", "August",
+                                            "September", "October", "November", "December", String::Empty};
+        String aMDesignator = "AM";
+        CalendarWeekRule calendarWeekRule = FirstDay;
+        String dateSeparator = "-";
+        String dayNames[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        DayOfWeek firstDayOfWeek = Sunday;
+        String fullDateTimePattern = "yyyy-MM-dd HH:mm:ss";
+        String longDatePattern = "yyyy-MM-dd";
+        String longTimePattern = "HH:mm:ss";
+        String monthDayPattern = "MM-dd";
+        String monthGenitiveNames[13] = {"January", "February", "March", "April", "May", "June", "July", "August",
+                                         "September", "October", "November", "December", String::Empty};
+        String monthNames[13] = {"January", "February", "March", "April", "May", "June", "July", "August", "September",
+                                 "October", "November", "December", String::Empty};
+        String pMDesignator = "PM";
+        String rFC1123Pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+        String shortDatePattern = "yyyy-MM-dd";
+        String shortestDayNames[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+        String shortTimePattern = "HH:mm";
+        String sortableDateTimePattern = "yyyy'-'MM'-'dd'T'HH':'mm':'ss";
+        String timeSeparator = ":";
+        String universalSortableDateTimePattern = "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
+        String yearMonthPattern = "yyyy-MM";
+
+        DateTimeFormatInfo();
+
+        ~DateTimeFormatInfo() override;
+
+        const DateTimeFormatInfo *getFormat(const char *typeName) const override;
+
+        String getAbbreviatedDayName(DayOfWeek dayofweek) const;
+
+        String getDayName(DayOfWeek dayofweek) const;
+
+        String getAbbreviatedMonthName(int month) const;
+
+        String getMonthName(int month) const;
+
+        String fullTimeSpanNegativePattern() const;
+
+        String fullTimeSpanPositivePattern() const;
+
+    public:
+        static const DateTimeFormatInfo *getInstance(const IFormatProvider<DateTimeFormatInfo> *provider);
+
+        static const DateTimeFormatInfo &currentInfo();
+    };
+
     class Culture : public IEquatable<Culture>, public IEvaluation<Culture>, public IFormatProvider<NumberFormatInfo> {
     public:
         class Data : public IEquatable<Data>, public IEvaluation<Data> {
@@ -147,6 +217,8 @@ namespace Common {
 
         const NumberFormatInfo &numberFormatInfo() const;
 
+        const DateTimeFormatInfo &dateTimeFormatInfo() const;
+
         Culture &operator=(const Culture &value);
 
         bool isChinese() const;
@@ -164,6 +236,8 @@ namespace Common {
         Data _data;
 
         NumberFormatInfo _numberFormat;
+
+        DateTimeFormatInfo _dateTimeFormat;
 
     private:
         static Culture _current;

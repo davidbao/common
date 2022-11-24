@@ -52,7 +52,7 @@ namespace Common
         void writeAttributeDouble(const String& localName, const Double& value);
         void writeAttributeString(const String& localName, const String& value);
         void writeAttributeDateTime(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-        void writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
+//        void writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
         void writeAttributeVersion(const String& localName, const Version& value);
         
         void writeAttributeBoolean(const String& localName, const bool& value);
@@ -80,7 +80,7 @@ namespace Common
         void writeAttribute(const String& localName, const double& value);
         void writeAttribute(const String& localName, const String& value);
         void writeAttribute(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-        void writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
+//        void writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
 
         template <class T>
         void writeAttribute(const String& localName, const T& value)

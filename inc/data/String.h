@@ -26,7 +26,7 @@ namespace Common {
             : public IEquatable<String>, public IEquatable<String, char *>, public IEquatable<String, string>,
               public IComparable<String>, public IComparable<string>, public IComparable<char *>,
               public IEvaluation<String>,
-              public IIndexable<char, char>,
+              public IIndexable<const char&, char>,
               public Iterator<char> {
     public:
         using IComparable<String>::operator>;
@@ -72,7 +72,7 @@ namespace Common {
         // Element access
         char &at(size_t pos) override;
 
-        char at(size_t pos) const override;
+        const char &at(size_t pos) const override;
 
         bool set(size_t pos, const char &value) override;
 

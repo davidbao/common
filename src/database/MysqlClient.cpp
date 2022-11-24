@@ -22,14 +22,14 @@ namespace Database
     {
     public:
         MYSQL* mysqlDb;
-        
+
         static const int MYSQL_OK = 0;
-        
+
         MysqlInner() : mysqlDb(nullptr)
         {
         }
     };
-    
+
 	MysqlClient::MysqlClient()
 	{
         _mysqlDb = new MysqlInner();
@@ -49,7 +49,7 @@ namespace Database
     bool MysqlClient::open(const String& host, int port, const String& database, const String& username, const String& password)
     {
         Locker locker(&_dbMutex);
-        
+
         if (mysql_real_connect(_mysqlDb->mysqlDb, host.c_str(), username.c_str(),
                                password.c_str(), database.c_str(), port, NULL, CLIENT_MULTI_STATEMENTS))
         {
@@ -59,18 +59,18 @@ namespace Database
                 printErrorInfo("mysql_query(_mysqlDb->mysqlDb, \"set names 'UTF8'\"");
                 return false;
             }
-            
+
             char value = 1;
             mysql_options(_mysqlDb->mysqlDb, MYSQL_OPT_RECONNECT, (char *)&value);
-            
+
 //            mysql_autocommit(_mysqlDb->mysqlDb, 1);
-            
+
             return true;
         }
         else
         {
             printErrorInfo("mysql_real_connect");
-            
+
         }
         return false;
     }
@@ -214,7 +214,7 @@ namespace Database
 			printErrorInfo("mysql_query", sql);
             return result;
 		}
-        
+
         int status;
         /* process each statement result */
         do {
@@ -244,7 +244,7 @@ namespace Database
 //                printf("Could not execute statement\n");
             }
         } while (status == 0);
-        
+
 		return 0;
 	}
     int MysqlClient::executeSqlInner(const String& sql, DataTable& table)
@@ -263,7 +263,7 @@ namespace Database
             printErrorInfo("mysql_query", sql);
             return result;
         }
-        
+
         int status;
         /* process each statement result */
         do {
@@ -294,7 +294,7 @@ namespace Database
 //                printf("Could not execute statement\n");
             }
         } while (status == 0);
-        
+
         return 0;
     }
 	int MysqlClient::executeSqlInsertInner(const DataTable& table, bool replace)
@@ -309,7 +309,7 @@ namespace Database
             return -2;
         if (table.rowCount() == 0)
             return -3;
-        
+
         // such like '"INSERT INTO users(name, age) VALUES (.....),(.....),(.....),(.....)";'
         String columsStr, valuesStr;
         for (uint32_t j = 0; j < table.columnCount(); j++)
@@ -320,12 +320,12 @@ namespace Database
             }
             columsStr.append(table.columns()->at(j)->name());
         }
-        
+
         const DataRows* rows = table.rows();
         for (uint32_t i = 0; i < rows->count(); i++)
         {
             const DataRow* row = rows->at(i);
-            
+
             if (!valuesStr.isNullOrEmpty())
             {
                 valuesStr.append(", ");
@@ -334,7 +334,7 @@ namespace Database
             for (uint32_t j = 0; j < row->cells()->count(); j++)
             {
                 const DataCell* cell = row->cells()->at(j);
-                
+
                 if(j != 0)
                 {
                     valuesStr.append(",");
@@ -357,7 +357,7 @@ namespace Database
 #ifdef DEBUG
         createSqlFile("mysql_insert.sql", sql);
 #endif
-        
+
         int result;
         result = beginTransactionInner();
         if (!isSuccessed(result))
@@ -375,7 +375,7 @@ namespace Database
         {
             return result;
         }
-        
+
         return MysqlInner::MYSQL_OK;
     }
     int MysqlClient::executeSqlQueryInner(const String& sql, DataTable& table)
@@ -384,7 +384,7 @@ namespace Database
         String info = String::convert("MysqlClient::executeSqlQueryInner, table name: %s", table.name().c_str());
 		Stopwatch sw(info, 100);
 #endif
-        
+
         mysql_ping(_mysqlDb->mysqlDb);
         int result = mysql_query(_mysqlDb->mysqlDb, sql.c_str());
 		if (!isSuccessed(result))
@@ -392,7 +392,7 @@ namespace Database
 			printErrorInfo("mysql_query", sql);
 			return result;
 		}
-        
+
         MYSQL_RES* result_set = mysql_store_result(_mysqlDb->mysqlDb);
         if(result_set == nullptr)
             return -1;
@@ -411,7 +411,7 @@ namespace Database
         String info = String::convert("MysqlClient::updateDataTable, table name: %s", table.name().c_str());
         Stopwatch sw(info, 100);
 #endif
-        
+
         if (table.name().isNullOrEmpty())
         {
             const char* name = result->field_count > 0 ? result->fields[0].table : "temp";
@@ -444,7 +444,7 @@ namespace Database
                         sprintf(temp, "tempCol%d", i);
                         name = temp;
                     }
-                    
+
                     DataColumn* column = new DataColumn(name, getColumnType(fd->type));
                     table.addColumn(column);
                 }
@@ -528,7 +528,7 @@ namespace Database
 	{
 		return _mysqlDb->mysqlDb != nullptr ? (String)mysql_error(_mysqlDb->mysqlDb) : String::Empty;
 	}
-    
+
     bool MysqlClient::isSuccessed(int result) const
     {
         return result == MysqlInner::MYSQL_OK;

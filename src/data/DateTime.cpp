@@ -38,11 +38,24 @@ namespace Common {
     DateTime::DateTime(int year, int month, int day, Kind kind) : DateTime(year, month, day, 0, 0, 0, 0, kind) {
     }
 
-    DateTime::DateTime(const DateTime &time) {
+    DateTime::DateTime(const DateTime &time) : _dateData(0) {
         this->operator=(time);
     }
 
-    DateTime::~DateTime() {
+    DateTime::~DateTime() = default;
+
+    bool DateTime::equals(const DateTime &other) const {
+        return (internalTicks() == other.internalTicks());
+    }
+
+    void DateTime::evaluates(const DateTime &other) {
+        this->_dateData = other._dateData;
+    }
+
+    int DateTime::compareTo(const DateTime &other) const {
+        if (internalTicks() > other.internalTicks()) return 1;
+        if (internalTicks() < other.internalTicks()) return -1;
+        return 0;
     }
 
     uint64_t
@@ -163,6 +176,14 @@ namespace Common {
         if (part == DatePartMonth) return m;
         // Return 1-based day-of-month
         return n - days[m - 1] + 1;
+    }
+
+    uint64_t DateTime::internalTicks() const {
+        return (uint64_t) (_dateData & TicksMask);
+    }
+
+    uint64_t DateTime::internalKind() const {
+        return (_dateData & FlagsMask);
     }
 
     bool DateTime::parse(const String &str, DateTime &dateTime) {
@@ -405,6 +426,118 @@ namespace Common {
         }
     }
 
+    // Returns the day-of-week part of this DateTime. The returned value
+    // is an integer between 0 and 6, where 0 indicates Sunday, 1 indicates
+    // Monday, 2 indicates Tuesday, 3 indicates Wednesday, 4 indicates
+    // Thursday, 5 indicates Friday, and 6 indicates Saturday.
+    //
+    DateTime::DayOfWeek DateTime::dayOfWeek() const {
+        return (DayOfWeek) ((internalTicks() / TicksPerDay + 1) % 7);
+    }
+
+    // Returns the day-of-year part of this DateTime. The returned value
+    // is an integer between 1 and 366.
+    //
+    int DateTime::dayOfYear() const {
+        return getDatePart(DatePartDayOfYear);
+    }
+
+    // Returns the year part of this DateTime. The returned value is an
+    // integer between 1 and 9999.
+    //
+    int DateTime::year() const {
+        return getDatePart(DatePartYear);
+    }
+
+    // Returns the day-of-month part of this DateTime. The returned
+    // value is an integer between 1 and 31.
+    //
+    int DateTime::day() const {
+        return getDatePart(DatePartDay);
+    }
+
+    // Returns the hour part of this DateTime. The returned value is an
+    // integer between 0 and 23.
+    //
+    int DateTime::hour() const {
+        return (int) ((internalTicks() / TicksPerHour) % 24);
+    }
+
+    // Returns the minute part of this DateTime. The returned value is
+    // an integer between 0 and 59.
+    //
+    int DateTime::minute() const {
+        return (int) ((internalTicks() / TicksPerMinute) % 60);
+    }
+
+    // Returns the date part of this DateTime. The resulting value
+    // corresponds to this DateTime with the time-of-day part set to
+    // zero (midnight).
+    //
+    DateTime DateTime::date() const {
+        uint64_t ticks = internalTicks();
+        return {(uint64_t) (ticks - ticks % TicksPerDay) | internalKind()};
+    }
+
+    DateTime::Kind DateTime::kind() const {
+        switch (internalKind()) {
+            case Kind::Unspecified:
+                return Kind::Unspecified;
+            case KindUtc:
+                return Kind::Utc;
+            default:
+                return Kind::Local;
+        }
+    }
+
+    // Returns the millisecond part of this DateTime. The returned value
+    // is an integer between 0 and 999.
+    //
+    int DateTime::millisecond() const {
+        return (int) ((internalTicks() / TicksPerMillisecond) % 1000);
+    }
+
+    // Returns the month part of this DateTime. The returned value is an
+    // integer between 1 and 12.
+    //
+    int DateTime::month() const {
+        return getDatePart(DatePartMonth);
+    }
+
+    // Returns the second part of this DateTime. The returned value is
+    // an integer between 0 and 59.
+    //
+    int DateTime::second() const {
+        return (int) ((internalTicks() / TicksPerSecond) % 60);
+    }
+
+    // Returns the tick count for this DateTime. The returned value is
+    // the number of 100-nanosecond intervals that have elapsed since 1/1/0001
+    // 12:00am.
+    //
+    uint64_t DateTime::ticks() const {
+        return internalTicks();
+    }
+
+    // Returns the time-of-day part of this DateTime. The returned value
+    // is a TimeSpan that indicates the time elapsed since midnight.
+    //
+    TimeSpan DateTime::timeOfDay() const {
+        return TimeSpan(internalTicks() % TicksPerDay);
+    }
+
+    double DateTime::total1970Milliseconds() const {
+        return DateTime::total1970Milliseconds(*this);
+    }
+
+    // Returns a DateTime representing the current date. The date part
+    // of the returned value is the current date, and the time-of-day part of
+    // the returned value is zero (midnight).
+    //
+    DateTime DateTime::today() {
+        return DateTime::now().date();
+    }
+
     void DateTime::writeBCDDateTime(Stream *stream, bool includedSec, bool includedMs) const {
         // such like YYYYMMDDHHmmss or YYYYMMDDHHSS
         int len = includedSec ? 7 : 6;
@@ -579,32 +712,9 @@ namespace Common {
         _dateData = (DateTime::Min2010Value + TimeSpan::fromMilliseconds(value))._dateData;
     }
 
-    void DateTime::operator=(const DateTime &value) {
-        _dateData = value._dateData;
-    }
-
-    bool DateTime::operator==(const DateTime &value) const {
-        return (internalTicks() == value.internalTicks());
-    }
-
-    bool DateTime::operator!=(const DateTime &value) const {
-        return !operator==(value);
-    }
-
-    bool DateTime::operator>=(const DateTime &value) const {
-        return (internalTicks() >= value.internalTicks());
-    }
-
-    bool DateTime::operator>(const DateTime &value) const {
-        return (internalTicks() > value.internalTicks());
-    }
-
-    bool DateTime::operator<=(const DateTime &value) const {
-        return (internalTicks() <= value.internalTicks());
-    }
-
-    bool DateTime::operator<(const DateTime &dateTime) const {
-        return (internalTicks() < dateTime.internalTicks());
+    DateTime &DateTime::operator=(const DateTime &value) {
+        evaluates(value);
+        return *this;
     }
 
     DateTime DateTime::operator+(const TimeSpan &value) const {

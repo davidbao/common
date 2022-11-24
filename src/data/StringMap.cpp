@@ -52,11 +52,11 @@ namespace Common {
     }
 
     void StringMap::add(const String &key, const int8_t &value) {
-        add(key, Char(value).toString());
+        add(key, Int8(value).toString());
     }
 
     void StringMap::add(const String &key, const uint8_t &value) {
-        add(key, Byte(value).toString());
+        add(key, UInt8(value).toString());
     }
 
     void StringMap::add(const String &key, const int16_t &value) {
@@ -205,11 +205,11 @@ namespace Common {
     }
 
     bool StringMap::set(const String &key, const int8_t &value) {
-        return set(key, Char(value).toString());
+        return set(key, Int8(value).toString());
     }
 
     bool StringMap::set(const String &key, const uint8_t &value) {
-        return set(key, Byte(value).toString());
+        return set(key, UInt8(value).toString());
     }
 
     bool StringMap::set(const String &key, const int16_t &value) {

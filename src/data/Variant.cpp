@@ -62,7 +62,7 @@ namespace Common {
         setValue(value);
     }
 
-    Variant::Variant(DateTime value) : Variant(Date) {
+    Variant::Variant(const DateTime &value) : Variant(Date) {
         setValue(value);
     }
 
@@ -429,9 +429,9 @@ namespace Common {
 
     void Variant::setStringValue(const String &str, Type type, Value &value) {
         if (type == Text) {
-            if (value.strValue != nullptr) {
-                delete[] value.strValue;
-            }
+
+            delete[] value.strValue;
+
             if (str.isNullOrEmpty()) {
                 value.strValue = nullptr;
                 return;
@@ -454,9 +454,9 @@ namespace Common {
 
     void Variant::setByteArrayValue(const uint8_t *buffer, Type type, Value &value) {
         if (type == Blob) {
-            if (value.blobValue != nullptr) {
-                delete[] value.blobValue;
-            }
+
+            delete[] value.blobValue;
+
             if (buffer == nullptr) {
                 value.blobValue = nullptr;
                 return;
@@ -480,9 +480,9 @@ namespace Common {
 
     void Variant::setByteArrayValue(const ByteArray &buffer, Type type, Value &value) {
         if (type == Blob) {
-            if (value.blobValue != nullptr) {
-                delete[] value.blobValue;
-            }
+
+            delete[] value.blobValue;
+
             if (buffer.count() == 0) {
                 value.blobValue = nullptr;
                 return;
@@ -524,13 +524,13 @@ namespace Common {
         setValueInner(v);
 
         if (type() == Text) {
-            if (oldValue.strValue != nullptr) {
-                delete[] oldValue.strValue;
-            }
+
+            delete[] oldValue.strValue;
+
         } else if (type() == Blob) {
-            if (oldValue.blobValue != nullptr) {
-                delete[] oldValue.blobValue;
-            }
+
+            delete[] oldValue.blobValue;
+
         }
     }
 
@@ -771,7 +771,7 @@ namespace Common {
         return changeStringValue(type(), value(), v);
     }
 
-    const String Variant::valueStr() const {
+    String Variant::valueStr() const {
         String value;
         if (getValue(value))
             return value;
@@ -897,7 +897,7 @@ namespace Common {
             case Null:
                 return false;
             case Digital: {
-                bool temp = v != 0 ? true : false;
+                bool temp = v != 0;
                 return value.bValue == temp;
             }
             case Integer8:
@@ -1129,7 +1129,7 @@ namespace Common {
                     delete[] destValue.strValue;
                     return result;
                 } else {
-                    return value2.strValue == nullptr && destValue.strValue == nullptr ? true : false;
+                    return value2.strValue == nullptr && destValue.strValue == nullptr;
                 }
             }
             case Date:
@@ -1849,7 +1849,7 @@ namespace Common {
         return true;
     }
 
-    const String Variant::typeStr() const {
+    String Variant::typeStr() const {
         return toTypeStr(_type);
     }
 
@@ -1882,7 +1882,7 @@ namespace Common {
                 stream->writeInt64(value.lValue);
                 break;
             case UInteger64:
-                stream->writeInt64(value.ulValue);
+                stream->writeUInt64(value.ulValue);
                 break;
             case Float32:
                 stream->writeFloat(value.fValue);
@@ -1970,8 +1970,8 @@ namespace Common {
         }
     }
 
-    int Variant::valueSize(Type type, const Value &value) {
-        int size = 0;
+    size_t Variant::valueSize(Type type, const Value &value) {
+        size_t size = 0;
         switch (type) {
             case Null:
                 size = 0;
@@ -2010,7 +2010,7 @@ namespace Common {
                 size = sizeof(value.dValue);
                 break;
             case Text:
-                size = sizeof(short) + (int) strlen(value.strValue);
+                size = sizeof(uint16_t) + strlen(value.strValue);
                 break;
             case Date:
                 size = sizeof(value.tValue);
@@ -2379,7 +2379,7 @@ namespace Common {
         return nullptr;
     }
 
-    const String Variant::toString() const {
+    String Variant::toString() const {
         String value;
         getValue(value);
         return value;

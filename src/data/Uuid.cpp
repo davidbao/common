@@ -34,83 +34,48 @@ namespace Common {
 
     Uuid::~Uuid() = default;
 
-    Uuid &Uuid::operator=(const Uuid &value) {
-#if WIN32
-        memcpy(&this->_value, &value._value, Size);
-#else
-        uuid_copy(this->_value, value._value);
-#endif
-        assert(this->operator==(value));
-        return *this;
-    }
-
-    bool Uuid::operator==(const Uuid &value) const {
+    bool Uuid::equals(const Uuid &other) const {
 #if WIN32
         RPC_STATUS status;
-        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&value._value, &status) == 0;
+        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&other._value, &status) == 0;
 #else
-        return uuid_compare(this->_value, value._value) == 0;
+        return uuid_compare(this->_value, other._value) == 0;
 #endif
     }
 
-    bool Uuid::operator!=(const Uuid &value) const {
-        return !operator==(value);
-    }
-
-    Uuid &Uuid::operator=(const String &value) {
-        Uuid id;
-        if (Uuid::parse(value, id)) {
-            this->operator=(id);
-        }
-        return *this;
-    }
-
-    bool Uuid::operator==(const String &value) const {
-        Uuid id;
-        if (Uuid::parse(value, id)) {
-            return this->operator==(id);
+    bool Uuid::equals(const String &other) const {
+        Uuid value;
+        if(parse(other, value)) {
+            return equals(value);
         }
         return false;
     }
 
-    bool Uuid::operator!=(const String &value) const {
-        return !operator==(value);
-    }
-
-    bool Uuid::operator>(const Uuid &value) const {
+    void Uuid::evaluates(const Uuid &other) {
 #if WIN32
-        RPC_STATUS status;
-        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&value._value, &status) > 0;
+        memcpy(&this->_value, &other._value, Size);
 #else
-        return uuid_compare(this->_value, value._value) > 0;
+        uuid_copy(this->_value, other._value);
 #endif
     }
 
-    bool Uuid::operator>=(const Uuid &value) const {
+    int Uuid::compareTo(const Uuid &other) const {
 #if WIN32
         RPC_STATUS status;
-        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&value._value, &status) >= 0;
+        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&other._value, &status);
 #else
-        return uuid_compare(this->_value, value._value) >= 0;
+        return uuid_compare(this->_value, other._value);
 #endif
     }
 
-    bool Uuid::operator<(const Uuid &value) const {
-#if WIN32
-        RPC_STATUS status;
-        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&value._value, &status) < 0;
-#else
-        return uuid_compare(this->_value, value._value) < 0;
-#endif
+    Uuid &Uuid::operator=(const Uuid &value) {
+        evaluates(value);
+        return *this;
     }
 
-    bool Uuid::operator<=(const Uuid &value) const {
-#if WIN32
-        RPC_STATUS status;
-        return UuidCompare((uuid_t*)&this->_value, (uuid_t*)&value._value, &status) <= 0;
-#else
-        return uuid_compare(this->_value, value._value) <= 0;
-#endif
+    Uuid &Uuid::operator=(const String &value) {
+        parse(value, *this);
+        return *this;
     }
 
     void Uuid::write(Stream *stream) const {

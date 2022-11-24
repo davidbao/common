@@ -93,10 +93,10 @@ namespace Common
     {
         _inner = new Node(value.toString(format).c_str());
     }
-    YmlNode::YmlNode(const TimeSpan& value, TimeSpan::Format format) : _attach(false)
-    {
-        _inner = new Node(value.toString(format).c_str());
-    }
+//    YmlNode::YmlNode(const TimeSpan& value, TimeSpan::Format format) : _attach(false)
+//    {
+//        _inner = new Node(value.toString(format).c_str());
+//    }
     YmlNode::YmlNode(Node* node) : _attach(true)
     {
         _inner = node;

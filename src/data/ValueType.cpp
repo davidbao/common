@@ -559,8 +559,8 @@ namespace Common {
         _value = (char) stream->readByte();
     }
 
-    String Char::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
-        return toValueString(_value, format, provider);
+    String Char::toString() const {
+        return String(_value, 1);
     }
 
     Char Char::toLower() const {
@@ -984,8 +984,8 @@ namespace Common {
         _value = stream->readUInt16();
     }
 
-    String WChar::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
-        return toValueString(_value, format, provider);
+    String WChar::toString() const {
+        return WString::convert(WString(_value, 1));
     }
 
     WChar WChar::toLower() const {

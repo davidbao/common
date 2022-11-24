@@ -208,23 +208,23 @@ bool testAdd() {
             return false;
         }
         {
-            StringMap test;
+            StringMap test2;
             String key = "1";
             const char *value = "1";
-            test.add(key, value);
+            test2.add(key, value);
             String value2;
-            if (!(test.at(key, value2) && value2 == value)) {
+            if (!(test2.at(key, value2) && value2 == value)) {
                 return false;
             }
         }
         {
-            StringMap test;
+            StringMap test2;
             String key = "1";
             char value[32];
             strcpy(value, "1");
-            test.add(key, value);
+            test2.add(key, value);
             String value2;
-            if (!(test.at(key, value2) && value2 == value)) {
+            if (!(test2.at(key, value2) && value2 == value)) {
                 return false;
             }
         }
@@ -430,23 +430,23 @@ bool testSet() {
             return false;
         }
         {
-            StringMap test;
+            StringMap test2;
             String key = "1";
             const char *value = "1";
-            test.add(key, value);
+            test2.add(key, value);
             String value2;
-            if (!(test.at(key, value2) && value2 == value)) {
+            if (!(test2.at(key, value2) && value2 == value)) {
                 return false;
             }
         }
         {
-            StringMap test;
+            StringMap test2;
             String key = "1";
             char value[32];
             strcpy(value, "1");
-            test.add(key, value);
+            test2.add(key, value);
             String value2;
-            if (!(test.at(key, value2) && value2 == value)) {
+            if (!(test2.at(key, value2) && value2 == value)) {
                 return false;
             }
         }

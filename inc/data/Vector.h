@@ -30,7 +30,7 @@ namespace Common {
             : public IEquatable<Vector<type>>,
               public IEvaluation<Vector<type>>,
               public Iterator<type>,
-              public IIndexable<type, type>,
+              public IIndexable<const type&, type>,
               public IMutex {
     public:
         explicit Vector(size_t capacity = DefaultCapacity) : _array(nullptr), _capacity(0), _count(0) {
@@ -114,11 +114,11 @@ namespace Common {
             if (pos < _count) {
                 return _array[pos];
             }
-            static type t;
-            return t;
+            static type value;
+            return value;
         }
 
-        inline type at(size_t pos) const override {
+        inline const type &at(size_t pos) const override {
             if (pos < _count) {
                 return _array[pos];
             }

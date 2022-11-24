@@ -88,7 +88,22 @@ namespace Common {
             return toString(3);
         }
         return toString(4);
+    }
 
+    int Version::major() const {
+        return _major;
+    }
+
+    int Version::minor() const {
+        return _minor;
+    }
+
+    int Version::build() const {
+        return _build;
+    }
+
+    int Version::revision() const {
+        return _revision;
     }
 
     String Version::toString(int fieldCount) const {
@@ -115,6 +130,11 @@ namespace Common {
 
     Version &Version::operator=(const Version &version) {
         evaluates(version);
+        return *this;
+    }
+
+    Version &Version::operator=(const String &version) {
+        parse(version, *this);
         return *this;
     }
 
@@ -213,6 +233,41 @@ namespace Common {
             _revision = -1;
     }
 
+    void Version::writeByte(Stream *stream) const {
+        stream->writeByte((uint8_t)_major);
+        stream->writeByte((uint8_t)_minor);
+        stream->writeByte((uint8_t)_build);
+        stream->writeByte((uint8_t)_revision);
+    }
+
+    void Version::readByte(Stream *stream) {
+        _major = stream->readByte();
+        _minor = stream->readByte();
+        _build = stream->readByte();
+        _revision = stream->readByte();
+
+        if ((uint8_t) _minor == Byte::MaxValue)
+            _minor = -1;
+        if ((uint8_t) _build == Byte::MaxValue)
+            _build = -1;
+        if ((uint8_t) _revision == Byte::MaxValue)
+            _revision = -1;
+    }
+
+    void Version::writeBCDInt32(Stream *stream) const {
+        stream->writeBCDInt32(_major);
+        stream->writeBCDInt32(_minor);
+        stream->writeBCDInt32(_build);
+        stream->writeBCDInt32(_revision);
+    }
+
+    void Version::readBCDInt32(Stream *stream) {
+        _major = stream->readBCDInt32();
+        _minor = stream->readBCDInt32();
+        _build = stream->readBCDInt32();
+        _revision = stream->readBCDInt32();
+    }
+
     void Version::writeBCDInt16(Stream *stream) const {
         stream->writeBCDInt16((int16_t) _major);
         stream->writeBCDInt16((int16_t) _minor);
@@ -235,10 +290,10 @@ namespace Common {
     }
 
     void Version::writeBCDByte(Stream *stream) const {
-        stream->writeBCDByte(_major);
-        stream->writeBCDByte(_minor);
-        stream->writeBCDByte(_build);
-        stream->writeBCDByte(_revision);
+        stream->writeBCDByte((uint8_t)_major);
+        stream->writeBCDByte((uint8_t)_minor);
+        stream->writeBCDByte((uint8_t)_build);
+        stream->writeBCDByte((uint8_t)_revision);
     }
 
     void Version::readBCDByte(Stream *stream) {
@@ -255,66 +310,49 @@ namespace Common {
             _revision = -1;
     }
 
-    void Version::writeByte(Stream *stream) const {
-        stream->writeByte(_major);
-        stream->writeByte(_minor);
-        stream->writeByte(_build);
-        stream->writeByte(_revision);
+    void Version::write(Stream *stream, bool bigEndian) const {
+        writeInt32(stream, bigEndian);
     }
 
-    void Version::readByte(Stream *stream) {
-        _major = stream->readByte();
-        _minor = stream->readByte();
-        _build = stream->readByte();
-        _revision = stream->readByte();
-
-        if ((uint8_t) _minor == Byte::MaxValue)
-            _minor = -1;
-        if ((uint8_t) _build == Byte::MaxValue)
-            _build = -1;
-        if ((uint8_t) _revision == Byte::MaxValue)
-            _revision = -1;
-    }
-
-    void Version::write(Stream *stream) const {
-        writeInt32(stream);
-    }
-
-    void Version::read(Stream *stream) {
-        readInt32(stream);
+    void Version::read(Stream *stream, bool bigEndian) {
+        readInt32(stream, bigEndian);
     }
 
     Version Version::increase(const Version &version) {
         static const int MaxVersion = 255;
         if (version._minor < 0)
-            return Version(version._major + 1);
+            return {version._major + 1};
         else if (version._build < 0) {
-            if (version._minor < MaxVersion)
-                return Version(version._major, version._minor + 1, version._build, version._revision);
-            else if (version._major < MaxVersion)
-                return Version(version._major + 1, version._minor, version._build, version._revision);
-            else
-                return Version(version._major, version._minor + 1, version._build, version._revision);
+            if (version._minor < MaxVersion) {
+                return {version._major, version._minor + 1, version._build, version._revision};
+            }
+            else if (version._major < MaxVersion) {
+                return {version._major + 1, version._minor, version._build, version._revision};
+            }
+            else {
+                return {version._major, version._minor + 1, version._build, version._revision};
+            }
         } else if (version._revision < 0) {
-            if (version._build < MaxVersion)
-                return Version(version._major, version._minor, version._build + 1, version._revision);
-            else if (version._minor < MaxVersion)
-                return Version(version._major, version._minor + 1, version._build, version._revision);
+            if (version._build < MaxVersion) {
+                return {version._major, version._minor, version._build + 1, version._revision};
+            } else if (version._minor < MaxVersion)
+                return {version._major, version._minor + 1, version._build, version._revision};
             else if (version._major < MaxVersion)
-                return Version(version._major + 1, version._minor, version._build, version._revision);
-            else
-                return Version(version._major, version._minor, version._build + 1, version._revision);
+                return {version._major + 1, version._minor, version._build, version._revision};
+            else {
+                return {version._major, version._minor, version._build + 1, version._revision};
+            }
         } else {
             if (version._revision < MaxVersion)
-                return Version(version._major, version._minor, version._build, version._revision + 1);
-            else if (version._build < MaxVersion)
-                return Version(version._major, version._minor, version._build + 1, version._revision);
-            else if (version._minor < MaxVersion)
-                return Version(version._major, version._minor + 1, version._build, version._revision);
-            else if (version._major < MaxVersion)
-                return Version(version._major + 1, version._minor, version._build, version._revision);
-            else
-                return Version(version._major, version._minor, version._build, version._revision + 1);
+                return {version._major, version._minor, version._build, version._revision + 1};
+            else if (version._build < MaxVersion) {
+                return {version._major, version._minor, version._build + 1, version._revision};
+            } else if (version._minor < MaxVersion)
+                return {version._major, version._minor + 1, version._build, version._revision};
+            else if (version._major < MaxVersion) {
+                return {version._major + 1, version._minor, version._build, version._revision};
+            } else
+                return {version._major, version._minor, version._build, version._revision + 1};
         }
     }
 }

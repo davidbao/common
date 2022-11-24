@@ -33,35 +33,31 @@ namespace Common {
     typedef unsigned char uuid_t[16];
 #endif
 
-    struct Uuid {
+    struct Uuid
+            : public IEquatable<Uuid>,
+              public IEquatable<Uuid, String>,
+              public IEvaluation<Uuid>,
+              public IComparable<Uuid> {
     public:
         Uuid();
 
-        Uuid(const Uuid &value);
-
         explicit Uuid(const String &value);
 
-        ~Uuid();
+        Uuid(const Uuid &value);
+
+        ~Uuid() override;
+
+        bool equals(const Uuid &other) const override;
+
+        bool equals(const String &other) const override;
+
+        void evaluates(const Uuid &other) override;
+
+        int compareTo(const Uuid &other) const override;
 
         Uuid &operator=(const Uuid &value);
 
-        bool operator==(const Uuid &value) const;
-
-        bool operator!=(const Uuid &value) const;
-
         Uuid &operator=(const String &value);
-
-        bool operator==(const String &value) const;
-
-        bool operator!=(const String &value) const;
-
-        bool operator>(const Uuid &value) const;
-
-        bool operator>=(const Uuid &value) const;
-
-        bool operator<(const Uuid &value) const;
-
-        bool operator<=(const Uuid &value) const;
 
         void write(Stream *stream) const;
 

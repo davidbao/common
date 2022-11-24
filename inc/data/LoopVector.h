@@ -19,7 +19,7 @@
 
 namespace Common {
     template<typename type>
-    class LoopVector : public IIndexGetter<type>, public IMutex {
+    class LoopVector : public IIndexGetter<const type&>, public IMutex {
     public:
         explicit LoopVector(size_t size = DefaultSize) : _front(0), _rear(0) {
             _size = (size >= MinSize && size <= MaxSize) ? size : DefaultSize;
@@ -80,7 +80,7 @@ namespace Common {
             return true;
         }
 
-        inline type at(size_t pos) const override {
+        inline const type &at(size_t pos) const override {
             if (!isEmpty() && pos < count()) {
                 if (_rear > _front) {
                     return _array[_front + pos];
@@ -91,7 +91,8 @@ namespace Common {
                     return _array[_rear - (count() - pos)];
                 }
             }
-            return type();
+            static type value;
+            return value;
         }
 
         inline type front() const {

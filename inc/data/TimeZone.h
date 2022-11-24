@@ -1,19 +1,23 @@
-#ifndef TIMEZONE_H
-#define TIMEZONE_H
+//
+//  TimeZone.h
+//  common
+//
+//  Created by baowei on 2016/10/19.
+//  Copyright (c) 2016 com. All rights reserved.
+//
 
-#include <stdio.h>
-#include <limits.h>
+#ifndef TimeZone_h
+#define TimeZone_h
+
 #include "IO/Stream.h"
 #include "DateTime.h"
 
-namespace Common
-{
+namespace Common {
     class LocalTime;
-	struct TimeZone
-	{
-	public:
-        enum Type : uint8_t
-        {
+
+    struct TimeZone : public IEquatable<TimeZone>, public IEvaluation<TimeZone>, public IComparable<TimeZone> {
+    public:
+        enum Type : uint8_t {
             GMT_B1200 = 0,
             GMT_B1100,
             GMT_B1000,
@@ -49,63 +53,79 @@ namespace Common
             GMT_A1300,
             Count = GMT_A1300 + 1
         };
-        
-        TimeZone(int64_t offset = -1);
-        TimeZone(Type type);
-        TimeZone(const TimeZone& timeZone);
-        
-        DateTime toUtcTime(DateTime time) const;
-        DateTime toLocalTime(DateTime time) const;
-        
-        void operator=(const TimeZone& tz);
-        bool operator==(const TimeZone& tz) const;
-        bool operator!=(const TimeZone& tz) const;
-        
-        void write(Stream* stream, bool bigEndian = true) const;
-        void read(Stream* stream, bool bigEndian = true);
 
-        void writeSeconds(Stream* stream, bool bigEndian = true) const;
-        void readSeconds(Stream* stream, bool bigEndian = true);
-        
-        const String toString() const;
+        explicit TimeZone(int64_t offset = -1);
+
+        explicit TimeZone(Type type);
+
+        TimeZone(const TimeZone &timeZone);
+
+        ~TimeZone() override;
+
+        bool equals(const TimeZone &other) const override;
+
+        void evaluates(const TimeZone &other) override;
+
+        int compareTo(const TimeZone &other) const override;
+
+        DateTime toUtcTime(const DateTime &time) const;
+
+        DateTime toLocalTime(const DateTime &time) const;
+
+        TimeZone &operator=(const TimeZone &tz);
+
+        void write(Stream *stream, bool bigEndian = true) const;
+
+        void read(Stream *stream, bool bigEndian = true);
+
+        void writeSeconds(Stream *stream, bool bigEndian = true) const;
+
+        void readSeconds(Stream *stream, bool bigEndian = true);
+
+        String toString() const;
+
         bool isEmpty() const;
-        
+
         int64_t ticksOffset() const;
-        
+
         Type type() const;
-        const String toTypeStr() const;
-       
+
+        String toTypeStr() const;
+
     public:
-        static bool parseTypeStr(const String& str, Type& type);
-        static const String toTypeStr(Type type);
-        
+        static bool parseTypeStr(const String &str, Type &type);
+
+        static String toTypeStr(Type type);
+
     private:
         int localTimeValue() const;
+
         int hourOffset() const;
-        
+
         void update();
-        static void updateLocal(const TimeZone& tz);
-        
+
+        static void updateLocal(const TimeZone &tz);
+
     public:
         static TimeZone Local;
         static TimeZone Empty;
-        
+
     private:
         friend LocalTime;
-        
+
         int64_t _ticksOffset;
-        
+
         static const int64_t TicksPerMillisecond = 10000;
         static const int64_t TicksPerSecond = TicksPerMillisecond * 1000;   // 10,000,000
         static const int64_t TicksPerMinute = TicksPerSecond * 60;         // 600,000,000
         static const int64_t TicksPerHour = TicksPerMinute * 60;
         const double SecondsPerTick = 1.0 / TicksPerSecond;         // 0.0001
-        
+
     private:
         static const String FileNames[Count];
         static const int64_t Offsets[Count];
-	};
+    };
 }
 
-#endif // TIMEZONE_H
+#endif // TimeZone_h
 

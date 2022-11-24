@@ -9,9 +9,11 @@
 #ifndef Version_h
 #define Version_h
 
-#include <cstdio>
 #include "data/String.h"
 #include "data/Vector.h"
+
+#undef major
+#undef minor
 
 namespace Common {
     class Stream;
@@ -38,9 +40,19 @@ namespace Common {
 
         String toString() const;
 
+        int major() const;
+
+        int minor() const;
+
+        int build() const;
+
+        int revision() const;
+
         Version &operator=(const Version &version);
 
-        explicit operator String() const;
+        Version &operator=(const String &version);
+
+        operator String() const;
 
         void writeInt32(Stream *stream, bool bigEndian = true) const;
 
@@ -50,6 +62,14 @@ namespace Common {
 
         void readInt16(Stream *stream, bool bigEndian = true);
 
+        void writeByte(Stream *stream) const;
+
+        void readByte(Stream *stream);
+
+        void writeBCDInt32(Stream *stream) const;
+
+        void readBCDInt32(Stream *stream);
+
         void writeBCDInt16(Stream *stream) const;
 
         void readBCDInt16(Stream *stream);
@@ -58,13 +78,9 @@ namespace Common {
 
         void readBCDByte(Stream *stream);
 
-        void writeByte(Stream *stream) const;
+        void write(Stream *stream, bool bigEndian = true) const;
 
-        void readByte(Stream *stream);
-
-        void write(Stream *stream) const;
-
-        void read(Stream *stream);
+        void read(Stream *stream, bool bigEndian = true);
 
     public:
         static bool parse(const String &str, Version &version);

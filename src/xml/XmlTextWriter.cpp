@@ -190,10 +190,10 @@ namespace Common
     {
         writeAttributeString(localName, value.toString(format));
     }
-    void XmlTextWriter::writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format)
-    {
-        writeAttributeString(localName, value.toString(format));
-    }
+//    void XmlTextWriter::writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format)
+//    {
+//        writeAttributeString(localName, value.toString(format));
+//    }
     void XmlTextWriter::writeAttributeVersion(const String& localName, const Version& value)
     {
         writeAttributeString(localName, value.toString());
@@ -297,8 +297,8 @@ namespace Common
     {
         writeAttributeDateTime(localName, value, format);
     }
-    void XmlTextWriter::writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format)
-    {
-        writeAttributeTimeSpan(localName, value, format);
-    }
+//    void XmlTextWriter::writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format)
+//    {
+//        writeAttributeTimeSpan(localName, value, format);
+//    }
 }

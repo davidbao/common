@@ -143,7 +143,7 @@ namespace Common {
         return _buffer.at(pos);
     }
 
-    wchar_t WString::at(size_t pos) const {
+    const wchar_t &WString::at(size_t pos) const {
         return _buffer.at(pos);
     }
 

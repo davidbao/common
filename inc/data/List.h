@@ -30,7 +30,7 @@ namespace Common {
             : public IEquatable<List<type>>,
               public IEvaluation<List<type>>,
               public Iterator<type *>,
-              public IIndexable<type, type>,
+              public IIndexable<const type&, type>,
               public IMutex {
     public:
         typedef type *typePtr;
@@ -116,12 +116,12 @@ namespace Common {
             return t;
         }
 
-        inline type at(size_t pos) const override {
+        inline const type &at(size_t pos) const override {
             if (pos < _count) {
                 return *_array[pos];
             }
-            static type t;
-            return t;
+            static type value;
+            return value;
         }
 
         inline type front() const {

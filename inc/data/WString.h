@@ -26,7 +26,7 @@ namespace Common {
             : public IEquatable<WString>, public IEquatable<WString, wchar_t *>, public IEquatable<WString, wstring>,
               public IComparable<WString>, public IComparable<wstring>, public IComparable<wchar_t *>,
               public IEvaluation<WString>,
-              public IIndexable<wchar_t, wchar_t>,
+              public IIndexable<const wchar_t&, wchar_t>,
               public Iterator<wchar_t> {
     public:
         using IComparable<WString>::operator>;
@@ -72,7 +72,7 @@ namespace Common {
         // Element access
         wchar_t &at(size_t pos) override;
 
-        wchar_t at(size_t pos) const override;
+        const wchar_t &at(size_t pos) const override;
 
         bool set(size_t pos, const wchar_t &value) override;
 
