@@ -136,7 +136,7 @@ namespace Common {
     }
 
     void TimeZone::writeSeconds(Stream *stream, bool bigEndian) const {
-        stream->writeInt32((int) ((double)_ticksOffset * SecondsPerTick), bigEndian);
+        stream->writeInt32((int) ((double) _ticksOffset * SecondsPerTick), bigEndian);
     }
 
     void TimeZone::readSeconds(Stream *stream, bool bigEndian) {
@@ -168,6 +168,10 @@ namespace Common {
 
     int64_t TimeZone::ticksOffset() const {
         return _ticksOffset;
+    }
+
+    TimeSpan TimeZone::offset() const {
+        return TimeSpan::fromSeconds(_ticksOffset);
     }
 
     bool TimeZone::parseTypeStr(const String &str, Type &type) {
@@ -422,5 +426,15 @@ namespace Common {
 
     String TimeZone::toTypeStr() const {
         return toTypeStr(type());
+    }
+
+    TimeSpan TimeZone::getUtcOffset(const DateTime &dateTime) {
+        if (dateTime.kind() == DateTime::Kind::Local) {
+            return TimeZone::Local.offset();
+        } else if (dateTime.kind() == DateTime::Kind::Utc) {
+            return TimeSpan::Zero;
+        } else {
+            return TimeZone::Local.offset();
+        }
     }
 }

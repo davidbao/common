@@ -257,7 +257,7 @@ namespace Database
 						}
 						case Timestamp:
 						{
-							String str = DateTime(value.tValue).toString(DateTime::YYYYMMDDHHMMSSfff);
+							String str = DateTime(value.tValue).toString("yyyy-MM-dd HH:mm:ss.fff");
 							sqlite3_bind_text(stmt, j + 1, str.c_str(), (int)str.length(), SQLITE_TRANSIENT);
 							break;
 						}

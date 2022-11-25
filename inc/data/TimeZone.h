@@ -88,6 +88,8 @@ namespace Common {
 
         int64_t ticksOffset() const;
 
+        TimeSpan offset() const;
+
         Type type() const;
 
         String toTypeStr() const;
@@ -96,6 +98,8 @@ namespace Common {
         static bool parseTypeStr(const String &str, Type &type);
 
         static String toTypeStr(Type type);
+
+        static TimeSpan getUtcOffset(const DateTime &dateTime);
 
     private:
         int localTimeValue() const;

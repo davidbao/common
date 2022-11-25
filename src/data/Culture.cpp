@@ -6,9 +6,10 @@
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
+#include <clocale>
 #include "data/Culture.h"
 #include "diag/Trace.h"
-#include <clocale>
+#include "data/StringArray.h"
 
 namespace Common {
     NumberFormatInfo::NumberFormatInfo() = default;
@@ -80,23 +81,23 @@ namespace Common {
     }
 
     String DateTimeFormatInfo::getAbbreviatedDayName(DayOfWeek dayofweek) const {
-        if ((int)dayofweek < 0 || (int)dayofweek > 6) {
+        if ((int) dayofweek < 0 || (int) dayofweek > 6) {
             return String::Empty;
         }
         //
         // Don't call the public property AbbreviatedDayNames here since a clone is needed in that
         // property, so it will be slower.  Instead, use GetAbbreviatedDayOfWeekNames() directly.
         //
-        return (abbreviatedDayNames[(int)dayofweek]);
+        return (abbreviatedDayNames[(int) dayofweek]);
     }
 
     String DateTimeFormatInfo::getDayName(DayOfWeek dayofweek) const {
-        if ((int)dayofweek < 0 || (int)dayofweek > 6) {
+        if ((int) dayofweek < 0 || (int) dayofweek > 6) {
             return String::Empty;
         }
 
         // Use the internal one so that we don't clone the array unnecessarily
-        return (dayNames[(int)dayofweek]);
+        return (dayNames[(int) dayofweek]);
     }
 
     String DateTimeFormatInfo::getAbbreviatedMonthName(int month) const {
@@ -105,7 +106,7 @@ namespace Common {
         }
 
         // Use the internal one so we don't clone the array unnecessarily
-        return (abbreviatedMonthNames[month-1]);
+        return (abbreviatedMonthGenitiveNames[month - 1]);
     }
 
     String DateTimeFormatInfo::getMonthName(int month) const {
@@ -114,7 +115,7 @@ namespace Common {
         }
 
         // Use the internal one so we don't clone the array unnecessarily
-        return (monthNames[month-1]);
+        return (monthNames[month - 1]);
     }
 
     String DateTimeFormatInfo::fullTimeSpanNegativePattern() const {
@@ -125,6 +126,57 @@ namespace Common {
         String decimalSeparator = NumberFormatInfo::currentInfo().numberDecimalSeparator;
 
         return String("d':'h':'mm':'ss'") + decimalSeparator + "'FFFFFFF";
+    }
+
+    String DateTimeFormatInfo::generalShortTimePattern() const {
+        return shortDatePattern + " " + shortTimePattern;
+    }
+
+    String DateTimeFormatInfo::generalLongTimePattern() const {
+        return shortDatePattern + " " + longTimePattern;
+    }
+
+    String DateTimeFormatInfo::dateTimeOffsetPattern() const {
+        String dateTimeOffsetPattern;
+        dateTimeOffsetPattern = shortDatePattern + " " + longTimePattern;
+
+        /* LongTimePattern might contain a "z" as part of the format string in which case we don't want to append a time zone offset */
+
+        bool foundZ = false;
+        bool inQuote = false;
+        char quote = '\'';
+        for (size_t i = 0; !foundZ && i < longTimePattern.length(); i++) {
+            switch (longTimePattern[i]) {
+                case 'z':
+                    /* if we aren't in a quote, we've found a z */
+                    foundZ = !inQuote;
+                    /* we'll fall out of the loop now because the test includes !foundZ */
+                    break;
+                case '\'':
+                case '\"':
+                    if (inQuote && (quote == longTimePattern[i])) {
+                        /* we were in a quote and found a matching exit quote, so we are outside a quote now */
+                        inQuote = false;
+                    } else if (!inQuote) {
+                        quote = longTimePattern[i];
+                        inQuote = true;
+                    } else {
+                        /* we were in a quote and saw the other type of quote character, so we are still in a quote */
+                    }
+                    break;
+                case '%':
+                case '\\':
+                    i++; /* skip next character that is escaped by this backslash */
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!foundZ) {
+            dateTimeOffsetPattern = dateTimeOffsetPattern + " zzz";
+        }
+        return (dateTimeOffsetPattern);
     }
 
     Culture::Data::Data(uint32_t lcid, const String &name, const String &region, const String &language,

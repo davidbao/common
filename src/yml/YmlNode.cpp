@@ -8,11 +8,9 @@
 
 #include "yml/YmlNode.h"
 #include "diag/Trace.h"
-#include "diag/Trace.h"
 #include "IO/Path.h"
 #include "IO/File.h"
 #include "IO/Directory.h"
-#include <iostream>
 #include <fstream>
 #include <map>
 
@@ -86,17 +84,6 @@ namespace Common
     YmlNode::YmlNode(const double& value) : YmlNode(((Double)value).toString())
     {
     }
-    YmlNode::YmlNode(const Uuid& value) : YmlNode(value.toString())
-    {
-    }
-    YmlNode::YmlNode(const DateTime& value, DateTime::Format format) : _attach(false)
-    {
-        _inner = new Node(value.toString(format).c_str());
-    }
-//    YmlNode::YmlNode(const TimeSpan& value, TimeSpan::Format format) : _attach(false)
-//    {
-//        _inner = new Node(value.toString(format).c_str());
-//    }
     YmlNode::YmlNode(Node* node) : _attach(true)
     {
         _inner = node;

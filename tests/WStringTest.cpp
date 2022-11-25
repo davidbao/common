@@ -311,7 +311,7 @@ bool testOperators() {
     {
         WString str = _text3;
         String str2 = str;
-        printf("WString to String: %s\n", str2.c_str());
+//        printf("WString to String: %s\n", str2.c_str());
         if (str2 != "ABC/abc123,)_中文") {
             return false;
         }
@@ -605,6 +605,31 @@ bool testAppend() {
         }
     }
 
+    {
+        WString test = L"abc";
+        test.appendFormat(L"%s", "123");
+        if (test != L"abc123") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testFormat() {
+    {
+        WString test = WString::format(L"abc%s", "123");
+        if (test != L"abc123") {
+            return false;
+        }
+    }
+    {
+        WString test = WString::convert(L"abc%s", "123");
+        if (test != L"abc123") {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -653,6 +678,9 @@ int main() {
     }
     if (!testAppend()) {
         return 15;
+    }
+    if (!testFormat()) {
+        return 16;
     }
 
     return 0;

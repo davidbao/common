@@ -621,6 +621,17 @@ namespace Common {
         append(NewLine);
     }
 
+    void WString::appendFormat(const wchar_t *format, ...) {
+        auto *message = new wchar_t[MaxFormatStrLength];
+        wmemset(message, 0, MaxFormatStrLength);
+        va_list ap;
+        va_start(ap, format);
+        vswprintf(message, MaxFormatStrLength, format, ap);
+        va_end(ap);
+        append(message);
+        delete[] message;
+    }
+
     WString WString::replace(const WString &src, const WString &dst) {
         WString str = replace(*this, src, dst);
         setString(str);
@@ -694,6 +705,18 @@ namespace Common {
 
     bool WString::removeRange(size_t pos, size_t count) {
         return _buffer.removeRange(pos, count);
+    }
+
+    WString WString::convert(const wchar_t *format, ...) {
+        auto *message = new wchar_t[MaxFormatStrLength];
+        wmemset(message, 0, MaxFormatStrLength);
+        va_list ap;
+        va_start(ap, format);
+        vswprintf(message, MaxFormatStrLength, format, ap);
+        va_end(ap);
+        WString result = message;
+        delete[] message;
+        return result;
     }
 
     WString WString::format(const wchar_t *format, ...) {

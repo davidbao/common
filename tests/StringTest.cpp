@@ -603,6 +603,32 @@ bool testAppend() {
         }
     }
 
+    {
+        String test = "abc";
+        String test2 = "123";
+        test.appendFormat("%s", test2.c_str());
+        if(test != "abc123") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testFormat() {
+    {
+        String test = String::format("abc%s", "123");
+        if(test != "abc123") {
+            return false;
+        }
+    }
+    {
+        String test = String::convert("abc%s", "123");
+        if(test != "abc123") {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -651,6 +677,9 @@ int main() {
     }
     if (!testAppend()) {
         return 15;
+    }
+    if (!testFormat()) {
+        return 16;
     }
 
     return 0;

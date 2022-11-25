@@ -135,6 +135,8 @@ namespace Common {
 
         void appendLine(const String &str, off_t offset, size_t count);
 
+        void appendFormat(const char *format, ...);
+
         String replace(const String &src, const String &dst);
 
         String substr(off_t offset, size_t count) const;

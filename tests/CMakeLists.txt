@@ -76,8 +76,9 @@ if (COMMON_ENABLE_TEST)
             # crypto
             SmProviderTest Md5ProviderTest
             # data
-            ByteArrayTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest SizeTest StringTest StringArrayTest StringMapTest
-            PListTest PointTest NetTypeTest TypeInfoTest TimeSpanTest UuidTest ValueTypeTest VectorTest VersionTest WStringTest
+            ByteArrayTest DateTimeTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest SizeTest StringTest
+            StringArrayTest StringMapTest PListTest PointTest NetTypeTest TypeInfoTest TimeSpanTest UuidTest
+            ValueTypeTest VectorTest VersionTest WStringTest
             # diag
             FileTraceListenerTest
             # IO

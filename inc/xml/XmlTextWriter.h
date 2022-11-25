@@ -11,8 +11,6 @@
 
 #include "data/ValueType.h"
 #include "net/NetType.h"
-#include "data/DateTime.h"
-#include "data/TimeSpan.h"
 
 namespace Common
 {
@@ -51,10 +49,7 @@ namespace Common
         void writeAttributeFloat(const String& localName, const Float& value);
         void writeAttributeDouble(const String& localName, const Double& value);
         void writeAttributeString(const String& localName, const String& value);
-        void writeAttributeDateTime(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-//        void writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
-        void writeAttributeVersion(const String& localName, const Version& value);
-        
+
         void writeAttributeBoolean(const String& localName, const bool& value);
         void writeAttributeChar(const String& localName, const char& value);
         void writeAttributeByte(const String& localName, const uint8_t& value);
@@ -79,8 +74,6 @@ namespace Common
         void writeAttribute(const String& localName, const float& value);
         void writeAttribute(const String& localName, const double& value);
         void writeAttribute(const String& localName, const String& value);
-        void writeAttribute(const String& localName, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-//        void writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::General);
 
         template <class T>
         void writeAttribute(const String& localName, const T& value)

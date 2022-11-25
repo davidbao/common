@@ -18,19 +18,10 @@ using namespace std;
 using namespace std::chrono;
 
 namespace Common {
+    class DateTimeFormat;
+
     struct DateTime : public IEquatable<DateTime>, public IEvaluation<DateTime>, public IComparable<DateTime> {
     public:
-        enum Format {
-            YYYYMMDDHHMMSSfff = 0,
-            YYYYMMDDHHMMSS,
-            YYYYMMDDHHMM,
-            YYYYMMDD,
-            HHMMSSfff,
-            HHMMSS,
-            HHMM,
-            WEEK,
-            MMDD
-        };
         enum DayOfWeek {
             Sunday = 0,
             Monday = 1,
@@ -74,9 +65,7 @@ namespace Common {
 
         DateTime toUtcTime() const;
 
-        String toString(const Format format = YYYYMMDDHHMMSS) const;
-
-        String toString(const String &format) const;
+        String toString(const String &format = String::Empty, const IFormatProvider<DateTimeFormatInfo> *provider = nullptr) const;
 
         // Returns the day-of-week part of this DateTime. The returned value
         // is an integer between 0 and 6, where 0 indicates Sunday, 1 indicates
@@ -146,11 +135,7 @@ namespace Common {
 
         double total1970Milliseconds() const;
 
-        // Returns a DateTime representing the current date. The date part
-        // of the returned value is the current date, and the time-of-day part of
-        // the returned value is zero (midnight).
-        //
-        DateTime today();
+        double total2010Milliseconds() const;
 
         void writeBCDDateTime(Stream *stream, bool includedSec = true, bool includedMs = false) const;
 
@@ -277,6 +262,12 @@ namespace Common {
 
         static DateTime utcNow();
 
+        // Returns a DateTime representing the current date. The date part
+        // of the returned value is the current date, and the time-of-day part of
+        // the returned value is zero (midnight).
+        //
+        static DateTime today();
+
         static bool parse(const String &str, DateTime &dateTime);
 
         // Checks whether a given year is a leap year. This method returns true if
@@ -301,6 +292,19 @@ namespace Common {
 
         static DateTime from1970Milliseconds(double time, bool utc = true);
 
+        static double total2010Milliseconds(const DateTime &time);
+
+        static DateTime from2010Milliseconds(double time, bool utc = true);
+
+    private:
+        // Returns a given date part of this DateTime. This method is used
+        // to compute the year, day-of-year, month, or day part.
+        int getDatePart(int part) const;
+
+        uint64_t internalTicks() const;
+
+        uint64_t internalKind() const;
+
     private:
         static uint64_t dateToTicks(int year, int month, int day);
 
@@ -310,22 +314,17 @@ namespace Common {
         toTicks(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, int millisecond = 0,
                 Kind kind = Unspecified);
 
-        // Returns a given date part of this DateTime. This method is used
-        // to compute the year, day-of-year, month, or day part.
-        int getDatePart(int part) const;
-
-        uint64_t internalTicks() const;
-
-        uint64_t internalKind() const;
-
     public:
         static const DateTime MinValue;
         static const DateTime MaxValue;
         static const DateTime Min2010Value;
         static const DateTime UtcPoint1900;
         static const DateTime UtcPoint1970;
+        static const DateTime UtcPoint2010;
 
     private:
+        friend class DateTimeFormat;
+
         // The data is stored as an unsigned 64-bit integer
         //   Bits 01-62: The value of 100-nanosecond ticks where 0 represents 1/1/0001 12:00am, up until the value
         //               12/31/9999 23:59:59.9999999
@@ -336,6 +335,7 @@ namespace Common {
         //               UTC time.
         uint64_t _dateData;
 
+    private:
         // Number of 100ns ticks per time unit
         static const int64_t TicksPerMillisecond = 10000;
         static const int64_t TicksPerSecond = TicksPerMillisecond * 1000;

@@ -10,8 +10,6 @@
 #define JsonTextWriter_h
 
 #include "data/ValueType.h"
-#include "data/DateTime.h"
-#include "data/TimeSpan.h"
 #include "net/NetType.h"
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
@@ -48,10 +46,7 @@ namespace Common
         void writeAttributeFloat(const String& name, const Float& value);
         void writeAttributeDouble(const String& name, const Double& value);
         void writeAttributeString(const String& name, const String& value);
-        void writeAttributeDateTime(const String& name, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-//        void writeAttributeTimeSpan(const String& name, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
-        void writeAttributeVersion(const String& name, const Version& value);
-        
+
         void writeAttributeBoolean(const String& name, const bool& value);
         void writeAttributeChar(const String& name, const char& value);
         void writeAttributeByte(const String& name, const uint8_t& value);
@@ -77,8 +72,6 @@ namespace Common
         void writeAttribute(const String& name, const double& value);
         void writeAttribute(const String& name, const String& value);
         void writeAttribute(const String& name, const char* value);
-        void writeAttribute(const String& name, const DateTime& value, DateTime::Format format = DateTime::Format::YYYYMMDDHHMMSS);
-//        void writeAttribute(const String& name, const TimeSpan& value, TimeSpan::Format format = TimeSpan::Format::HHMMSS);
 
         template <class T>
         void writeAttribute(const String& name, const T& value)

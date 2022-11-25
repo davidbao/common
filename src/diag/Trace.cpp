@@ -75,7 +75,7 @@ namespace Common {
 
         String str;
         if (showTime) {
-            str.append(DateTime::now().toString(DateTime::Format::YYYYMMDDHHMMSSfff));
+            str.append(DateTime::now().toString("yyyy-MM-dd HH:mm:ss.fff"));
             str.append(" ");
         }
 

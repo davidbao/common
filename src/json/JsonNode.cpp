@@ -115,14 +115,6 @@ namespace Common {
         }
     }
 
-    JsonNode::JsonNode(const String &name, const DateTime &value, DateTime::Format format) : _attach(false) {
-        _inner = new JSONNode(name.c_str(), value.toString(format));
-    }
-
-//    JsonNode::JsonNode(const String &name, const TimeSpan &value, TimeSpan::Format format) : _attach(false) {
-//        _inner = new JSONNode(name.c_str(), value.toString(format));
-//    }
-
     JsonNode::JsonNode(const KeyValue *item) : JsonNode(TypeNode) {
         const KeyValue *kv = item;
         while (kv != NULL && !kv->key.isNullOrEmpty()) {

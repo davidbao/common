@@ -16,6 +16,7 @@ SET(DATA_SRC
         Convert.cpp
         Culture.cpp
         DateTime.cpp
+        DateTimeFormat.cpp
         Enum.cpp
         Point.cpp
         PositionCoord.cpp
@@ -27,6 +28,7 @@ SET(DATA_SRC
         StringArray.cpp
         StringMap.cpp
         TimeSpan.cpp
+        TimeSpanFormat.cpp
         TimeZone.cpp
         Uuid.cpp
         ValueType.cpp

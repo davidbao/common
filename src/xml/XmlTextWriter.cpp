@@ -186,19 +186,7 @@ namespace Common
     {
         writeAttributeString(localName, value.isNaN() ? String::Empty : value.toString());
     }
-    void XmlTextWriter::writeAttributeDateTime(const String& localName, const DateTime& value, DateTime::Format format)
-    {
-        writeAttributeString(localName, value.toString(format));
-    }
-//    void XmlTextWriter::writeAttributeTimeSpan(const String& localName, const TimeSpan& value, TimeSpan::Format format)
-//    {
-//        writeAttributeString(localName, value.toString(format));
-//    }
-    void XmlTextWriter::writeAttributeVersion(const String& localName, const Version& value)
-    {
-        writeAttributeString(localName, value.toString());
-    }
-    
+
     void XmlTextWriter::writeAttributeInt32(const String& localName, const int& value)
     {
         writeAttributeInt32(localName, Int32(value));
@@ -293,12 +281,4 @@ namespace Common
     {
         writeAttributeString(localName, value);
     }
-    void XmlTextWriter::writeAttribute(const String& localName, const DateTime& value, DateTime::Format format)
-    {
-        writeAttributeDateTime(localName, value, format);
-    }
-//    void XmlTextWriter::writeAttribute(const String& localName, const TimeSpan& value, TimeSpan::Format format)
-//    {
-//        writeAttributeTimeSpan(localName, value, format);
-//    }
 }

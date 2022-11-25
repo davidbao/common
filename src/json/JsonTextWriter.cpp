@@ -152,19 +152,7 @@ namespace Common
     {
         writeAttributeString(name, value.isNaN() ? String::Empty : value.toString());
     }
-    void JsonTextWriter::writeAttributeDateTime(const String& name, const DateTime& value, DateTime::Format format)
-    {
-        writeAttributeString(name, value.toString(format));
-    }
-//    void JsonTextWriter::writeAttributeTimeSpan(const String& name, const TimeSpan& value, TimeSpan::Format format)
-//    {
-//        writeAttributeString(name, value.toString(format));
-//    }
-    void JsonTextWriter::writeAttributeVersion(const String& name, const Version& value)
-    {
-        writeAttributeString(name, value.toString());
-    }
-    
+
     void JsonTextWriter::writeAttributeInt32(const String& name, const int& value)
     {
         writeAttributeInt32(name, Int32(value));
@@ -263,12 +251,4 @@ namespace Common
     {
         writeAttributeString(name, value != nullptr ? String(value) : String::Empty);
     }
-    void JsonTextWriter::writeAttribute(const String& name, const DateTime& value, DateTime::Format format)
-    {
-        writeAttributeDateTime(name, value, format);
-    }
-//    void JsonTextWriter::writeAttribute(const String& name, const TimeSpan& value, TimeSpan::Format format)
-//    {
-//        writeAttributeTimeSpan(name, value, format);
-//    }
 }

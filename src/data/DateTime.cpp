@@ -13,6 +13,7 @@
 #include "exception/Exception.h"
 #include "system/BCDUtilities.h"
 #include "system/Resources.h"
+#include "DateTimeFormat.h"
 
 namespace Common {
     const int DateTime::DaysToMonth365[13] = {
@@ -26,6 +27,7 @@ namespace Common {
 
     const DateTime DateTime::UtcPoint1900 = DateTime(1900, 1, 1, 0, 0, 0, 0, Kind::Utc);
     const DateTime DateTime::UtcPoint1970 = DateTime(1970, 1, 1, 0, 0, 0, 0, Kind::Utc);
+    const DateTime DateTime::UtcPoint2010 = DateTime(2010, 1, 1, 0, 0, 0, 0, Kind::Utc);
 
     DateTime::DateTime(uint64_t ticks, Kind kind) {
         _dateData = ((uint64_t) ticks | ((uint64_t) kind << KindShift));
@@ -190,13 +192,15 @@ namespace Common {
         if (str.isNullOrEmpty())
             return false;
 
+        const DateTimeFormatInfo *dtfi = &DateTimeFormatInfo::currentInfo();
+
         const int MaxCount = 16;
         char temp[MaxCount];
 
         DateTime now = DateTime::now();
         int year = now.year(), month = now.month(), day = now.day(), hour = 0, minute = 0, second = 0, millisecond = 0;
         const char *buffer = str.c_str();
-        int yearIndex = (int) ((String) buffer).find('-');
+        int yearIndex = (int) ((String) buffer).find(dtfi->dateSeparator);
         if (yearIndex > 0) {
             // include year.
             memset(temp, 0, sizeof(temp));
@@ -205,7 +209,7 @@ namespace Common {
 
             buffer += yearIndex + 1;
 
-            int monthIndex = (int) ((String) buffer).find('-');
+            int monthIndex = (int) ((String) buffer).find(dtfi->dateSeparator);
             if (monthIndex > 0) {
                 // include month.
                 memset(temp, 0, sizeof(temp));
@@ -230,7 +234,7 @@ namespace Common {
                 }
             }
         }
-        if (buffer == NULL)
+        if (buffer == nullptr)
             return false;
 
         if (strlen(buffer) > 0) {
@@ -253,177 +257,9 @@ namespace Common {
         return true;
     }
 
-    String DateTime::toString(const Format format) const {
-        String result = String::Empty;
-        char temp[64];
-        memset(temp, 0, sizeof(temp));
-        switch (format) {
-            case YYYYMMDDHHMMSSfff: {
-                sprintf(temp, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year(), month(), day(), hour(), minute(), second(),
-                        millisecond());
-                result = temp;
-                break;
-            }
-            case YYYYMMDDHHMMSS: {
-                sprintf(temp, "%04d-%02d-%02d %02d:%02d:%02d", year(), month(), day(), hour(), minute(), second());
-                result = temp;
-                break;
-            }
-            case YYYYMMDDHHMM: {
-                sprintf(temp, "%04d-%02d-%02d %02d:%02d", year(), month(), day(), hour(), minute());
-                result = temp;
-                break;
-            }
-            case YYYYMMDD: {
-                sprintf(temp, "%04d-%02d-%02d", year(), month(), day());
-                result = temp;
-                break;
-            }
-            case HHMMSS: {
-                sprintf(temp, "%02d:%02d:%02d", hour(), minute(), second());
-                result = temp;
-                break;
-            }
-            case HHMM: {
-                sprintf(temp, "%02d:%02d", hour(), minute());
-                result = temp;
-                break;
-            }
-            case HHMMSSfff: {
-                sprintf(temp, "%02d:%02d:%02d.%03d", hour(), minute(), second(), millisecond());
-                result = temp;
-                break;
-            }
-            case WEEK: {
-                DayOfWeek week = dayOfWeek();
-                switch (week) {
-                    case Monday:
-                        result = Resources::getString("Monday");
-                        break;
-                    case Tuesday:
-                        result = Resources::getString("Tuesday");
-                        break;
-                    case Wednesday:
-                        result = Resources::getString("Wednesday");
-                        break;
-                    case Thursday:
-                        result = Resources::getString("Thursday");
-                        break;
-                    case Friday:
-                        result = Resources::getString("Friday");
-                        break;
-                    case Saturday:
-                        result = Resources::getString("Saturday");
-                        break;
-                    case Sunday:
-                        result = Resources::getString("Sunday");
-                        break;
-                    default:
-                        assert(false);
-                        break;
-                }
-                break;
-            }
-            case MMDD: {
-                sprintf(temp, "%02d-%02d", month(), day());
-                result = temp;
-                break;
-            }
-            default:
-                break;
-        }
-        return result;
-    }
-
-    String DateTime::toString(const String &format) const {
-        if (String::equals(format, "d"))
-            return toString(Format::YYYYMMDD);
-        else if (String::equals(format, "D")) {
-            char temp[64];
-            memset(temp, 0, sizeof(temp));
-            sprintf(temp, "%04d%s%02d%s%02d%s", year(), Resources::getString("Year").c_str(),
-                    month(), Resources::getString("Month").c_str(),
-                    day(), Resources::getString("Day").c_str());
-            return temp;
-        } else if (String::equals(format, "T"))
-            return toString(Format::HHMMSS);
-        else if (String::equals(format, "t"))
-            return toString(Format::HHMM);
-        else if (String::equals(format, "m"))
-            return toString(Format::MMDD);
-        else if (!format.isNullOrEmpty()) {
-            // yyyy-MM-dd HH:mm:ss.fff
-            static const char *yyyy = "yyyy";
-            static const char *yyy = "yyy";
-            static const char *yy = "yy";
-            static const char *y = "y";
-            static const char *MM = "MM";
-            static const char *M = "M";
-            static const char *dd = "dd";
-            static const char *d = "d";
-            static const char *HH = "HH";
-            static const char *H = "H";
-            static const char *mm = "mm";
-            static const char *m = "m";
-            static const char *ss = "ss";
-            static const char *s = "s";
-            static const char *fff = "fff";
-            static const char *ff = "ff";
-            static const char *f = "f";
-
-            String result = format;
-            if (format.find(yyyy) >= 0) {
-                result = String::replace(result, yyyy, String::convert("%04d", year()));
-            } else if (format.find(yyy) >= 0) {
-                result = String::replace(result, yyy, String::convert("%03d", year()));
-            } else if (format.find(yy) >= 0) {
-                result = String::replace(result, yy, String::convert("%02d", year()));
-            } else if (format.find(y) >= 0) {
-                result = String::replace(result, y, String::convert("%01d", year()));
-            }
-
-            if (format.find(MM) >= 0) {
-                result = String::replace(result, MM, String::convert("%02d", month()));
-            } else if (format.find(M) >= 0) {
-                result = String::replace(result, M, String::convert("%01d", month()));
-            }
-
-            if (format.find(dd) >= 0) {
-                result = String::replace(result, dd, String::convert("%02d", day()));
-            } else if (format.find(d) >= 0) {
-                result = String::replace(result, d, String::convert("%01d", day()));
-            }
-
-            if (format.find(HH) >= 0) {
-                result = String::replace(result, HH, String::convert("%02d", hour()));
-            } else if (format.find(H) >= 0) {
-                result = String::replace(result, H, String::convert("%01d", hour()));
-            }
-
-            if (format.find(mm) >= 0) {
-                result = String::replace(result, mm, String::convert("%02d", minute()));
-            } else if (format.find(m) >= 0) {
-                result = String::replace(result, m, String::convert("%01d", minute()));
-            }
-
-            if (format.find(ss) >= 0) {
-                result = String::replace(result, ss, String::convert("%02d", second()));
-            } else if (format.find(s) >= 0) {
-                result = String::replace(result, s, String::convert("%01d", second()));
-            }
-
-            if (format.find(fff) >= 0) {
-                result = String::replace(result, fff, String::convert("%03d", millisecond()));
-            } else if (format.find(ff) >= 0) {
-                result = String::replace(result, ff, String::convert("%02d", millisecond()));
-            } else if (format.find(f) >= 0) {
-                result = String::replace(result, f, String::convert("%01d", millisecond()));
-            }
-
-            return result;
-        } else {
-            return toString();
-        }
+    String DateTime::toString(const String &format, const IFormatProvider<DateTimeFormatInfo> *provider) const {
+        const DateTimeFormatInfo *dtfi = DateTimeFormatInfo::getInstance(provider);
+        return DateTimeFormat::Format(*this, format, dtfi);
     }
 
     // Returns the day-of-week part of this DateTime. The returned value
@@ -528,6 +364,10 @@ namespace Common {
 
     double DateTime::total1970Milliseconds() const {
         return DateTime::total1970Milliseconds(*this);
+    }
+
+    double DateTime::total2010Milliseconds() const {
+        return DateTime::total2010Milliseconds(*this);
     }
 
     // Returns a DateTime representing the current date. The date part
@@ -976,7 +816,6 @@ namespace Common {
                 return "Hour";
             default:
                 return "None";
-                break;
         }
     }
 
@@ -1009,6 +848,18 @@ namespace Common {
     DateTime DateTime::from1970Milliseconds(double time, bool utc) {
         static DateTime LocalPoint1970 = TimeZone::Local.toLocalTime(DateTime::UtcPoint1970);
         DateTime result = (utc ? UtcPoint1970 : LocalPoint1970) + TimeSpan::fromMilliseconds(time);
+        return result;
+    }
+
+    double DateTime::total2010Milliseconds(const DateTime &time) {
+        static DateTime LocalPoint2010 = TimeZone::Local.toLocalTime(DateTime::UtcPoint2010);
+        DateTime local = TimeZone::Local.toLocalTime(time);
+        return (local - LocalPoint2010).totalMilliseconds();
+    }
+
+    DateTime DateTime::from2010Milliseconds(double time, bool utc) {
+        static DateTime LocalPoint2010 = TimeZone::Local.toLocalTime(DateTime::UtcPoint2010);
+        DateTime result = (utc ? UtcPoint2010 : LocalPoint2010) + TimeSpan::fromMilliseconds(time);
         return result;
     }
 }

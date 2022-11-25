@@ -108,6 +108,8 @@ namespace Common {
         Saturday = 6,
     };
 
+    class StringArray;
+
     class DateTimeFormatInfo : public IFormatProvider<DateTimeFormatInfo> {
     public:
         String abbreviatedDayNames[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -155,6 +157,12 @@ namespace Common {
         String fullTimeSpanNegativePattern() const;
 
         String fullTimeSpanPositivePattern() const;
+
+        String generalShortTimePattern() const;
+
+        String generalLongTimePattern() const;
+
+        String dateTimeOffsetPattern() const;
 
     public:
         static const DateTimeFormatInfo *getInstance(const IFormatProvider<DateTimeFormatInfo> *provider);

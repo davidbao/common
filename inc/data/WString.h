@@ -145,6 +145,8 @@ namespace Common {
 
         void appendLine(const WString &str, off_t offset, size_t count);
 
+        void appendFormat(const wchar_t *format, ...);
+
         WString replace(const WString &src, const WString &dst);
 
         WString substr(off_t offset, size_t count) const;
@@ -254,6 +256,8 @@ namespace Common {
         static WString fromBase64(const WString &value);
 
         static bool fromBase64(const WString &value, ByteArray &array);
+
+        static WString convert(const wchar_t *format, ...);
 
         static WString format(const wchar_t *format, ...);
 

@@ -1021,6 +1021,17 @@ namespace Common {
         append(NewLine);
     }
 
+    void String::appendFormat(const char *format, ...) {
+        char *message = new char[MaxFormatStrLength];
+        memset(message, 0, MaxFormatStrLength);
+        va_list ap;
+        va_start(ap, format);
+        vsnprintf(message, MaxFormatStrLength, format, ap);
+        va_end(ap);
+        append(message);
+        delete[] message;
+    }
+
     String String::replace(const String &src, const String &dst) {
         String str = replace(*this, src, dst);
         setString(str);
