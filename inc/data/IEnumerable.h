@@ -103,10 +103,10 @@ namespace Common {
 
             const_iterator(const const_iterator &orig) : it(orig.it) {}
 
-            const_iterator(T *starter) : it(starter) {}
+            const_iterator(const T *starter) : it(starter) {}
 
         private:
-            T *it;
+            const T *it;
             friend struct iterator;
         };
 
@@ -290,10 +290,10 @@ namespace Common {
 
             const_reverse_iterator(const const_reverse_iterator &orig) : it(orig.it) {}
 
-            const_reverse_iterator(T *starter) : it(starter) {}
+            const_reverse_iterator(const T *starter) : it(starter) {}
 
         private:
-            T *it;
+            const T *it;
             friend struct reverse_iterator;
         };
 
@@ -498,10 +498,10 @@ namespace Common {
 
             const_iterator(const const_iterator &orig) : it(orig.it) {}
 
-            const_iterator(T **starter) : it(starter) {}
+            const_iterator(T* const *starter) : it(starter) {}
 
         private:
-            T **it;
+            T* const *it;
             friend struct iterator;
         };
 
@@ -685,10 +685,10 @@ namespace Common {
 
             const_reverse_iterator(const const_reverse_iterator &orig) : it(orig.it) {}
 
-            const_reverse_iterator(T **starter) : it(starter) {}
+            const_reverse_iterator(T* const *starter) : it(starter) {}
 
         private:
-            T **it;
+            T* const *it;
             friend struct reverse_iterator;
         };
 

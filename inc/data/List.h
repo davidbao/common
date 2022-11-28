@@ -432,7 +432,11 @@ namespace Common {
         }
 
     protected:
-        inline virtual typePtr *data() const {
+        inline virtual typePtr *data() {
+            return _array;
+        }
+
+        inline const typePtr *data() const {
             return _array;
         }
 
@@ -532,6 +536,8 @@ namespace Common {
     template<typename type>
     class SortedList : public List<type>, public ISortable<type *> {
     public:
+        using List<type>::data;
+
         explicit SortedList(size_t capacity = List<type>::DefaultCapacity) : List<type>(capacity) {
         }
 
@@ -562,7 +568,7 @@ namespace Common {
         }
 
     protected:
-        inline typename List<type>::typePtr *data() const override {
+        inline typename List<type>::typePtr *data() override {
             return List<type>::data();
         }
     };

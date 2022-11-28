@@ -151,10 +151,6 @@ namespace Common {
 #endif
     }
 
-    int TimeZone::hourOffset() const {
-        return (int) (_ticksOffset / TicksPerHour);
-    }
-
     String TimeZone::toString() const {
         if (isEmpty())
             return String::Empty;
@@ -170,8 +166,20 @@ namespace Common {
         return _ticksOffset;
     }
 
+    double TimeZone::hourOffset() const {
+        return (double) _ticksOffset / (double) TicksPerHour;
+    }
+
+    double TimeZone::minuteOffset() const {
+        return (double) _ticksOffset / (double) TicksPerMinute;
+    }
+
+    double TimeZone::secondOffset() const {
+        return (double) _ticksOffset / (double) TicksPerSecond;
+    }
+
     TimeSpan TimeZone::offset() const {
-        return TimeSpan::fromSeconds(_ticksOffset);
+        return TimeSpan::fromTicks(_ticksOffset);
     }
 
     bool TimeZone::parseTypeStr(const String &str, Type &type) {
@@ -436,5 +444,14 @@ namespace Common {
         } else {
             return TimeZone::Local.offset();
         }
+    }
+
+    bool TimeZone::parse(const String &str, TimeZone &tz) {
+        Type type;
+        if (parseTypeStr(str, type)) {
+            tz = TimeZone(type);
+            return true;
+        }
+        return false;
     }
 }

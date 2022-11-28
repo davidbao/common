@@ -18,13 +18,21 @@ using namespace Common;
 namespace Drawing {
     struct Rectangle;
 
-    struct RectangleF {
+    struct RectangleF  : public IEquatable<RectangleF>, public IEvaluation<RectangleF>, public IComparable<RectangleF>{
     public:
         explicit RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
 
         RectangleF(const PointF &location, const SizeF &size);
 
         RectangleF(const RectangleF &size);
+
+        ~RectangleF() override;
+
+        bool equals(const RectangleF &other) const override;
+
+        void evaluates(const RectangleF &other) override;
+
+        int compareTo(const RectangleF &other) const override;
 
         bool isEmpty() const;
 
@@ -34,9 +42,13 @@ namespace Drawing {
 
         PointF location() const;
 
+        void setLocation(float x, float y);
+
         void setLocation(const PointF &location);
 
         SizeF size() const;
+
+        void setSize(float width, float height);
 
         void setSize(const SizeF &size);
 
@@ -48,6 +60,8 @@ namespace Drawing {
 
         float bottom() const;
 
+        PointF center() const;
+
         PointF leftTop() const;
 
         PointF rightTop() const;
@@ -57,10 +71,6 @@ namespace Drawing {
         PointF rightBottom() const;
 
         RectangleF &operator=(const RectangleF &value);
-
-        bool operator==(const RectangleF &value) const;
-
-        bool operator!=(const RectangleF &value) const;
 
         bool contains(float x, float y) const;
 
@@ -82,11 +92,15 @@ namespace Drawing {
 
         void unions(const RectangleF &rect);
 
-        PointF center() const;
+        Rectangle ceiling() const;
 
         Rectangle round() const;
 
+        Rectangle truncate() const;
+
     public:
+        static RectangleF offset(const RectangleF &rect, float dx, float dy);
+
         static RectangleF intersect(const RectangleF &a, const RectangleF &b);
 
         // Creates a rectangle that represents the union between a and b.
@@ -98,6 +112,8 @@ namespace Drawing {
 
         static RectangleF makeLTRB(const PointF &leftTop, const PointF &rightBottom);
 
+        static RectangleF inflate(const RectangleF &rect, float width, float height);
+
     public:
         float x;
         float y;
@@ -105,18 +121,36 @@ namespace Drawing {
         float height;
 
         static const RectangleF Empty;
-        static const RectangleF MaxValue;
     };
 
-    typedef Vector<RectangleF> RectangleFs;
+    class RectangleFs : public Vector<RectangleF> {
+    public:
+        explicit RectangleFs(size_t capacity = Vector<RectangleF>::DefaultCapacity);
 
-    struct Rectangle {
+        RectangleFs(const RectangleFs &array);
+
+        RectangleFs(std::initializer_list<RectangleF> list);
+
+        String toString(const char &split = ';') const;
+
+        static bool parse(const String &str, RectangleFs &points);
+    };
+
+    struct Rectangle : public IEquatable<Rectangle>, public IEvaluation<Rectangle>, public IComparable<Rectangle> {
     public:
         explicit Rectangle(int x = 0, int y = 0, int width = 0, int height = 0);
 
         Rectangle(const Point &location, const Size &size);
 
         Rectangle(const Rectangle &rect);
+
+        ~Rectangle() override;
+
+        bool equals(const Rectangle &other) const override;
+
+        void evaluates(const Rectangle &other) override;
+
+        int compareTo(const Rectangle &other) const override;
 
         bool isEmpty() const;
 
@@ -126,9 +160,13 @@ namespace Drawing {
 
         Point location() const;
 
+        void setLocation(int x, int y);
+
         void setLocation(const Point &location);
 
         Size size() const;
+
+        void setSize(int width, int height);
 
         void setSize(const Size &size);
 
@@ -140,11 +178,17 @@ namespace Drawing {
 
         int bottom() const;
 
+        Point center() const;
+
+        Point leftTop() const;
+
+        Point rightTop() const;
+
+        Point leftBottom() const;
+
+        Point rightBottom() const;
+
         Rectangle &operator=(const Rectangle &value);
-
-        bool operator==(const Rectangle &value) const;
-
-        bool operator!=(const Rectangle &value) const;
 
         bool contains(int x, int y) const;
 
@@ -166,9 +210,9 @@ namespace Drawing {
 
         void unions(const Rectangle &rect);
 
-        Point center() const;
-
     public:
+        static Rectangle offset(const Rectangle &rect, int dx, int dy);
+
         static Rectangle intersect(const Rectangle &a, const Rectangle &b);
 
         // Creates a rectangle that represents the union between a and b.
@@ -178,17 +222,38 @@ namespace Drawing {
 
         static Rectangle makeLTRB(int left, int top, int right, int bottom);
 
+        static Rectangle makeLTRB(const Point &leftTop, const Point &rightBottom);
+
+        static Rectangle inflate(const Rectangle &rect, int width, int height);
+
+        static Rectangle ceiling(const RectangleF &rect);
+
+        static Rectangle round(const RectangleF &rect);
+
+        static Rectangle truncate(const RectangleF &rect);
+
     public:
         int x;
         int y;
         int width;
         int height;
 
+    public:
         static const Rectangle Empty;
-        static const Rectangle MaxValue;
     };
 
-    typedef Vector<Rectangle> Rectangles;
+    class Rectangles : public Vector<Rectangle> {
+    public:
+        explicit Rectangles(size_t capacity = Vector<Rectangle>::DefaultCapacity);
+
+        Rectangles(const Rectangles &array);
+
+        Rectangles(std::initializer_list<Rectangle> list);
+
+        String toString(const char &split = ';') const;
+
+        static bool parse(const String &str, Rectangles &points);
+    };
 }
 
 #endif  // Rectangle_h

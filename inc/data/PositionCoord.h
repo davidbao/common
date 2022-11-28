@@ -13,8 +13,9 @@
 
 namespace Common {
     class Stream;
-    
-    struct PositionCoord {
+
+    struct PositionCoord
+            : public IEquatable<PositionCoord>, public IEvaluation<PositionCoord>, public IComparable<PositionCoord> {
     public:
         double latitude;
         double longitude;
@@ -23,9 +24,17 @@ namespace Common {
 
         PositionCoord(const PositionCoord &coord);
 
-        PositionCoord(const String &str);
+        explicit PositionCoord(const String &str);
 
-        PositionCoord(const char *str);
+        explicit PositionCoord(const char *str);
+
+        ~PositionCoord() override;
+
+        bool equals(const PositionCoord &other) const override;
+
+        void evaluates(const PositionCoord &other) override;
+
+        int compareTo(const PositionCoord &other) const override;
 
         bool isEmpty() const;
 
@@ -36,10 +45,6 @@ namespace Common {
         static bool parse(const String &str, PositionCoord &value);
 
         PositionCoord &operator=(const PositionCoord &value);
-
-        bool operator==(const PositionCoord &value) const;
-
-        bool operator!=(const PositionCoord &value) const;
 
         void write(Stream *stream, bool bigEndian = true) const;
 

@@ -27,7 +27,7 @@ namespace Common {
 
         virtual size_t count() const = 0;
 
-        virtual T *data() const = 0;
+        virtual T *data() = 0;
 
         // type must be override operator< and operator>, IComparable is better.
         void sort(bool asc = true) {
@@ -201,7 +201,7 @@ namespace Common {
 
         virtual size_t count() const = 0;
 
-        virtual T **data() const = 0;
+        virtual T **data() = 0;
 
         // type must be override operator< and operator>, IComparable is better.
         void sort(bool asc = true) {

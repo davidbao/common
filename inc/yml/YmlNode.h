@@ -10,13 +10,6 @@
 #define YmlNode_h
 
 #include "data/ValueType.h"
-#include "data/Uuid.h"
-#include "data/DateTime.h"
-#include "data/TimeSpan.h"
-#include "data/Version.h"
-#include "data/Rectangle.h"
-#include "data/Point.h"
-#include "data/Size.h"
 #include "data/Vector.h"
 #include "data/PList.h"
 #include "data/Dictionary.h"

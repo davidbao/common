@@ -45,8 +45,62 @@ namespace Drawing {
 
         SizeF &operator=(const SizeF &value);
 
+        SizeF operator+=(const SizeF &other);
+
+        SizeF operator+(const SizeF &other) const;
+
+        SizeF operator-=(const SizeF &other);
+
+        SizeF operator-(const SizeF &other) const;
+
+        SizeF operator*=(float value);
+
+        SizeF operator*(float value) const;
+
+        SizeF operator*=(int value);
+
+        SizeF operator*(int value) const;
+
+        SizeF operator/=(float value);
+
+        SizeF operator/(float value) const;
+
+        SizeF operator/=(int value);
+
+        SizeF operator/(int value) const;
+
+        void add(const SizeF &size);
+
+        void subtract(const SizeF &size);
+
+        void multiply(float value);
+
+        void multiply(int value);
+
+        void division(float value);
+
+        void division(int value);
+
+        Size ceiling() const;
+
+        Size round() const;
+
+        Size truncate() const;
+
     public:
         static bool parse(const String &str, SizeF &size);
+
+        static SizeF add(const SizeF &sz1, const SizeF &sz2);
+
+        static SizeF subtract(const SizeF &sz1, const SizeF &sz2);
+
+        static SizeF multiply(const SizeF& size, float value);
+
+        static SizeF multiply(const SizeF& size, int value);
+
+        static SizeF division(const SizeF& size, float value);
+
+        static SizeF division(const SizeF& size, int value);
 
     public:
         float width;
@@ -57,7 +111,18 @@ namespace Drawing {
         static const SizeF MaxValue;
     };
 
-    typedef Vector<SizeF> SizeFs;
+    class SizeFs : public Vector<SizeF> {
+    public:
+        explicit SizeFs(size_t capacity = Vector<SizeF>::DefaultCapacity);
+
+        SizeFs(const SizeFs &array);
+
+        SizeFs(std::initializer_list<SizeF> list);
+
+        String toString(const char &split = ';') const;
+
+        static bool parse(const String &str, SizeFs &points);
+    };
 
     struct Size : public IEquatable<Size>, public IEvaluation<Size>, public IComparable<Size> {
     public:
@@ -105,6 +170,8 @@ namespace Drawing {
 
         Size operator/(int value) const;
 
+        operator SizeF() const;
+
         void add(const Size &size);
 
         void subtract(const Size &size);
@@ -147,7 +214,18 @@ namespace Drawing {
         static const Size MaxValue;
     };
 
-    typedef Vector<Size> Sizes;
+    class Sizes : public Vector<Size> {
+    public:
+        explicit Sizes(size_t capacity = Vector<Size>::DefaultCapacity);
+
+        Sizes(const Sizes &array);
+
+        Sizes(std::initializer_list<Size> list);
+
+        String toString(const char &split = ';') const;
+
+        static bool parse(const String &str, Sizes &points);
+    };
 }
 
 #endif  // Size_h

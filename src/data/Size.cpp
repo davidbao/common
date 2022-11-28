@@ -82,6 +82,96 @@ namespace Drawing {
         return *this;
     }
 
+    SizeF SizeF::operator+=(const SizeF &other) {
+        *this = SizeF::add(*this, other);
+        return *this;
+    }
+
+    SizeF SizeF::operator+(const SizeF &other) const {
+        return SizeF::add(*this, other);
+    }
+
+    SizeF SizeF::operator-=(const SizeF &other) {
+        *this = subtract(*this, other);
+        return *this;
+    }
+
+    SizeF SizeF::operator-(const SizeF &other) const {
+        return SizeF::subtract(*this, other);
+    }
+
+    SizeF SizeF::operator*=(float value) {
+        *this = SizeF::multiply(*this, value);
+        return *this;
+    }
+
+    SizeF SizeF::operator*(float value) const {
+        return SizeF::multiply(*this, value);
+    }
+
+    SizeF SizeF::operator*=(int value) {
+        *this = SizeF::multiply(*this, value);
+        return *this;
+    }
+
+    SizeF SizeF::operator*(int value) const {
+        return SizeF::multiply(*this, value);
+    }
+
+    SizeF SizeF::operator/=(float value) {
+        *this = SizeF::division(*this, value);
+        return *this;
+    }
+
+    SizeF SizeF::operator/(float value) const {
+        return SizeF::division(*this, value);
+    }
+
+    SizeF SizeF::operator/=(int value) {
+        *this = SizeF::division(*this, value);
+        return *this;
+    }
+
+    SizeF SizeF::operator/(int value) const {
+        return SizeF::division(*this, value);
+    }
+
+    void SizeF::add(const SizeF &size) {
+        *this = SizeF::add(*this, size);
+    }
+
+    void SizeF::subtract(const SizeF &size) {
+        *this = SizeF::subtract(*this, size);
+    }
+
+    void SizeF::multiply(float value) {
+        *this = SizeF::multiply(*this, value);
+    }
+
+    void SizeF::multiply(int value) {
+        *this = SizeF::multiply(*this, value);
+    }
+
+    void SizeF::division(float value) {
+        *this = SizeF::division(*this, value);
+    }
+
+    void SizeF::division(int value) {
+        *this = SizeF::division(*this, value);
+    }
+
+    Size SizeF::ceiling() const {
+        return Size::ceiling(*this);
+    }
+
+    Size SizeF::round() const {
+        return Size::round(*this);
+    }
+
+    Size SizeF::truncate() const{
+        return Size::truncate(*this);
+    }
+
     bool SizeF::parse(const String &str, SizeF &size) {
         StringArray texts;
         Convert::splitStr(str, ',', texts);
@@ -94,6 +184,83 @@ namespace Drawing {
             }
         }
         return false;
+    }
+
+    SizeF SizeF::add(const SizeF &sz1, const SizeF &sz2) {
+        return SizeF(sz1.width + sz2.width, sz1.height + sz2.height);
+    }
+
+    SizeF SizeF::subtract(const SizeF &sz1, const SizeF &sz2) {
+        return SizeF(sz1.width - sz2.width, sz1.height - sz2.height);
+    }
+
+    SizeF SizeF::multiply(const SizeF& size, float value) {
+        return SizeF(size.width * value, size.height * value);
+    }
+
+    SizeF SizeF::multiply(const SizeF& size, int value) {
+        return multiply(size, (float)(value));
+    }
+
+    SizeF SizeF::division(const SizeF& size, float value) {
+        return SizeF(size.width / value, size.height / value);
+    }
+
+    SizeF SizeF::division(const SizeF& size, int value) {
+        return division(size, (float)(value));
+    }
+
+    SizeFs::SizeFs(size_t capacity) : Vector<SizeF>(capacity) {
+    }
+
+    SizeFs::SizeFs(const SizeFs &array) = default;
+
+    SizeFs::SizeFs(std::initializer_list<SizeF> list) : Vector<SizeF>(list) {
+    }
+
+    // size:{0, 0};size:{300, 300}
+    // 0, 0;300, 300
+    bool SizeFs::parse(const String &str, SizeFs &points) {
+        StringArray texts;
+        Convert::splitStr(str, ';', texts);
+        if (texts.count() > 0) {
+            for (size_t i = 0; i < texts.count(); i++) {
+                SizeF point;
+
+                Convert::KeyPairs pairs;
+                if (Convert::splitItems(texts[i], pairs)) {
+                    for (size_t j = 0; j < pairs.count(); j++) {
+                        const Convert::KeyPair *kp = pairs[j];
+                        if (String::equals(kp->name, "size", true) &&
+                            SizeF::parse(kp->value, point)) {
+                            points.add(point);
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (SizeF::parse(texts[i], point)) {
+                        points.add(point);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    String SizeFs::toString(const char &split) const {
+        String str;
+        for (size_t i = 0; i < count(); i++) {
+            if (str.length() > 0) {
+                str.append(split);
+            }
+            const SizeF &point = this->at(i);
+            str.append(point.toString());
+        }
+        return str;
     }
 
     const Size Size::Empty;
@@ -210,6 +377,10 @@ namespace Drawing {
         return Size::division(*this, value);
     }
 
+    Size::operator SizeF() const {
+        return {width, height};
+    }
+
     void Size::add(const Size &size) {
         *this = Size::add(*this, size);
     }
@@ -282,5 +453,58 @@ namespace Drawing {
 
     Size Size::truncate(const SizeF &size) {
         return Size((int) size.width, (int) size.height);
+    }
+
+    Sizes::Sizes(size_t capacity) : Vector<Size>(capacity) {
+    }
+
+    Sizes::Sizes(const Sizes &array) = default;
+
+    Sizes::Sizes(std::initializer_list<Size> list) : Vector<Size>(list) {
+    }
+
+    // size:{0, 0};size:{300, 300}
+    // 0, 0;300, 300
+    bool Sizes::parse(const String &str, Sizes &points) {
+        StringArray texts;
+        Convert::splitStr(str, ';', texts);
+        if (texts.count() > 0) {
+            for (size_t i = 0; i < texts.count(); i++) {
+                Size point;
+
+                Convert::KeyPairs pairs;
+                if (Convert::splitItems(texts[i], pairs)) {
+                    for (size_t j = 0; j < pairs.count(); j++) {
+                        const Convert::KeyPair *kp = pairs[j];
+                        if (String::equals(kp->name, "size", true) &&
+                            Size::parse(kp->value, point)) {
+                            points.add(point);
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (Size::parse(texts[i], point)) {
+                        points.add(point);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    String Sizes::toString(const char &split) const {
+        String str;
+        for (size_t i = 0; i < count(); i++) {
+            if (str.length() > 0) {
+                str.append(split);
+            }
+            const Size &point = this->at(i);
+            str.append(point.toString());
+        }
+        return str;
     }
 }

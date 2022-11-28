@@ -12,7 +12,7 @@
 #include "IO/Stream.h"
 
 namespace Common {
-    const PositionCoord PositionCoord::Empty = PositionCoord();
+    const PositionCoord PositionCoord::Empty = PositionCoord(NAN, NAN);
 
     PositionCoord::PositionCoord(double longitude, double latitude) : longitude(longitude), latitude(latitude) {
     }
@@ -28,6 +28,33 @@ namespace Common {
     }
 
     PositionCoord::PositionCoord(const char *str) : PositionCoord(String(str)) {
+    }
+
+    PositionCoord::~PositionCoord() = default;
+
+    bool PositionCoord::equals(const PositionCoord &other) const {
+        return this->latitude == other.latitude && this->longitude == other.longitude;
+    }
+
+    void PositionCoord::evaluates(const PositionCoord &other) {
+        this->latitude = other.latitude;
+        this->longitude = other.longitude;
+    }
+
+    int PositionCoord::compareTo(const PositionCoord &other) const {
+        if (latitude != other.latitude) {
+            if (latitude > other.latitude) {
+                return 1;
+            }
+            return -1;
+        }
+        if (longitude != other.longitude) {
+            if (longitude > other.longitude) {
+                return 1;
+            }
+            return -1;
+        }
+        return 0;
     }
 
     bool PositionCoord::isEmpty() const {
@@ -66,18 +93,8 @@ namespace Common {
     }
 
     PositionCoord &PositionCoord::operator=(const PositionCoord &value) {
-        longitude = value.longitude;
-        latitude = value.latitude;
+        evaluates(value);
         return *this;
-    }
-
-    bool PositionCoord::operator==(const PositionCoord &value) const {
-        return longitude == value.longitude &&
-               latitude == value.latitude;
-    }
-
-    bool PositionCoord::operator!=(const PositionCoord &value) const {
-        return !operator==(value);
     }
 
     void PositionCoord::write(Stream *stream, bool bigEndian) const {

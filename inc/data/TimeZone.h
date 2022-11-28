@@ -68,9 +68,9 @@ namespace Common {
 
         int compareTo(const TimeZone &other) const override;
 
-        DateTime toUtcTime(const DateTime &time) const;
+        String toString() const;
 
-        DateTime toLocalTime(const DateTime &time) const;
+        bool isEmpty() const;
 
         TimeZone &operator=(const TimeZone &tz);
 
@@ -82,11 +82,17 @@ namespace Common {
 
         void readSeconds(Stream *stream, bool bigEndian = true);
 
-        String toString() const;
+        DateTime toUtcTime(const DateTime &time) const;
 
-        bool isEmpty() const;
+        DateTime toLocalTime(const DateTime &time) const;
 
         int64_t ticksOffset() const;
+
+        double hourOffset() const;
+
+        double minuteOffset() const;
+
+        double secondOffset() const;
 
         TimeSpan offset() const;
 
@@ -95,18 +101,19 @@ namespace Common {
         String toTypeStr() const;
 
     public:
-        static bool parseTypeStr(const String &str, Type &type);
-
-        static String toTypeStr(Type type);
-
         static TimeSpan getUtcOffset(const DateTime &dateTime);
+
+        static bool parse(const String &str, TimeZone &tz);
 
     private:
         int localTimeValue() const;
 
-        int hourOffset() const;
-
         void update();
+
+    private:
+        static bool parseTypeStr(const String &str, Type &type);
+
+        static String toTypeStr(Type type);
 
         static void updateLocal(const TimeZone &tz);
 
@@ -123,7 +130,7 @@ namespace Common {
         static const int64_t TicksPerSecond = TicksPerMillisecond * 1000;   // 10,000,000
         static const int64_t TicksPerMinute = TicksPerSecond * 60;         // 600,000,000
         static const int64_t TicksPerHour = TicksPerMinute * 60;
-        const double SecondsPerTick = 1.0 / TicksPerSecond;         // 0.0001
+        static constexpr double SecondsPerTick = 1.0 / TicksPerSecond;         // 0.0001
 
     private:
         static const String FileNames[Count];

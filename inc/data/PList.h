@@ -324,7 +324,11 @@ namespace Common {
             return -1;
         }
 
-        inline typePtr *data() const override {
+        inline typePtr *data() override {
+            return _array;
+        }
+
+        inline const typePtr *data() const {
             return _array;
         }
 

@@ -76,7 +76,11 @@ namespace Common {
             return _count;
         }
 
-        inline virtual type *data() const {
+        inline virtual type *data() {
+            return _array;
+        }
+
+        inline const type *data() const {
             return _array;
         }
 
@@ -484,6 +488,8 @@ namespace Common {
     template<typename type>
     class SortedVector : public Vector<type>, public ISortable<type> {
     public:
+        using Vector<type>::data;
+
         explicit SortedVector(size_t capacity = Vector<type>::DefaultCapacity) : Vector<type>(capacity) {
         }
 
@@ -517,7 +523,7 @@ namespace Common {
             return Vector<type>::count();
         }
 
-        inline type *data() const override {
+        inline type *data() override {
             return Vector<type>::data();
         }
     };
