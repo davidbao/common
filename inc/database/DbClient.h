@@ -1,52 +1,65 @@
-#ifndef DBCLIENT_H
-#define DBCLIENT_H
+//
+//  DbClient.h
+//  common
+//
+//  Created by baowei on 2017/2/27.
+//  Copyright © 2017 com. All rights reserved.
+//
 
-#include <stdio.h>
+#ifndef DbClient_h
+#define DbClient_h
+
 #include "thread/Mutex.h"
 #include "data/ValueType.h"
 #include "DataTable.h"
 
 using namespace Common;
 
-namespace Database
-{
-	class DbClient
-	{
-	public:
-		DbClient();
-		virtual ~DbClient();
+namespace Database {
+    class DbClient {
+    public:
+        DbClient();
 
-		virtual bool open(const String& connectionStr) = 0;
-		virtual bool close() = 0;
+        virtual ~DbClient();
 
-		virtual bool executeSql(const String& sql, bool transaction = true) = 0;
-        virtual bool executeSql(const String& sql, DataTable& table, bool transaction = true);
-		virtual bool executeSqlQuery(const String& sql, DataTable& table) = 0;
-		virtual bool executeSqlInsert(const DataTable& table, bool replace = false) = 0;
+        virtual bool open(const String &connectionStr) = 0;
 
-		virtual const String getErrorMsg() = 0;
+        virtual bool close() = 0;
 
-		virtual bool beginTransaction() = 0;
-		virtual bool commitTransaction() = 0;
-		virtual bool rollbackTransaction() = 0;
-        
-        bool retriveCount(const String& sql, int& count);
+        virtual bool executeSql(const String &sql, bool transaction = true) = 0;
 
-	protected:
-		virtual ValueTypes getColumnType(int type) = 0;
+        virtual bool executeSqlQuery(const String &sql, DataTable &table) = 0;
 
-		Value convertValue(const ValueTypes type, const char* str);
+        virtual bool executeSqlInsert(const DataTable &table, bool transaction = true) = 0;
 
-	protected:
-		void printErrorInfo(const String& methodName, const String& sql = String::Empty, const String& error = String::Empty);
-        
+        virtual bool executeSqlReplace(const DataTable &table, bool transaction = true) = 0;
+
+        virtual String getErrorMsg() = 0;
+
+        virtual bool beginTransaction() = 0;
+
+        virtual bool commitTransaction() = 0;
+
+        virtual bool rollbackTransaction() = 0;
+
+        bool retrieveCount(const String &sql, int &count);
+
+    protected:
+        virtual ValueTypes getColumnType(int type) = 0;
+
+    protected:
+        void printErrorInfo(const String &methodName, const String &sql = String::Empty,
+                            const String &error = String::Empty);
+
 #ifdef DEBUG
-        void createSqlFile(const String& fileName, const String& sql) const;
+
+        static void createSqlFile(const String &fileName, const String &sql);
+
 #endif
 
-	protected:
-		Mutex _dbMutex;
-	};
+    protected:
+        Mutex _dbMutex;
+    };
 }
 
-#endif // DBCLIENT_H
+#endif // DbClient_h

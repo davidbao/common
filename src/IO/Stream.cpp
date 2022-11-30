@@ -25,22 +25,21 @@ namespace Common {
     void Stream::writeStr(const String &str, String::StreamLength lengthCount) {
 #ifdef DEBUG
         size_t length = str.length();
-        if (lengthCount == 2 && length > 0xFFFF) {
+        if (lengthCount == String::StreamLength2 && length > 0xFFFF) {
             assert(false);
-        } else if (lengthCount == 1 && length > 0xFF) {
-            assert(false);
-        } else if (lengthCount == 4) {
+        } else if (lengthCount == String::StreamLength1 && length > 0xFF) {
             assert(false);
         }
+
 #endif //DEBUG
         size_t len = 0;
-        if (lengthCount == 2) {
+        if (lengthCount == String::StreamLength2) {
             len = str.length();
             writeUInt16((uint16_t) len);
-        } else if (lengthCount == 1) {
+        } else if (lengthCount == String::StreamLength1) {
             len = str.length();
             writeByte((uint8_t) len);
-        } else if (lengthCount == 4) {
+        } else if (lengthCount == String::StreamLength4) {
             len = str.length();
             writeUInt32((uint32_t) len);
         } else {
@@ -52,11 +51,11 @@ namespace Common {
 
     String Stream::readStr(String::StreamLength lengthCount) {
         uint32_t len = 0;
-        if (lengthCount == 2) {
+        if (lengthCount == String::StreamLength2) {
             len = readUInt16();
-        } else if (lengthCount == 1) {
+        } else if (lengthCount == String::StreamLength1) {
             len = readByte();
-        } else if (lengthCount == 4) {
+        } else if (lengthCount == String::StreamLength4) {
             len = readUInt32();
         } else {
             assert(false);
@@ -259,9 +258,7 @@ namespace Common {
     }
 
     void Stream::writeByte(uint8_t value) {
-        uint8_t buffer[1];
-        buffer[0] = value;
-        write(buffer, 0, sizeof(buffer));
+        writeUInt8(value);
     }
 
     void Stream::writeUInt8(uint8_t value) {
@@ -377,13 +374,13 @@ namespace Common {
     }
 
     uint8_t Stream::readByte() {
-        uint8_t buffer[1];
-        read(buffer, 0, sizeof(buffer));
-        return buffer[0];
+        return readUInt8();
     }
 
     uint8_t Stream::readUInt8() {
-        return readByte();
+        uint8_t buffer[1];
+        read(buffer, 0, sizeof(buffer));
+        return buffer[0];
     }
 
     int8_t Stream::readInt8() {
@@ -405,7 +402,7 @@ namespace Common {
     }
 
     void Stream::writeUInt32(uint32_t value, bool bigEndian) {
-        writeInt32((int) value, bigEndian);
+        writeInt32((int32_t) value, bigEndian);
     }
 
     uint32_t Stream::readUInt24(bool bigEndian) {

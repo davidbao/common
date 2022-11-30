@@ -1891,6 +1891,16 @@ bool testUrlConstructor() {
         }
     }
     {
+        String str = "mysql://127.0.0.1:3306/test_db";
+        Url url(str);
+        if (url.isEmpty()) {
+            return false;
+        }
+        if (url.relativeUrl() != "test_db") {
+            return false;
+        }
+    }
+    {
         String str = "mysqls://localhost:8080/";
         Url url(str);
         if (url.isEmpty()) {

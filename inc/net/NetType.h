@@ -470,17 +470,17 @@ namespace Net {
         static bool parse(const Url &baseUrl, const String &relativeUrl, Url &value);
 
     public:
-        static const String SchemeHttp;
-        static const String SchemeHttps;
-        static const String SchemeWebSocket;
-        static const String SchemeWebSockets;
-        static const String SchemeEaseTcp;
-        static const String SchemeEaseTcps;
-        static const String SchemeMysql;
-        static const String SchemeMysqls;
-        static const String SchemeMqtt;
-        static const String SchemeMqtts;
-        static const String SchemeCoap;
+        static const char *SchemeHttp;
+        static const char *SchemeHttps;
+        static const char *SchemeWebSocket;
+        static const char *SchemeWebSockets;
+        static const char *SchemeEaseTcp;
+        static const char *SchemeEaseTcps;
+        static const char *SchemeMysql;
+        static const char *SchemeMysqls;
+        static const char *SchemeMqtt;
+        static const char *SchemeMqtts;
+        static const char *SchemeCoap;
 
         static const Url Empty;
 

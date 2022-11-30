@@ -664,7 +664,7 @@ namespace Net
     {
         String result;
         Variant v = toVariant(value);
-        if(!v.isEmpty())
+        if(!v.isNullType())
         {
             OpcuaClient* oc = static_cast<OpcuaClient*>(subContext);
             assert(oc);

@@ -22,7 +22,7 @@ if (COMMON_ENABLE_TEST)
     include_directories(${CMAKE_SOURCE_DIR}/inc)
 
     # link settings
-    link_directories(${EXTERNALS_PATH}/lib)
+    link_directories(${EXTERNALS_PATH}/lib/${OS_NAME})
     if (WIN_OS)
         link_directories(${EXTERNALS_PATH}/install/${OS_NAME}/lib/${CMAKE_VS_PLATFORM_NAME}/${CMAKE_BUILD_TYPE})
     else ()
@@ -45,6 +45,7 @@ if (COMMON_ENABLE_TEST)
             ssl${CMAKE_FIND_LIBRARY_SUFFIXES}
             crypto${CMAKE_FIND_LIBRARY_SUFFIXES}
             json${CMAKE_FIND_LIBRARY_SUFFIXES})
+
     if (MAC_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv)
     elseif (LINUX_OS)
@@ -67,6 +68,13 @@ if (COMMON_ENABLE_TEST)
                 ${EXTERNALS_LIB}
                 )
     endif ()
+
+    if (${COMMON_BUILD_DATABASE})
+        set(EXTERNALS_LIB ${EXTERNALS_LIB}
+                sqlite3${CMAKE_FIND_LIBRARY_SUFFIXES}
+                mysqlclient${CMAKE_FIND_LIBRARY_SUFFIXES})
+    endif ()
+
     set(COMMON_LIB common ${EXTERNALS_LIB})
 
     # application settings
@@ -78,7 +86,7 @@ if (COMMON_ENABLE_TEST)
             # data
             ArrayTest ByteArrayTest DateTimeTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest RectangleTest
             SizeTest StringTest StringArrayTest StringMapTest PListTest PointTest NetTypeTest TypeInfoTest TimeSpanTest
-            TimeZoneTest UuidTest ValueTypeTest VectorTest VersionTest WStringTest
+            TimeZoneTest UuidTest ValueTypeTest VariantTest VectorTest VersionTest WStringTest
             # diag
             FileTraceListenerTest
             # IO
@@ -93,6 +101,10 @@ if (COMMON_ENABLE_TEST)
     endif ()
     if (${COMMON_BUILD_MICROSERVICE})
         set(TEST_SRC ${TEST_SRC} SummerApplicationTest)
+    endif ()
+
+    if (${COMMON_BUILD_DATABASE})
+        set(TEST_SRC ${TEST_SRC} DataTableTest MysqlClientTest SqliteClientTest SqlSelectFilterTest)
     endif ()
 
     if (MAC_OS)

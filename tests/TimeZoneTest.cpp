@@ -181,7 +181,7 @@ bool testProperty() {
 
     {
         TimeZone test(TimeZone::GMT_A0800);
-        if (test.ticksOffset() != -8L * 3600 * 1000 * 10000) {
+        if (test.ticksOffset() != -(int64_t)8L * 3600 * 1000 * 10000) {
             return false;
         }
     }

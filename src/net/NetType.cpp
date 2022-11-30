@@ -927,17 +927,17 @@ namespace Net {
         return toString();
     }
 
-    const String Url::SchemeHttp = "http";
-    const String Url::SchemeHttps = "https";
-    const String Url::SchemeWebSocket = "ws";
-    const String Url::SchemeWebSockets = "wss";
-    const String Url::SchemeEaseTcp = "ease.tcp";
-    const String Url::SchemeEaseTcps = "ease.tcps";
-    const String Url::SchemeMysql = "mysql";
-    const String Url::SchemeMysqls = "mysqls";
-    const String Url::SchemeMqtt = "mqtt";
-    const String Url::SchemeMqtts = "mqtts";
-    const String Url::SchemeCoap = "coap";
+    const char *Url::SchemeHttp = "http";
+    const char *Url::SchemeHttps = "https";
+    const char *Url::SchemeWebSocket = "ws";
+    const char *Url::SchemeWebSockets = "wss";
+    const char *Url::SchemeEaseTcp = "ease.tcp";
+    const char *Url::SchemeEaseTcps = "ease.tcps";
+    const char *Url::SchemeMysql = "mysql";
+    const char *Url::SchemeMysqls = "mysqls";
+    const char *Url::SchemeMqtt = "mqtt";
+    const char *Url::SchemeMqtts = "mqtts";
+    const char *Url::SchemeCoap = "coap";
     const Url Url::Empty;
     const StringArray Url::Schemes = {SchemeHttp, SchemeHttps,
                                       SchemeWebSocket, SchemeWebSockets,

@@ -14,7 +14,6 @@
 SET(DATABASE_SRC
         DataTable.cpp
         DbClient.cpp
-        DbValue.cpp
         MysqlClient.cpp
         OracleClient.cpp
         SqlSelectFilter.cpp

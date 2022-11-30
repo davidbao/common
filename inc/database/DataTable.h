@@ -1,194 +1,245 @@
-#ifndef DATATABLE_H
-#define DATATABLE_H
+//
+//  DataTable.h
+//  common
+//
+//  Created by baowei on 2015/7/20.
+//  Copyright © 2015 com. All rights reserved.
+//
 
-#include <assert.h>
-#include "data/PList.h"
+#ifndef DataTable_h
+#define DataTable_h
+
+#include "data/List.h"
 #include "data/Dictionary.h"
 #include "data/ValueType.h"
 #include "data/StringArray.h"
 #include "data/DateTime.h"
+#include "database/DbValue.h"
 #include "IO/Stream.h"
 #include "json/JsonNode.h"
-#include "DbValue.h"
 
 using namespace Common;
 
 namespace Database {
-    class DataColumn {
+    class DataColumn : public IEvaluation<DataColumn>, public IEquatable<DataColumn> {
     public:
+        explicit DataColumn(const String &name = String::Empty, const ValueTypes &type = ValueTypes::Null,
+                            bool pkey = false);
+
         DataColumn(const String &name, const String &type, bool pkey = false);
 
-        DataColumn(const String &name, const ValueTypes &type, bool pkey = false);
+        DataColumn(const DataColumn &column);
 
-        ~DataColumn();
+        ~DataColumn() override;
 
-        ValueTypes type() const;
+        void evaluates(const DataColumn &other) override;
 
-        int isInteger() const;
-
-        int isDateTime() const;
-
-        int isString() const;
+        bool equals(const DataColumn &other) const override;
 
         const String &name() const;
 
+        ValueTypes type() const;
+
         bool primaryKey() const;
 
-    private:
-        ValueTypes convertType(const String &type);
+        bool isNull() const;
+
+        bool isInteger() const;
+
+        bool isFloat() const;
+
+        bool isString() const;
+
+        bool isDateTime() const;
+
+        bool isDigital() const;
+
+        DataColumn &operator=(const DataColumn &other);
 
     protected:
         String _name;
         ValueTypes _type;
         bool _primaryKey;
+
+    public:
+        static const DataColumn Empty;
     };
 
-    class DataColumns : public PList<DataColumn> {
+    class DataColumns : public List<DataColumn>, public IPositionGetter<const DataColumn &, const String &> {
     public:
-        DataColumns(bool autoDelete = true, uint32_t capacity = PList<DataColumn>::DefaultCapacity);
+        using List<DataColumn>::at;
 
-        DataColumn *operator[](size_t pos) const;
+        explicit DataColumns(size_t capacity = DefaultCapacity);
 
-        DataColumn *operator[](const String &columnName) const;
+        DataColumns(std::initializer_list<DataColumn> list);
 
-        DataColumn *at(size_t i) const override;
+        DataColumns(const DataColumns &columns);
 
-        DataColumn *at(const String &columnName) const;
+        const DataColumn &at(const String &columnName) const override;
     };
 
-    class DataCell {
+    class DataCell : public IEvaluation<DataCell>, public IEquatable<DataCell> {
     public:
-        DataCell(const DataColumn *column);
+        explicit DataCell(const DataColumn &column = DataColumn::Empty);
 
-        DataCell(const DataColumn *column, const DbValue &value);
+        DataCell(const DataColumn &column, const DbValue &value);
 
-        DataCell(const DataColumn *column, bool value);
+        DataCell(const DataColumn &column, bool value);
 
-        DataCell(const DataColumn *column, uint8_t value);
+        DataCell(const DataColumn &column, int8_t value);
 
-        DataCell(const DataColumn *column, short value);
+        DataCell(const DataColumn &column, uint8_t value);
 
-        DataCell(const DataColumn *column, uint16_t value);
+        DataCell(const DataColumn &column, int16_t value);
 
-        DataCell(const DataColumn *column, int value);
+        DataCell(const DataColumn &column, uint16_t value);
 
-        DataCell(const DataColumn *column, uint32_t value);
+        DataCell(const DataColumn &column, int32_t value);
 
-        DataCell(const DataColumn *column, int64_t value);
+        DataCell(const DataColumn &column, uint32_t value);
 
-        DataCell(const DataColumn *column, uint64_t value);
+        DataCell(const DataColumn &column, int64_t value);
 
-        DataCell(const DataColumn *column, double value);
+        DataCell(const DataColumn &column, uint64_t value);
 
-        DataCell(const DataColumn *column, const char *value);
+        DataCell(const DataColumn &column, float value);
 
-        DataCell(const DataColumn *column, const String &value);
+        DataCell(const DataColumn &column, double value);
 
-        DataCell(const DataColumn *column, const DateTime &value);
+        DataCell(const DataColumn &column, const char *value);
 
-        DataCell(const DataColumn *column, const TimeSpan &value);
+        DataCell(const DataColumn &column, const String &value);
 
-        ~DataCell();
+        DataCell(const DataColumn &column, const DateTime &value);
+
+        DataCell(const DataColumn &column, const TimeSpan &value);
+
+        DataCell(const DataColumn &column, const ByteArray &value);
+
+        DataCell(const DataCell &cell);
+
+        ~DataCell() override;
+
+        void evaluates(const DataCell &other) override;
+
+        bool equals(const DataCell &other) const override;
 
         ValueTypes type() const;
 
-        const Value &value() const;
+        const DbValue &value() const;
 
-        const String valueStr(bool hasQuote = false) const;
+        String valueStr(bool hasQuote = false) const;
 
-        bool matchColumnName(const char *columnName) const;
+        bool matchColumnName(const String &columnName) const;
 
-        const String columnName() const;
+        String columnName() const;
 
-        const DataColumn *column() const;
-
-        static void setStringValue(Value &value, const char *str);
+        const DataColumn &column() const;
 
         bool isNullValue() const;
 
         void setNullValue();
 
-        void copyFrom(const DataCell *cell);
+        DataCell &operator=(const DataCell &other);
 
     private:
-        DataCell(const DataColumn *column, const Value value);
+        DataCell(const DataColumn &column, const Value &value);
 
-        void setStringValue(const char *str);
+    public:
+        static const DataCell Empty;
 
     private:
-        friend class SqliteClient;
-
-        friend class OracleClient;
-
-        friend class MysqlClient;
-
-        Value _value;
-        const DataColumn *_column;
+        DbValue _value;
+        DataColumn _column;
     };
 
-    class DataCells : public PList<DataCell> {
+    class DataCells : public List<DataCell>, public IPositionGetter<const DataCell &, const String &> {
     public:
-        DataCells(bool autoDelete = true, uint32_t capacity = PList<DataCell>::DefaultCapacity);
+        using List<DataCell>::at;
 
-        DataCell *operator[](const char *columnName) const;
+        explicit DataCells(size_t capacity = DefaultCapacity);
 
-        DataCell *at(size_t pos) const;
+        DataCells(std::initializer_list<DataCell> list);
 
-        DataCell *at(const String &columnName) const;
+        DataCells(const DataCells &cells);
 
-        const Value cellValue(const String &columnName) const;
+        const DataCell &at(const String &columnName) const override;
+
+        const DbValue &cellValue(const String &columnName) const;
 
         bool hasColumn(const String &columnName) const;
-
-        void add(const DataCell *cell);
-
-    private:
-        Dictionary<String, size_t> _positions;
     };
 
-    class DataRow {
+    class DataRow : public IEvaluation<DataRow>, public IEquatable<DataRow> {
     public:
         DataRow();
 
-        ~DataRow();
+        explicit DataRow(const DataCells &cells);
 
-        void addCell(const DataCell *cell);
+        DataRow(std::initializer_list<DataCell> list);
 
-        const DataCells *cells() const;
+        DataRow(const DataRow &row);
 
-        void replaceCell(const DataCell *cell);
+        ~DataRow() override;
+
+        void evaluates(const DataRow &other) override;
+
+        bool equals(const DataRow &other) const override;
+
+        bool isEmpty() const;
+
+        void addCell(const DataCell &cell);
+
+        void addCells(const DataCells &cells);
+
+        const DataCells &cells() const;
+
+        size_t cellCount() const;
+
+        DataRow &operator=(const DataRow &other);
+
+    public:
+        static const DataRow Empty;
 
     private:
         DataCells _cells;
     };
 
-    typedef PList<DataRow> DataRows;
+    typedef List<DataRow> DataRows;
 
-    class DataTable {
+    class DataTable : public IEvaluation<DataTable>, public IEquatable<DataTable> {
     public:
-        DataTable();
+        explicit DataTable(const String &name = String::Empty);
 
-        DataTable(const String &name);
+        DataTable(const DataTable &table);
 
-        DataTable(const char *name);
+        ~DataTable() override;
 
-        ~DataTable();
+        void evaluates(const DataTable &other) override;
+
+        bool equals(const DataTable &other) const override;
+
+        bool isEmpty() const;
 
         const String &name() const;
 
         void setName(const String &name);
 
-        void addRow(const DataRow *row);
+        void addRow(const DataRow &row);
 
-        const DataRows *rows() const;
+        void addRows(const DataRows &rows);
+
+        const DataRows &rows() const;
 
         size_t rowCount() const;
 
-        void addColumn(const DataColumn *column);
+        void addColumn(const DataColumn &column);
 
-        const DataColumns *columns() const;
+        void addColumns(const DataColumns &columns);
 
-        DataColumn *getColumn(const String &columnName) const;
+        const DataColumns &columns() const;
+
+        const DataColumn &getColumn(const String &columnName) const;
 
         size_t columnCount() const;
 
@@ -196,9 +247,9 @@ namespace Database {
 
         void clearRows();
 
-        const String anyColumnNameStr(bool hasTableName = false) const;
+        String anyColumnNameStr(bool hasTableName = false) const;
 
-        const String columnNameStr(bool hasTableName = false, const StringArray *excludedNames = NULL,
+        String columnNameStr(bool hasTableName = false, const StringArray &excludedNames = StringArray::Empty,
                                    const char *splitStr = ",") const;
 
         int totalCount() const;
@@ -214,16 +265,24 @@ namespace Database {
         DataRows _rows;
         DataColumns _columns;
         int _totalCount;
+
+    public:
+        static const DataTable Empty;
     };
 
-//    typedef PList<DataTable> DataTables;
-    class DataTables : public PList<DataTable> {
+    class DataTables : public List<DataTable>, public IPositionGetter<const DataTable &, const String &> {
     public:
-        DataTables(uint32_t capacity = PList<DataTable>::DefaultCapacity);
+        using List<DataTable>::at;
+
+        explicit DataTables(size_t capacity = DefaultCapacity);
+
+        DataTables(std::initializer_list<DataTable> list);
+
+        DataTables(const DataTables &tables);
 
         bool contains(const String &tableName) const;
 
-        DataTable *getTable(const String &tableName) const;
+        const DataTable &at(const String &tableName) const override;
     };
 }
-#endif // DATATABLE_H
+#endif // DataTable_h
