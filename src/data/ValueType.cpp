@@ -104,8 +104,9 @@ namespace Common {
     }
 
     template<typename type>
-    String BaseValueType::toValueString(const type &value, const String &format, const IFormatProvider<NumberFormatInfo>* provider) {
-        if(provider == nullptr) {
+    String BaseValueType::toValueString(const type &value, const String &format,
+                                        const IFormatProvider<NumberFormatInfo> *provider) {
+        if (provider == nullptr) {
             return toValueString(value, format, &NumberFormatInfo::currentInfo());
         } else {
             static Mutex localeMutex;
@@ -153,7 +154,7 @@ namespace Common {
             int pointSize = size > 0 ? size : info->currencyDecimalDigits;
             sprintf(result, "%.*lf", pointSize, (value >= 0 ? (double) value : -(double) value));
             String n = addThousandSeparator(result, info->currencyDecimalSeparator, info->currencyGroupSeparator);
-            if(value >= 0) {
+            if (value >= 0) {
                 if (info->currencyPositivePattern == 0) {        // $n
                     str = String::format("%s%s", info->currencySymbol.c_str(), n.c_str());
                 } else if (info->currencyPositivePattern == 1) { // n$
@@ -164,52 +165,43 @@ namespace Common {
                     str = String::format("%s %s", n.c_str(), info->currencySymbol.c_str());
                 }
             } else {
-                if (info->currencyNegativePattern == 0) {	    //	($n)
+                if (info->currencyNegativePattern == 0) {        //	($n)
                     str = String::format("(%s%s)", info->currencySymbol.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 1) {	//	-$n
+                } else if (info->currencyNegativePattern == 1) {    //	-$n
                     str = String::format("%s%s%s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 2) {	//	$-n
+                } else if (info->currencyNegativePattern == 2) {    //	$-n
                     str = String::format("%s%s%s", info->currencySymbol.c_str(), info->negativeSign.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 3) {	//	$n-
+                } else if (info->currencyNegativePattern == 3) {    //	$n-
                     str = String::format("%s%s%s", info->currencySymbol.c_str(), n.c_str(), info->negativeSign.c_str());
-                }
-                else if (info->currencyNegativePattern == 4) {	//	(n$)
+                } else if (info->currencyNegativePattern == 4) {    //	(n$)
                     str = String::format("(%s%s)", n.c_str(), info->currencySymbol.c_str());
-                }
-                else if (info->currencyNegativePattern == 5) {	//	-n$
+                } else if (info->currencyNegativePattern == 5) {    //	-n$
                     str = String::format("%s%s%s", info->negativeSign.c_str(), n.c_str(), info->currencySymbol.c_str());
-                }
-                else if (info->currencyNegativePattern == 6) {	//	n-$
+                } else if (info->currencyNegativePattern == 6) {    //	n-$
                     str = String::format("%s%s%s", n.c_str(), info->negativeSign.c_str(), info->currencySymbol.c_str());
-                }
-                else if (info->currencyNegativePattern == 7) {	//	n$-
+                } else if (info->currencyNegativePattern == 7) {    //	n$-
                     str = String::format("%s%s%s", n.c_str(), info->currencySymbol.c_str(), info->negativeSign.c_str());
-                }
-                else if (info->currencyNegativePattern == 8) {	//	-n $
-                    str = String::format("%s%s %s", info->negativeSign.c_str(), n.c_str(), info->currencySymbol.c_str());
-                }
-                else if (info->currencyNegativePattern == 9) {	//	-$ n
-                    str = String::format("%s%s %s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 10) {	//	n $-
-                    str = String::format("%s %s%s", n.c_str(), info->currencySymbol.c_str(), info->negativeSign.c_str());
-                }
-                else if (info->currencyNegativePattern == 11) {	//	$ n-
-                    str = String::format("%s %s%s", info->currencySymbol.c_str(), n.c_str(), info->negativeSign.c_str());
-                }
-                else if (info->currencyNegativePattern == 12) {	//	$ -n
-                    str = String::format("%s %s%s", info->currencySymbol.c_str(), info->negativeSign.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 13) {	//	n- $
-                    str = String::format("%s%s %s", n.c_str(), info->negativeSign.c_str(), info->currencySymbol.c_str());
-                }
-                else if (info->currencyNegativePattern == 14) {	//	($ n)
+                } else if (info->currencyNegativePattern == 8) {    //	-n $
+                    str = String::format("%s%s %s", info->negativeSign.c_str(), n.c_str(),
+                                         info->currencySymbol.c_str());
+                } else if (info->currencyNegativePattern == 9) {    //	-$ n
+                    str = String::format("%s%s %s", info->negativeSign.c_str(), info->currencySymbol.c_str(),
+                                         n.c_str());
+                } else if (info->currencyNegativePattern == 10) {    //	n $-
+                    str = String::format("%s %s%s", n.c_str(), info->currencySymbol.c_str(),
+                                         info->negativeSign.c_str());
+                } else if (info->currencyNegativePattern == 11) {    //	$ n-
+                    str = String::format("%s %s%s", info->currencySymbol.c_str(), n.c_str(),
+                                         info->negativeSign.c_str());
+                } else if (info->currencyNegativePattern == 12) {    //	$ -n
+                    str = String::format("%s %s%s", info->currencySymbol.c_str(), info->negativeSign.c_str(),
+                                         n.c_str());
+                } else if (info->currencyNegativePattern == 13) {    //	n- $
+                    str = String::format("%s%s %s", n.c_str(), info->negativeSign.c_str(),
+                                         info->currencySymbol.c_str());
+                } else if (info->currencyNegativePattern == 14) {    //	($ n)
                     str = String::format("(%s %s)", info->currencySymbol.c_str(), n.c_str());
-                }
-                else if (info->currencyNegativePattern == 15) {	//	(n $)
+                } else if (info->currencyNegativePattern == 15) {    //	(n $)
                     str = String::format("(%s %s)", n.c_str(), info->currencySymbol.c_str());
                 } else {    // same as 1.
                     str = String::format("%s%s%s", info->negativeSign.c_str(), info->currencySymbol.c_str(), n.c_str());
@@ -321,7 +313,8 @@ namespace Common {
         return str;
     }
 
-    String BaseValueType::addThousandSeparator(const String &str, const String& decimalSeparator, const String &groupSeparator) {
+    String BaseValueType::addThousandSeparator(const String &str, const String &decimalSeparator,
+                                               const String &groupSeparator) {
         String result = str;
         ssize_t index = result.findLastOf(decimalSeparator);
         if (index <= 0) {
@@ -608,12 +601,15 @@ namespace Common {
     }
 
     bool Char::parse(const String &str, char &value) {
-        value = '\0';
-        if (str.length() != 1) {
-            return false;
+        Int8 result;
+        if (Int8::parse(str, result)) {
+            value = result;
+            return true;
+        } else if (str.length() == 1) {
+            value = str[0];
+            return true;
         }
-        value = str[0];
-        return true;
+        return false;
     }
 
     Char Char::toLower(const Char &c) {
@@ -1263,7 +1259,7 @@ namespace Common {
         _value = stream->readInt8();
     }
 
-    String Int8::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Int8::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1311,7 +1307,7 @@ namespace Common {
         _value = stream->readUInt8();
     }
 
-    String UInt8::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String UInt8::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1359,7 +1355,7 @@ namespace Common {
         _value = stream->readInt16(bigEndian);
     }
 
-    String Int16::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Int16::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1407,7 +1403,7 @@ namespace Common {
         _value = stream->readUInt16(bigEndian);
     }
 
-    String UInt16::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String UInt16::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1455,7 +1451,7 @@ namespace Common {
         _value = stream->readInt32(bigEndian);
     }
 
-    String Int32::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Int32::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1503,7 +1499,7 @@ namespace Common {
         _value = stream->readUInt32(bigEndian);
     }
 
-    String UInt32::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String UInt32::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1551,7 +1547,7 @@ namespace Common {
         _value = stream->readInt64(bigEndian);
     }
 
-    String Int64::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Int64::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1599,7 +1595,7 @@ namespace Common {
         _value = stream->readUInt64(bigEndian);
     }
 
-    String UInt64::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String UInt64::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1651,7 +1647,7 @@ namespace Common {
         _value = stream->readFloat(bigEndian);
     }
 
-    String Float::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Float::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 
@@ -1767,7 +1763,7 @@ namespace Common {
         _value = stream->readDouble(bigEndian);
     }
 
-    String Double::toString(const String &format, const IFormatProvider<NumberFormatInfo>* provider) const {
+    String Double::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
         return toValueString(_value, format, provider);
     }
 

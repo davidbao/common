@@ -172,13 +172,13 @@ namespace Microservice {
             detailsNode.add(JsonNode("leader", leader));
 
             JsonNode servicesNode("services");
-            PList<JsonNode> nodes;
+            JsonNodes nodes;
             if (tempNode.subNodes(nodes)) {
                 for (uint32_t i = 0; i < nodes.count(); i++) {
-                    JsonNode *subNode = nodes[i];
+                    const JsonNode &subNode = nodes[i];
                     String serviceId;
                     StringArray tags;
-                    if (subNode->getAttribute("Service", serviceId) && subNode->getAttribute("Tags", tags)) {
+                    if (subNode.getAttribute("Service", serviceId) && subNode.getAttribute("Tags", tags)) {
                         JsonNode serviceNode(serviceId, JsonNode::TypeArray);
                         for (uint32_t i = 0; i < tags.count(); i++) {
                             const String &tag = tags[i];
@@ -212,11 +212,11 @@ namespace Microservice {
         if (_httpClient.get(url.toString(), DefaultHeaders, content)) {
             JsonNode node;
             if (JsonNode::parse(content, node)) {
-                PList<JsonNode> nodes;
+                JsonNodes nodes;
                 if (node.subNodes(nodes) && nodes.count() == 1) {
-                    JsonNode *serviceNode = nodes[0];
+                    const JsonNode &serviceNode = nodes[0];
                     String serviceName;
-                    if (serviceNode->getAttribute("ServiceName", serviceName)) {
+                    if (serviceNode.getAttribute("ServiceName", serviceName)) {
                         return serviceName == serviceId;
                     }
                 }
@@ -232,12 +232,12 @@ namespace Microservice {
         String content;
         JsonNode node;
         if (getAllServices(_baseUrl, content) && JsonNode::parse(content, node)) {
-            PList<JsonNode> nodes;
+            JsonNodes nodes;
             if (node.subNodes(nodes)) {
                 for (uint32_t i = 0; i < nodes.count(); i++) {
-                    JsonNode *subNode = nodes[i];
+                    const JsonNode &subNode = nodes[i];
                     String serviceId;
-                    if (subNode->getAttribute("Service", serviceId))
+                    if (subNode.getAttribute("Service", serviceId))
                         serviceIds.add(serviceId);
                 }
                 return nodes.count() > 0;
@@ -271,7 +271,7 @@ namespace Microservice {
         }
 
         ServiceInstance *instance = nullptr;
-        for (uint32_t i = 0; i < root.size(); i++) {
+        for (size_t i = 0; i < root.count(); i++) {
             JsonNode serviceNode;
             if (root.at(i, serviceNode)) {
                 String serviceId;
@@ -292,7 +292,7 @@ namespace Microservice {
                         instance->setTags(tags);
 
                     JsonNode metaNode;
-                    if (serviceNode.atByName("Meta", metaNode)) {
+                    if (serviceNode.at("Meta", metaNode)) {
                         StringMap meta;
                         StringArray names;
                         metaNode.getAttributeNames(names);
@@ -315,7 +315,7 @@ namespace Microservice {
             return false;
 
         ServiceInstance *instance = nullptr;
-        for (uint32_t i = 0; i < root.size(); i++) {
+        for (size_t i = 0; i < root.count(); i++) {
             JsonNode serviceNode;
             if (root.at(i, serviceNode)) {
                 String serviceId;

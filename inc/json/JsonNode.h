@@ -11,7 +11,7 @@
 
 #include "data/ValueType.h"
 #include "data/Vector.h"
-#include "data/PList.h"
+#include "data/List.h"
 #include "data/StringArray.h"
 #include "yml/YmlNode.h"
 
@@ -20,20 +20,23 @@ class JSONNode;
 namespace Common {
     class JsonTextReader;
 
-    class JsonNode {
+    class JsonNode;
+
+    typedef List<JsonNode> JsonNodes;
+
+    class JsonNode
+            : public IEquatable<JsonNode>,
+              public IEvaluation<JsonNode>,
+              public IIndexGetter<JsonNode>,
+              public IPositionGetter<JsonNode, const String &> {
     public:
         enum Type {
-            TypeNone,
-            TypeNode,
-            TypeArray,
-            TypeString,
-            TypeNumber,
-            TypeBoolean
-        };
-
-        struct KeyValue {
-            const String key;
-            const String value;
+            TypeNone = 0,
+            TypeString = 1,
+            TypeNumber = 2,
+            TypeBoolean = 3,
+            TypeArray = 4,
+            TypeNode = 5
         };
 
         JsonNode(Type type = Type::TypeNode);
@@ -46,13 +49,15 @@ namespace Common {
 
         JsonNode(const String &name, const char &value);
 
+        JsonNode(const String &name, const int8_t &value);
+
         JsonNode(const String &name, const uint8_t &value);
 
-        JsonNode(const String &name, const short &value);
+        JsonNode(const String &name, const int16_t &value);
 
         JsonNode(const String &name, const uint16_t &value);
 
-        JsonNode(const String &name, const int &value);
+        JsonNode(const String &name, const int32_t &value);
 
         JsonNode(const String &name, const uint32_t &value);
 
@@ -74,29 +79,43 @@ namespace Common {
 
         template<class T>
         JsonNode(const String &name, const Vector<T> &value) : JsonNode(name, Type::TypeArray) {
-            for (uint32_t i = 0; i < value.count(); i++) {
+            for (size_t i = 0; i < value.count(); i++) {
                 add(JsonNode("item", value[i]));
             }
         }
 
         template<class T>
-        JsonNode(const String &name, const PList<T> &value) : JsonNode(name, Type::TypeArray) {
-            for (uint32_t i = 0; i < value.count(); i++) {
+        JsonNode(const String &name, const List<T> &value) : JsonNode(name, Type::TypeArray) {
+            for (size_t i = 0; i < value.count(); i++) {
                 add(JsonNode("item", value[i]));
             }
         }
 
         JsonNode(const String &name, const StringArray &value);
 
-        JsonNode(const KeyValue *item);
+        JsonNode(std::initializer_list<JsonNode> list);
 
-        ~JsonNode();
+        JsonNode(const String &name, std::initializer_list<JsonNode> list);
+
+        ~JsonNode() override;
+
+        bool equals(const JsonNode &other) const override;
+
+        void evaluates(const JsonNode &other) override;
+
+        JsonNode at(size_t pos) const override;
+
+        JsonNode at(const String &name) const override;
+
+        bool at(size_t pos, JsonNode &node) const;
+
+        bool at(const String &name, JsonNode &node) const;
 
         void add(const JsonNode &node);
 
         String toString(bool format = false) const;
 
-        bool getAttributeNames(StringArray &names) const;
+        void getAttributeNames(StringArray &names) const;
 
         bool getAttribute(const String &name, String &value) const;
 
@@ -108,13 +127,17 @@ namespace Common {
 
         bool getAttribute(const String &name, bool &value) const;
 
+        bool getAttribute(const String &name, char &value) const;
+
+        bool getAttribute(const String &name, int8_t &value) const;
+
         bool getAttribute(const String &name, uint8_t &value) const;
 
-        bool getAttribute(const String &name, short &value) const;
+        bool getAttribute(const String &name, int16_t &value) const;
 
         bool getAttribute(const String &name, uint16_t &value) const;
 
-        bool getAttribute(const String &name, int &value) const;
+        bool getAttribute(const String &name, int32_t &value) const;
 
         bool getAttribute(const String &name, uint32_t &value) const;
 
@@ -138,7 +161,22 @@ namespace Common {
             if (!getAttribute(name, texts))
                 return false;
 
-            for (uint32_t i = 0; i < texts.count(); i++) {
+            for (size_t i = 0; i < texts.count(); i++) {
+                T item;
+                if (T::parse(texts[i], item)) {
+                    value.add(item);
+                }
+            }
+            return value.count() == texts.count();
+        }
+
+        template<class T>
+        bool getAttribute(const String &name, List<T> &value) const {
+            StringArray texts;
+            if (!getAttribute(name, texts))
+                return false;
+
+            for (size_t i = 0; i < texts.count(); i++) {
                 T item;
                 if (T::parse(texts[i], item)) {
                     value.add(item);
@@ -151,13 +189,9 @@ namespace Common {
 
         bool hasAttribute() const;
 
-        bool subNodes(PList<JsonNode> &nodes) const;
+        bool subNodes(JsonNodes &nodes) const;
 
         bool hasSubNodes() const;
-
-        bool atByName(const String &name, JsonNode &node) const;
-
-        bool at(int i, JsonNode &node) const;
 
         String name() const;
 
@@ -165,20 +199,24 @@ namespace Common {
 
         Type type() const;
 
-        uint32_t size() const;
+        String value() const;
+
+        void setValue(const String &value);
+
+        String comment() const;
+
+        void setComment(const String &comment);
+
+        size_t count() const;
 
         bool isEmpty() const;
 
-        void operator=(const JsonNode &value);
+        JsonNode &operator=(const JsonNode &value);
 
-        bool operator==(const JsonNode &value) const;
-
-        bool operator!=(const JsonNode &value) const;
-
-        void copyTo(YmlNode &node) const;
+        bool copyTo(YmlNode &node) const;
 
     private:
-        JsonNode(JSONNode *node);
+        explicit JsonNode(JSONNode *node);
 
     public:
         static bool parse(const String &str, JsonNode &node);
@@ -186,7 +224,7 @@ namespace Common {
         static bool parse(const String &str, StringMap &values);
 
     private:
-        static void copyArrayTo(JSONNode *jnode, const String &name, YmlNode &node);
+        static void copyArrayTo(JSONNode *jsonNode, const String &name, YmlNode &node);
 
     private:
         friend JsonTextReader;

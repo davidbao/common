@@ -13,7 +13,7 @@ using namespace Database;
 bool testConstructor() {
     {
         SqlSelectFilter test;
-        if (!(test.page() == 1 && test.pageSize() == 0)) {
+        if (!(test.page() == 1 && test.pageSize() == 1)) {
             return false;
         }
     }
@@ -148,6 +148,28 @@ bool testParse() {
             return false;
         }
         if (!(test.page() == 1 && test.pageSize() == 100)) {
+            return false;
+        }
+        if(test.getValue("name") != "Xu") {
+            return false;
+        }
+        if(test.getValue("age") != "90") {
+            return false;
+        }
+    }
+
+    {
+        String str = "{\n"
+                     "    \"name\":\"Xu\",\n"
+                     "    \"age\":90,\n"
+                     "    \"page\":0,\n"
+                     "    \"pageSize\":0\n"
+                     "}";
+        SqlSelectFilter test;
+        if (!SqlSelectFilter::parse(str, test)) {
+            return false;
+        }
+        if (!(test.page() == 1 && test.pageSize() == 1)) {
             return false;
         }
         if(test.getValue("name") != "Xu") {

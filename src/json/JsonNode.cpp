@@ -16,6 +16,12 @@ namespace Common {
             _inner = new JSONNode(JSON_NODE);
         else if (type == Type::TypeArray)
             _inner = new JSONNode(JSON_ARRAY);
+        else if (type == Type::TypeNumber)
+            _inner = new JSONNode(JSON_NUMBER);
+        else if (type == Type::TypeString)
+            _inner = new JSONNode(JSON_STRING);
+        else if (type == Type::TypeBoolean)
+            _inner = new JSONNode(JSON_BOOL);
         else
             _inner = new JSONNode(JSON_NULL);
     }
@@ -34,22 +40,17 @@ namespace Common {
         _inner->set_name(name.c_str());
     }
 
-    JsonNode::JsonNode(const String &name, const char *value) : JsonNode(name, (String) value) {
+    JsonNode::JsonNode(const String &name, const char *value) : JsonNode(name, String(value)) {
     }
 
     JsonNode::JsonNode(const String &name, const String &value) : _attach(false) {
         if (value.find('{') == 0 ||
             value.find('[') == 0) {
-            try {
-                _inner = new JSONNode(JSON_NODE);
-                _inner->set_name(name.c_str());
-                JSONNode node = JSONWorker::parse(value.c_str());
-                _inner->operator=(node);
-                _inner->set_name(name.c_str());
-            }
-            catch (...) {
-                _inner = new JSONNode(name.c_str(), value);
-            }
+            _inner = new JSONNode(JSON_NODE);
+            _inner->set_name(name.c_str());
+            JSONNode node = JSONWorker::parse(value.c_str());
+            _inner->operator=(node);
+            _inner->set_name(name.c_str());
         } else {
             _inner = new JSONNode(name.c_str(), value);
         }
@@ -63,11 +64,15 @@ namespace Common {
         _inner = new JSONNode(name.c_str(), value);
     }
 
+    JsonNode::JsonNode(const String &name, const int8_t &value) : _attach(false) {
+        _inner = new JSONNode(name.c_str(), value);
+    }
+
     JsonNode::JsonNode(const String &name, const uint8_t &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
 
-    JsonNode::JsonNode(const String &name, const short &value) : _attach(false) {
+    JsonNode::JsonNode(const String &name, const int16_t &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
 
@@ -75,7 +80,7 @@ namespace Common {
         _inner = new JSONNode(name.c_str(), value);
     }
 
-    JsonNode::JsonNode(const String &name, const int &value) : _attach(false) {
+    JsonNode::JsonNode(const String &name, const int32_t &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
 
@@ -110,18 +115,20 @@ namespace Common {
     }
 
     JsonNode::JsonNode(const String &name, const StringArray &value) : JsonNode(name, Type::TypeArray) {
-        for (uint32_t i = 0; i < value.count(); i++) {
+        for (size_t i = 0; i < value.count(); i++) {
             add(JsonNode("item", value[i]));
         }
     }
 
-    JsonNode::JsonNode(const KeyValue *item) : JsonNode(TypeNode) {
-        const KeyValue *kv = item;
-        while (kv != NULL && !kv->key.isNullOrEmpty()) {
-            if (kv != NULL) {
-                add(JsonNode(kv->key, kv->value));
-            }
-            kv++;
+    JsonNode::JsonNode(std::initializer_list<JsonNode> list) : JsonNode(Type::TypeNode) {
+        for (const auto &item: list) {
+            add(item);
+        }
+    }
+
+    JsonNode::JsonNode(const String &name, std::initializer_list<JsonNode> list) : JsonNode(name, Type::TypeNode) {
+        for (const auto &item: list) {
+            add(item);
         }
     }
 
@@ -136,6 +143,53 @@ namespace Common {
         }
     }
 
+    bool JsonNode::equals(const JsonNode &other) const {
+        return _inner->operator==(*other._inner);
+    }
+
+    void JsonNode::evaluates(const JsonNode &other) {
+        _attach = other._attach;
+        if (other._attach) {
+            _inner = other._inner;
+        } else {
+            _inner->operator=(*other._inner);
+        }
+    }
+
+    JsonNode JsonNode::at(size_t pos) const {
+        JsonNode node(JsonNode::TypeNone);
+        if (pos < count()) {
+            const JSONNode &temp = _inner->at(pos);
+            if (temp.type() != JSON_NULL) {
+                node._inner->operator=(temp);
+            }
+        }
+        return node;
+    }
+
+    JsonNode JsonNode::at(const String &name) const {
+        JsonNode node(JsonNode::TypeNone);
+        JSONNode::const_iterator iter = _inner->begin();
+        for (; iter != _inner->end(); ++iter) {
+            const JSONNode &n = *iter;
+            if (n.name() == name) {
+                node._inner->operator=(n);
+                break;
+            }
+        }
+        return node;
+    }
+
+    bool JsonNode::at(size_t pos, JsonNode &node) const {
+        node = at(pos);
+        return !node.isEmpty();
+    }
+
+    bool JsonNode::at(const String &name, JsonNode &node) const {
+        node = at(name);
+        return !node.isEmpty();
+    }
+
     void JsonNode::add(const JsonNode &node) {
         _inner->push_back(*node._inner);
     }
@@ -145,17 +199,10 @@ namespace Common {
     }
 
     bool JsonNode::parse(const String &str, JsonNode &node) {
-        try {
-            if (!str.isNullOrEmpty()) {
-                JSONNode temp = JSONWorker::parse(str.c_str());
-                node._inner->operator=(temp);
-                return true;
-            }
-        }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
+        if (!str.isNullOrEmpty()) {
+            JSONNode temp = JSONWorker::parse(str.c_str());
+            node._inner->operator=(temp);
+            return node.type() != TypeNone;
         }
         return false;
     }
@@ -165,69 +212,54 @@ namespace Common {
         if (JsonNode::parse(str, node)) {
             String value;
             StringArray names;
-            if (node.getAttributeNames(names)) {
-                for (uint32_t i = 0; i < names.count(); i++) {
-                    const String &name = names[i];
-                    if (node.getAttribute(name, value)) {
-                        values.add(name, value);
-                    }
+            node.getAttributeNames(names);
+            for (size_t i = 0; i < names.count(); i++) {
+                const String &name = names[i];
+                if (node.getAttribute(name, value)) {
+                    values.add(name, value);
                 }
-                return true;
             }
+            return true;
         }
         return false;
     }
 
-    bool JsonNode::getAttributeNames(StringArray &names) const {
-        try {
-            JSONNode::const_iterator iter = _inner->begin();
-            for (; iter != _inner->end(); ++iter) {
+    void JsonNode::getAttributeNames(StringArray &names) const {
+        JSONNode::const_iterator iter = _inner->begin();
+        for (; iter != _inner->end(); ++iter) {
+            const JSONNode &n = *iter;
+            String str;
+            if (n.type() == JSON_NODE)
+                str = n.write();
+            else
+                str = n.name();
+            names.add(str);
+        }
+    }
+
+    bool JsonNode::getAttribute(const String &name, String &value) const {
+        const JSONNode &node = _inner->at(name.c_str());
+        if (node.type() == JSON_NULL) {
+            return false;
+        } else if (node.type() == JSON_NODE)
+            value = node.write();
+        else if (node.type() == JSON_ARRAY) {
+            StringArray texts;
+            JSONNode::const_iterator iter = node.begin();
+            for (; iter != node.end(); ++iter) {
                 const JSONNode &n = *iter;
                 String str;
                 if (n.type() == JSON_NODE)
                     str = n.write();
                 else
-                    str = n.name();
-                names.add(str);
+                    str = n.as_string();
+                texts.add(str);
             }
-            return true;
+            value = texts.toString();
+        } else {
+            value = node.as_string();
         }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, String &value) const {
-        try {
-            JSONNode &node = _inner->at(name.c_str());
-            if (node.type() == JSON_NODE)
-                value = node.write();
-            else if (node.type() == JSON_ARRAY) {
-                StringArray texts;
-                JSONNode::const_iterator iter = node.begin();
-                for (; iter != node.end(); ++iter) {
-                    const JSONNode &n = *iter;
-                    String str;
-                    if (n.type() == JSON_NODE)
-                        str = n.write();
-                    else
-                        str = n.as_string();
-                    texts.add(str);
-                }
-                value = texts.toString();
-            } else
-                value = node.as_string();
-            return true;
-        }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
-        }
-        return false;
+        return true;
     }
 
     bool JsonNode::getAttribute(const String &name, bool &value) const {
@@ -239,8 +271,8 @@ namespace Common {
         return false;
     }
 
-    bool JsonNode::getAttribute(const String &name, uint8_t &value) const {
-        Byte result;
+    bool JsonNode::getAttribute(const String &name, char &value) const {
+        Int8 result;
         if (getAttribute(name, result)) {
             value = result;
             return true;
@@ -248,7 +280,25 @@ namespace Common {
         return false;
     }
 
-    bool JsonNode::getAttribute(const String &name, short &value) const {
+    bool JsonNode::getAttribute(const String &name, int8_t &value) const {
+        Int8 result;
+        if (getAttribute(name, result)) {
+            value = result;
+            return true;
+        }
+        return false;
+    }
+
+    bool JsonNode::getAttribute(const String &name, uint8_t &value) const {
+        UInt8 result;
+        if (getAttribute(name, result)) {
+            value = result;
+            return true;
+        }
+        return false;
+    }
+
+    bool JsonNode::getAttribute(const String &name, int16_t &value) const {
         Int16 result;
         if (getAttribute(name, result)) {
             value = result;
@@ -266,7 +316,7 @@ namespace Common {
         return false;
     }
 
-    bool JsonNode::getAttribute(const String &name, int &value) const {
+    bool JsonNode::getAttribute(const String &name, int32_t &value) const {
         Int32 result;
         if (getAttribute(name, result)) {
             value = result;
@@ -321,28 +371,21 @@ namespace Common {
     }
 
     bool JsonNode::getAttribute(const String &name, StringArray &value) const {
-        try {
-            JSONNode &node = _inner->at(name.c_str());
-            if (node.type() == JSON_ARRAY) {
-                StringArray texts;
-                JSONNode::const_iterator iter = node.begin();
-                for (; iter != node.end(); ++iter) {
-                    const JSONNode &n = *iter;
-                    String str;
-                    if (n.type() == JSON_NODE)
-                        str = n.write();
-                    else
-                        str = n.as_string();
-                    texts.add(str);
-                }
-                value = texts.toString();
-                return true;
+        const JSONNode &node = _inner->at(name.c_str());
+        if (node.type() == JSON_ARRAY) {
+            StringArray texts;
+            JSONNode::const_iterator iter = node.begin();
+            for (; iter != node.end(); ++iter) {
+                const JSONNode &n = *iter;
+                String str;
+                if (n.type() == JSON_NODE)
+                    str = n.write();
+                else
+                    str = n.as_string();
+                texts.add(str);
             }
-        }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
+            value = texts.toString();
+            return true;
         }
         return false;
     }
@@ -358,7 +401,6 @@ namespace Common {
                 else
                     str = n.as_string();
                 value.add(str);
-
             }
             return true;
         }
@@ -367,17 +409,15 @@ namespace Common {
 
     bool JsonNode::getAttribute(StringMap &value) const {
         StringArray names;
-        if (getAttributeNames(names)) {
-            for (uint32_t i = 0; i < names.count(); i++) {
-                const String &name = names[i];
-                String v;
-                if (getAttribute(name, v)) {
-                    value.add(name, v);
-                }
+        getAttributeNames(names);
+        for (size_t i = 0; i < names.count(); i++) {
+            const String &name = names[i];
+            String v;
+            if (getAttribute(name, v)) {
+                value.add(name, v);
             }
-            return value.count() > 0;
         }
-        return false;
+        return value.count() > 0;
     }
 
     bool JsonNode::hasAttribute(const String &name) const {
@@ -387,23 +427,23 @@ namespace Common {
 
     bool JsonNode::hasAttribute() const {
         StringArray names;
-        return getAttributeNames(names) && names.count() > 0;
+        getAttributeNames(names);
+        return names.count() > 0;
     }
 
-    bool JsonNode::subNodes(PList<JsonNode> &nodes) const {
+    bool JsonNode::subNodes(JsonNodes &nodes) const {
         JSONNode::iterator iter = _inner->begin();
         for (; iter != _inner->end(); ++iter) {
             JSONNode &n = *iter;
             if (n.type() == JSON_NODE) {
-                JsonNode *node = new JsonNode(&n);
-                nodes.add(node);
+                nodes.add(JsonNode(&n));
             }
         }
         return nodes.count() > 0;
     }
 
     bool JsonNode::hasSubNodes() const {
-        return _inner->size() > 0;
+        return !_inner->empty();
     }
 
     String JsonNode::name() const {
@@ -433,107 +473,77 @@ namespace Common {
         }
     }
 
-    uint32_t JsonNode::size() const {
-        return _inner->size();
+    String JsonNode::value() const {
+        return _inner->as_string();
+    }
+
+    void JsonNode::setValue(const String &value) {
+        _inner->operator=(value.c_str());
+    }
+
+    String JsonNode::comment() const {
+        return _inner->get_comment();
+    }
+
+    void JsonNode::setComment(const String &comment) {
+        _inner->set_comment(comment.c_str());
+    }
+
+    size_t JsonNode::count() const {
+        return (size_t) _inner->size();
     }
 
     bool JsonNode::isEmpty() const {
         return type() == TypeNone;
     }
 
-    bool JsonNode::at(int i, JsonNode &node) const {
-        if (i < (int) size()) {
-            try {
-                JSONNode &temp = _inner->at(i);
-                node._inner->operator=(temp);
-                return true;
-            }
-            catch (const exception &e) {
-                Trace::debug(e.what());
-            }
-            catch (...) {
-            }
+    JsonNode &JsonNode::operator=(const JsonNode &value) {
+        if (this != &value) {
+            JsonNode::evaluates(value);
         }
-        return false;
+        return *this;
     }
 
-    bool JsonNode::atByName(const String &name, JsonNode &node) const {
-        try {
-            JSONNode &temp = _inner->at(name.c_str());
-            node._inner->operator=(temp);
-            return true;
-        }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
-        }
-        return false;
-    }
-
-    void JsonNode::operator=(const JsonNode &value) {
-        _attach = value._attach;
-        if (value._attach) {
-            _inner = value._inner;
+    bool JsonNode::copyTo(YmlNode &node) const {
+        if (_inner->type() == JSON_ARRAY) {
+            copyArrayTo(_inner, "array", node);
         } else {
-            _inner->operator=(*value._inner);
-        }
-    }
-
-    bool JsonNode::operator==(const JsonNode &value) const {
-        return _inner->operator==(*value._inner);
-    }
-
-    bool JsonNode::operator!=(const JsonNode &value) const {
-        return !operator==(value);
-    }
-
-    void JsonNode::copyTo(YmlNode &node) const {
-        try {
-            if (_inner->type() == JSON_ARRAY) {
-                copyArrayTo(_inner, "array", node);
-            } else {
-                JSONNode::const_iterator iter = _inner->begin();
-                for (; iter != _inner->end(); ++iter) {
-                    const JSONNode &n = *iter;
-                    const String name = n.name();
-                    JSONNode &jnode = _inner->at(name.c_str());
-                    if (jnode.type() == JSON_NODE) {
-                        JsonNode subNode(&jnode);
-                        YmlNode ynode;
-                        subNode.copyTo(ynode);
-                        node.add(name, ynode);
-                    } else if (jnode.type() == JSON_ARRAY) {
-                        copyArrayTo(&jnode, name, node);
-                    } else {
-                        node.setAttribute(name, String(jnode.as_string()));
-                    }
+            JSONNode::const_iterator iter = _inner->begin();
+            for (; iter != _inner->end(); ++iter) {
+                const JSONNode &n = *iter;
+                const String name = n.name();
+                JSONNode &jsonNode = _inner->at(name.c_str());
+                if (jsonNode.type() == JSON_NODE) {
+                    JsonNode subNode(&jsonNode);
+                    YmlNode ymlNode;
+                    subNode.copyTo(ymlNode);
+                    node.add(name, ymlNode);
+                } else if (jsonNode.type() == JSON_ARRAY) {
+                    copyArrayTo(&jsonNode, name, node);
+                } else {
+                    node.setAttribute(name, String(jsonNode.as_string()));
                 }
             }
         }
-        catch (const exception &e) {
-            Trace::debug(e.what());
-        }
-        catch (...) {
-        }
+        return true;
     }
 
-    void JsonNode::copyArrayTo(JSONNode *jnode, const String &name, YmlNode &node) {
-        YmlNode ysnode(YmlNode::TypeSequence);
-        JSONNode::const_iterator iter = jnode->begin();
-        for (; iter != jnode->end(); ++iter) {
+    void JsonNode::copyArrayTo(JSONNode *jsonNode, const String &name, YmlNode &node) {
+        YmlNode ymlNodes(YmlNode::TypeSequence);
+        JSONNode::const_iterator iter = jsonNode->begin();
+        for (; iter != jsonNode->end(); ++iter) {
             const JSONNode &n = *iter;
             if (n.type() == JSON_NODE) {
                 JsonNode subNode((JSONNode *) &n);
-                YmlNode ynode;
-                subNode.copyTo(ynode);
-                ysnode.add(ynode);
+                YmlNode ymlNode;
+                subNode.copyTo(ymlNode);
+                ymlNodes.add(ymlNode);
             } else if (n.type() == JSON_ARRAY) {
                 copyArrayTo((JSONNode *) &n, "array", node);
             } else {
-                ysnode.add(YmlNode(String(n.as_string())));
+                ymlNodes.add(YmlNode(String(n.as_string())));
             }
         }
-        node.add(name, ysnode);
+        node.add(name, ymlNodes);
     }
 }

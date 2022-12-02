@@ -152,9 +152,9 @@ namespace Microservice {
             const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);
             assert(content);
             JsonNode node;
-            if (content->node().atByName("hosts", node)) {
+            if (content->node().at("hosts", node)) {
                 ServiceInstance *instance = nullptr;
-                for (uint32_t i = 0; i < node.size(); i++) {
+                for (size_t i = 0; i < node.count(); i++) {
                     JsonNode serviceNode;
                     if (node.at(i, serviceNode)) {
                         if ((instance = instances.at(serviceId)) == nullptr) {
@@ -169,7 +169,7 @@ namespace Microservice {
                             instance->setEndpoint(Endpoint(ip, port));
 
                         JsonNode metaNode;
-                        if (serviceNode.atByName("metadata", metaNode)) {
+                        if (serviceNode.at("metadata", metaNode)) {
                             StringMap meta;
                             StringArray names;
                             metaNode.getAttributeNames(names);
@@ -490,13 +490,13 @@ namespace Microservice {
             assert(content);
             JsonNode node = content->value();
             JsonNode dataNode, serviceNode;
-            node.atByName("data", dataNode);
-            if (dataNode.size() > 0 && dataNode.at(0, serviceNode)) {
+            node.at("data", dataNode);
+            if (dataNode.count() > 0 && dataNode.at(0, serviceNode)) {
                 JsonNode eNode, rNode, mNode, nNode;
-                serviceNode.atByName("extendInfo", eNode);
-                eNode.atByName("raftMetaData", rNode);
-                rNode.atByName("metaDataMap", mNode);
-                mNode.atByName("naming_service_metadata", nNode);
+                serviceNode.at("extendInfo", eNode);
+                eNode.at("raftMetaData", rNode);
+                rNode.at("metaDataMap", mNode);
+                mNode.at("naming_service_metadata", nNode);
                 Endpoint leader;
                 if (nNode.getAttribute("leader", leader)) {
                     ip = leader.address;

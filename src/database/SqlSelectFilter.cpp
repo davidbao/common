@@ -37,7 +37,7 @@ namespace Database {
     }
 
     int SqlSelectFilter::pageSize() const {
-        return _pageSize >= 0 ? _pageSize : 0;
+        return _pageSize >= 1 ? _pageSize : 1;
     }
 
     void SqlSelectFilter::add(const String &key, const String &value) {
@@ -113,47 +113,46 @@ namespace Database {
         JsonNode node;
         if (JsonNode::parse(str, node)) {
             StringArray names;
-            if (node.getAttributeNames(names)) {
-                int offset = -1;
-                int index;
-                String value, key, from, to;
-                for (size_t i = 0; i < names.count(); i++) {
-                    String name = names[i];
-                    if (node.getAttribute(name, value)) {
-                        if ((index = (int) name.find("From")) > 0) {
-                            from = value;
-                            key = name.substr(0, index);
-                        } else if ((index = (int) name.find("To")) > 0) {
-                            to = value;
-                            String temp = name.substr(0, index);
-                            if (temp == key)
-                                filter.addRange(key, from, to);
-                        } else {
-                            key = name;
-                            from.empty();
-                            to.empty();
+            node.getAttributeNames(names);
+            int offset = -1;
+            int index;
+            String value, key, from, to;
+            for (size_t i = 0; i < names.count(); i++) {
+                String name = names[i];
+                if (node.getAttribute(name, value)) {
+                    if ((index = (int) name.find("From")) > 0) {
+                        from = value;
+                        key = name.substr(0, index);
+                    } else if ((index = (int) name.find("To")) > 0) {
+                        to = value;
+                        String temp = name.substr(0, index);
+                        if (temp == key)
+                            filter.addRange(key, from, to);
+                    } else {
+                        key = name;
+                        from.empty();
+                        to.empty();
 
-                            if (name == "page") {
-                                Int32::parse(value, filter._page);
-                                if (filter._page <= 0)
-                                    filter._page = 1;
-                                offset = -1;
-                            } else if (name == "pageSize") {
-                                Int32::parse(value, filter._pageSize);
-                            } else if (name == "offset") {
-                                Int32::parse(value, offset);
-                            } else if (name == "limit") {
-                                Int32::parse(value, filter._pageSize);
-                            } else {
-                                filter.add(key, value);
-                            }
+                        if (name == "page") {
+                            Int32::parse(value, filter._page);
+                            if (filter._page <= 0)
+                                filter._page = 1;
+                            offset = -1;
+                        } else if (name == "pageSize") {
+                            Int32::parse(value, filter._pageSize);
+                        } else if (name == "offset") {
+                            Int32::parse(value, offset);
+                        } else if (name == "limit") {
+                            Int32::parse(value, filter._pageSize);
+                        } else {
+                            filter.add(key, value);
                         }
                     }
                 }
-                if (offset >= 0)
-                    filter._page = offset / filter._pageSize + 1;
-                return true;
             }
+            if (offset >= 0)
+                filter._page = offset / filter.pageSize() + 1;
+            return true;
         }
         return false;
     }
