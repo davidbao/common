@@ -4,10 +4,13 @@
 #include "data/ByteArray.h"
 #include "data/ValueType.h"
 
+namespace Xml {
+    class XmlTextReader;
+}
+
 namespace Common
 {
     class StringArray;
-    class XmlTextReader;
     class JsonTextReader;
     class ZipInner;
     class ZipFileInner;
@@ -25,7 +28,7 @@ namespace Common
         
     private:
         friend Zip;
-        friend XmlTextReader;
+        friend Xml::XmlTextReader;
         
         ZipFileInner* _handle;
     };
@@ -65,7 +68,7 @@ namespace Common
         static int zipClose(void * context);
 
     private:
-        friend XmlTextReader;
+        friend Xml::XmlTextReader;
         friend JsonTextReader;
         
         ZipInner* _zip;

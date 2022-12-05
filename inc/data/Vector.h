@@ -30,7 +30,7 @@ namespace Common {
             : public IEquatable<Vector<type>>,
               public IEvaluation<Vector<type>>,
               public Iterator<type>,
-              public IIndexable<const type&, type>,
+              public IIndexable<const type &, type>,
               public IMutex {
     public:
         explicit Vector(size_t capacity = DefaultCapacity) : _array(nullptr), _capacity(0), _count(0) {
@@ -110,7 +110,9 @@ namespace Common {
         }
 
         Vector &operator=(const Vector &other) {
-            evaluates(other);
+            if (this != &other) {
+                evaluates(other);
+            }
             return *this;
         }
 

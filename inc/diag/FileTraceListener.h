@@ -18,6 +18,8 @@
 #include "diag/TraceListener.h"
 #include "IO/FileStream.h"
 
+using namespace Xml;
+
 namespace Common
 {
     class FileTraceListenerContext : public TraceListenerContext

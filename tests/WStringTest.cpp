@@ -607,7 +607,14 @@ bool testAppend() {
 
     {
         WString test = L"abc";
-        test.appendFormat(L"%s", "123");
+        test.appendFormat(L"%d", 123);
+        if (test != L"abc123") {
+            return false;
+        }
+    }
+    {
+        WString test = L"abc";
+        test.appendFormat(L"%ls", L"123");
         if (test != L"abc123") {
             return false;
         }
@@ -618,13 +625,13 @@ bool testAppend() {
 
 bool testFormat() {
     {
-        WString test = WString::format(L"abc%s", "123");
+        WString test = WString::format(L"abc%d", 123);
         if (test != L"abc123") {
             return false;
         }
     }
     {
-        WString test = WString::convert(L"abc%s", "123");
+        WString test = WString::convert(L"abc%ls", L"123");
         if (test != L"abc123") {
             return false;
         }

@@ -16,6 +16,8 @@
 #include "json/JsonTextReader.h"
 #include "configuration/ConfigFile.h"
 
+using namespace Xml;
+
 namespace Common
 {
     typedef bool (*action_savePart)(XmlDocument&, void*);

@@ -426,8 +426,7 @@ namespace Common {
 #else
         char result[PATH_MAX];
         ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-        if (count > 0 && count < PATH_MAX)
-        {
+        if (count > 0 && count < PATH_MAX) {
             result[count] = '\0';
             filePath = String(result);
         }

@@ -864,39 +864,30 @@ bool testCopyTo() {
 }
 
 int main() {
-    printf("1\n");
     if (!testConstructor()) {
         return 1;
     }
-    printf("2\n");
     if (!testEquals()) {
         return 2;
     }
-    printf("3\n");
     if (!testAt()) {
         return 3;
     }
-    printf("4\n");
     if (!testProperty()) {
         return 4;
     }
-    printf("5\n");
     if (!testAttribute()) {
         return 5;
     }
-    printf("6\n");
     if (!testToString()) {
         return 6;
     }
-    printf("7\n");
     if (!testParse()) {
         return 7;
     }
-    printf("8\n");
     if (!testCopyTo()) {
         return 8;
     }
-    printf("9\n");
 
     return 0;
 }

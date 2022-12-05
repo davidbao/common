@@ -10,96 +10,75 @@
 #define XmlTextReader_h
 
 #include "data/ValueType.h"
-#include "net/NetType.h"
 #include "IO/Zip.h"
 #include "configuration/ConfigFile.h"
 #include "xml/XmlNode.h"
+#include "data/IAttribute.h"
 
-namespace Common
-{
+namespace Xml {
     class XmlTextReaderInner;
-	class XmlTextReader
-	{
-	public:
-        XmlTextReader(const String& fileName);
-        XmlTextReader(const String& text, size_t length);
-        XmlTextReader(Zip* zip, const String& fileName);
-        XmlTextReader(const String& zipFileName, const String& fileName);
-		~XmlTextReader();
 
-		bool isValid() const;
+    class XmlTextReader : public IAttributeGetter {
+    public:
+        using IAttributeGetter::getAttribute;
 
-		void clear();
+        explicit XmlTextReader(const String &fileName);
 
-		bool read();
+        XmlTextReader(const String &text, size_t length);
 
-		const String& name();
-		const String& localName();
-		const String& namespaceUri();
-		XmlNodeType nodeType();
-		const String& value();
+        XmlTextReader(Zip *zip, const String &fileName);
+
+        XmlTextReader(const String &zipFileName, const String &fileName);
+
+        ~XmlTextReader() override;
+
+        bool getAttribute(const String &name, String &value) const override;
+
+        bool isValid() const;
+
+        bool read();
+
+        String name() const;
+
+        String localName() const;
+
+        String baseUri() const;
+
+        String namespaceUri() const;
+
+        XmlNodeType nodeType() const;
+
+        String value() const;
+
+        String innerXml() const;
+
+        String outerXml() const;
+
+        int depth() const;
+
+        int lineNumber() const;
+
+        int linePosition() const;
+
+        const ConfigFile &configFile() const;
+
         bool isEmptyElement() const;
 
-		XmlNodeType moveToContent();
-		bool moveToElement();
+        XmlNodeType moveToContent();
 
-		const String getAttribute(const String& name) const;
-        bool getAttribute(const String& name, String& value) const;
-        
-        bool getAttribute(const String& name, bool& value) const;
-        bool getAttribute(const String& name, char& value,
-                          char minValue = Char::MinValue, char maxValue = Char::MaxValue) const;
-        bool getAttribute(const String& name, uint8_t& value,
-                          uint8_t minValue = Byte::MinValue, uint8_t maxValue = Byte::MaxValue) const;
-        bool getAttribute(const String& name, short& value,
-                          short minValue = Int16::MinValue, short maxValue = Int16::MaxValue) const;
-        bool getAttribute(const String& name, uint16_t& value,
-                          uint16_t minValue = UInt16::MinValue, uint16_t maxValue = UInt16::MaxValue) const;
-        bool getAttribute(const String& name, int& value,
-                          int minValue = Int32::MinValue, int maxValue = Int32::MaxValue) const;
-        bool getAttribute(const String& name, uint32_t& value,
-                          uint32_t minValue = UInt32::MinValue, uint32_t maxValue = UInt32::MaxValue) const;
-        bool getAttribute(const String& name, int64_t& value,
-                          int64_t minValue = Int64::MinValue, int64_t maxValue = Int64::MaxValue) const;
-        bool getAttribute(const String& name, uint64_t& value,
-                          uint64_t minValue = UInt64::MinValue, uint64_t maxValue = UInt64::MaxValue) const;
-        bool getAttribute(const String& name, float& value,
-                          float minValue = Float::MinValue, float maxValue = Float::MaxValue) const;
-        bool getAttribute(const String& name, double& value,
-                          double minValue = Double::MinValue, double maxValue = Double::MaxValue) const;
-        bool getAttribute(const String& name, DateTime& value,
-                          DateTime minValue = DateTime::MinValue, DateTime maxValue = DateTime::MaxValue) const;
-        bool getAttribute(const String& name, TimeSpan& value,
-                          const TimeSpan& minValue = TimeSpan::MinValue, const TimeSpan& maxValue = TimeSpan::MaxValue) const;
-        template <class T>
-        bool getAttribute(const String& name, T& value) const
-        {
-            return T::parse(getAttribute(name), value);
-        }
-        template <class T>
-        bool getAttribute(const String& name, T& value, const T& minValue, const T& maxValue) const
-        {
-            return getAttribute(name, value) && (value >= minValue && value <= maxValue);
-        }
-        
-        const ConfigFile& configFile() const;
+        bool moveToElement();
 
-	private:
-		XmlTextReaderInner* _reader;
+    private:
+        XmlTextReaderInner *_reader;
 
-		String _name;
-		String _localName;
-		String _namespaceUri;
-		XmlNodeType _nodeType;
-		String _value;
-        
         bool _deleteZip;
-        ZipFile* _zipFile;
+        ZipFile *_zipFile;
         ConfigFile _configFile;
 
-		const int XmlSuccess = 1;
-		const int XmlFailed = -1;
-	};
+    private:
+        static const int XmlSuccess = 1;
+        static const int XmlFailed = -1;
+    };
 }
 
-#endif	// XmlTextReader_h
+#endif    // XmlTextReader_h

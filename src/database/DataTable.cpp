@@ -364,12 +364,7 @@ namespace Database {
     }
 
     const DataColumn &DataTable::getColumn(const String &columnName) const {
-        for (size_t i = 0; i < _columns.count(); i++) {
-            const DataColumn &column = _columns[i];
-            if (column.name() == columnName)
-                return column;
-        }
-        return DataColumn::Empty;
+        return _columns.at(columnName);
     }
 
     size_t DataTable::columnCount() const {

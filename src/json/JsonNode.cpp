@@ -180,6 +180,26 @@ namespace Common {
         return node;
     }
 
+    bool JsonNode::getAttribute(const String &name, StringArray &value) const {
+        const JSONNode &node = _inner->at(name.c_str());
+        if (node.type() == JSON_ARRAY) {
+            StringArray texts;
+            JSONNode::const_iterator iter = node.begin();
+            for (; iter != node.end(); ++iter) {
+                const JSONNode &n = *iter;
+                String str;
+                if (n.type() == JSON_NODE)
+                    str = n.write();
+                else
+                    str = n.as_string();
+                texts.add(str);
+            }
+            value = texts.toString();
+            return true;
+        }
+        return false;
+    }
+
     bool JsonNode::at(size_t pos, JsonNode &node) const {
         node = at(pos);
         return !node.isEmpty();
@@ -260,134 +280,6 @@ namespace Common {
             value = node.as_string();
         }
         return true;
-    }
-
-    bool JsonNode::getAttribute(const String &name, bool &value) const {
-        Boolean result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, char &value) const {
-        Int8 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, int8_t &value) const {
-        Int8 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, uint8_t &value) const {
-        UInt8 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, int16_t &value) const {
-        Int16 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, uint16_t &value) const {
-        UInt16 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, int32_t &value) const {
-        Int32 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, uint32_t &value) const {
-        UInt32 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, int64_t &value) const {
-        Int64 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, uint64_t &value) const {
-        UInt64 result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, float &value) const {
-        Float result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, double &value) const {
-        Double result;
-        if (getAttribute(name, result)) {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-
-    bool JsonNode::getAttribute(const String &name, StringArray &value) const {
-        const JSONNode &node = _inner->at(name.c_str());
-        if (node.type() == JSON_ARRAY) {
-            StringArray texts;
-            JSONNode::const_iterator iter = node.begin();
-            for (; iter != node.end(); ++iter) {
-                const JSONNode &n = *iter;
-                String str;
-                if (n.type() == JSON_NODE)
-                    str = n.write();
-                else
-                    str = n.as_string();
-                texts.add(str);
-            }
-            value = texts.toString();
-            return true;
-        }
-        return false;
     }
 
     bool JsonNode::getAttribute(StringArray &value) const {

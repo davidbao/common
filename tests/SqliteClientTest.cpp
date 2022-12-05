@@ -16,7 +16,7 @@ using namespace Database;
 static String _path = Path::combine(Directory::getTempPath(), "SqliteClientTest");
 static String _fileName = Path::combine(_path, "test.db");
 
-void initialize() {
+void setUp() {
     if (!Directory::exists(_path)) {
         Directory::createDirectory(_path);
     }
@@ -37,9 +37,8 @@ bool testCreateDatabase() {
         if (!File::exists(_fileName)) {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
@@ -69,9 +68,8 @@ bool testCreateTable() {
         if (value != "t_student") {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
@@ -107,9 +105,8 @@ bool testInsertRecord() {
         if (value != "Xu") {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
@@ -206,9 +203,8 @@ bool testReplaceRecordByTable() {
         if (value != "Hu") {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
@@ -250,15 +246,16 @@ bool testRetrieveCount() {
         if(count != 1) {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
 
 bool testTransaction() {
     {
+        File::deleteFile(_fileName);
+
         SqliteClient test;
         if (!test.open(_fileName)) {
             return false;
@@ -303,9 +300,8 @@ bool testTransaction() {
         if (value != "Xu") {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     {
         SqliteClient test;
@@ -348,9 +344,8 @@ bool testTransaction() {
         if (table2.rowCount() != 0) {
             return false;
         }
-
-        File::deleteFile(_fileName);
     }
+    File::deleteFile(_fileName);
 
     return true;
 }
@@ -364,7 +359,7 @@ bool testExecuteSql() {
 }
 
 int main() {
-    initialize();
+    setUp();
 
     int result = 0;
     if (!testCreateDatabase()) {

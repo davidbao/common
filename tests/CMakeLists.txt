@@ -22,11 +22,12 @@ if (COMMON_ENABLE_TEST)
     include_directories(${CMAKE_SOURCE_DIR}/inc)
 
     # link settings
-    link_directories(${EXTERNALS_PATH}/lib/${OS_NAME})
     if (WIN_OS)
         link_directories(${EXTERNALS_PATH}/install/${OS_NAME}/lib/${CMAKE_VS_PLATFORM_NAME}/${CMAKE_BUILD_TYPE})
+        link_directories(${EXTERNALS_PATH}/lib/${OS_NAME}/${CMAKE_VS_PLATFORM_NAME}/${CMAKE_BUILD_TYPE})
     else ()
         link_directories(${EXTERNALS_PATH}/install/${OS_NAME}/lib)
+        link_directories(${EXTERNALS_PATH}/lib/${OS_NAME})
     endif ()
 
     # lib settings
@@ -51,7 +52,7 @@ if (COMMON_ENABLE_TEST)
     elseif (LINUX_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid pthread dl)
     elseif (ARM_OS)
-        set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid pthread dl)
+        set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid${CMAKE_FIND_LIBRARY_SUFFIXES} pthread dl)
     elseif (ANDROID_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv uuid log)
     elseif (WIN_OS)
@@ -59,23 +60,32 @@ if (COMMON_ENABLE_TEST)
     elseif (WEB_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB})
     endif ()
-    if (WEB_OS OR ANDROID_OS)
-    else ()
+
+    if (${COMMON_BUILD_HTTPCLIENT})
+        set(EXTERNALS_LIB curl${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
+    endif()
+
+    if (${COMMON_BUILD_HTTPSERVER})
         set(EXTERNALS_LIB
-                curl${CMAKE_FIND_LIBRARY_SUFFIXES}
                 event_openssl${CMAKE_FIND_LIBRARY_SUFFIXES}
                 event${CMAKE_FIND_LIBRARY_SUFFIXES}
                 ${EXTERNALS_LIB}
                 )
-    endif ()
+    endif()
 
     if (${COMMON_BUILD_DATABASE})
-        set(EXTERNALS_LIB ${EXTERNALS_LIB}
-                sqlite3${CMAKE_FIND_LIBRARY_SUFFIXES}
-                mysqlclient${CMAKE_FIND_LIBRARY_SUFFIXES})
+        if (${COMMON_BUILD_SQLITE})
+            set(EXTERNALS_LIB sqlite3${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
+        endif ()
+        if (${COMMON_BUILD_MYSQL})
+            set(EXTERNALS_LIB mysqlclient${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
+        endif ()
+        if (${COMMON_BUILD_ORACLE})
+        endif ()
     endif ()
 
     set(COMMON_LIB common ${EXTERNALS_LIB})
+#    message(STATUS "COMMON_LIB: " ${COMMON_LIB})
 
     # application settings
     set(TEST_SRC
@@ -94,7 +104,9 @@ if (COMMON_ENABLE_TEST)
             # json
             JsonNodeTest
             # system
-            RandomTest ResourcesTest EnvironmentTest)
+            RandomTest ResourcesTest EnvironmentTest
+            # xml
+            XmlDocumentTest XmlTextReaderTest)
 
     if (${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
         set(TEST_SRC ${TEST_SRC} HttpClientTest)
@@ -104,7 +116,15 @@ if (COMMON_ENABLE_TEST)
     endif ()
 
     if (${COMMON_BUILD_DATABASE})
-        set(TEST_SRC ${TEST_SRC} DataTableTest MysqlClientTest SqliteClientTest SqlSelectFilterTest)
+        set(TEST_SRC ${TEST_SRC} DataTableTest SqlSelectFilterTest)
+        if (${COMMON_BUILD_SQLITE})
+            set(TEST_SRC ${TEST_SRC} SqliteClientTest)
+        endif ()
+        if (${COMMON_BUILD_MYSQL})
+            set(TEST_SRC ${TEST_SRC} MysqlClientTest)
+        endif ()
+        if (${COMMON_BUILD_ORACLE})
+        endif ()
     endif ()
 
     if (MAC_OS)

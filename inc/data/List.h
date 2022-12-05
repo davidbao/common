@@ -30,7 +30,7 @@ namespace Common {
             : public IEquatable<List<type>>,
               public IEvaluation<List<type>>,
               public Iterator<type *>,
-              public IIndexable<const type&, type>,
+              public IIndexable<const type &, type>,
               public IMutex {
     public:
         typedef type *typePtr;
@@ -104,7 +104,9 @@ namespace Common {
         }
 
         List &operator=(const List &other) {
-            evaluates(other);
+            if (this != &other) {
+                evaluates(other);
+            }
             return *this;
         }
 

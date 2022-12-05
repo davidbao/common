@@ -251,16 +251,18 @@ namespace Database {
                             sqlite3_bind_null(stmt, j + 1);
                             break;
                         case DbValue::Integer8:
-                        case DbValue::UInteger8:
                         case DbValue::Integer16:
-                        case DbValue::UInteger16:
                         case DbValue::Integer32:
+                            sqlite3_bind_int(stmt, j + 1, (int32_t)value);
+                            break;
+                        case DbValue::UInteger8:
+                        case DbValue::UInteger16:
                         case DbValue::UInteger32:
-                            sqlite3_bind_int(stmt, j + 1, value);
+                            sqlite3_bind_int(stmt, j + 1, (uint32_t)value);
                             break;
                         case DbValue::Integer64:
                         case DbValue::UInteger64:
-                            sqlite3_bind_int64(stmt, j + 1, value);
+                            sqlite3_bind_int64(stmt, j + 1, (int64_t)value);
                             break;
                         case DbValue::Date: {
                             DateTime time = value;

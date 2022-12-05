@@ -18,6 +18,7 @@ SET(DATA_SRC
         DateTime.cpp
         DateTimeFormat.cpp
         Enum.cpp
+        IAttribute.cpp
         Point.cpp
         PositionCoord.cpp
         PrimitiveInterface.cpp

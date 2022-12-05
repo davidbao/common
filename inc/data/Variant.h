@@ -31,7 +31,7 @@ namespace Common {
               public IEquatable<Variant, uint64_t>,
               public IEquatable<Variant, float>,
               public IEquatable<Variant, double>,
-              public IEquatable<Variant, char*>,
+              public IEquatable<Variant, char *>,
               public IEquatable<Variant, String>,
               public IEquatable<Variant, DateTime>,
               public IEquatable<Variant, TimeSpan>,
@@ -56,6 +56,7 @@ namespace Common {
             Timestamp = 14,
             Blob = 15
         };
+
         union Value {
             bool bValue;
             int8_t cValue;
@@ -72,6 +73,66 @@ namespace Common {
             uint64_t dateValue;    // 100-nanosecond ticks
             int64_t timeValue;     // 100-nanosecond ticks
             uint8_t *blobValue;
+
+            Value() {
+                lValue = 0;
+            }
+
+            Value(bool value) {
+                bValue = value;
+            }
+
+            Value(int8_t value) {
+                cValue = value;
+            }
+
+            Value(uint8_t value) {
+                ucValue = value;
+            }
+
+            Value(int16_t value) {
+                sValue = value;
+            }
+
+            Value(uint16_t value) {
+                usValue = value;
+            }
+
+            Value(int32_t value) {
+                nValue = value;
+            }
+
+            Value(uint32_t value) {
+                unValue = value;
+            }
+
+            Value(int64_t value) {
+                lValue = value;
+            }
+
+            Value(uint64_t value) {
+                ulValue = value;
+            }
+
+            Value(float value) {
+                fValue = value;
+            }
+
+            Value(double value) {
+                dValue = value;
+            }
+
+            Value(char* value) {
+                strValue = value;
+            }
+
+            Value(const DateTime &value) {
+                timeValue = value.ticks();
+            }
+
+            Value(const TimeSpan &value) {
+                timeValue = value.ticks();
+            }
         };
 
         explicit Variant(Type type = Null);

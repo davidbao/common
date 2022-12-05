@@ -16,6 +16,7 @@
 #include "json/JsonTextWriter.h"
 #include "driver/channels/TcpChannelContext.h"
 
+using namespace Xml;
 using namespace Drivers;
 
 namespace Net

@@ -11,16 +11,17 @@
 
 using namespace Database;
 
-static const String _url("mysql://127.0.0.1:3306/MysqlClientTest_db");
+static const String _baseUrl("mysql://192.167.0.6:3306");
+static const String _url = _baseUrl + "/MysqlClientTest_db";
 static const String _username = "root";
 static const String _password = "123456.com";
 
-void initialize() {
+void setUp() {
 }
 
 void cleanUp() {
     MysqlClient test;
-    if (test.open(Url("mysql://127.0.0.1:3306"), _username, _password)) {
+    if (test.open(Url(_baseUrl), _username, _password)) {
         test.executeSql("DROP DATABASE IF EXISTS MysqlClientTest_db;");
     }
 }
@@ -28,7 +29,7 @@ void cleanUp() {
 bool testCreateDatabase() {
     {
         MysqlClient test;
-        if (!test.open(Url("mysql://127.0.0.1:3306"), _username, _password)) {
+        if (!test.open(Url(_baseUrl), _username, _password)) {
             return false;
         }
         test.executeSql("DROP DATABASE IF EXISTS MysqlClientTest_db;");
@@ -345,7 +346,7 @@ bool testExecuteSql() {
 }
 
 int main() {
-    initialize();
+    setUp();
 
     int result = 0;
     if (!testCreateDatabase()) {

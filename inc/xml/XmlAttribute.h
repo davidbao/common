@@ -1,49 +1,65 @@
-#ifndef XMLATTRIBUTE_H
-#define XMLATTRIBUTE_H
+//
+//  XmlAttribute.h
+//  common
+//
+//  Created by baowei on 2015/7/30.
+//  Copyright © 2015 com. All rights reserved.
+//
+
+#ifndef XmlAttribute_h
+#define XmlAttribute_h
 
 #include "data/ValueType.h"
 #include "data/PList.h"
 
-namespace Common
-{
+using namespace Common;
+
+namespace Xml {
     class XmlNode;
+
     class XmlAttributeInner;
-	class XmlAttribute
-	{
-	public:
-		XmlAttribute();
-		~XmlAttribute();
+
+    class XmlAttribute {
+    public:
+        XmlAttribute();
+
+        ~XmlAttribute();
 
         bool isValid() const;
 
-		const String name() const;
-		const String value() const;
-		bool setValue(const char* value);
-        bool setValue(const String& value);
-        
-        void copyFrom(const XmlAttribute* value);
+        String name() const;
 
-	private:
-		void setXmlAttributeInner(const XmlNode* node, const void* attr);
+        String value() const;
 
-	private:
-		friend class XmlNode;
+        bool setValue(const char *value);
 
-		XmlNode* _node;
-		XmlAttributeInner* _attr;
-	};
-	//typedef PList<XmlAttribute> XmlAttributes;
-	class XmlAttributes : public CopyPList<XmlAttribute>
-	{
-	public:
-        XmlAttributes(bool autoDelete = true, uint32_t capacity = PList<XmlAttribute>::DefaultCapacity);
+        bool setValue(const String &value);
 
-        XmlAttribute* at(const String& name) const;
-        XmlAttribute* operator[](const String& name) const;
-        const String value(const String& name) const;
+        void copyFrom(const XmlAttribute *value);
 
-        XmlAttribute* at(size_t pos) const override;
-	};
+    private:
+        void setXmlAttributeInner(const XmlNode *node, const void *attr);
+
+    private:
+        friend class XmlNode;
+
+        XmlNode *_node;
+        XmlAttributeInner *_attr;
+    };
+
+    //typedef PList<XmlAttribute> XmlAttributes;
+    class XmlAttributes : public CopyPList<XmlAttribute> {
+    public:
+        XmlAttributes(size_t capacity = PList<XmlAttribute>::DefaultCapacity);
+
+        XmlAttribute *at(const String &name) const;
+
+        XmlAttribute *operator[](const String &name) const;
+
+        const String value(const String &name) const;
+
+        XmlAttribute *at(size_t pos) const override;
+    };
 }
 
-#endif	// XMLATTRIBUTE_H
+#endif // XmlAttribute_h

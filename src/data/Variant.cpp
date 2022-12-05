@@ -11,7 +11,7 @@
 namespace Common {
     const Variant Variant::NullValue;
 
-    Variant::Variant(Type type) : _type(type), _value{.lValue = 0}, _isNullValue(true) {
+    Variant::Variant(Type type) : _type(type), _value(), _isNullValue(true) {
     }
 
     Variant::Variant(Type type, bool value) : Variant(type) {
@@ -130,7 +130,7 @@ namespace Common {
     Variant::Variant(const ByteArray &value) : Variant(Blob, value) {
     }
 
-    Variant::Variant(const Variant &v) : Variant() {
+    Variant::Variant(const Variant &v) : Variant(Null) {
         operator=(v);
     }
 
@@ -525,7 +525,7 @@ namespace Common {
         if (equals(v))
             return false;
 
-        Value temp{.lValue = 0};
+        Value temp;
         if (changeValue(v, type(), temp)) {
             setValue(temp);
 
@@ -917,7 +917,7 @@ namespace Common {
             return true;
         }
 
-        Value destValue{.lValue = 0};
+        Value destValue;
         if (!changeValue(type1, value1, type2, destValue))
             return false;
 
@@ -1402,7 +1402,7 @@ namespace Common {
     }
 
     Variant::Value Variant::fromAnalogValue(Type type, const double &value) {
-        Value result{.lValue = 0};
+        Value result;
         changeValue<double>(value, type, result);
         return result;
     }

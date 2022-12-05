@@ -13,6 +13,7 @@
 #include "data/Vector.h"
 #include "data/List.h"
 #include "data/StringArray.h"
+#include "data/IAttribute.h"
 #include "yml/YmlNode.h"
 
 class JSONNode;
@@ -28,8 +29,13 @@ namespace Common {
             : public IEquatable<JsonNode>,
               public IEvaluation<JsonNode>,
               public IIndexGetter<JsonNode>,
-              public IPositionGetter<JsonNode, const String &> {
+              public IPositionGetter<JsonNode, const String &>,
+              public IAttributeGetter {
     public:
+        using IAttributeGetter::getAttribute;
+        using IIndexGetter<JsonNode>::operator[];
+        using IPositionGetter<JsonNode, const String &>::operator[];
+
         enum Type {
             TypeNone = 0,
             TypeString = 1,
@@ -107,6 +113,8 @@ namespace Common {
 
         JsonNode at(const String &name) const override;
 
+        bool getAttribute(const String &name, String &value) const override;
+
         bool at(size_t pos, JsonNode &node) const;
 
         bool at(const String &name, JsonNode &node) const;
@@ -116,38 +124,6 @@ namespace Common {
         String toString(bool format = false) const;
 
         void getAttributeNames(StringArray &names) const;
-
-        bool getAttribute(const String &name, String &value) const;
-
-        template<class T>
-        bool getAttribute(const String &name, T &value) const {
-            String str;
-            return getAttribute(name, str) && T::parse(str, value);
-        }
-
-        bool getAttribute(const String &name, bool &value) const;
-
-        bool getAttribute(const String &name, char &value) const;
-
-        bool getAttribute(const String &name, int8_t &value) const;
-
-        bool getAttribute(const String &name, uint8_t &value) const;
-
-        bool getAttribute(const String &name, int16_t &value) const;
-
-        bool getAttribute(const String &name, uint16_t &value) const;
-
-        bool getAttribute(const String &name, int32_t &value) const;
-
-        bool getAttribute(const String &name, uint32_t &value) const;
-
-        bool getAttribute(const String &name, int64_t &value) const;
-
-        bool getAttribute(const String &name, uint64_t &value) const;
-
-        bool getAttribute(const String &name, float &value) const;
-
-        bool getAttribute(const String &name, double &value) const;
 
         bool getAttribute(const String &name, StringArray &value) const;
 

@@ -1742,25 +1742,25 @@ bool testEndpointStatic() {
 bool testEndpointIsAnyAddress() {
     {
         Endpoint test("any", 80);
-        if(!test.isAnyAddress()) {
+        if (!test.isAnyAddress()) {
             return false;
         }
     }
     {
         Endpoint test("", 80);
-        if(!test.isAnyAddress()) {
+        if (!test.isAnyAddress()) {
             return false;
         }
     }
     {
         Endpoint test("0.0.0.0", 80);
-        if(!test.isAnyAddress()) {
+        if (!test.isAnyAddress()) {
             return false;
         }
     }
     {
         Endpoint test("localhost", 80);
-        if(test.isAnyAddress()) {
+        if (test.isAnyAddress()) {
             return false;
         }
     }
@@ -1931,30 +1931,30 @@ bool testUrlConstructor() {
 
     {
         Url test("https://192.167.0.1:8080/", "test.html");
-        if(test.isEmpty()) {
+        if (test.isEmpty()) {
             return false;
         }
-        if(!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
+        if (!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
             return false;
         }
     }
 
     {
         Url test(Url("https://192.167.0.1:8080/"), "test.html");
-        if(test.isEmpty()) {
+        if (test.isEmpty()) {
             return false;
         }
-        if(!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
+        if (!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
             return false;
         }
     }
 
     {
         Url test("https", Endpoint("192.167.0.1", 8080), "test.html");
-        if(test.isEmpty()) {
+        if (test.isEmpty()) {
             return false;
         }
-        if(!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
+        if (!(test.scheme() == "https" && test.endpoint() == "192.167.0.1:8080" && test.relativeUrl() == "test.html")) {
             return false;
         }
     }
@@ -2118,45 +2118,45 @@ bool testUrlToString() {
 }
 
 bool testUrlStatic() {
-    if(Url::SchemeHttp != "http") {
+    if (String(Url::SchemeHttp) != "http") {
         return false;
     }
-    if(Url::SchemeHttps != "https") {
+    if (String(Url::SchemeHttps) != "https") {
         return false;
     }
-    if(Url::SchemeWebSocket != "ws") {
+    if (String(Url::SchemeWebSocket) != "ws") {
         return false;
     }
-    if(Url::SchemeWebSockets != "wss") {
+    if (String(Url::SchemeWebSockets) != "wss") {
         return false;
     }
-    if(Url::SchemeEaseTcp != "ease.tcp") {
+    if (String(Url::SchemeEaseTcp) != "ease.tcp") {
         return false;
     }
-    if(Url::SchemeEaseTcps != "ease.tcps") {
+    if (String(Url::SchemeEaseTcps) != "ease.tcps") {
         return false;
     }
-    if(Url::SchemeMysql != "mysql") {
+    if (String(Url::SchemeMysql) != "mysql") {
         return false;
     }
-    if(Url::SchemeMysqls != "mysqls") {
+    if (String(Url::SchemeMysqls) != "mysqls") {
         return false;
     }
-    if(Url::SchemeMqtt != "mqtt") {
+    if (String(Url::SchemeMqtt) != "mqtt") {
         return false;
     }
-    if(Url::SchemeMqtts != "mqtts") {
+    if (String(Url::SchemeMqtts) != "mqtts") {
         return false;
     }
-    if(Url::SchemeCoap != "coap") {
-        return false;
-    }
-
-    if(!Url::Empty.isEmpty()) {
+    if (String(Url::SchemeCoap) != "coap") {
         return false;
     }
 
-    if(Url::Schemes.toString('|') != "http|https|ws|wss|ease.tcp|ease.tcps|mysql|mysqls|mqtt|mqtts|coap") {
+    if (!Url::Empty.isEmpty()) {
+        return false;
+    }
+
+    if (Url::Schemes.toString('|') != "http|https|ws|wss|ease.tcp|ease.tcps|mysql|mysqls|mqtt|mqtts|coap") {
         return false;
     }
 
@@ -2448,7 +2448,7 @@ bool testP2PEndpointConstructor() {
     }
     {
         P2PEndpoint test(Endpoint("192.167.0.1", 1384), Endpoint("192.167.0.1", 80));
-        if(!(test.local == "192.167.0.1:1384" && test.peer == "192.167.0.1:80")) {
+        if (!(test.local == "192.167.0.1:1384" && test.peer == "192.167.0.1:80")) {
             return false;
         }
     }

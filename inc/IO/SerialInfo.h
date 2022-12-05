@@ -15,6 +15,8 @@
 #include "json/JsonTextWriter.h"
 #include "json/JsonTextReader.h"
 
+using namespace Xml;
+
 namespace Common
 {
     struct SerialInfo

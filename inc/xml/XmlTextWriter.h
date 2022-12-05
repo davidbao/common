@@ -12,7 +12,7 @@
 #include "data/ValueType.h"
 #include "net/NetType.h"
 
-namespace Common
+namespace Xml
 {
     class XmlTextWriterInner;
 	class XmlTextWriter

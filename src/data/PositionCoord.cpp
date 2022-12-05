@@ -10,6 +10,7 @@
 #include "data/ByteArray.h"
 #include "data/Convert.h"
 #include "IO/Stream.h"
+#include <cmath>
 
 namespace Common {
     const PositionCoord PositionCoord::Empty = PositionCoord(NAN, NAN);

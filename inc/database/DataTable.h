@@ -68,6 +68,8 @@ namespace Database {
     class DataColumns : public List<DataColumn>, public IPositionGetter<const DataColumn &, const String &> {
     public:
         using List<DataColumn>::at;
+        using List<DataColumn>::operator[];
+        using IPositionGetter<const DataColumn &, const String &>::operator[];
 
         explicit DataColumns(size_t capacity = DefaultCapacity);
 
@@ -156,6 +158,8 @@ namespace Database {
     class DataCells : public List<DataCell>, public IPositionGetter<const DataCell &, const String &> {
     public:
         using List<DataCell>::at;
+        using List<DataCell>::operator[];
+        using IPositionGetter<const DataCell &, const String &>::operator[];
 
         explicit DataCells(size_t capacity = DefaultCapacity);
 
@@ -273,6 +277,8 @@ namespace Database {
     class DataTables : public List<DataTable>, public IPositionGetter<const DataTable &, const String &> {
     public:
         using List<DataTable>::at;
+        using List<DataTable>::operator[];
+        using IPositionGetter<const DataTable &, const String &>::operator[];
 
         explicit DataTables(size_t capacity = DefaultCapacity);
 

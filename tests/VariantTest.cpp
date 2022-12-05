@@ -812,9 +812,9 @@ bool testOperator() {
 bool testStaticMethod() {
     {
         Variant::Type t1 = Variant::Timestamp;
-        Variant::Value v1{.timeValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v1(TimeSpan::fromHours(1).ticks());
         Variant::Type t2 = Variant::Timestamp;
-        Variant::Value v2{.lValue = 0};
+        Variant::Value v2;
         if (!Variant::changeValue(t1, v1, t2, v2)) {
             return false;
         }
@@ -824,9 +824,9 @@ bool testStaticMethod() {
     }
     {
         Variant::Type t1 = Variant::Timestamp;
-        Variant::Value v1{.timeValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v1(TimeSpan::fromHours(1).ticks());
         Variant::Type t2 = Variant::Integer64;
-        Variant::Value v2{.lValue = 0};
+        Variant::Value v2;
         if (!Variant::changeValue(t1, v1, t2, v2)) {
             return false;
         }
@@ -837,9 +837,9 @@ bool testStaticMethod() {
 
     {
         Variant::Type t1 = Variant::Text;
-        Variant::Value v1{.strValue = (char *) "123"};
+        Variant::Value v1((char *) "123");
         Variant::Type t2 = Variant::Integer64;
-        Variant::Value v2{.lValue = 0};
+        Variant::Value v2;
         if (!Variant::changeValue(t1, v1, t2, v2)) {
             return false;
         }
@@ -850,18 +850,18 @@ bool testStaticMethod() {
 
     {
         Variant::Type t1 = Variant::Timestamp;
-        Variant::Value v1{.timeValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v1(TimeSpan::fromHours(1).ticks());
         Variant::Type t2 = Variant::Timestamp;
-        Variant::Value v2{.timeValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v2(TimeSpan::fromHours(1).ticks());
         if (!Variant::equals(t1, v1, t2, v2)) {
             return false;
         }
     }
     {
         Variant::Type t1 = Variant::Timestamp;
-        Variant::Value v1{.timeValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v1(TimeSpan::fromHours(1).ticks());
         Variant::Type t2 = Variant::Integer64;
-        Variant::Value v2{.lValue = TimeSpan::fromHours(1).ticks()};
+        Variant::Value v2(TimeSpan::fromHours(1).ticks());
         if (!Variant::equals(t1, v1, t2, v2)) {
             return false;
         }
@@ -869,9 +869,9 @@ bool testStaticMethod() {
 
     {
         Variant::Type t1 = Variant::Text;
-        Variant::Value v1{.strValue = (char *) "123"};
+        Variant::Value v1((char *) "123");
         Variant::Type t2 = Variant::Integer64;
-        Variant::Value v2{.lValue = 123};
+        Variant::Value v2((int64_t)123);
         if (!Variant::equals(t1, v1, t2, v2)) {
             return false;
         }
@@ -927,19 +927,19 @@ bool testStaticMethod() {
     }
 
     {
-        Variant::Value value{.dValue = 3.5};
+        Variant::Value value(3.5);
         if (Variant::toAnalogValue(Variant::Float64, value) != 3.5) {
             return false;
         }
     }
     {
-        Variant::Value value{.fValue = 3.5};
+        Variant::Value value(3.5f);
         if (Variant::toAnalogValue(Variant::Float32, value) != 3.5) {
             return false;
         }
     }
     {
-        Variant::Value value{.lValue = 4};
+        Variant::Value value((int64_t)4);
         if (Variant::toAnalogValue(Variant::Integer64, value) != 4) {
             return false;
         }
@@ -972,20 +972,20 @@ bool testStaticMethod() {
     }
 
     {
-        String str = Variant::toValueString(Variant::Integer64, Variant::Value{.lValue = 4});
+        String str = Variant::toValueString(Variant::Integer64, Variant::Value((int64_t) 4));
         if (str != "4") {
             return false;
         }
     }
     {
-        String str = Variant::toValueString(Variant::Float64, Variant::Value{.dValue = 4});
+        String str = Variant::toValueString(Variant::Float64, Variant::Value(4.0));
         if (str != "4") {
             return false;
         }
     }
 
     {
-        Variant::Value value{.lValue = 0};
+        Variant::Value value;
         if (!Variant::parseValueString("4", Variant::Integer64, value)) {
             return false;
         }
@@ -994,7 +994,7 @@ bool testStaticMethod() {
         }
     }
     {
-        Variant::Value value{.lValue = 0};
+        Variant::Value value;
         if (!Variant::parseValueString("3.5", Variant::Float64, value)) {
             return false;
         }
