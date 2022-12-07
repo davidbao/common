@@ -38,13 +38,13 @@ namespace Common
     }
     void SerialInfo::write(XmlTextWriter& writer) const
     {
-        writer.writeAttributeString("portname", portName);
+        writer.writeAttribute("portname", portName);
         writer.writeAttribute("baudrate", baudRate);
-        writer.writeAttributeString("databits", convertDataBitsStr(dataBits));
-        writer.writeAttributeString("stopbits", convertStopBitsStr(stopBits));
-        writer.writeAttributeString("parity", convertParityStr(parity));
+        writer.writeAttribute("databits", convertDataBitsStr(dataBits));
+        writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
+        writer.writeAttribute("parity", convertParityStr(parity));
         if(handshake != HandshakeType::FLOW_OFF)
-            writer.writeAttributeString("handshake", convertHandshakeStr(handshake));
+            writer.writeAttribute("handshake", convertHandshakeStr(handshake));
         if(rtsEnable)
             writer.writeAttribute("rtsenable", rtsEnable);
         if(dtrEnable)
@@ -72,7 +72,7 @@ namespace Common
         writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
         writer.writeAttribute("parity", convertParityStr(parity));
         if(handshake != HandshakeType::FLOW_OFF)
-            writer.writeAttributeString("handshake", convertHandshakeStr(handshake));
+            writer.writeAttribute("handshake", convertHandshakeStr(handshake));
         if(rtsEnable)
             writer.writeAttribute("rtsenable", rtsEnable);
         if(dtrEnable)

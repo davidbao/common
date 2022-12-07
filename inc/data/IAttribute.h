@@ -76,5 +76,76 @@ namespace Common {
             return getAttribute(name, value) && (value >= minValue && value <= maxValue);
         }
     };
+
+    class IAttributeSetter {
+    public:
+        virtual ~IAttributeSetter() = default;
+
+        virtual bool setAttribute(const String &name, const String &value) = 0;
+
+        bool setAttribute(const String &name, const bool &value);
+
+        bool setAttribute(const String &name, const char &value);
+
+        bool setAttribute(const String &name, const int8_t &value);
+
+        bool setAttribute(const String &name, const uint8_t &value);
+
+        bool setAttribute(const String &name, const int16_t &value);
+
+        bool setAttribute(const String &name, const uint16_t &value);
+
+        bool setAttribute(const String &name, const int32_t &value);
+
+        bool setAttribute(const String &name, const uint32_t &value);
+
+        bool setAttribute(const String &name, const int64_t &value);
+
+        bool setAttribute(const String &name, const uint64_t &value);
+
+        bool setAttribute(const String &name, const float &value);
+
+        bool setAttribute(const String &name, const double &value);
+
+        bool setAttribute(const String &name, const char *value);
+
+        template<typename T>
+        bool setAttribute(const String &name, const T &value) const {
+            return setAttribute(name, value.toString());
+        }
+
+        bool writeAttribute(const String &name, const String &value);
+
+        bool writeAttribute(const String &name, const bool &value);
+
+        bool writeAttribute(const String &name, const char &value);
+
+        bool writeAttribute(const String &name, const int8_t &value);
+
+        bool writeAttribute(const String &name, const uint8_t &value);
+
+        bool writeAttribute(const String &name, const int16_t &value);
+
+        bool writeAttribute(const String &name, const uint16_t &value);
+
+        bool writeAttribute(const String &name, const int32_t &value);
+
+        bool writeAttribute(const String &name, const uint32_t &value);
+
+        bool writeAttribute(const String &name, const int64_t &value);
+
+        bool writeAttribute(const String &name, const uint64_t &value);
+
+        bool writeAttribute(const String &name, const float &value);
+
+        bool writeAttribute(const String &name, const double &value);
+
+        bool writeAttribute(const String &name, const char *value);
+
+        template<typename T>
+        bool writeAttribute(const String &name, const T &value) const {
+            return writeAttribute(name, value.toString());
+        }
+    };
 }
 #endif // IAttribute_h

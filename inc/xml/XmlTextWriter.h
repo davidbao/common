@@ -10,80 +10,99 @@
 #define XmlTextWriter_h
 
 #include "data/ValueType.h"
+#include "data/ByteArray.h"
 #include "net/NetType.h"
+#include "data/IAttribute.h"
 
-namespace Xml
-{
+namespace Xml {
     class XmlTextWriterInner;
-	class XmlTextWriter
-	{
-	public:
-        XmlTextWriter(const String& fileName);
-		~XmlTextWriter();
 
-		bool isValid() const;
+    class XmlTextWriter : public IAttributeSetter {
+    public:
+        using IAttributeSetter::setAttribute;
 
-		bool close();
-        
-        void enableIndent(bool indent = true);
-        void enableIndent(const String& str);
-        void enableIndent(const char* str);
-        
+        enum Formatting {
+            // No special formatting is done.
+            None,
+
+            //This option causes child elements to be indented using the Indentation and IndentChar properties.
+            // It only indents Element Content (http://www.w3.org/TR/1998/REC-xml-19980210#sec-element-content)
+            // and not Mixed Content (http://www.w3.org/TR/1998/REC-xml-19980210#sec-mixed-content)
+            // according to the XML 1.0 definitions of these terms.
+            Indented,
+        };
+
+        explicit XmlTextWriter(const String &fileName);
+
+        ~XmlTextWriter() override;
+
+        bool setAttribute(const String &name, const String &value) override;
+
+        bool isValid() const;
+
+        bool close();
+
+        void flush();
+
+        Formatting formatting() const;
+
+        void setFormatting(Formatting formatting);
+
+        const String &indentString() const;
+
+        void setIndentString(const String &indentString);
+
+        char quoteChar() const;
+
+        void setQuoteChar(char quoteChar);
+
         void writeStartDocument();
-        void writeStartDocument(const String& version, const String& encoding, const String& standalone);
+
+        void writeStartDocument(const String &version, const String &encoding, const String &standalone);
+
         void writeEndDocument();
-        
-        void writeStartElement(const String& localName);
-        void writeStartElement(const String& prefix, const String& localName, const String& ns);
+
+        void writeStartElement(const String &localName);
+
+        void writeStartElement(const String &prefix, const String &localName, const String &ns);
+
         void writeEndElement();
 
-        void writeAttributeBoolean(const String& localName, const Boolean& value);
-        void writeAttributeChar(const String& localName, const Char& value);
-        void writeAttributeByte(const String& localName, const Byte& value);
-        void writeAttributeInt16(const String& localName, const Int16& value);
-        void writeAttributeUInt16(const String& localName, const UInt16& value);
-        void writeAttributeInt32(const String& localName, const Int32& value);
-        void writeAttributeUInt32(const String& localName, const UInt32& value);
-        void writeAttributeInt64(const String& localName, const Int64& value);
-        void writeAttributeUInt64(const String& localName, const UInt64& value);
-        void writeAttributeFloat(const String& localName, const Float& value);
-        void writeAttributeDouble(const String& localName, const Double& value);
-        void writeAttributeString(const String& localName, const String& value);
+        void writeFullEndElement();
 
-        void writeAttributeBoolean(const String& localName, const bool& value);
-        void writeAttributeChar(const String& localName, const char& value);
-        void writeAttributeByte(const String& localName, const uint8_t& value);
-        void writeAttributeInt16(const String& localName, const short& value);
-        void writeAttributeUInt16(const String& localName, const uint16_t& value);
-        void writeAttributeInt32(const String& localName, const int& value);
-        void writeAttributeUInt32(const String& localName, const uint32_t& value);
-        void writeAttributeInt64(const String& localName, const int64_t& value);
-        void writeAttributeUInt64(const String& localName, const uint64_t& value);
-        void writeAttributeFloat(const String& localName, const float& value);
-        void writeAttributeDouble(const String& localName, const double& value);
+        void writeStartAttribute(const String &localName);
 
-        void writeAttribute(const String& localName, const bool& value);
-        void writeAttribute(const String& localName, const char& value);
-        void writeAttribute(const String& localName, const uint8_t& value);
-        void writeAttribute(const String& localName, const short& value);
-        void writeAttribute(const String& localName, const uint16_t& value);
-        void writeAttribute(const String& localName, const int& value);
-        void writeAttribute(const String& localName, const uint32_t& value);
-        void writeAttribute(const String& localName, const int64_t& value);
-        void writeAttribute(const String& localName, const uint64_t& value);
-        void writeAttribute(const String& localName, const float& value);
-        void writeAttribute(const String& localName, const double& value);
-        void writeAttribute(const String& localName, const String& value);
+        void writeStartAttribute(const String &prefix, const String &name, const String &ns);
 
-        template <class T>
-        void writeAttribute(const String& localName, const T& value)
-        {
-            writeAttributeString(localName, value.toString());
-        }
-        
-	private:
-		XmlTextWriterInner* _writer;
-	};
+        void writeEndAttribute();
+
+        bool writeString(const String &text);
+
+        bool writeBase64(const ByteArray &buffer);
+
+        bool writeBinHex(const ByteArray &buffer);
+
+        bool writeCData(const String &text);
+
+        bool writeComment(const String &text);
+
+        bool writeDocType(const String &name, const String &pubid, const String &sysid, const String &subset);
+
+        bool writeRaw(const String &text);
+
+        bool writeProcessingInstruction(const String &name, const String &text);
+
+    private:
+        XmlTextWriterInner *_writer;
+
+        Formatting _formatting;
+        String _indentString;
+        char _quoteChar;
+
+    private:
+        static const int XmlSuccess = 1;
+        static const int XmlFailed = -1;
+    };
 }
 
-#endif	// XmlTextWriter_h
+#endif // XmlTextWriter_h

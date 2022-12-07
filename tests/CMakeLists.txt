@@ -106,7 +106,7 @@ if (COMMON_ENABLE_TEST)
             # system
             RandomTest ResourcesTest EnvironmentTest
             # xml
-            XmlDocumentTest XmlTextReaderTest)
+            XmlDocumentTest XmlTextReaderTest XmlTextWriterTest)
 
     if (${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
         set(TEST_SRC ${TEST_SRC} HttpClientTest)

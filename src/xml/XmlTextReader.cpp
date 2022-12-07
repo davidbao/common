@@ -8,7 +8,6 @@
 
 #include "xml/XmlTextReader.h"
 #include "exception/Exception.h"
-#include "data/Convert.h"
 #include "IO/Path.h"
 #include "data/ValueType.h"
 #include "diag/Trace.h"
@@ -58,11 +57,13 @@ namespace Xml {
         _reader->reader = xmlReaderForMemory(text.c_str(), (int) length, nullptr, nullptr, 0);
 
         _zipFile = nullptr;
+        _configFile.text = String(text, length);
     }
 
     XmlTextReader::XmlTextReader(Zip *zip, const String &fileName) : _deleteZip(false), _zipFile(nullptr) {
-        if (zip == nullptr)
+        if (zip == nullptr) {
             throw ArgumentException("zip");
+        }
 
         _reader = new XmlTextReaderInner();
 
@@ -136,22 +137,60 @@ namespace Xml {
             if (result == nullptr)
                 return false;
 
-            String attribute = (char *) result;
+            value = (const char *) result;
             xmlFree(result);
 
-            if (attribute.find("&lt;") >= 0)
-                attribute = attribute.replace("&lt;", "<");
-            if (attribute.find("&gt;") >= 0)
-                attribute = attribute.replace("&gt;", ">");
-            if (attribute.find("&amp;") >= 0)
-                attribute = attribute.replace("&amp;", "&");
-            if (attribute.find("&apos;") >= 0)
-                attribute = attribute.replace("&apos;", "'");
-            if (attribute.find("&quot;") >= 0)
-                attribute = attribute.replace("&quot;", "\"");
-
-            value = attribute;
             return true;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::getAttribute(const String &name, const String &ns, String &value) const {
+        if (isValid()) {
+            xmlChar *result = xmlTextReaderGetAttributeNs(_reader->reader, (const xmlChar *) name.c_str(),
+                                                          (const xmlChar *) ns.c_str());
+            if (result == nullptr)
+                return false;
+
+            value = (const char *) result;
+            xmlFree(result);
+
+            return true;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::getAttributeNames(StringArray &names) const {
+        if (isValid()) {
+            int count = xmlTextReaderAttributeCount(_reader->reader);
+            if (count == XmlFailed) {
+                return false;
+            }
+            for (int i = 0; i < count; i++) {
+                if(xmlTextReaderMoveToAttributeNo(_reader->reader, i) == XmlSuccess) {
+                    const xmlChar *name = xmlTextReaderConstName(_reader->reader);
+                    names.add((const char*)name);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::hasAttributes() const {
+        if (isValid()) {
+            return xmlTextReaderHasAttributes(_reader->reader) == XmlSuccess;
+        }
+        return false;
+    }
+
+    int XmlTextReader::attributeCount() const {
+        if (isValid()) {
+            int result = xmlTextReaderAttributeCount(_reader->reader);
+            if (result == XmlFailed) {
+                return 0;
+            }
+            return result;
         }
         return false;
     }
@@ -208,6 +247,94 @@ namespace Xml {
 #endif
         }
         return String::Empty;
+    }
+
+    String XmlTextReader::encoding() const {
+        if (isValid()) {
+            const xmlChar *result = xmlTextReaderConstEncoding(_reader->reader);
+#if WIN32
+            return result != nullptr ? String::UTF8toGBK((char*)result) : String::Empty;
+#else
+            return result != nullptr ? (char *) result : String::Empty;
+#endif
+        }
+        return String::Empty;
+    }
+
+    String XmlTextReader::prefix() const {
+        if (isValid()) {
+            const xmlChar *result = xmlTextReaderConstPrefix(_reader->reader);
+#if WIN32
+            return result != nullptr ? String::UTF8toGBK((char*)result) : String::Empty;
+#else
+            return result != nullptr ? (char *) result : String::Empty;
+#endif
+        }
+        return String::Empty;
+    }
+
+    String XmlTextReader::xmlLang() const {
+        if (isValid()) {
+            const xmlChar *result = xmlTextReaderConstXmlLang(_reader->reader);
+#if WIN32
+            return result != nullptr ? String::UTF8toGBK((char*)result) : String::Empty;
+#else
+            return result != nullptr ? (char *) result : String::Empty;
+#endif
+        }
+        return String::Empty;
+    }
+
+    String XmlTextReader::xmlVersion() const {
+        if (isValid()) {
+            const xmlChar *result = xmlTextReaderConstXmlVersion(_reader->reader);
+#if WIN32
+            return result != nullptr ? String::UTF8toGBK((char*)result) : String::Empty;
+#else
+            return result != nullptr ? (char *) result : String::Empty;
+#endif
+        }
+        return String::Empty;
+    }
+
+    bool XmlTextReader::hasValue() const {
+        if (isValid()) {
+            return xmlTextReaderHasValue(_reader->reader);
+        }
+        return false;
+    }
+
+    bool XmlTextReader::isDefault() const {
+        if (isValid()) {
+            return xmlTextReaderIsDefault(_reader->reader) == 1;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::isEOF() const {
+        return readState() == EndOfFile;
+    }
+
+    XmlTextReader::ReadState XmlTextReader::readState() const {
+        if (isValid()) {
+            int result = xmlTextReaderReadState(_reader->reader);
+            if (result == XmlFailed) {
+                return ReadState::Error;
+            }
+            return (XmlTextReader::ReadState) result;
+        }
+        return ReadState::Error;
+    }
+
+    char XmlTextReader::quoteChar() const {
+        if (isValid()) {
+            int result = xmlTextReaderQuoteChar(_reader->reader);
+            if (result == XmlFailed) {
+                return false;
+            }
+            return (char) result;
+        }
+        return false;
     }
 
     String XmlTextReader::name() const {
@@ -320,6 +447,27 @@ namespace Xml {
     bool XmlTextReader::moveToElement() {
         if (isValid()) {
             return xmlTextReaderMoveToElement(_reader->reader) == XmlSuccess;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::moveToAttribute(int no) {
+        if (isValid()) {
+            return xmlTextReaderMoveToAttributeNo(_reader->reader, no) == XmlSuccess;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::moveToAttribute(const String &name, const String &ns) {
+        if (isValid()) {
+            int result;
+            if (ns.isNullOrEmpty()) {
+                result = xmlTextReaderMoveToAttribute(_reader->reader, (const xmlChar *) name.c_str());
+            } else {
+                result = xmlTextReaderMoveToAttributeNs(_reader->reader, (const xmlChar *) name.c_str(),
+                                                        (const xmlChar *) ns.c_str());
+            }
+            return result == XmlSuccess;
         }
         return false;
     }

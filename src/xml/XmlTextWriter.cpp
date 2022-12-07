@@ -23,7 +23,8 @@ namespace Xml {
         }
     };
 
-    XmlTextWriter::XmlTextWriter(const String &fileName) {
+    XmlTextWriter::XmlTextWriter(const String &fileName) : _formatting(Formatting::None), _indentString(),
+                                                           _quoteChar('\0') {
         _writer = new XmlTextWriterInner();
 
         /*
@@ -34,6 +35,10 @@ namespace Xml {
         LIBXML_TEST_VERSION
 
         _writer->writer = xmlNewTextWriterFilename(fileName, 0);
+
+        setIndentString('\t');
+        setFormatting(Formatting::Indented);
+        setQuoteChar('\"');
     }
 
     XmlTextWriter::~XmlTextWriter() {
@@ -48,33 +53,66 @@ namespace Xml {
 
     bool XmlTextWriter::close() {
         if (isValid()) {
-            xmlTextWriterFlush(_writer->writer);
+            flush();
+
             xmlFreeTextWriter(_writer->writer);
             _writer->writer = nullptr;
-#ifdef __arm_linux__
-            sync();    // save all of files.
-#endif
+
             return true;
         }
         return false;
     }
 
-    void XmlTextWriter::enableIndent(bool indent) {
+    void XmlTextWriter::flush() {
         if (isValid()) {
-            xmlTextWriterSetIndent(_writer->writer, indent ? 1 : 0);
-            xmlTextWriterSetIndentString(_writer->writer, (const xmlChar *) "\t");
+            xmlTextWriterFlush(_writer->writer);
+
+#ifdef __arm_linux__
+            sync();    // save all of files.
+#endif
         }
     }
 
-    void XmlTextWriter::enableIndent(const String &str) {
-        if (isValid()) {
-            xmlTextWriterSetIndent(_writer->writer, 1);
-            xmlTextWriterSetIndentString(_writer->writer, (const xmlChar *) str.c_str());
+    XmlTextWriter::Formatting XmlTextWriter::formatting() const {
+        return _formatting;
+    }
+
+    void XmlTextWriter::setFormatting(Formatting formatting) {
+        if (formatting != _formatting) {
+            _formatting = formatting;
+
+            if (isValid()) {
+                xmlTextWriterSetIndent(_writer->writer, formatting == Formatting::Indented ? 1 : 0);
+            }
         }
     }
 
-    void XmlTextWriter::enableIndent(const char *str) {
-        enableIndent(String(str));
+    const String &XmlTextWriter::indentString() const {
+        return _indentString;
+    }
+
+    void XmlTextWriter::setIndentString(const String &indentString) {
+        if (indentString != _indentString) {
+            _indentString = indentString;
+
+            if (isValid()) {
+                xmlTextWriterSetIndentString(_writer->writer, (const xmlChar *) indentString.c_str());
+            }
+        }
+    }
+
+    char XmlTextWriter::quoteChar() const {
+        return _quoteChar;
+    }
+
+    void XmlTextWriter::setQuoteChar(char quoteChar) {
+        if ((quoteChar == '\'' || quoteChar == '\"') && quoteChar != _quoteChar) {
+            _quoteChar = quoteChar;
+
+            if (isValid()) {
+                xmlTextWriterSetQuoteChar(_writer->writer, quoteChar);
+            }
+        }
     }
 
     void XmlTextWriter::writeStartDocument() {
@@ -98,16 +136,16 @@ namespace Xml {
 
     void XmlTextWriter::writeStartElement(const String &localName) {
         if (isValid()) {
-            xmlTextWriterStartElement(_writer->writer, (const uint8_t *) (localName).c_str());
+            xmlTextWriterStartElement(_writer->writer, (const xmlChar *) (localName).c_str());
         }
     }
 
     void XmlTextWriter::writeStartElement(const String &prefix, const String &localName, const String &ns) {
         if (isValid()) {
             xmlTextWriterStartElementNS(_writer->writer,
-                                        (const uint8_t *) (prefix.isNullOrEmpty() ? nullptr : (prefix).c_str()),
-                                        (const uint8_t *) ((localName).c_str()),
-                                        (const uint8_t *) (ns.isNullOrEmpty() ? nullptr : (ns).c_str()));
+                                        (const xmlChar *) (prefix.isNullOrEmpty() ? nullptr : (prefix).c_str()),
+                                        (const xmlChar *) ((localName).c_str()),
+                                        (const xmlChar *) (ns.isNullOrEmpty() ? nullptr : (ns).c_str()));
         }
     }
 
@@ -117,146 +155,101 @@ namespace Xml {
         }
     }
 
-    void XmlTextWriter::writeAttributeString(const String &localName, const String &value) {
+    void XmlTextWriter::writeFullEndElement() {
         if (isValid()) {
-            xmlTextWriterWriteAttribute(_writer->writer, (const uint8_t *) (localName).c_str(),
-                                        (const uint8_t *) (value).c_str());
+            xmlTextWriterFullEndElement(_writer->writer);
         }
     }
 
-    void XmlTextWriter::writeAttributeInt32(const String &localName, const Int32 &value) {
-        writeAttributeString(localName, value.toString());
+    void XmlTextWriter::writeStartAttribute(const String &name) {
+        if (isValid()) {
+            xmlTextWriterStartAttribute(_writer->writer, (const xmlChar *) (name).c_str());
+        }
     }
 
-    void XmlTextWriter::writeAttributeUInt32(const String &localName, const UInt32 &value) {
-        writeAttributeString(localName, value.toString());
+    void XmlTextWriter::writeStartAttribute(const String &prefix, const String &name, const String &ns) {
+        if (isValid()) {
+            xmlTextWriterStartAttributeNS(_writer->writer,
+                                          (const xmlChar *) (prefix.isNullOrEmpty() ? nullptr : (prefix).c_str()),
+                                          (const xmlChar *) ((name).c_str()),
+                                          (const xmlChar *) (ns.isNullOrEmpty() ? nullptr : (ns).c_str()));
+        }
     }
 
-    void XmlTextWriter::writeAttributeInt16(const String &localName, const Int16 &value) {
-        writeAttributeString(localName, value.toString());
+    void XmlTextWriter::writeEndAttribute() {
+        if (isValid()) {
+            xmlTextWriterEndAttribute(_writer->writer);
+        }
     }
 
-    void XmlTextWriter::writeAttributeUInt16(const String &localName, const UInt16 &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::setAttribute(const String &name, const String &value) {
+        if (isValid()) {
+            return xmlTextWriterWriteAttribute(_writer->writer, (const xmlChar *) name.c_str(),
+                                               (const xmlChar *) value.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeInt64(const String &localName, const Int64 &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::writeString(const String &text) {
+        if (isValid()) {
+            return xmlTextWriterWriteString(_writer->writer, (const xmlChar *) text.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeUInt64(const String &localName, const UInt64 &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::writeBase64(const ByteArray &buffer) {
+        if (isValid()) {
+            String str = buffer.toHexString();
+            return xmlTextWriterWriteBase64(_writer->writer, str, 0, str.length()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeChar(const String &localName, const Char &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::writeBinHex(const ByteArray &buffer) {
+        if (isValid()) {
+            return xmlTextWriterWriteBinHex(_writer->writer, (const char *) buffer.data(), 0, buffer.count()) ==
+                   XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeByte(const String &localName, const Byte &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::writeCData(const String &text) {
+        if (isValid()) {
+            return xmlTextWriterWriteCDATA(_writer->writer, (const xmlChar *) text.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeBoolean(const String &localName, const Boolean &value) {
-        writeAttributeString(localName, value.toString());
+    bool XmlTextWriter::writeComment(const String &text) {
+        if (isValid()) {
+            return xmlTextWriterWriteComment(_writer->writer, (const xmlChar *) text.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeFloat(const String &localName, const Float &value) {
-        writeAttributeString(localName, value.isNaN() ? String::Empty : value.toString());
+    bool
+    XmlTextWriter::writeDocType(const String &name, const String &pubid, const String &sysid, const String &subset) {
+        if (isValid()) {
+            return xmlTextWriterWriteDocType(_writer->writer,
+                                             (const xmlChar *) name.c_str(), (const xmlChar *) pubid.c_str(),
+                                             (const xmlChar *) sysid.c_str(), (const xmlChar *) subset.c_str()) ==
+                   XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeDouble(const String &localName, const Double &value) {
-        writeAttributeString(localName, value.isNaN() ? String::Empty : value.toString());
+    bool XmlTextWriter::writeRaw(const String &text) {
+        if (isValid()) {
+            return xmlTextWriterWriteRaw(_writer->writer, (const xmlChar *) text.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 
-    void XmlTextWriter::writeAttributeInt32(const String &localName, const int &value) {
-        writeAttributeInt32(localName, Int32(value));
-    }
-
-    void XmlTextWriter::writeAttributeUInt32(const String &localName, const uint32_t &value) {
-        writeAttributeUInt32(localName, UInt32(value));
-    }
-
-    void XmlTextWriter::writeAttributeInt16(const String &localName, const short &value) {
-        writeAttributeInt16(localName, Int16(value));
-    }
-
-    void XmlTextWriter::writeAttributeUInt16(const String &localName, const uint16_t &value) {
-        writeAttributeUInt16(localName, UInt16(value));
-    }
-
-    void XmlTextWriter::writeAttributeInt64(const String &localName, const int64_t &value) {
-        writeAttributeInt64(localName, Int64(value));
-    }
-
-    void XmlTextWriter::writeAttributeUInt64(const String &localName, const uint64_t &value) {
-        writeAttributeUInt64(localName, UInt64(value));
-    }
-
-    void XmlTextWriter::writeAttributeChar(const String &localName, const char &value) {
-        writeAttributeChar(localName, Char(value));
-    }
-
-    void XmlTextWriter::writeAttributeByte(const String &localName, const uint8_t &value) {
-        writeAttributeByte(localName, Byte(value));
-    }
-
-    void XmlTextWriter::writeAttributeBoolean(const String &localName, const bool &value) {
-        writeAttributeBoolean(localName, Boolean(value));
-    }
-
-    void XmlTextWriter::writeAttributeFloat(const String &localName, const float &value) {
-        writeAttributeFloat(localName, Float(value));
-    }
-
-    void XmlTextWriter::writeAttributeDouble(const String &localName, const double &value) {
-        writeAttributeDouble(localName, Double(value));
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const bool &value) {
-        writeAttributeBoolean(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const char &value) {
-        writeAttributeChar(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const uint8_t &value) {
-        writeAttributeByte(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const short &value) {
-        writeAttributeInt16(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const uint16_t &value) {
-        writeAttributeUInt16(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const int &value) {
-        writeAttributeInt32(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const uint32_t &value) {
-        writeAttributeUInt32(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const int64_t &value) {
-        writeAttributeInt64(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const uint64_t &value) {
-        writeAttributeUInt64(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const float &value) {
-        writeAttributeFloat(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const double &value) {
-        writeAttributeDouble(localName, value);
-    }
-
-    void XmlTextWriter::writeAttribute(const String &localName, const String &value) {
-        writeAttributeString(localName, value);
+    bool XmlTextWriter::writeProcessingInstruction(const String &name, const String &text) {
+        if (isValid()) {
+            return xmlTextWriterWriteProcessingInstruction(_writer->writer, (const xmlChar *) name.c_str(),
+                                                           (const xmlChar *) text.c_str()) == XmlSuccess;
+        }
+        return false;
     }
 }

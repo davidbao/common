@@ -22,6 +22,24 @@ namespace Xml {
     public:
         using IAttributeGetter::getAttribute;
 
+        enum ReadState {
+            // The Read method has not been called yet.
+            Initial = 0,
+
+            // Reading is in progress.
+            Interactive = 1,
+
+            // An error occurred that prevents the XmlReader from continuing.
+            Error = 2,
+
+            // The end of the stream has been reached successfully.
+            EndOfFile = 3,
+
+            // The Close method has been called and the XmlReader is closed.
+            Closed = 4,
+            Reading = 5
+        };
+
         explicit XmlTextReader(const String &fileName);
 
         XmlTextReader(const String &text, size_t length);
@@ -33,6 +51,14 @@ namespace Xml {
         ~XmlTextReader() override;
 
         bool getAttribute(const String &name, String &value) const override;
+
+        bool getAttribute(const String &name, const String &ns, String &value) const;
+
+        bool getAttributeNames(StringArray &names) const;
+
+        bool hasAttributes() const;
+
+        int attributeCount() const;
 
         bool isValid() const;
 
@@ -46,9 +72,27 @@ namespace Xml {
 
         String namespaceUri() const;
 
+        String encoding() const;
+
+        String prefix() const;
+
+        String xmlLang() const;
+
+        String xmlVersion() const;
+
         XmlNodeType nodeType() const;
 
         String value() const;
+
+        bool hasValue() const;
+
+        bool isDefault() const;
+
+        bool isEOF() const;
+
+        ReadState readState() const;
+
+        char quoteChar() const;
 
         String innerXml() const;
 
@@ -67,6 +111,11 @@ namespace Xml {
         XmlNodeType moveToContent();
 
         bool moveToElement();
+
+        bool moveToAttribute(int no);
+
+        bool moveToAttribute(const String &name, const String &ns = String::Empty);
+
 
     private:
         XmlTextReaderInner *_reader;
