@@ -11,7 +11,9 @@
 #include "data/TimeZone.h"
 #include "system/Math.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
     const TimeSpan DateTimeFormat::NullOffset = TimeSpan::MinValue;
 
     const char DateTimeFormat::allStandardFormats[allStandardFormatsCount] = {

@@ -8,7 +8,7 @@
 
 #include "json/JsonTextWriter.h"
 
-namespace Common {
+namespace Json {
     JsonTextWriter::JsonTextWriter(const String &fileName) : _indent(true), _rootNode(nullptr) {
         _stream = new FileStream(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     }

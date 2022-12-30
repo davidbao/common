@@ -21,8 +21,9 @@
 #include "system/Environment.h"
 
 using namespace Net;
+using namespace Crypto;
 
-namespace Microservice {
+namespace Config {
     bool IConfigService::contains(const String &key) const {
         return properties().contains(key);
     }

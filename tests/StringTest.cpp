@@ -10,7 +10,7 @@
 #include "data/WString.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 static const String _text = "ABC/abc123,)_中文";
 static const string _text2 = "ABC/abc123,)_中文";

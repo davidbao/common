@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(YML_SRC
+set(YML_SRC
         YmlNode.cpp
         )
 

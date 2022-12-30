@@ -15,6 +15,8 @@
 #include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
 
+using namespace Config;
+
 namespace Microservice {
     const char *NacosService::InstanceUrl = "/nacos/v1/ns/instance";
     const char *NacosService::InstanceBeatUrl = "/nacos/v1/ns/instance/beat";

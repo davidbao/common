@@ -11,7 +11,7 @@
 
 #include "data/StringMap.h"
 
-namespace Common {
+namespace System {
     class Environment {
     public:
         static void getVariables(StringMap &variables);
@@ -23,7 +23,7 @@ namespace Common {
         static bool removeVariable(const String &name);
 
     private:
-        static char** const AllEnvironments;
+        static char **const AllEnvironments;
     };
 }
 

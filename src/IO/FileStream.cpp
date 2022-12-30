@@ -9,8 +9,11 @@
 #if WIN32
 #include <Windows.h>
 #else
+
 #include <termios.h>
+
 #endif
+
 #include "IO/File.h"
 #include "IO/FileStream.h"
 #include "exception/Exception.h"
@@ -26,94 +29,85 @@
 #define S_IWRITE S_IWUSR
 #endif
 
-namespace Common
-{
-    FileStream::FileStream(const char* filename, FileMode mode, FileAccess access) : _fd(InvalidHandle)
-    {
-        if(filename == NULL)
-        {
+using namespace Diag;
+using namespace System;
+
+namespace IO {
+    FileStream::FileStream(const char *filename, FileMode mode, FileAccess access) : _fd(InvalidHandle) {
+        if (filename == nullptr) {
             throw ArgumentNullException("filename");
         }
-        if(mode == FileOpen)
-        {
-            if(!File::exists(filename))
-            {
+        if (mode == FileOpen) {
+            if (!File::exists(filename)) {
                 throw FileNotFoundException(filename);
             }
         }
-        
+
         open(filename, openFlag(filename, mode, access), openMode(access));
-        if(isOpen())
-        {
-            if(mode == FileMode::FileCreate)
-            {
+        if (isOpen()) {
+            if (mode == FileMode::FileCreate) {
                 setLength(0);
             }
         }
     }
-    FileStream::FileStream(const String& filename, FileMode mode, FileAccess access) : FileStream(filename.c_str(), mode, access)
-    {
+
+    FileStream::FileStream(const String &filename, FileMode mode, FileAccess access) : FileStream(filename.c_str(),
+                                                                                                  mode, access) {
     }
-    FileStream::~FileStream()
-    {
+
+    FileStream::~FileStream() {
         close();
     }
-    
-    void FileStream::open(const char* filename, int openFlag, int mode)
-    {
+
+    void FileStream::open(const char *filename, int openFlag, int mode) {
         _fileName = filename;
         _fd = ::open(filename, openFlag, mode);
-        if (_fd == InvalidHandle)
-        {
+        if (_fd == InvalidHandle) {
             Debug::writeFormatLine("can't open file: name: %s, error: %s", filename, strerror(errno));
         }
     }
-    void FileStream::close()
-    {
-        if (_fd != InvalidHandle)
-        {
+
+    void FileStream::close() {
+        if (_fd != InvalidHandle) {
             ::close(_fd);
         }
         _fd = InvalidHandle;
     }
-    bool FileStream::isOpen() const
-    {
+
+    bool FileStream::isOpen() const {
         return _fd != InvalidHandle;
     }
-    
-    int FileStream::openFlag(const char* filename, FileMode mode, FileAccess access)
-    {
-    	int result = O_RDONLY;
-    	if(access == FileAccess::FileRead)
-    		result = O_RDONLY;
-    	else if(access == FileAccess::FileWrite)
-    		result = O_WRONLY;
-    	else if(access == FileAccess::FileReadWrite)
-    		result = O_RDWR;
-        switch (mode)
-        {
+
+    int FileStream::openFlag(const char *filename, FileMode mode, FileAccess access) {
+        int result = O_RDONLY;
+        if (access == FileAccess::FileRead)
+            result = O_RDONLY;
+        else if (access == FileAccess::FileWrite)
+            result = O_WRONLY;
+        else if (access == FileAccess::FileReadWrite)
+            result = O_RDWR;
+        switch (mode) {
             case FileCreateNew:
-				return O_CREAT | O_BINARY;
+                return O_CREAT | O_BINARY;
             case FileCreate:
-				return O_CREAT | result | O_BINARY;
+                return O_CREAT | result | O_BINARY;
             case FileOpen:
-				return result | O_BINARY;
+                return result | O_BINARY;
             case FileOpenOrCreate:
-				return File::exists(filename) ? result | O_BINARY : O_CREAT | O_TRUNC | result | O_BINARY;
+                return File::exists(filename) ? result | O_BINARY : O_CREAT | O_TRUNC | result | O_BINARY;
             case FileTruncate:
-				return O_CREAT | O_TRUNC | O_RDWR | O_BINARY;
+                return O_CREAT | O_TRUNC | O_RDWR | O_BINARY;
             case FileAppend:
-				return O_CREAT | O_APPEND | result | O_BINARY;
+                return O_CREAT | O_APPEND | result | O_BINARY;
             case FileOpenWithoutException:
                 return result | O_BINARY;
             default:
-				return O_RDONLY | O_BINARY;
+                return O_RDONLY | O_BINARY;
         }
     }
-    mode_t FileStream::openMode(FileAccess access)
-    {
-        switch (access)
-        {
+
+    mode_t FileStream::openMode(FileAccess access) {
+        switch (access) {
             case FileRead:
                 return S_IREAD;
             case FileWrite:
@@ -125,21 +119,19 @@ namespace Common
         }
     }
 
-    off_t FileStream::position() const
-    {
+    off_t FileStream::position() const {
 #if WIN32
         return isOpen() ? tell(_fd) : -1;
 #else
         return isOpen() ? lseek(_fd, 0, SeekCurrent) : -1;
 #endif
     }
-    size_t FileStream::length() const
-    {
+
+    size_t FileStream::length() const {
 #if WIN32
         return isOpen() ? filelength(_fd) : 0;
 #else
-        if(isOpen())
-        {
+        if (isOpen()) {
             struct stat fst;
             fstat(_fd, &fst);
             return fst.st_size;
@@ -147,58 +139,49 @@ namespace Common
         return -1;
 #endif
     }
-    void FileStream::setLength(size_t length)
-    {
-        if(isOpen())
-        {
+
+    void FileStream::setLength(size_t length) {
+        if (isOpen()) {
             off_t pos = position();
 #ifdef WIN32
-			HANDLE file = (HANDLE)_get_osfhandle(_fd);
-			SetEndOfFile(file);
+            HANDLE file = (HANDLE)_get_osfhandle(_fd);
+            SetEndOfFile(file);
 #else
             ftruncate(_fd, length);
 #endif
-			if (pos != length)
-			{
-				if (pos < length)
-				{
-					seek(pos, SeekBegin);
-				}
-				else
-				{
-					seek(0, SeekEnd);
-				}
-			}
+            if (pos != length) {
+                if (pos < length) {
+                    seek(pos, SeekBegin);
+                } else {
+                    seek(0, SeekEnd);
+                }
+            }
         }
     }
-    bool FileStream::seek(off_t offset, SeekOrigin origin)
-    {
-        if (isOpen())
-        {
+
+    bool FileStream::seek(off_t offset, SeekOrigin origin) {
+        if (isOpen()) {
             return ::lseek(_fd, offset, origin) >= 0;
         }
         return false;
     }
-    ssize_t FileStream::write(const uint8_t* array, off_t offset, size_t count)
-    {
-        if (isOpen())
-        {
-            return ::write(_fd, array + offset, (uint32_t)count);
+
+    ssize_t FileStream::write(const uint8_t *array, off_t offset, size_t count) {
+        if (isOpen()) {
+            return ::write(_fd, array + offset, (uint32_t) count);
         }
         return 0;
     }
-    ssize_t FileStream::read(uint8_t* array, off_t offset, size_t count)
-    {
-        if (isOpen())
-        {
-            return ::read(_fd, array + offset, (uint32_t)count);
+
+    ssize_t FileStream::read(uint8_t *array, off_t offset, size_t count) {
+        if (isOpen()) {
+            return ::read(_fd, array + offset, (uint32_t) count);
         }
         return 0;
     }
-    void FileStream::flush()
-    {
-        if (isOpen())
-        {
+
+    void FileStream::flush() {
+        if (isOpen()) {
 #if WIN32
             _commit(_fd);
 #else
@@ -207,12 +190,11 @@ namespace Common
         }
     }
 
-    int FileStream::fd() const
-    {
+    int FileStream::fd() const {
         return _fd;
     }
-    const String& FileStream::fileName() const
-    {
+
+    const String &FileStream::fileName() const {
         return _fileName;
     }
 }

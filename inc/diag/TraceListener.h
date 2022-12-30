@@ -9,13 +9,13 @@
 #ifndef TraceListener_h
 #define TraceListener_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PList.h"
 
-namespace Common
-{
-    enum LogLevel
-    {
+using namespace Data;
+
+namespace Diag {
+    enum LogLevel {
         /// <summary>
         /// Output error-handling messages.
         /// </summary>
@@ -41,48 +41,51 @@ namespace Common
         /// </summary>
         LogSystem,
     };
-    
-    class TraceListenerContext
-    {
+
+    class TraceListenerContext {
     public:
         bool enable;
-        
+
         TraceListenerContext();
-        TraceListenerContext(const TraceListenerContext& context);
+
+        TraceListenerContext(const TraceListenerContext &context);
+
         virtual ~TraceListenerContext();
     };
+
 //    typedef PList<TraceListenerContext> TraceListenerContexts;
-    class TraceListenerContexts : public PList<TraceListenerContext>
-    {
+    class TraceListenerContexts : public PList<TraceListenerContext> {
     public:
         TraceListenerContexts(bool autoDelete = true, uint32_t capacity = DefaultCapacity);
-        TraceListenerContexts(const TraceListenerContexts& contexts);
+
+        TraceListenerContexts(const TraceListenerContexts &contexts);
+
         ~TraceListenerContexts() override;
-        
+
     private:
-        TraceListenerContexts(const TraceListenerContext* context);
-        
+        TraceListenerContexts(const TraceListenerContext *context);
+
     public:
         static TraceListenerContexts Default;
         static TraceListenerContexts Empty;
     };
-    
-    class TraceListener 
-    {
+
+    class TraceListener {
     public:
         TraceListener();
+
         virtual ~TraceListener();
-        
-        static TraceListener* create(const TraceListenerContext* context);
-        
+
+        static TraceListener *create(const TraceListenerContext *context);
+
     protected:
-        virtual void write(const char* message, const char* category) = 0;
-        
+        virtual void write(const char *message, const char *category) = 0;
+
     private:
         friend class Trace;
     };
-    
-    typedef PList<TraceListener> TraceListeners;
+
+    typedef PList <TraceListener> TraceListeners;
 }
 
 #endif /* TraceListener_h */

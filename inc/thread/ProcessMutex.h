@@ -9,30 +9,35 @@
 #ifndef ProcessMutex_h
 #define ProcessMutex_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
+
 #ifndef WIN32
+
 #include <semaphore.h>
+
 #endif
 
-namespace Common
-{
-    class ProcessMutex
-    {
+using namespace Data;
+
+namespace Threading {
+    class ProcessMutex {
     public:
-        ProcessMutex(const String& name = String::Empty);
+        ProcessMutex(const String &name = String::Empty);
+
         ~ProcessMutex();
-        
+
         bool lock();
+
         bool unlock();
-        
+
     public:
-        static bool exists(const String& name);
-        
+        static bool exists(const String &name);
+
     private:
 #if WIN32
         void* _mutex;
 #else
-        sem_t* _mutex;
+        sem_t *_mutex;
 #endif
         String _mutexName;
     };

@@ -231,6 +231,37 @@ bool testParse() {
     return true;
 }
 
+bool testToSql() {
+    {
+        String str = "{\n"
+                     "\"page\": 1,\n"
+                     "\"pageSize\": 10,\n"
+                     "\"alarm_timeFrom\": \"2022-01-02 00:00:00\",\n"
+                     "\"alarm_timeTo\": \"2022-01-03 00:00:00\",\n"
+                     "\"event_type\":\"'alarm'\",\n"
+                     "\"tag_name\": \"like411like\",\n"
+                     "\"valueFrom\": \"18\",\n"
+                     "\"valueTo\": \"60\",\n"
+                     "\"limit_value\":\"5\",\n"
+                     "\"orderBy\": \"alarm_time DESC\"\n"
+                     "}";
+        SqlSelectFilter test;
+        if (!SqlSelectFilter::parse(str, test)) {
+            return false;
+        }
+        String qSql = test.toQuerySql("t1");
+        if(qSql.isNullOrEmpty()) {
+            return false;
+        }
+        String cSql = test.toCountSql("t1");
+        if(cSql.isNullOrEmpty()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testConstructor()) {
         return 1;
@@ -243,6 +274,9 @@ int main() {
     }
     if (!testParse()) {
         return 4;
+    }
+    if (!testToSql()) {
+        return 5;
     }
 
     return 0;

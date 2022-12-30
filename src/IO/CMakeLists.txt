@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(IO_SRC
+set(IO_SRC
         Directory.cpp
         File.cpp
         FileInfo.cpp
@@ -25,7 +25,7 @@ SET(IO_SRC
         Zip.cpp
         )
 
-IF (NOT WEB_OS)
+if (NOT WEB_OS)
     SET(IO_SRC
             ${IO_SRC}
             IOPort.cpp
@@ -33,6 +33,6 @@ IF (NOT WEB_OS)
             SerialInfo.cpp
             SerialPort.cpp
             )
-ENDIF ()
+endif ()
 
 add_library(IO OBJECT ${IO_SRC})

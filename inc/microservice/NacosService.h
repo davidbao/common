@@ -13,7 +13,7 @@
 #include "http/HttpContent.h"
 #include "microservice/ServiceGovernance.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Microservice
 {

@@ -15,7 +15,9 @@
 #include "IO/Stream.h"
 #include "system/Math.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
 //#if WIN32
 //    WString WString::NewLine = L"\r\n";
 //#else

@@ -9,7 +9,7 @@
 #include "data/LoopList.h"
 #include "thread/Thread.h"
 
-using namespace Common;
+using namespace Data;
 
 #define DefaultSize 125
 

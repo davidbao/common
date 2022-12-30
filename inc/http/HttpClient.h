@@ -18,7 +18,9 @@
 #include "system/PoolService.h"
 #include "http/HttpContent.h"
 
-namespace Common {
+using namespace System;
+
+namespace Http {
     typedef void (*HttpSendCallback)(HttpResponse &);
 
     class HttpClient : public PoolService {

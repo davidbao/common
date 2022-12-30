@@ -9,7 +9,7 @@
 #include "microservice/SummerApplication.h"
 #include "IO/Directory.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Microservice;
 
 void cleanUp() {

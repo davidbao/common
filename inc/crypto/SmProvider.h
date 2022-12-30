@@ -10,9 +10,12 @@
 #define SmProvider_h
 
 #include "data/ByteArray.h"
+#include "data/String.h"
 #include <openssl/evp.h>
 
-namespace Common {
+using namespace Data;
+
+namespace Crypto {
     class Sm2Provider {
     public:
         static const int PublicKeyLength = 64;

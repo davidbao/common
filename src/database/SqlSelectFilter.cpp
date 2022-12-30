@@ -7,7 +7,10 @@
 //
 
 #include "database/SqlSelectFilter.h"
+#include "data/Convert.h"
 #include "json/JsonNode.h"
+
+using namespace Json;
 
 namespace Database {
     SqlSelectFilter::SqlSelectFilter(int page, int pageSize) : _page(page), _pageSize(pageSize) {
@@ -30,6 +33,10 @@ namespace Database {
 
     int SqlSelectFilter::limit() const {
         return pageSize();
+    }
+
+    bool SqlSelectFilter::hasLimit() const {
+        return !(_page == 0 && _pageSize == 0);
     }
 
     int SqlSelectFilter::page() const {
@@ -109,6 +116,108 @@ namespace Database {
         return value;
     }
 
+    String SqlSelectFilter::orderBy() const {
+        return _orderBy;
+    }
+
+    void SqlSelectFilter::setOrderBy(const String &orderBy) {
+        _orderBy = orderBy;
+    }
+
+    String SqlSelectFilter::toQuerySql(const String &tableName) const {
+        return toSql(tableName, "*");
+    }
+
+    String SqlSelectFilter::toCountSql(const String &tableName) const {
+        return toSql(tableName, "COUNT(1)");
+    }
+
+    String SqlSelectFilter::toSql(const String &tableName, const String &columnStr) const {
+        String result = String::format("SELECT %s FROM %s", columnStr.c_str(), tableName.c_str());
+
+        // where
+        if (_values.count() > 0) {
+            String whereStr;
+            StringMap excluded;
+            for (auto it = _values.begin(); it != _values.end(); ++it) {
+                const String &k = it.key();
+                const String &v = it.value();
+
+                if (!excluded.contains(k)) {
+                    String keyStr, fromKey, fromValue, toKey, toValue;
+
+                    StringArray texts;
+                    Convert::splitStr(k, texts, '.');
+                    if (texts.count() == 2) {
+                        keyStr = texts[0];
+                        if (texts[1] == "from") {
+                            fromKey = k;
+                            fromValue = _values[fromKey];
+                            toKey = String::format("%s.%s", texts[0].c_str(), "to");
+                            toValue = _values[toKey];
+                            excluded.add(toKey, toKey);
+                        } else if (texts[1] == "to") {
+                            toKey = k;
+                            toValue = _values[toKey];
+                            fromKey = String::format("%s.%s", texts[0].c_str(), "from");
+                            fromValue = _values[fromKey];
+                            excluded.add(fromKey, fromKey);
+                        }
+                    }
+
+                    if (!fromValue.isNullOrEmpty() && !toValue.isNullOrEmpty()) {
+                        // range.
+                        if (!whereStr.isNullOrEmpty()) {
+                            whereStr.append(" AND ");
+                        }
+                        double value;
+                        bool hasQuotes = !Double::parse(fromValue, value);
+                        whereStr.appendFormat(hasQuotes ? "(%s>='%s' AND %s<='%s')" : "(%s>=%s AND %s<=%s)",
+                                      keyStr.c_str(), fromValue.c_str(), keyStr.c_str(), toValue.c_str());
+                    } else {
+                        // equals.
+                        if (!whereStr.isNullOrEmpty()) {
+                            whereStr.append(" AND ");
+                        }
+                        if (v.find("like") >= 0) {
+                            String temp = String::replace(v, "like", "%");
+                            whereStr.append(String::format("%s like '%s'", k.c_str(), temp.c_str()));
+                        } else if (v.find("%") >= 0) {
+                            whereStr.append(String::format("%s like '%s'", k.c_str(), v.c_str()));
+                        } else if (v.find("quote") >= 0) {
+                            String temp = String::replace(v, "quote", "'");
+                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
+                        } else if (v.find('\"') >= 0) {
+                            String temp = String::replace(v, "\"", "'");
+                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
+                        } else {
+                            whereStr.append(String::format("%s = %s", k.c_str(), v.c_str()));
+                        }
+                    }
+                }
+            }
+
+            result.append(" WHERE ");
+            result.append(whereStr);
+        }
+
+        if(columnStr.find("COUNT") < 0) {
+            // order by
+            String orderBy = this->orderBy();
+            if (!orderBy.isNullOrEmpty()) {
+                result.append(" ORDER BY ");
+                result.append(orderBy);
+            }
+
+            // limit
+            if (hasLimit()) {
+                result.append(String::format(" LIMIT %d,%d", offset(), limit()));
+            }
+        }
+
+        return result;
+    }
+
     bool SqlSelectFilter::parse(const String &str, SqlSelectFilter &filter) {
         JsonNode node;
         if (JsonNode::parse(str, node)) {
@@ -128,6 +237,8 @@ namespace Database {
                         String temp = name.substr(0, index);
                         if (temp == key)
                             filter.addRange(key, from, to);
+                    } else if (String::equals(name, "orderBy", true)) {
+                        filter._orderBy = value;
                     } else {
                         key = name;
                         from.empty();

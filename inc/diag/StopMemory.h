@@ -15,22 +15,27 @@
 #include "diag/Trace.h"
 #include "Trace.h"
 
-namespace Common
-{
-    class StopMemory
-    {
+namespace Diag {
+    class StopMemory {
     public:
         StopMemory(int64_t deadMemory = 0);
-        StopMemory(const String& info, int64_t deadMemory = 0);
+
+        StopMemory(const String &info, int64_t deadMemory = 0);
+
         ~StopMemory();
-        
+
         void reStart();
+
         void start(int64_t deadMemory = 0);
+
         void stop(bool showInfo = true);
-        void setInfo(const String& info);
-        void setInfo(const char* info);
+
+        void setInfo(const String &info);
+
+        void setInfo(const char *info);
+
         int64_t used() const;
-        
+
     public:
         static void logUsed();
 

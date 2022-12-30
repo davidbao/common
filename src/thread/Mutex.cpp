@@ -8,7 +8,7 @@
 
 #include "thread/Mutex.h"
 
-namespace Common {
+namespace Threading {
     IMutex::IMutex() {
     }
 

@@ -1,7 +1,10 @@
 //#include <thread>
 #if !__ANDROID__ && !WIN32 && !__EMSCRIPTEN__ && !MSYS
+
 #include <execinfo.h>
+
 #endif
+
 #include "thread/Thread.h"
 #include "thread/TickTimeout.h"
 #include "diag/Stopwatch.h"
@@ -11,7 +14,7 @@
 
 #if WIN32
 #include <windows.h>
-#endif	// WIN32
+#endif    // WIN32
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -20,10 +23,12 @@
 #include <GL/glut.h>
 #endif
 
-namespace Common
-{
+using namespace Diag;
+using namespace System;
+
+namespace Threading {
     unique_ptr<Thread> Thread::_tcs;
-    
+
 #if WIN32
     const DWORD MS_VC_EXCEPTION = 0x406D1388;
     
@@ -56,55 +61,50 @@ namespace Common
 //        {
 //        }
     }
-#endif	// WIN32
-    
-    void SetThreadName(const char* threadName)
-    {
+#endif    // WIN32
+
+    void SetThreadName(const char *threadName) {
 #if WIN32
         SetThreadName(GetCurrentThreadId(), threadName);
 #else
 //        pthread_setname_np(threadName);
 #endif
     }
-    
-    bool isThreadDead(void* parameter)
-    {
-        return parameter != nullptr ? !((Thread*)parameter)->isAlive() : false;
+
+    bool isThreadDead(void *parameter) {
+        return parameter != nullptr ? !((Thread *) parameter)->isAlive() : false;
     }
-    void runAThread(void* parameter)
-    {
-        if(parameter != nullptr)
-        {
-            ((Thread*)parameter)->run();
+
+    void runAThread(void *parameter) {
+        if (parameter != nullptr) {
+            ((Thread *) parameter)->run();
         }
     }
-    
-    ThreadHolder::Value::Value()
-    {
+
+    ThreadHolder::Value::Value() {
     }
-    ThreadHolder::Value::~Value()
-    {
+
+    ThreadHolder::Value::~Value() {
     }
-    ThreadHolder::ThreadHolder(void* owner, Value* value, bool autoDeleteValue) : ThreadHolder(owner, nullptr, value, autoDeleteValue)
-    {
+
+    ThreadHolder::ThreadHolder(void *owner, Value *value, bool autoDeleteValue) : ThreadHolder(owner, nullptr, value,
+                                                                                               autoDeleteValue) {
     }
-    ThreadHolder::ThreadHolder(void* owner, void* owner2, Value* value, bool autoDeleteValue)
-    {
+
+    ThreadHolder::ThreadHolder(void *owner, void *owner2, Value *value, bool autoDeleteValue) {
         this->owner = owner;
         this->owner2 = owner2;
         this->value = value;
         this->autoDeleteValue = autoDeleteValue;
     }
-    ThreadHolder::~ThreadHolder()
-    {
-        if(autoDeleteValue && value != nullptr)
-        {
+
+    ThreadHolder::~ThreadHolder() {
+        if (autoDeleteValue && value != nullptr) {
             delete (value);
         }
     }
 
-    Thread::Id::Id()
-    {
+    Thread::Id::Id() {
 #ifdef WIN32
 #elif __EMSCRIPTEN__
         _id = 0;
@@ -112,6 +112,7 @@ namespace Common
         _id = 0;
 #endif
     }
+
 #ifdef WIN32
     Thread::Id::Id(thread::id id) : _id(id)
     {
@@ -121,23 +122,24 @@ namespace Common
     {
     }
 #else
-    Thread::Id::Id(pthread_t id) : _id(id)
-    {
+
+    Thread::Id::Id(pthread_t id) : _id(id) {
     }
+
 #endif
-    Thread::Id::Id(const Id& id)
-    {
+
+    Thread::Id::Id(const Id &id) {
         this->operator=(id);
     }
-    Thread::Id::~Id()
-    {
+
+    Thread::Id::~Id() {
     }
-    void Thread::Id::operator=(const Id& value)
-    {
+
+    void Thread::Id::operator=(const Id &value) {
         _id = value._id;
     }
-    bool Thread::Id::operator==(const Id& value) const
-    {
+
+    bool Thread::Id::operator==(const Id &value) const {
 #ifdef WIN32
         return _id == value._id;
 #elif __EMSCRIPTEN__
@@ -146,37 +148,37 @@ namespace Common
         return pthread_equal(_id, value._id) != 0;
 #endif
     }
-    bool Thread::Id::operator!=(const Id& value) const
-    {
+
+    bool Thread::Id::operator!=(const Id &value) const {
         return !operator==(value);
     }
-    
+
 #ifdef __EMSCRIPTEN__
     Dictionary<int, DateTime> Thread::_timers;
 #else
 #endif
-    Thread::Thread(const String& name, bool autoDelete) : _name(name), _autoDelete(autoDelete)
-    {
+
+    Thread::Thread(const String &name, bool autoDelete) : _name(name), _autoDelete(autoDelete) {
         _startAction = nullptr;
         _procAction = nullptr;
         _stopAction = nullptr;
-        
+
         _startAction2 = nullptr;
         _procAction2 = nullptr;
         _stopAction2 = nullptr;
-        
+
         _startAction3 = nullptr;
         _procAction3 = nullptr;
         _stopAction3 = nullptr;
-        
+
         _startExecution = nullptr;
         _procExecution = nullptr;
         _stopExecution = nullptr;
-        
+
         _procParam = nullptr;
         _startParam = nullptr;
         _stopParam = nullptr;
-        
+
         _break = false;
         _msec = 1;
 
@@ -188,92 +190,86 @@ namespace Common
         _thread = 0;
 #endif
         _running = false;
-        
+
         _alreadySetName = false;
-        
+
         _start = 0;
         _firstInvoke = true;
-        
+
 #ifdef DEBUG
 #ifdef WIN32
-		String temp = String::UTF8toGBK(_name);
+        String temp = String::UTF8toGBK(_name);
 #else
-		String temp = _name;
+        String temp = _name;
 #endif
         Debug::writeFormatLine("Create a thread. name: '%s'", temp.c_str());
 #endif
     }
-    Thread::~Thread()
-    {
+
+    Thread::~Thread() {
 #ifdef __EMSCRIPTEN__
         _timers.remove((int)this);
 #endif
-        
-        if(_startExecution != nullptr)
-        {
+
+        if (_startExecution != nullptr) {
             delete _startExecution;
             _startExecution = nullptr;
         }
-        if(_procExecution != nullptr)
-        {
+        if (_procExecution != nullptr) {
             delete _procExecution;
             _procExecution = nullptr;
         }
-        if(_stopExecution != nullptr)
-        {
+        if (_stopExecution != nullptr) {
             delete _stopExecution;
             _stopExecution = nullptr;
         }
-        
+
         Debug::writeFormatLine("Destroy a thread. name: '%s'", _name.c_str());
     }
-    
-    void Thread::start(action_callback startAction, action_callback stopAction)
-    {
+
+    void Thread::start(action_callback startAction, action_callback stopAction) {
         startProc(nullptr, 1, startAction, stopAction);
     }
-    void Thread::startProc(action_callback procAction, uint32_t msec, action_callback startAction, action_callback stopAction)
-    {
-        if(_autoDelete)
-        {
-            if(_tcs.get() == nullptr)
-            {
+
+    void Thread::startProc(action_callback procAction, uint32_t msec, action_callback startAction,
+                           action_callback stopAction) {
+        if (_autoDelete) {
+            if (_tcs.get() == nullptr) {
                 _tcs.reset(this);
             }
         }
-        
-        if(isAlive())
+
+        if (isAlive())
             return;
-        
+
         _procAction = procAction;
         _msec = msec;
         _startAction = startAction;
         _stopAction = stopAction;
-        
+
         start();
     }
-    void Thread::startProc(action_callback procAction, TimeSpan interval, action_callback startAction, action_callback stopAction)
-    {
-        startProc(procAction, (uint32_t)interval.totalMilliseconds(), startAction, stopAction);
+
+    void Thread::startProc(action_callback procAction, TimeSpan interval, action_callback startAction,
+                           action_callback stopAction) {
+        startProc(procAction, (uint32_t) interval.totalMilliseconds(), startAction, stopAction);
     }
-    void Thread::start(action_callback2 startAction, void* startParam, action_callback2 stopAction, void* stopParam)
-    {
+
+    void Thread::start(action_callback2 startAction, void *startParam, action_callback2 stopAction, void *stopParam) {
         startProc(nullptr, nullptr, 1, startAction, startParam, stopAction, stopParam);
     }
-    void Thread::startProc(action_callback2 procAction, void* procParam, uint32_t msec, action_callback2 startAction,
-                                  void* startParam, action_callback2 stopAction, void* stopParam)
-    {
-        if(_autoDelete)
-        {
-            if(_tcs.get() == nullptr)
-            {
+
+    void Thread::startProc(action_callback2 procAction, void *procParam, uint32_t msec, action_callback2 startAction,
+                           void *startParam, action_callback2 stopAction, void *stopParam) {
+        if (_autoDelete) {
+            if (_tcs.get() == nullptr) {
                 _tcs.reset(this);
             }
         }
-        
-        if(isAlive())
+
+        if (isAlive())
             return;
-        
+
         _procAction2 = procAction;
         _procParam = procParam;
         _msec = msec;
@@ -281,32 +277,34 @@ namespace Common
         _startParam = startParam;
         _stopAction2 = stopAction;
         _stopParam = stopParam;
-        
+
         start();
     }
-    void Thread::startProc(action_callback2 procAction, void* procParam, TimeSpan interval, action_callback2 startAction,
-                           void* startParam, action_callback2 stopAction, void* stopParam)
-    {
-        startProc(procAction, procParam, (uint32_t)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
+
+    void
+    Thread::startProc(action_callback2 procAction, void *procParam, TimeSpan interval, action_callback2 startAction,
+                      void *startParam, action_callback2 stopAction, void *stopParam) {
+        startProc(procAction, procParam, (uint32_t) interval.totalMilliseconds(), startAction, startParam, stopAction,
+                  stopParam);
     }
-    void Thread::start(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
-    {
+
+    void Thread::start(action_callback3 startAction, ThreadHolder *startParam, action_callback3 stopAction,
+                       ThreadHolder *stopParam) {
         startProc(nullptr, nullptr, 1, startAction, startParam, stopAction, stopParam);
     }
-    void Thread::startProc(action_callback3 procAction, ThreadHolder* procParam, uint32_t msec, action_callback3 startAction,
-                           ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
-    {
-        if(_autoDelete)
-        {
-            if(_tcs.get() == nullptr)
-            {
+
+    void
+    Thread::startProc(action_callback3 procAction, ThreadHolder *procParam, uint32_t msec, action_callback3 startAction,
+                      ThreadHolder *startParam, action_callback3 stopAction, ThreadHolder *stopParam) {
+        if (_autoDelete) {
+            if (_tcs.get() == nullptr) {
                 _tcs.reset(this);
             }
         }
-        
-        if(isAlive())
+
+        if (isAlive())
             return;
-        
+
         _procAction3 = procAction;
         _procParam = procParam;
         _msec = msec;
@@ -314,58 +312,57 @@ namespace Common
         _startParam = startParam;
         _stopAction3 = stopAction;
         _stopParam = stopParam;
-        
+
         start();
     }
-    void Thread::startProc(action_callback3 procAction, ThreadHolder* procParam, TimeSpan interval, action_callback3 startAction,
-                           ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
-    {
-        startProc(procAction, procParam, (uint32_t)interval.totalMilliseconds(), startAction, startParam, stopAction, stopParam);
+
+    void Thread::startProc(action_callback3 procAction, ThreadHolder *procParam, TimeSpan interval,
+                           action_callback3 startAction,
+                           ThreadHolder *startParam, action_callback3 stopAction, ThreadHolder *stopParam) {
+        startProc(procAction, procParam, (uint32_t) interval.totalMilliseconds(), startAction, startParam, stopAction,
+                  stopParam);
     }
-    void Thread::beginInvoke(action_callback3 startAction, ThreadHolder* startParam, action_callback3 stopAction, ThreadHolder* stopParam)
-    {
-        Thread* thread = new Thread("AsyncInvoke", true);
+
+    void Thread::beginInvoke(action_callback3 startAction, ThreadHolder *startParam, action_callback3 stopAction,
+                             ThreadHolder *stopParam) {
+        Thread *thread = new Thread("AsyncInvoke", true);
         thread->start(startAction, startParam, stopAction, stopParam);
     }
-    
-    void Thread::stopmsec(uint32_t delaymsec)
-    {
-        if(isAlive())
-        {
+
+    void Thread::stopmsec(uint32_t delaymsec) {
+        if (isAlive()) {
             _break = true;
-            
+
 #ifdef DEBUG
 #ifdef WIN32
-			String name = String::UTF8toGBK(_name);
+            String name = String::UTF8toGBK(_name);
 #else
-			String name = _name;
+            String name = _name;
 #endif
             String msg = String::convert("Thread::stopmsec, name: %s", name.c_str());
             Stopwatch sw(msg, 1000);
 #endif
 
 #ifdef WIN32
-			thread::id this_id = this_thread::get_id();
-			thread::id thread_id = _thread->get_id();
-			if (this_id != thread_id)
-			{
-				TickTimeout::msdelay(delaymsec, isThreadDead, this);
+            thread::id this_id = this_thread::get_id();
+            thread::id thread_id = _thread->get_id();
+            if (this_id != thread_id)
+            {
+                TickTimeout::msdelay(delaymsec, isThreadDead, this);
 
-				if (isAlive())
-				{
-					_thread->detach();
-				}
-			}
+                if (isAlive())
+                {
+                    _thread->detach();
+                }
+            }
             _thread = nullptr;
 #elif __EMSCRIPTEN__
 #else
             pthread_t this_id = pthread_self();
-            if (!pthread_equal(this_id, _thread))
-            {
+            if (!pthread_equal(this_id, _thread)) {
                 TickTimeout::msdelay(delaymsec, isThreadDead, this);
-                
-                if (isAlive())
-                {
+
+                if (isAlive()) {
 #ifndef __ANDROID__
                     pthread_cancel(_thread);
 //                    pthread_detach(_thread);
@@ -377,37 +374,35 @@ namespace Common
             _running = false;
         }
     }
-    void Thread::stop(uint32_t delaySeconds)
-    {
+
+    void Thread::stop(uint32_t delaySeconds) {
         Debug::writeFormatLine("Stop a thread. name: '%s'", _name.c_str());
         stopmsec(delaySeconds * 1000);
     }
-    void Thread::stop(const TimeSpan& delay)
-    {
-        stop((uint32_t)delay.totalSeconds());
+
+    void Thread::stop(const TimeSpan &delay) {
+        stop((uint32_t) delay.totalSeconds());
     }
-    
-    void Thread::start()
-    {
-        if(!_running)
-        {
+
+    void Thread::start() {
+        if (!_running) {
 #ifdef DEBUG
 #ifdef WIN32
-			String name = String::UTF8toGBK(_name);
+            String name = String::UTF8toGBK(_name);
 #else
-			String name = _name;
+            String name = _name;
 #endif
             Debug::writeFormatLine("Start a thread, name: '%s'", name.c_str());
 #endif
 
-			_alreadySetName = false;
-			_start = 0;
-			_firstInvoke = true;
-			_break = false;
-			_running = true;
+            _alreadySetName = false;
+            _start = 0;
+            _firstInvoke = true;
+            _break = false;
+            _running = true;
 
 #ifdef WIN32
-			_thread = new thread(runAThread, this);
+            _thread = new thread(runAThread, this);
 #elif __EMSCRIPTEN__
             glutTimerFunc(0, call_from_timer, (int)this);
 #else
@@ -419,14 +414,14 @@ namespace Common
 #endif
         }
     }
-    void* Thread::call_from_thread(void * parameter)
-    {
-        if(parameter != nullptr)
-        {
-            ((Thread*)parameter)->run();
+
+    void *Thread::call_from_thread(void *parameter) {
+        if (parameter != nullptr) {
+            ((Thread *) parameter)->run();
         }
         return nullptr;
     }
+
 #ifdef __EMSCRIPTEN__
     void Thread::call_from_timer(int value)
     {
@@ -453,16 +448,15 @@ namespace Common
         }
     }
 #endif
-    
-    void Thread::setPriority(int prio)
-    {
-        if(!_running)
+
+    void Thread::setPriority(int prio) {
+        if (!_running)
             return;
-        if(!(prio >= Priority::MinValue && prio <= Priority::MaxValue))
+        if (!(prio >= Priority::MinValue && prio <= Priority::MaxValue))
             return;
-     
+
 #ifdef WIN32
-		throw NotImplementedException("Thread::setPriority");
+        throw NotImplementedException("Thread::setPriority");
 #elif !__EMSCRIPTEN__
         // We map our priority values to pthreads scheduling params as
         // follows:
@@ -475,8 +469,8 @@ namespace Common
         // For the last two, we can also use the additional priority
         // parameter which must be in 1..99 range under Linux (TODO:
         // what should be used for the other systems?).
-        struct sched_param sparam = { 0 };
-        
+        struct sched_param sparam = {0};
+
         // The only scheduling policy guaranteed to be supported
         // everywhere is this one.
         int policy = SCHED_OTHER;
@@ -489,154 +483,126 @@ namespace Common
             policy = SCHED_BATCH;
 #endif
 #ifdef SCHED_RR
-        if ( 60 < prio && prio <= 80 )
+        if (60 < prio && prio <= 80)
             policy = SCHED_RR;
 #endif
 #ifdef SCHED_FIFO
-        if ( 80 > prio )
+        if (80 > prio)
             policy = SCHED_FIFO;
 #endif
-        
+
         // This test is not redundant as it takes care of the systems
         // where neither SCHED_RR nor SCHED_FIFO are defined.
-        if ( prio > 60 && policy != SCHED_OTHER )
-        {
+        if (prio > 60 && policy != SCHED_OTHER) {
             // There is no good way to map our 20 possible priorities
             // (61..80 or 81..100) to the 99 pthread priorities, so we
             // do the best that we can and ensure that the extremes of
             // our range are mapped to the pthread extremes and all the
             // rest fall in between.
-            
+
             // This gets us to 1..96 range.
-            sparam.sched_priority = ((prio - 61) % 20)*5 + 1;
-            
+            sparam.sched_priority = ((prio - 61) % 20) * 5 + 1;
+
             // And we artificially increase our highest priority to the
             // highest pthread one.
-            if ( sparam.sched_priority == 96 )
+            if (sparam.sched_priority == 96)
                 sparam.sched_priority = 99;
         }
-        
-        if ( pthread_setschedparam(_thread, policy, &sparam) != 0 )
+
+        if (pthread_setschedparam(_thread, policy, &sparam) != 0)
             Trace::error(String::format("Failed to set thread priority %d.", prio));
         else
             Debug::writeLine(String::format("Set thread'%s' priority'%d' successfully.", name().c_str(), prio));
 #endif
     }
-    
-    bool Thread::isAlive() const
-    {
+
+    bool Thread::isAlive() const {
         return _running;
     }
-    void Thread::setSleepPeriod(uint32_t msec)
-    {
+
+    void Thread::setSleepPeriod(uint32_t msec) {
         uint32_t temp = _msec;
         _msec = msec;
         Thread::msleep(temp);
     }
-    
-    const String& Thread::name() const
-    {
+
+    const String &Thread::name() const {
         return _name;
     }
-    
-    bool Thread::hasProc() const
-    {
-        return _procAction != nullptr || _procAction2 != nullptr || _procAction3 != nullptr || _procExecution != nullptr;
+
+    bool Thread::hasProc() const {
+        return _procAction != nullptr || _procAction2 != nullptr || _procAction3 != nullptr ||
+               _procExecution != nullptr;
     }
 
-	void Thread::run()
-	{
-		try
-		{
-			if (!_alreadySetName && !_name.isNullOrEmpty())
-			{
-				_alreadySetName = true;
-				SetThreadName(_name);
-			}
+    void Thread::run() {
+        try {
+            if (!_alreadySetName && !_name.isNullOrEmpty()) {
+                _alreadySetName = true;
+                SetThreadName(_name);
+            }
 
-			if (_startAction != nullptr)
-			{
-				_startAction();
-			}
-			else if (_startAction2 != nullptr)
-			{
-				_startAction2(_startParam);
-			}
-			else if (_startAction3 != nullptr)
-			{
-				_startAction3((ThreadHolder*)_startParam);
-			}
-            else if(_startExecution != nullptr)
-            {
+            if (_startAction != nullptr) {
+                _startAction();
+            } else if (_startAction2 != nullptr) {
+                _startAction2(_startParam);
+            } else if (_startAction3 != nullptr) {
+                _startAction3((ThreadHolder *) _startParam);
+            } else if (_startExecution != nullptr) {
                 _startExecution->execute();
             }
 
-			if (_procAction != nullptr)
-			{
-                action_callback2 callback = [] (void* parameter) {
-                    Thread* thread = static_cast<Thread*>(parameter);
-                    if(thread->_procAction != nullptr)
+            if (_procAction != nullptr) {
+                action_callback2 callback = [](void *parameter) {
+                    Thread *thread = static_cast<Thread *>(parameter);
+                    if (thread->_procAction != nullptr)
                         thread->_procAction();
                 };
                 loop(callback);
-			}
-			else if (_procAction2 != nullptr)
-			{
-                action_callback2 callback = [] (void* parameter) {
-                    Thread* thread = static_cast<Thread*>(parameter);
-                    if(thread->_procAction2 != nullptr)
-                        thread->_procAction2((ThreadHolder*)thread->_procParam);
+            } else if (_procAction2 != nullptr) {
+                action_callback2 callback = [](void *parameter) {
+                    Thread *thread = static_cast<Thread *>(parameter);
+                    if (thread->_procAction2 != nullptr)
+                        thread->_procAction2((ThreadHolder *) thread->_procParam);
                 };
                 loop(callback);
-			}
-			else if (_procAction3 != nullptr)
-			{
-                action_callback2 callback = [] (void* parameter) {
-                    Thread* thread = static_cast<Thread*>(parameter);
-                    if(thread->_procAction3 != nullptr)
-                        thread->_procAction3((ThreadHolder*)thread->_procParam);
+            } else if (_procAction3 != nullptr) {
+                action_callback2 callback = [](void *parameter) {
+                    Thread *thread = static_cast<Thread *>(parameter);
+                    if (thread->_procAction3 != nullptr)
+                        thread->_procAction3((ThreadHolder *) thread->_procParam);
                 };
                 loop(callback);
-			}
-            else if(_procExecution != nullptr)
-            {
-                action_callback2 callback = [] (void* parameter) {
-                    Thread* thread = static_cast<Thread*>(parameter);
-                    if(thread->_procExecution != nullptr)
+            } else if (_procExecution != nullptr) {
+                action_callback2 callback = [](void *parameter) {
+                    Thread *thread = static_cast<Thread *>(parameter);
+                    if (thread->_procExecution != nullptr)
                         thread->_procExecution->execute();
                 };
                 loop(callback);
             }
 
-			if (_stopAction != nullptr)
-			{
-				_stopAction();
-			}
-			else if (_stopAction2 != nullptr)
-			{
-				_stopAction2(_stopParam);
-			}
-			else if (_stopAction3 != nullptr)
-			{
-				_stopAction3((ThreadHolder*)_stopParam);
-			}
-            else if(_stopExecution != nullptr)
-            {
+            if (_stopAction != nullptr) {
+                _stopAction();
+            } else if (_stopAction2 != nullptr) {
+                _stopAction2(_stopParam);
+            } else if (_stopAction3 != nullptr) {
+                _stopAction3((ThreadHolder *) _stopParam);
+            } else if (_stopExecution != nullptr) {
                 _stopExecution->execute();
             }
-		}
-		catch (...)
-		{
+        }
+        catch (...) {
 //            String str = String::convert("Generate error'%s' in thread'%s' running", e.what(), _name.c_str());
 //            Trace::writeLine(str, Trace::Error);
 //            str = String::convert("The error is in '%s' on line '%d'", __FILE__, __LINE__);
 //            Trace::writeLine(str, Trace::Error);
 //            print_stacktrace();
-		}
+        }
 
-		_running = false;
-		Debug::writeFormatLine("The thread is exiting. name: '%s'", _name.c_str());
-		//Debug::writeFormatLine("_break: %s", _break ? "true" : "false");
+        _running = false;
+        Debug::writeFormatLine("The thread is exiting. name: '%s'", _name.c_str());
+        //Debug::writeFormatLine("_break: %s", _break ? "true" : "false");
 
 //#ifdef WIN32
 //		if (_thread != nullptr)
@@ -659,85 +625,61 @@ namespace Common
 //		_thread = 0;
 //#endif
     }
-    void Thread::runOnce()
-	{
-		try
-		{
-			if(_startAction != nullptr)
-			{
-				_startAction();
-			}
-			else if(_startAction2 != nullptr)
-			{
-				_startAction2(_startParam);
-			}
-			else if(_startAction3 != nullptr)
-			{
-				_startAction3((ThreadHolder*)_startParam);
-			}
-            else if(_startExecution != nullptr)
-            {
+
+    void Thread::runOnce() {
+        try {
+            if (_startAction != nullptr) {
+                _startAction();
+            } else if (_startAction2 != nullptr) {
+                _startAction2(_startParam);
+            } else if (_startAction3 != nullptr) {
+                _startAction3((ThreadHolder *) _startParam);
+            } else if (_startExecution != nullptr) {
                 _startExecution->execute();
             }
 
-			if (_procAction != nullptr)
-			{
-				_procAction();
-			}
-			else if (_procAction2 != nullptr)
-			{
-				_procAction2(_procParam);
-			}
-			else if (_procAction3 != nullptr)
-			{
-				_procAction3((ThreadHolder*)_procParam);
-			}
-            else if(_procExecution != nullptr)
-            {
+            if (_procAction != nullptr) {
+                _procAction();
+            } else if (_procAction2 != nullptr) {
+                _procAction2(_procParam);
+            } else if (_procAction3 != nullptr) {
+                _procAction3((ThreadHolder *) _procParam);
+            } else if (_procExecution != nullptr) {
                 _procExecution->execute();
             }
 
-			if(_stopAction != nullptr)
-			{
-				_stopAction();
-			}
-			else if(_stopAction2 != nullptr)
-			{
-				_stopAction2(_stopParam);
-			}
-			else if(_stopAction3 != nullptr)
-			{
-				_stopAction3((ThreadHolder*)_stopParam);
-			}
-            else if(_stopExecution != nullptr)
-            {
+            if (_stopAction != nullptr) {
+                _stopAction();
+            } else if (_stopAction2 != nullptr) {
+                _stopAction2(_stopParam);
+            } else if (_stopAction3 != nullptr) {
+                _stopAction3((ThreadHolder *) _stopParam);
+            } else if (_stopExecution != nullptr) {
                 _stopExecution->execute();
             }
-		}
-		catch(...)
-		{
+        }
+        catch (...) {
 //            String str = String::convert("Generate error'%s' in thread'%s' running", e.what(), _name.c_str());
 //            Trace::writeLine(str, Trace::Error);
 //            str = String::convert("The error is in '%s' on line '%d'", __FILE__, __LINE__);
 //            Trace::writeLine(str, Trace::Error);
 //            print_stacktrace();
-		}
-	}
-    void Thread::print_stacktrace()
-    {
+        }
+    }
+
+    void Thread::print_stacktrace() {
 #if !__ANDROID__ && !WIN32 && !__EMSCRIPTEN__ && !MSYS
         int size = 16;
-        void * array[16];
+        void *array[16];
         int stack_num = backtrace(array, size);
-        char ** stacktrace = backtrace_symbols(array, stack_num);
-        for (int i = 0; i < stack_num; ++i)
-        {
+        char **stacktrace = backtrace_symbols(array, stack_num);
+        for (int i = 0; i < stack_num; ++i) {
             Trace::writeLine(stacktrace[i], Trace::Error);
         }
         free(stacktrace);
 #endif
     }
-    
+
 //    void Thread::loop()
 //    {
 //        while (!_break)
@@ -793,45 +735,33 @@ namespace Common
 //            msleepWithBreak(_start, _msec);
 //        }
 //    }
-    void Thread::loop(action_callback2 callback)
-    {
-        while (!_break)
-        {
-            if(_firstInvoke)
-            {
+    void Thread::loop(action_callback2 callback) {
+        while (!_break) {
+            if (_firstInvoke) {
                 _firstInvoke = false;
                 _start = TickTimeout::getCurrentTickCount();
-            }
-            else
-            {
+            } else {
                 _start = TickTimeout::getNextTickCount(_start, _msec);
             }
-            
+
             callback(this);
-            
+
             msleepWithBreak(_start, _msec);
         }
     }
 
-    bool Thread::msleepWithBreak(uint32_t start, uint32_t msec)
-    {
-        const uint32_t unitmsec = 10;		// 10 ms
-        if(msec <= unitmsec)
-        {
-            if(msec != 0)
-            {
+    bool Thread::msleepWithBreak(uint32_t start, uint32_t msec) {
+        const uint32_t unitmsec = 10;        // 10 ms
+        if (msec <= unitmsec) {
+            if (msec != 0) {
                 Thread::msleep(msec);
                 return true;
             }
             return false;
-        }
-        else
-        {
+        } else {
             uint32_t end = TickTimeout::getDeadTickCount(start, msec);
-            while (!_break)
-            {
-                if(TickTimeout::isTimeout(start, end))
-                {
+            while (!_break) {
+                if (TickTimeout::isTimeout(start, end)) {
                     break;
                 }
                 Thread::msleep(unitmsec);
@@ -839,17 +769,16 @@ namespace Common
             return !_break;
         }
     }
-    
-    void Thread::msleep(uint32_t msecs)
-    {
-        if(msecs == 0)
+
+    void Thread::msleep(uint32_t msecs) {
+        if (msecs == 0)
             return;
-        
+
 //#ifdef DEBUG
 //        Stopwatch sw(String::convert("Thread::msleep, msecs: %d", msecs), 3000);
 ////        DateTime start = DateTime::now();
 //#endif
-        
+
 #if WIN32
         Sleep((DWORD)msecs);
 #elif __EMSCRIPTEN__
@@ -860,10 +789,10 @@ namespace Common
 //        emscripten_sleep(msecs);
 #else
 //        std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
-        if(msecs < 10)
+        if (msecs < 10)
             msecs = 10;
         usleep(msecs * 1000);
-        
+
 //#ifdef DEBUG
 //        DateTime end = DateTime::now();
 //        if(msecs < 1000 && (end - start).totalMilliseconds() > 1000)
@@ -871,7 +800,7 @@ namespace Common
 //            Debug::writeLine(String::convert("Thread::msleep timeout!, start: '%s', end: '%s'", start.toString().c_str(), end.toString().c_str()), Trace::Error);
 //        }
 //#endif
-        
+
 //        struct timeval delay;
 //        delay.tv_sec = msecs / 1000;
 //        delay.tv_usec = 1000 * (msecs % 1000);
@@ -889,28 +818,27 @@ namespace Common
 //        } while (ret != 0);
 #endif
     }
-    void Thread::sleep(const TimeSpan& interval)
-    {
-        if(interval == TimeSpan::Zero)
+
+    void Thread::sleep(const TimeSpan &interval) {
+        if (interval == TimeSpan::Zero)
             return;
-        
-        Thread::msleep((uint32_t)interval.totalMilliseconds());
+
+        Thread::msleep((uint32_t) interval.totalMilliseconds());
     }
-    
-    Thread::Id Thread::currentThreadId()
-    {
+
+    Thread::Id Thread::currentThreadId() {
 #ifdef WIN32
-//        return GetCurrentThreadId();
-        thread::id this_id = this_thread::get_id();
-        return Thread::Id(this_id);
+        //        return GetCurrentThreadId();
+                thread::id this_id = this_thread::get_id();
+                return Thread::Id(this_id);
 #elif __EMSCRIPTEN__
         return Thread::Id(0);
 #else
         return Thread::Id(pthread_self());
 #endif
     }
-    bool Thread::equals(Thread::Id id1, Thread::Id id2)
-    {
+
+    bool Thread::equals(Thread::Id id1, Thread::Id id2) {
         return id1 == id2;
     }
 }

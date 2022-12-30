@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdint>
 #include "system/OsDefine.h"
+
 #if WIN32
 #undef min
 #undef max
@@ -21,7 +22,7 @@
 #endif // NOMINMAX
 #endif // WIN32
 
-namespace Common {
+namespace System {
     // https://en.cppreference.com/w/c/numeric/math
     class Math {
     public:
@@ -248,7 +249,7 @@ namespace Common {
         }
 
         template<typename type>
-        inline static type getGreatestCommonDivisor(const type& a, const type& b) {
+        inline static type getGreatestCommonDivisor(const type &a, const type &b) {
             type c;
             while (b != 0) {
                 c = a % b;
@@ -259,7 +260,7 @@ namespace Common {
         }
 
         template<typename type>
-        inline static type getSmallestCommonMultiple(const type& a, const type& b) {
+        inline static type getSmallestCommonMultiple(const type &a, const type &b) {
             type m, n, c;
             m = a;
             n = b;

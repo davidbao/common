@@ -9,77 +9,67 @@
 #include "diag/StopMemory.h"
 #include "IO/Metrics.h"
 
-namespace Common
-{
-    StopMemory::StopMemory(int64_t deadMemory) : StopMemory(String::Empty, deadMemory)
-    {
+namespace Diag {
+    StopMemory::StopMemory(int64_t deadMemory) : StopMemory(String::Empty, deadMemory) {
     }
-    StopMemory::StopMemory(const String& info, int64_t deadMemory) : _deadMemory(deadMemory), _startMemory(0), _endMemory(0), _info(info)
-    {
+
+    StopMemory::StopMemory(const String &info, int64_t deadMemory) : _deadMemory(deadMemory), _startMemory(0),
+                                                                     _endMemory(0), _info(info) {
         start(deadMemory);
     }
-    StopMemory::~StopMemory()
-    {
+
+    StopMemory::~StopMemory() {
         stop();
     }
-    
-    void StopMemory::reStart()
-    {
+
+    void StopMemory::reStart() {
         start(_deadMemory);
     }
-    void StopMemory::start(int64_t deadMemory)
-    {
+
+    void StopMemory::start(int64_t deadMemory) {
         _deadMemory = deadMemory;
         _startMemory = MemoryStat::used();
         _endMemory = 0;
     }
-    void StopMemory::stop(bool showInfo)
-    {
-        if (_endMemory == 0)
-        {
+
+    void StopMemory::stop(bool showInfo) {
+        if (_endMemory == 0) {
             _endMemory = MemoryStat::used();
-            if (showInfo && !_info.isNullOrEmpty())
-            {
+            if (showInfo && !_info.isNullOrEmpty()) {
                 int64_t used = this->used();
-                if (used >= _deadMemory)
-                {
-                    if(used < 1024)     // < 1K
+                if (used >= _deadMemory) {
+                    if (used < 1024)     // < 1K
                     {
                         Trace::verb(String::format("%s, used: %ld", _info.c_str(), used));
-                    }
-                    else if(used >= 1024 && used < 1024 * 1024) // >= 1K && < 1M
+                    } else if (used >= 1024 && used < 1024 * 1024) // >= 1K && < 1M
                     {
-                        Trace::verb(String::format("%s, used: %.1fK", _info.c_str(), (double)used / 1024.0));
-                    }
-                    else if(used >= 1024 * 1024 && used < 1024 * 1024 * 1024)   // >= 1M && < 1G
+                        Trace::verb(String::format("%s, used: %.1fK", _info.c_str(), (double) used / 1024.0));
+                    } else if (used >= 1024 * 1024 && used < 1024 * 1024 * 1024)   // >= 1M && < 1G
                     {
-                        Trace::verb(String::format("%s, used: %.1fM", _info.c_str(), (double)used / 1024.0 / 1024.0));
-                    }
-                    else
-                    {
+                        Trace::verb(String::format("%s, used: %.1fM", _info.c_str(), (double) used / 1024.0 / 1024.0));
+                    } else {
                         // > 1G
-                        Trace::verb(String::format("%s, used: %.2fG", _info.c_str(), (double)used / 1024.0 / 1024.0 / 1024.0));
+                        Trace::verb(String::format("%s, used: %.2fG", _info.c_str(),
+                                                   (double) used / 1024.0 / 1024.0 / 1024.0));
                     }
                 }
             }
         }
     }
-    void StopMemory::setInfo(const String& info)
-    {
-        _info = info;
-    }
-    void StopMemory::setInfo(const char* info)
-    {
+
+    void StopMemory::setInfo(const String &info) {
         _info = info;
     }
 
-    int64_t StopMemory::used() const
-    {
+    void StopMemory::setInfo(const char *info) {
+        _info = info;
+    }
+
+    int64_t StopMemory::used() const {
         return _endMemory - _startMemory;
     }
 
-    void StopMemory::logUsed()
-    {
+    void StopMemory::logUsed() {
         MemoryStat::logUsed();
     }
 }

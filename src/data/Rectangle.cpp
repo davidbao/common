@@ -10,6 +10,8 @@
 #include "system/Math.h"
 #include "data/Convert.h"
 
+using namespace System;
+
 namespace Drawing {
     const RectangleF RectangleF::Empty;
 

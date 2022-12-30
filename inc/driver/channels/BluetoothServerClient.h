@@ -11,7 +11,7 @@
 #include "thread/Locker.h"
 #include "data/TimeSpan.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

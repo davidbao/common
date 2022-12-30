@@ -9,6 +9,9 @@
 #include "driver/channels/Channel.h"
 #include "driver/devices/DeviceDescription.h"
 
+using namespace Diag;
+using namespace System;
+
 namespace Drivers
 {
     Device::StatusSnap::StatusSnap()
@@ -27,12 +30,12 @@ namespace Drivers
         NewStatus = newStatus;
     }
     
-    void Device::StatusSnap::write(Common::Stream* stream) const
+    void Device::StatusSnap::write(Stream* stream) const
     {
         stream->writeByte(OldStatus);
         stream->writeByte(NewStatus);
     }
-    void Device::StatusSnap::read(Common::Stream* stream)
+    void Device::StatusSnap::read(Stream* stream)
     {
         OldStatus = (Status)stream->readByte();
         NewStatus = (Status)stream->readByte();

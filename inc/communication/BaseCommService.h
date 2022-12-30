@@ -15,7 +15,7 @@
 #include "CommSampler.h"
 #include "CommInstructionSet.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

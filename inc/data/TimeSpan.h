@@ -14,9 +14,7 @@
 #include "IO/Stream.h"
 #include "data/Culture.h"
 
-namespace Common {
-    class Stream;
-
+namespace Data {
     class StringArray;
 
     class DateTimeFormat;

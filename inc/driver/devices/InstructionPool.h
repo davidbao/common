@@ -10,7 +10,7 @@
 #include "Device.h"
 #include "DeviceDescription.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

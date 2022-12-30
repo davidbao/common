@@ -17,7 +17,7 @@
 #include "diag/FileTraceListener.h"
 #include "diag/MemoryTraceListener.h"
 
-namespace Common {
+namespace System {
     PhoneApplication::PhoneApplication() : _actived(false), _activing(false), _netStatus(Unknown) {
         _instance = this;
         _startTime = TickTimeout::getCurrentTickCount();

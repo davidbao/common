@@ -13,9 +13,10 @@
 #include "yml/YmlNode.h"
 #include "system/ServiceFactory.h"
 
-using namespace Common;
+using namespace Yml;
+using namespace System;
 
-namespace Microservice {
+namespace Config {
     class IConfigService : public IService {
     public:
         virtual const YmlNode::Properties &properties() const = 0;

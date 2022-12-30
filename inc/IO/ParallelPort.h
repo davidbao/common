@@ -3,13 +3,12 @@
 
 #include "IOPort.h"
 
-namespace Common
-{
-	class ParallelPort : public IOPort
-	{
-	public:
-		ParallelPort(const String& name);
-		~ParallelPort() override;
-	};
+namespace IO {
+    class ParallelPort : public IOPort {
+    public:
+        ParallelPort(const String &name);
+
+        ~ParallelPort() override;
+    };
 }
 #endif  //PARALLELPORT_H

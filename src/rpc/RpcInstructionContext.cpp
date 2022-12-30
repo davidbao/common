@@ -8,301 +8,286 @@
 
 #include "rpc/RpcInstructionContext.h"
 
-namespace rpc
-{
-    RpcStreamContext::RpcStreamContext()
-    {
-    }
-    RpcStreamContext::~RpcStreamContext()
-    {
+namespace Rpc {
+    RpcStreamContext::RpcStreamContext() {
     }
 
-    RpcHeartbeatRequest::RpcHeartbeatRequest()
-    {
-    }
-    void RpcHeartbeatRequest::write(Stream* stream) const
-    {
-    }
-    void RpcHeartbeatRequest::read(Stream* stream)
-    {
-    }
-    void RpcHeartbeatRequest::copyFrom(const RpcHeartbeatRequest* value)
-    {
-    }
-    RpcHeartbeatResponse::RpcHeartbeatResponse()
-    {
-    }
-    void RpcHeartbeatResponse::write(Stream* stream) const
-    {
-    }
-    void RpcHeartbeatResponse::read(Stream* stream)
-    {
-    }
-    void RpcHeartbeatResponse::copyFrom(const RpcHeartbeatResponse* value)
-    {
+    RpcStreamContext::~RpcStreamContext() {
     }
 
-    RpcCloseRequest::RpcCloseRequest()
-    {
-    }
-    void RpcCloseRequest::write(Stream* stream) const
-    {
-    }
-    void RpcCloseRequest::read(Stream* stream)
-    {
-    }
-    void RpcCloseRequest::copyFrom(const RpcCloseRequest* value)
-    {
-    }
-    RpcCloseResponse::RpcCloseResponse()
-    {
-    }
-    void RpcCloseResponse::write(Stream* stream) const
-    {
-    }
-    void RpcCloseResponse::read(Stream* stream)
-    {
-    }
-    void RpcCloseResponse::copyFrom(const RpcCloseResponse* value)
-    {
+    RpcHeartbeatRequest::RpcHeartbeatRequest() {
     }
 
-    RpcSyncRequest::RpcSyncRequest(const RpcMethodContext& context, const IRpcSyncRequestData* data)
-    {
+    void RpcHeartbeatRequest::write(Stream *stream) const {
+    }
+
+    void RpcHeartbeatRequest::read(Stream *stream) {
+    }
+
+    void RpcHeartbeatRequest::copyFrom(const RpcHeartbeatRequest *value) {
+    }
+
+    RpcHeartbeatResponse::RpcHeartbeatResponse() {
+    }
+
+    void RpcHeartbeatResponse::write(Stream *stream) const {
+    }
+
+    void RpcHeartbeatResponse::read(Stream *stream) {
+    }
+
+    void RpcHeartbeatResponse::copyFrom(const RpcHeartbeatResponse *value) {
+    }
+
+    RpcCloseRequest::RpcCloseRequest() {
+    }
+
+    void RpcCloseRequest::write(Stream *stream) const {
+    }
+
+    void RpcCloseRequest::read(Stream *stream) {
+    }
+
+    void RpcCloseRequest::copyFrom(const RpcCloseRequest *value) {
+    }
+
+    RpcCloseResponse::RpcCloseResponse() {
+    }
+
+    void RpcCloseResponse::write(Stream *stream) const {
+    }
+
+    void RpcCloseResponse::read(Stream *stream) {
+    }
+
+    void RpcCloseResponse::copyFrom(const RpcCloseResponse *value) {
+    }
+
+    RpcSyncRequest::RpcSyncRequest(const RpcMethodContext &context, const IRpcSyncRequestData *data) {
         _context.copyFrom(&context);
         _data = data != nullptr ? data->clone() : nullptr;
     }
-    RpcSyncRequest::~RpcSyncRequest()
-    {
-        if(_data != nullptr)
+
+    RpcSyncRequest::~RpcSyncRequest() {
+        if (_data != nullptr)
             delete _data;
     }
-    void RpcSyncRequest::read(Stream* stream)
-    {
+
+    void RpcSyncRequest::read(Stream *stream) {
         _context.read(stream);
     }
-    void RpcSyncRequest::write(Stream* stream) const
-    {
+
+    void RpcSyncRequest::write(Stream *stream) const {
         _context.write(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->write(stream);
     }
-    void RpcSyncRequest::copyFrom(const RpcSyncRequest* value)
-    {
+
+    void RpcSyncRequest::copyFrom(const RpcSyncRequest *value) {
         _context.copyFrom(&value->methodContext());
-        IRpcSyncRequestData* data = value->_data;
-        if(data != nullptr)
-        {
-            if(_data == nullptr)
+        IRpcSyncRequestData *data = value->_data;
+        if (data != nullptr) {
+            if (_data == nullptr)
                 _data = data->clone();
             else
                 _data->copyFrom(data);
         }
     }
-    const RpcMethodContext& RpcSyncRequest::methodContext() const
-    {
+
+    const RpcMethodContext &RpcSyncRequest::methodContext() const {
         return _context;
     }
-    IRpcSyncRequestData* RpcSyncRequest::data() const
-    {
+
+    IRpcSyncRequestData *RpcSyncRequest::data() const {
         return _data;
     }
 
-    RpcSyncResponse::RpcSyncResponse(const RpcMethodContext& context, IRpcSyncResponseData* data)
-    {
+    RpcSyncResponse::RpcSyncResponse(const RpcMethodContext &context, IRpcSyncResponseData *data) {
         _context.copyFrom(&context);
         _data = data != nullptr ? data->clone() : nullptr;
     }
-    RpcSyncResponse::~RpcSyncResponse()
-    {
-        if(_data != nullptr)
+
+    RpcSyncResponse::~RpcSyncResponse() {
+        if (_data != nullptr)
             delete _data;
     }
-    void RpcSyncResponse::read(Stream* stream)
-    {
+
+    void RpcSyncResponse::read(Stream *stream) {
         _context.read(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->read(stream);
     }
-    void RpcSyncResponse::write(Stream* stream) const
-    {
+
+    void RpcSyncResponse::write(Stream *stream) const {
         _context.write(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->write(stream);
     }
-    void RpcSyncResponse::copyFrom(const RpcSyncResponse* value)
-    {
+
+    void RpcSyncResponse::copyFrom(const RpcSyncResponse *value) {
         _context.copyFrom(&value->methodContext());
-        IRpcSyncResponseData* data = value->_data;
-        if(data != nullptr)
-        {
-            if(_data == nullptr)
+        IRpcSyncResponseData *data = value->_data;
+        if (data != nullptr) {
+            if (_data == nullptr)
                 _data = data->clone();
             else
                 _data->copyFrom(data);
         }
     }
-    const RpcMethodContext& RpcSyncResponse::methodContext() const
-    {
+
+    const RpcMethodContext &RpcSyncResponse::methodContext() const {
         return _context;
     }
-    IRpcSyncResponseData* RpcSyncResponse::data() const
-    {
+
+    IRpcSyncResponseData *RpcSyncResponse::data() const {
         return _data;
     }
-    void RpcSyncResponse::setData(IRpcSyncResponseData* data)
-    {
-        if(data != nullptr)
-        {
+
+    void RpcSyncResponse::setData(IRpcSyncResponseData *data) {
+        if (data != nullptr) {
             _data = data->clone();
         }
     }
 
-    RpcAsyncRequest::RpcAsyncRequest(const RpcMethodContext& context, const IRpcAsyncRequestData* data)
-    {
+    RpcAsyncRequest::RpcAsyncRequest(const RpcMethodContext &context, const IRpcAsyncRequestData *data) {
         _context.copyFrom(&context);
         _token = Uuid::generate();
         _data = data != nullptr ? data->clone() : nullptr;
     }
-    RpcAsyncRequest::~RpcAsyncRequest()
-    {
-        if(_data != nullptr)
+
+    RpcAsyncRequest::~RpcAsyncRequest() {
+        if (_data != nullptr)
             delete _data;
     }
-    void RpcAsyncRequest::read(Stream* stream)
-    {
+
+    void RpcAsyncRequest::read(Stream *stream) {
         _context.read(stream);
         _token.read(stream);
     }
-    void RpcAsyncRequest::write(Stream* stream) const
-    {
+
+    void RpcAsyncRequest::write(Stream *stream) const {
         _context.write(stream);
         _token.write(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->write(stream);
     }
-    void RpcAsyncRequest::copyFrom(const RpcAsyncRequest* value)
-    {
+
+    void RpcAsyncRequest::copyFrom(const RpcAsyncRequest *value) {
         _context.copyFrom(&value->methodContext());
         _token = value->_token;
-        IRpcAsyncRequestData* data = value->_data;
-        if(data != nullptr)
-        {
-            if(_data == nullptr)
+        IRpcAsyncRequestData *data = value->_data;
+        if (data != nullptr) {
+            if (_data == nullptr)
                 _data = data->clone();
             else
                 _data->copyFrom(data);
         }
     }
-    const RpcMethodContext& RpcAsyncRequest::methodContext() const
-    {
+
+    const RpcMethodContext &RpcAsyncRequest::methodContext() const {
         return _context;
     }
-    IRpcAsyncRequestData* RpcAsyncRequest::data() const
-    {
+
+    IRpcAsyncRequestData *RpcAsyncRequest::data() const {
         return _data;
     }
-    Uuid RpcAsyncRequest::token() const
-    {
+
+    Uuid RpcAsyncRequest::token() const {
         return _token;
     }
 
-    RpcAsyncResponse::RpcAsyncResponse(const RpcMethodContext& context, const Uuid& token, IRpcAsyncResponseData* data)
-    {
+    RpcAsyncResponse::RpcAsyncResponse(const RpcMethodContext &context, const Uuid &token,
+                                       IRpcAsyncResponseData *data) {
         _context.copyFrom(&context);
         _token = token;
         _data = data != nullptr ? data->clone() : nullptr;
     }
-    RpcAsyncResponse::~RpcAsyncResponse()
-    {
-        if(_data != nullptr)
+
+    RpcAsyncResponse::~RpcAsyncResponse() {
+        if (_data != nullptr)
             delete _data;
     }
-    void RpcAsyncResponse::read(Stream* stream)
-    {
+
+    void RpcAsyncResponse::read(Stream *stream) {
         _context.read(stream);
         _token.read(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->read(stream);
     }
-    void RpcAsyncResponse::write(Stream* stream) const
-    {
+
+    void RpcAsyncResponse::write(Stream *stream) const {
         _context.write(stream);
         _token.write(stream);
-        if(_data != nullptr)
+        if (_data != nullptr)
             _data->write(stream);
     }
-    void RpcAsyncResponse::copyFrom(const RpcAsyncResponse* value)
-    {
+
+    void RpcAsyncResponse::copyFrom(const RpcAsyncResponse *value) {
         _context.copyFrom(&value->methodContext());
         _token = value->_token;
-        IRpcAsyncResponseData* data = value->_data;
-        if(data != nullptr)
-        {
-            if(_data == nullptr)
+        IRpcAsyncResponseData *data = value->_data;
+        if (data != nullptr) {
+            if (_data == nullptr)
                 _data = data->clone();
             else
                 _data->copyFrom(data);
         }
     }
-    const RpcMethodContext& RpcAsyncResponse::methodContext() const
-    {
+
+    const RpcMethodContext &RpcAsyncResponse::methodContext() const {
         return _context;
     }
-    IRpcAsyncResponseData* RpcAsyncResponse::data() const
-    {
+
+    IRpcAsyncResponseData *RpcAsyncResponse::data() const {
         return _data;
     }
-    void RpcAsyncResponse::setData(IRpcAsyncResponseData* data)
-    {
-        if(data != nullptr)
-        {
+
+    void RpcAsyncResponse::setData(IRpcAsyncResponseData *data) {
+        if (data != nullptr) {
             _data = data->clone();
         }
     }
-    Uuid RpcAsyncResponse::token() const
-    {
+
+    Uuid RpcAsyncResponse::token() const {
         return _token;
     }
 
-    RpcNotifyInfo::RpcNotifyInfo(const RpcMethodContext& context, const IRpcNotifyInfo* info)
-    {
+    RpcNotifyInfo::RpcNotifyInfo(const RpcMethodContext &context, const IRpcNotifyInfo *info) {
         _context.copyFrom(&context);
         _info = info != nullptr ? info->clone() : nullptr;
     }
-    RpcNotifyInfo::~RpcNotifyInfo()
-    {
-        if(_info != nullptr)
+
+    RpcNotifyInfo::~RpcNotifyInfo() {
+        if (_info != nullptr)
             delete _info;
     }
-    void RpcNotifyInfo::read(Stream* stream)
-    {
+
+    void RpcNotifyInfo::read(Stream *stream) {
         _context.read(stream);
     }
-    void RpcNotifyInfo::write(Stream* stream) const
-    {
+
+    void RpcNotifyInfo::write(Stream *stream) const {
         _context.write(stream);
-        if(_info != nullptr)
+        if (_info != nullptr)
             _info->write(stream);
     }
-    void RpcNotifyInfo::copyFrom(const RpcNotifyInfo* value)
-    {
+
+    void RpcNotifyInfo::copyFrom(const RpcNotifyInfo *value) {
         _context.copyFrom(&value->methodContext());
-        IRpcNotifyInfo* info = value->_info;
-        if(info != nullptr)
-        {
-            if(_info == nullptr)
+        IRpcNotifyInfo *info = value->_info;
+        if (info != nullptr) {
+            if (_info == nullptr)
                 _info = info->clone();
             else
                 _info->copyFrom(info);
         }
     }
-    const RpcMethodContext& RpcNotifyInfo::methodContext() const
-    {
+
+    const RpcMethodContext &RpcNotifyInfo::methodContext() const {
         return _context;
     }
-    IRpcNotifyInfo* RpcNotifyInfo::info() const
-    {
+
+    IRpcNotifyInfo *RpcNotifyInfo::info() const {
         return _info;
     }
 }

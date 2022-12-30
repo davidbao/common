@@ -20,8 +20,9 @@
 #include "IO/MemoryStream.h"
 
 using namespace Net;
+using namespace Json;
 
-namespace Common {
+namespace Http {
     enum HttpStatus {
         HttpOk = 200,
         HttpCreated = 201,

@@ -9,8 +9,9 @@
 #ifndef Locker_h
 #define Locker_h
 
-namespace Common {
+namespace Threading {
     class IMutex;
+
     class ISyncRoot;
 
     class Locker {

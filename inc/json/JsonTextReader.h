@@ -15,7 +15,9 @@
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
 
-namespace Common {
+using namespace Config;
+
+namespace Json {
     class JsonTextReader {
     public:
         JsonTextReader();

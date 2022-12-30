@@ -103,7 +103,7 @@ bool testRead() {
         if (cf.rootPath != xmlPath) {
             return false;
         }
-        if(cf.fileName != xmlFileName) {
+        if (cf.fileName != xmlFileName) {
             return false;
         }
 
@@ -152,7 +152,7 @@ bool testRead() {
             "<book xmlns:bk=\"urn:samples\" genre=\"novel\" ISBN=\"1-861001-57-5\">\n\t<title>Pride And Prejudice</title>\n\t<bk:genre>novel</bk:genre>\n</book>") {
             return false;
         }
-        if (reader.baseUri() != xmlFullFileName) {
+        if (Path::getFileName(reader.baseUri()) != Path::getFileName(xmlFullFileName)) {
             return false;
         }
 
@@ -266,18 +266,18 @@ bool testAttribute() {
         }
 
         int abc;
-        if(reader.getAttribute("abc", abc)) {
+        if (reader.getAttribute("abc", abc)) {
             return false;
         }
 
         int pages;
-        if(!reader.getAttribute("pages", pages)) {
+        if (!reader.getAttribute("pages", pages)) {
             return false;
         }
-        if(pages != 1234) {
+        if (pages != 1234) {
             return false;
         }
-        if(reader.getAttribute("pages", pages, 2000, 3000)) {
+        if (reader.getAttribute("pages", pages, 2000, 3000)) {
             return false;
         }
     }
@@ -295,10 +295,10 @@ bool testAttribute() {
         }
 
         String genre;
-        if(!reader.getAttribute("genre", genre)) {
+        if (!reader.getAttribute("genre", genre)) {
             return false;
         }
-        if(genre != "novel &") {
+        if (genre != "novel &") {
             return false;
         }
     }
@@ -319,8 +319,8 @@ bool testAttribute() {
         if (!reader.getAttributeNames(names)) {
             return false;
         }
-        if(!(names.contains("xmlns:bk") && names.contains("genre") &&
-                names.contains("pages") && names.contains("ISBN"))) {
+        if (!(names.contains("xmlns:bk") && names.contains("genre") &&
+              names.contains("pages") && names.contains("ISBN"))) {
             return false;
         }
     }

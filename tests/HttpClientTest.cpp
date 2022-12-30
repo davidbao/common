@@ -11,7 +11,7 @@
 #include "thread/TickTimeout.h"
 #include "IO/Directory.h"
 
-using namespace Common;
+using namespace Http;
 
 int _serverPort = 8059;
 String _downloadFileName = Path::combine(Directory::getTempPath(), "download_source_test.txt");

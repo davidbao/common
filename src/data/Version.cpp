@@ -11,7 +11,7 @@
 #include "data/StringArray.h"
 #include "IO/Stream.h"
 
-namespace Common {
+namespace Data {
     const Version Version::Empty = Version();
     const Version Version::Version1_0 = Version(1, 0);
 

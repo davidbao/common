@@ -21,7 +21,7 @@
 #include "driver/channels/BluetoothServerInteractive.h"
 #endif
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

@@ -18,7 +18,8 @@
 #include "IO/Stream.h"
 #include "json/JsonNode.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Json;
 
 namespace Database {
     class DataColumn : public IEvaluation<DataColumn>, public IEquatable<DataColumn> {
@@ -260,7 +261,7 @@ namespace Database {
 
         void setTotalCount(int totalCount);
 
-        void toJsonNode(JsonNode &node) const;
+        void toJsonNode(JsonNode &node, const String &format = String::Empty) const;
 
         String toJsonString() const;
 

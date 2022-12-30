@@ -12,7 +12,7 @@
 #include "data/TimeSpan.h"
 #include "../devices/InstructionPool.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

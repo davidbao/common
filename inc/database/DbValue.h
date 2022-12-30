@@ -11,7 +11,7 @@
 
 #include "data/Variant.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Database {
     typedef Variant DbValue;

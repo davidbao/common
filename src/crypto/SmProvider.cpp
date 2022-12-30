@@ -12,7 +12,9 @@
 #include "diag/Trace.h"
 #include <openssl/ec.h>
 
-namespace Common {
+using namespace System;
+
+namespace Crypto {
     // https://github.com/GuoHuiChen/gmjs
     // js sm2 match.
     Sm2Provider::Sm2Provider() {

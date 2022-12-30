@@ -24,7 +24,7 @@
 #include "data/ValueType.h"
 #include "data/DateTime.h"
 
-namespace Common {
+namespace IO {
     class File {
     public:
         static bool exists(const String &path);

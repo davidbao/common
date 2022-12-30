@@ -10,7 +10,7 @@
 #include "system/Application.h"
 #include <locale.h>
 
-using namespace Common;
+using namespace System;
 
 bool testGetString1() {
     Application app;

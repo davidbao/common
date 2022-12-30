@@ -11,6 +11,8 @@
 #include "database/SqliteClient.h"
 #include "sqlite3.h"
 
+using namespace Diag;
+
 namespace Database {
     class SqliteInner {
     public:

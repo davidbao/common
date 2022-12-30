@@ -21,7 +21,7 @@
 #include "data/DateTime.h"
 #include "diag/Trace.h"
 
-namespace Common {
+namespace Diag {
     const char *Trace::Information = "INFO";
     const char *Trace::Info = "INFO";
     const char *Trace::Error = "ERROR";

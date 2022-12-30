@@ -14,7 +14,8 @@
 #include "net/MqttClient.hpp"
 #include "system/ServiceFactory.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Http;
 
 namespace Microservice
 {

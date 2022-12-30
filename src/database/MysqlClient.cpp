@@ -16,6 +16,8 @@
 #include "database/MysqlClient.h"
 #include "mysql/mysql.h"
 
+using namespace System;
+
 namespace Database {
     class MysqlInner {
     public:

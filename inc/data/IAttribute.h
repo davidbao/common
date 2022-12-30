@@ -13,8 +13,11 @@
 #include "data/ValueType.h"
 #include "data/DateTime.h"
 #include "data/TimeZone.h"
+#include "data/Vector.h"
+#include "data/List.h"
+#include "data/StringArray.h"
 
-namespace Common {
+namespace Data {
     class IAttributeGetter {
     public:
         virtual ~IAttributeGetter() = default;
@@ -74,6 +77,36 @@ namespace Common {
         template<typename T>
         bool getAttribute(const String &name, T &value, const T &minValue, const T &maxValue) const {
             return getAttribute(name, value) && (value >= minValue && value <= maxValue);
+        }
+
+        template<typename T>
+        bool getAttribute(const String &name, Vector<T> &value) const {
+            StringArray texts;
+            if (!getAttribute(name, texts))
+                return false;
+
+            for (size_t i = 0; i < texts.count(); i++) {
+                T item;
+                if (T::parse(texts[i], item)) {
+                    value.add(item);
+                }
+            }
+            return value.count() == texts.count();
+        }
+
+        template<typename T>
+        bool getAttribute(const String &name, List<T> &value) const {
+            StringArray texts;
+            if (!getAttribute(name, texts))
+                return false;
+
+            for (size_t i = 0; i < texts.count(); i++) {
+                T item;
+                if (T::parse(texts[i], item)) {
+                    value.add(item);
+                }
+            }
+            return value.count() == texts.count();
         }
     };
 

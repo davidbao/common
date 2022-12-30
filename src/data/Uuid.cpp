@@ -17,7 +17,7 @@
 
 #endif
 
-namespace Common {
+namespace Data {
     const Uuid Uuid::Empty = Uuid();
 
     Uuid::Uuid() : _value{} {

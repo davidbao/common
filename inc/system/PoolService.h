@@ -5,7 +5,7 @@
 #include "data/LoopPList.h"
 #include "thread/Thread.h"
 
-namespace Common {
+namespace System {
     class PoolBaseService {
     public:
         PoolBaseService(TimeSpan interval = TimeSpan::fromSeconds(1));

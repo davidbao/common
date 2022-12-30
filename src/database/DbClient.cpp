@@ -13,6 +13,8 @@
 #include "IO/FileStream.h"
 #include "system/Application.h"
 
+using namespace System;
+
 namespace Database {
     DbClient::DbClient() = default;
 
@@ -53,7 +55,7 @@ namespace Database {
 #ifdef DEBUG
 
     void DbClient::createSqlFile(const String &fileName, const String &sql) {
-        String sqlPath = Path::combine(Application::instance()->rootPath(), "sql");
+        String sqlPath = Path::combine(Application::instance()->rootPath(), "logsSql");
         if (!Directory::exists(sqlPath))
             Directory::createDirectory(sqlPath);
         String fullFileName = Path::combine(sqlPath, fileName);

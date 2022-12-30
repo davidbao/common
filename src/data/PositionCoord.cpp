@@ -12,7 +12,7 @@
 #include "IO/Stream.h"
 #include <cmath>
 
-namespace Common {
+namespace Data {
     const PositionCoord PositionCoord::Empty = PositionCoord(NAN, NAN);
 
     PositionCoord::PositionCoord(double longitude, double latitude) : longitude(longitude), latitude(latitude) {

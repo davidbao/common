@@ -15,6 +15,9 @@
 #include "xml/XmlNode.h"
 #include "data/IAttribute.h"
 
+using namespace IO;
+using namespace Config;
+
 namespace Xml {
     class XmlTextReaderInner;
 

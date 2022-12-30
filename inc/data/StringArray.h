@@ -17,9 +17,12 @@
 #include "data/Dictionary.h"
 #include "data/Uuid.h"
 
-namespace Common {
+namespace IO {
     class Stream;
+}
+using namespace IO;
 
+namespace Data {
     class StringArray : public SortedVector<String> {
     public:
         enum CountLength {

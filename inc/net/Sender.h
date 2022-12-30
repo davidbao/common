@@ -5,7 +5,7 @@
 #include "data/TimeSpan.h"
 #include "EscapeOption.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Net
 {

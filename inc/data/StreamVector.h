@@ -14,7 +14,9 @@
 #include "data/Vector.h"
 #include "data/PList.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
     class StreamAccessor {
     public:
         StreamAccessor() {

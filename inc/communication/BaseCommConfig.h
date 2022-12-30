@@ -13,7 +13,7 @@
 #include "data/TimeSpan.h"
 #include "driver/channels/TcpChannelContext.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Drivers;
 
 namespace Communication

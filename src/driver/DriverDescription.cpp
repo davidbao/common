@@ -10,7 +10,7 @@
 #include "driver/DriverManager.h"
 #include "driver/devices/Sampler.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

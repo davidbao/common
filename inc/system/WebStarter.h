@@ -12,61 +12,56 @@
 #include "system/ServiceFactory.h"
 #include "system/WebApplication.h"
 
-namespace Microservice
-{
-	class ConfigService;
+namespace Config {
+    class ConfigService;
 }
-using namespace Microservice;
+using namespace Config;
 
-namespace Common
-{
-	class IStarter : public IService
-	{
-	public:
-		virtual bool initialize() = 0;
-		virtual bool unInitialize() = 0;
-	};
-
-    class WebStarter : public IStarter
-    {
+namespace System {
+    class IStarter : public IService {
     public:
-    	WebStarter(const String& name, int argc = 0, const char * argv[] = nullptr);
+        virtual bool initialize() = 0;
+
+        virtual bool unInitialize() = 0;
+    };
+
+    class WebStarter : public IStarter {
+    public:
+        WebStarter(const String &name, int argc = 0, const char *argv[] = nullptr);
+
         ~WebStarter() override;
 
         template<class T>
-        int runLoop()
-        {
-            T* t = new T();
-            if(t->initialize())
-            {
-            	_starter = t;
+        int runLoop() {
+            T *t = new T();
+            if (t->initialize()) {
+                _starter = t;
 
-            	_app->runLoop();
+                _app->runLoop();
                 return 0;
-            }
-            else
-            {
-            	t->unInitialize();
-            	delete t;
+            } else {
+                t->unInitialize();
+                delete t;
 
-            	unInitialize();
+                unInitialize();
 
-            	return -1;
+                return -1;
             }
         }
 
     private:
         bool initialize() override;
+
         bool unInitialize() override;
-        
-    private:
-        static void exited(void* owner, void* sender, EventArgs* args);
 
     private:
-        WebApplication* _app;
-        ConfigService* _config;
+        static void exited(void *owner, void *sender, EventArgs *args);
 
-        IStarter* _starter;
+    private:
+        WebApplication *_app;
+        ConfigService *_config;
+
+        IStarter *_starter;
     };
 }
 

@@ -1,6 +1,6 @@
 #include "driver/channels/TcpChannelContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

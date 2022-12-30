@@ -9,7 +9,7 @@
 
 #include "data/Convert.h"
 
-namespace Common {
+namespace Data {
     String Convert::convertStr(bool value) {
         return Boolean(value).toString();
     }

@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(MICROSERVICE_SRC
+set(MICROSERVICE_SRC
         Actuator.cpp
         ClusterService.cpp
         ConsulService.cpp

@@ -9,7 +9,7 @@
 #include "data/WString.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 static const WString _text = L"ABC/abc123,)_中文";
 static const wstring _text2 = L"ABC/abc123,)_中文";

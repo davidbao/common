@@ -19,7 +19,9 @@
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     // type can be a struct or class.
     // default constructor need to be implemented.
     // copy constructor need to be implemented.

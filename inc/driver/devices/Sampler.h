@@ -11,7 +11,7 @@
 #include "DeviceDescription.h"
 #include "InstructionPool.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

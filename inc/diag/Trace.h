@@ -9,10 +9,10 @@
 #ifndef Trace_h
 #define Trace_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "TraceListener.h"
 
-namespace Common {
+namespace Diag {
     class Trace {
     public:
         static void writeFormat(const char *format, ...);

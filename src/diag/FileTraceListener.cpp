@@ -14,7 +14,9 @@
 #include "IO/Directory.h"
 #include "data/DateTime.h"
 
-namespace Common {
+using namespace System;
+
+namespace Diag {
     FileTraceListenerContext::FileTraceListenerContext() : FileTraceListenerContext("logs") {
     }
 

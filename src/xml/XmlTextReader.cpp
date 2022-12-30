@@ -13,6 +13,9 @@
 #include "diag/Trace.h"
 #include "libxml/xmlreader.h"
 
+using namespace Diag;
+using namespace System;
+
 namespace Xml {
     class XmlTextReaderInner {
     public:

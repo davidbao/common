@@ -7,15 +7,14 @@
 //
 
 #ifdef __EMSCRIPTEN__
+
 #include "system/WebStarter.h"
 #include "diag/Trace.h"
 #include "system/WebApplication.h"
 #include "configuration/ConfigService.h"
 
-namespace Common
-{
-    WebStarter::WebStarter(const String& name, int argc, const char * argv[])
-    {
+namespace System {
+    WebStarter::WebStarter(const String &name, int argc, const char *argv[]) {
         _app = new WebApplication(name, argc, argv);
         _app->exitDelegates()->add(this, exited);
         _config = new ConfigService();
@@ -23,39 +22,35 @@ namespace Common
 
         initialize();
     }
-    WebStarter::~WebStarter()
-    {
-    	if(_starter != nullptr)
-    	{
-    		delete _starter;
-    		_starter = nullptr;
-    	}
+
+    WebStarter::~WebStarter() {
+        if (_starter != nullptr) {
+            delete _starter;
+            _starter = nullptr;
+        }
         delete _config;
         _app->exitDelegates()->remove(this, exited);
         delete _app;
     }
 
-    bool WebStarter::initialize()
-    {
+    bool WebStarter::initialize() {
         _config->initialize();
         return true;
     }
-    bool WebStarter::unInitialize()
-    {
-    	if(_starter != nullptr)
-		{
-    		_starter->unInitialize();
-		}
+
+    bool WebStarter::unInitialize() {
+        if (_starter != nullptr) {
+            _starter->unInitialize();
+        }
         _config->unInitialize();
         return true;
     }
 
-    void WebStarter::exited(void* owner, void* sender, EventArgs* args)
-    {
-    	WebStarter* starter = static_cast<WebStarter*>(owner);
-    	assert(starter);
-    	starter->unInitialize();
-    	delete starter;
+    void WebStarter::exited(void *owner, void *sender, EventArgs *args) {
+        WebStarter *starter = static_cast<WebStarter *>(owner);
+        assert(starter);
+        starter->unInitialize();
+        delete starter;
     }
 }
 #endif // __EMSCRIPTEN__

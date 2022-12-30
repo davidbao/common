@@ -11,7 +11,7 @@
 
 #include <map>
 
-namespace Common {
+namespace Data {
     template<typename T>
     class Iterator {
     public:

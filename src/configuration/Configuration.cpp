@@ -21,7 +21,11 @@
 
 #endif
 
-namespace Common {
+using namespace Diag;
+using namespace Crypto;
+using namespace System;
+
+namespace Config {
     Configuration::Configuration(const ConfigFile &file) {
         if (file.isEmpty()) {
             throw new ArgumentNullException("file");

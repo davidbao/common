@@ -15,7 +15,7 @@
 #include "IO/FileStream.h"
 #include "data/IAttribute.h"
 
-namespace Common {
+namespace Json {
     class JsonTextWriter : public IAttributeSetter {
     public:
         explicit JsonTextWriter(const String &fileName);

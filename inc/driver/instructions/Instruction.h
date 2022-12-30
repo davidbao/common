@@ -20,7 +20,7 @@
 #include "InstructionDescription.h"
 #include "InstructionContext.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Net;
 
 namespace Drivers {

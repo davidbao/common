@@ -14,7 +14,7 @@
 #include "data/DateTime.h"
 #include "data/Culture.h"
 
-namespace Common {
+namespace Data {
     class FormatLiterals {
     public:
         String AppCompatLiteral;

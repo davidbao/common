@@ -5,7 +5,7 @@
 #include "exception/Exception.h"
 #include "Instruction.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

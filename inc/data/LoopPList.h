@@ -13,7 +13,7 @@
 #include <string.h>
 #include "system/OsDefine.h"
 
-namespace Common {
+namespace Data {
     template<class type>
     class LoopPList {
     public:

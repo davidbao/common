@@ -12,7 +12,7 @@
 #include "data/ValueType.h"
 #include "data/PList.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Xml {
     class XmlNode;

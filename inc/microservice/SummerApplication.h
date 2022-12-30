@@ -13,17 +13,17 @@
 #include "data/Dictionary.h"
 #include "system/Application.h"
 
-using namespace Common;
+using namespace Data;
+using namespace System;
 
-namespace Microservice
-{
-    class SummerApplication : public Application
-    {
+namespace Microservice {
+    class SummerApplication : public Application {
     public:
-        SummerApplication(int argc = 0, const char * argv[] = nullptr);
+        SummerApplication(int argc = 0, const char *argv[] = nullptr);
+
         ~SummerApplication() override;
-        
-        static SummerApplication* instance();
+
+        static SummerApplication *instance();
     };
 }
 

@@ -40,7 +40,9 @@
 #include <sys/time.h>
 #endif
 
-namespace Common {
+using namespace System;
+
+namespace IO {
     bool Directory::createDirectoryInner(const char *path) {
         if (path == nullptr)
             return false;

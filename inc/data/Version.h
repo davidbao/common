@@ -15,9 +15,12 @@
 #undef major
 #undef minor
 
-namespace Common {
+namespace IO {
     class Stream;
+}
+using namespace IO;
 
+namespace Data {
     struct Version : public IEquatable<Version>, public IEvaluation<Version>, public IComparable<Version> {
     public:
         Version(int major = 0, int minor = 0, int build = -1, int revision = -1);

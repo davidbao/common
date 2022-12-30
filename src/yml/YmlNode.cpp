@@ -11,397 +11,240 @@
 #include "IO/Path.h"
 #include "IO/File.h"
 #include "IO/Directory.h"
+#include "yaml-cpp/yaml.h"
 #include <fstream>
 #include <map>
 
 using namespace YAML;
+using namespace Diag;
 
-namespace Common
-{
-    YmlNode::YmlNode(Type type) : _attach(false)
-    {
-        if(type == Type::TypeUndefined)
-            _inner = new Node(NodeType::Undefined);
-        else if(type == Type::TypeNull)
-            _inner = new Node(NodeType::Null);
-        else if(type == Type::TypeScalar)
-            _inner = new Node(NodeType::Scalar);
-        else if(type == Type::TypeSequence)
-            _inner = new Node(NodeType::Sequence);
-        else if(type == Type::TypeMap)
-            _inner = new Node(NodeType::Map);
-    }
-    YmlNode::YmlNode(const YmlNode& node) : _attach(false)
-    {
-        if(node._attach)
-        {
-            _inner = node._inner;
-            _attach = node._attach;
+namespace Yml {
+    class YmlNodeInner {
+    public:
+        YAML::Node *node;
+
+        explicit YmlNodeInner(YAML::Node *node = nullptr) {
+            this->node = node;
         }
+    };
+
+    YmlNode::YmlNode(Type type) : _attach(false) {
+        Node *node;
+        if (type == Type::TypeUndefined)
+            node = new Node(NodeType::Undefined);
+        else if (type == Type::TypeNull)
+            node = new Node(NodeType::Null);
+        else if (type == Type::TypeScalar)
+            node = new Node(NodeType::Scalar);
+        else if (type == Type::TypeSequence)
+            node = new Node(NodeType::Sequence);
+        else if (type == Type::TypeMap)
+            node = new Node(NodeType::Map);
         else
-        {
-            _inner = new Node();
-            _inner->operator=(*node._inner);
-        }
-    }
-    YmlNode::YmlNode(const char* value) : YmlNode((String)value)
-	{
-	}
-    YmlNode::YmlNode(const String& value) : _attach(false)
-    {
-        _inner = new Node(value.c_str());
-    }
-    YmlNode::YmlNode(const bool& value) : YmlNode(((Boolean)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const char& value) : YmlNode(((Char)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const uint8_t& value) : YmlNode(((Byte)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const short& value) : YmlNode(((Int16)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const uint16_t& value) : YmlNode(((UInt16)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const int& value) : YmlNode(((Int32)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const uint32_t& value) : YmlNode(((UInt32)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const int64_t& value) : YmlNode(((Int64)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const uint64_t& value) : YmlNode(((UInt64)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const float& value) : YmlNode(((Float)value).toString())
-    {
-    }
-    YmlNode::YmlNode(const double& value) : YmlNode(((Double)value).toString())
-    {
-    }
-    YmlNode::YmlNode(Node* node) : _attach(true)
-    {
-        _inner = node;
-    }
-    YmlNode::~YmlNode()
-    {
-        if(!_attach)
-        {
-            delete _inner;
-            _inner = nullptr;
-        }
-    }
-    
-    void YmlNode::add(const YmlNode& node)
-    {
-        try
-        {
-            _inner->push_back(*node._inner);
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        catch (...)
-        {
-        }
-    }
-    void YmlNode::add(const String& name, const YmlNode& value)
-    {
-        try
-        {
-            YAML::Node& node = *_inner;
-            node[name.c_str()] = *value._inner;
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        catch (...)
-        {
-        }
-    }
-    
-    String YmlNode::toString() const
-    {
-        String str;
-        try
-        {
-            YAML::Emitter out;
-            out << *_inner;
-            str = out.c_str();
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        return str;
-    }
-    
-    bool YmlNode::parse(const String& str, YmlNode& node)
-    {
-        try
-        {
-            YAML::Node temp = YAML::Load(str.c_str());
-            if(temp.Type() != NodeType::Undefined)
-            {
-                node._inner->operator=(temp);
-                return true;
-            }
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        catch (...)
-        {
-        }
-        return false;
-    }
-    bool YmlNode::parseFile(const String& fileName, YmlNode& node)
-    {
-        try
-        {
-            YAML::Node temp = YAML::LoadFile(fileName.c_str());
-            if(temp.Type() != NodeType::Undefined)
-            {
-                node._inner->operator=(temp);
-                return true;
-            }
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        catch (...)
-        {
-        }
-        return false;
+            node = new Node();
+        _node = new YmlNodeInner(node);
     }
 
-    bool YmlNode::updateFile(const String& fileName, const Properties& properties)
-    {
-        try
-        {
-            YAML::Node node;
-            if(File::exists(fileName))
-                node = YAML::LoadFile(fileName.c_str()); // gets the root node
+    YmlNode::YmlNode(const YmlNode &node) : _attach(false) {
+        if (node._attach) {
+            _node = new YmlNodeInner(node._node->node);
+            _attach = node._attach;
+        } else {
+            _node = new YmlNodeInner(new Node());
+            _node->node->operator=(*node._node->node);
+        }
+    }
 
-            StringArray keys;
-            properties.keys(keys);
-            for (uint32_t i=0; i<keys.count(); i++)
-            {
-                String key = keys[i];
-                String value;
-                if(properties.at(key, value))
-                {
-                    StringArray texts;
-                    StringArray::parse(key, texts, '.');
-                    YAML::Node* subNode = nullptr;
-                    for (uint32_t j=0; j<texts.count(); j++)
-                    {
-                        const String& text = texts[j];
-                        YAML::Node* item = j == 0 ? &node : subNode;
-                        const YAML::Node& n = item->operator[](text.c_str());
-                        subNode = (YAML::Node*)&n;
+    YmlNode::YmlNode(const char *value) : YmlNode((String) value) {
+    }
+
+    YmlNode::YmlNode(const String &value) : _attach(false) {
+        _node = new YmlNodeInner(new Node(value.c_str()));
+    }
+
+    YmlNode::YmlNode(const bool &value) : YmlNode(((Boolean) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const char &value) : YmlNode(((Char) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const int8_t &value) : YmlNode(((Int8) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const uint8_t &value) : YmlNode(((UInt8) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const int16_t &value) : YmlNode(((Int16) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const uint16_t &value) : YmlNode(((UInt16) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const int32_t &value) : YmlNode(((Int32) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const uint32_t &value) : YmlNode(((UInt32) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const int64_t &value) : YmlNode(((Int64) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const uint64_t &value) : YmlNode(((UInt64) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const float &value) : YmlNode(((Float) value).toString()) {
+    }
+
+    YmlNode::YmlNode(const double &value) : YmlNode(((Double) value).toString()) {
+    }
+
+//    YmlNode::YmlNode(Node *node) : _attach(true) {
+//        _node->node = node;
+//    }
+
+    YmlNode::~YmlNode() {
+        if (!_attach) {
+            delete _node->node;
+            _node->node = nullptr;
+        }
+    }
+
+    bool YmlNode::equals(const YmlNode &other) const {
+        return _node->node->is(*other._node->node);
+    }
+
+    void YmlNode::evaluates(const YmlNode &other) {
+        _attach = other._attach;
+        if (other._attach) {
+            _node->node = other._node->node;
+        } else {
+            _node->node->operator=(*other._node->node);
+        }
+    }
+
+    YmlNode YmlNode::at(size_t pos) const {
+        YmlNode node(Type::TypeUndefined);
+        at(pos, node);
+        return node;
+    }
+
+    YmlNode YmlNode::at(const String &name) const {
+        YmlNode node(Type::TypeUndefined);
+        at(name, node);
+        return node;
+    }
+
+    bool YmlNode::at(size_t pos, YmlNode &node) const {
+        try {
+            YAML::Node *yNode = _node->node;
+            if (pos < size()) {
+                if (yNode->IsMap()) {
+                    int index = 0;
+                    auto it = yNode->begin();
+                    for (; it != yNode->end(); ++it) {
+                        const Node &key = it->first;
+                        const Node &value = it->second;
+                        if (index == pos) {
+                            node._node->node->operator=(value);
+                            return true;
+                        }
+                        index++;
                     }
-                    if(!value.isNullOrEmpty())
-                        subNode->operator=(value.c_str());
+                } else if (yNode->IsSequence()) {
+                    node._node->node->operator=((*yNode)[pos]);
+                    return true;
                 }
             }
-
-            String path = Path::getDirectoryName(fileName);
-            if(!Directory::exists(path)) {
-                Directory::createDirectory(path);
-            }
-            String name = Path::getFileName(fileName);
-            String tempFileName = Path::combine(path, String("~") + name);
-            std::ofstream fout(tempFileName);
-            fout << node; // dump it back into the file
-            fout.close();
-            return File::move(tempFileName, fileName);
         }
-        catch (const exception& e)
-        {
+        catch (const exception &e) {
             Trace::error(e.what());
         }
-        catch (...)
-        {
+        catch (...) {
         }
         return false;
     }
 
-    bool YmlNode::getAttribute(const String& name, String& value) const
-    {
-        try
-        {
-            const Node& node = _inner->operator[](name.c_str());
+    bool YmlNode::at(const String &name, YmlNode &node) const {
+        try {
+            YAML::Node *yNode = _node->node;
+            if (yNode->IsMap()) {
+                const Node &temp = (*yNode)[name.c_str()];
+                if (temp.Type() != NodeType::Undefined) {
+                    node._node->node->operator=(temp);
+                    return true;
+                }
+            }
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        catch (...) {
+        }
+        return false;
+    }
+
+    bool YmlNode::getAttribute(const String &name, String &value) const {
+        try {
+            const Node &node = _node->node->operator[](name.c_str());
             value = node.as<std::string>();
             return true;
         }
-        catch (const exception& e)
-        {
+        catch (const exception &e) {
             Trace::error(e.what());
         }
-        catch (...)
-        {
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, bool& value) const
-    {
-        Boolean result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, uint8_t& value) const
-    {
-        Byte result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, int& value) const
-    {
-        Int32 result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, uint32_t& value) const
-    {
-        UInt32 result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, int64_t& value) const
-    {
-        Int64 result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, uint64_t& value) const
-    {
-        UInt64 result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, float& value) const
-    {
-        Float result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
-        }
-        return false;
-    }
-    bool YmlNode::getAttribute(const String& name, double& value) const
-    {
-        Double result;
-        if(getAttribute(name, result))
-        {
-            value = result;
-            return true;
+        catch (...) {
         }
         return false;
     }
 
-    bool YmlNode::setAttribute(const String& name, const String& value)
-    {
-        try
-        {
-            YAML::Node& node = *_inner;
+    bool YmlNode::setAttribute(const String &name, const String &value) {
+        try {
+            YAML::Node &node = *_node->node;
             node[name.c_str()] = value.c_str();
             return true;
         }
-        catch (const exception& e)
-        {
+        catch (const exception &e) {
             Trace::error(e.what());
         }
-        catch (...)
-        {
+        catch (...) {
         }
         return false;
     }
-    bool YmlNode::setAttribute(const String& name, const bool& value)
-    {
-        return setAttribute<Boolean>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const uint8_t& value)
-    {
-        return setAttribute<Byte>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const int& value)
-    {
-        return setAttribute<Int32>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const uint32_t& value)
-    {
-        return setAttribute<UInt32>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const int64_t& value)
-    {
-        return setAttribute<Int64>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const uint64_t& value)
-    {
-        return setAttribute<UInt64>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const float& value)
-    {
-        return setAttribute<Float>(name, value);
-    }
-    bool YmlNode::setAttribute(const String& name, const double& value)
-    {
-        return setAttribute<Double>(name, value);
-    }
-    void YmlNode::setAttributes(const StringMap& values)
-    {
+
+    void YmlNode::setAttributes(const StringMap &values) {
         StringArray keys;
         values.keys(keys);
-        for (uint32_t i=0; i<keys.count(); i++)
-        {
-            const String& key = keys[i];
+        for (size_t i = 0; i < keys.count(); i++) {
+            const String &key = keys[i];
             String value;
-            if(values.at(key, value))
-            {
+            if (values.at(key, value)) {
                 setAttribute(key, value);
             }
         }
     }
 
-    YmlNode::Type YmlNode::type() const
-    {
-        switch (_inner->Type())
-        {
+    YmlNode &YmlNode::operator=(const YmlNode &value) {
+        if (this != &value) {
+            YmlNode::evaluates(value);
+        }
+        return *this;
+    }
+
+    String YmlNode::toString() const {
+        String str;
+        try {
+            YAML::Emitter out;
+            out << *_node->node;
+            str = out.c_str();
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        return str;
+    }
+
+    YmlNode::Type YmlNode::type() const {
+        switch (_node->node->Type()) {
             case NodeType::Undefined:
                 return TypeUndefined;
             case NodeType::Null:
@@ -416,28 +259,63 @@ namespace Common
                 return TypeUndefined;
         }
     }
-    size_t YmlNode::size() const
-    {
-        return _inner->size();
+
+    size_t YmlNode::size() const {
+        return _node->node->size();
     }
-    bool YmlNode::isEmpty() const
-    {
+
+    bool YmlNode::isEmpty() const {
         return type() == TypeUndefined || type() == TypeNull;
     }
 
-    void YmlNode::getProperties(const Node& node, String& levelStr, Properties& properties) const
-    {
+    void YmlNode::add(const YmlNode &node) {
+        try {
+            _node->node->push_back(*node._node->node);
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        catch (...) {
+        }
+    }
+
+    void YmlNode::add(const String &name, const YmlNode &node) {
+        try {
+            YAML::Node &yNode = *_node->node;
+            yNode[name.c_str()] = *node._node->node;
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        catch (...) {
+        }
+    }
+
+    bool YmlNode::getProperties(Properties &properties) const {
+        try {
+            String levelStr;
+            getProperties(*_node, levelStr, properties);
+            return true;
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        catch (...) {
+        }
+        return false;
+    }
+
+    void YmlNode::getProperties(const YmlNodeInner &node, String &levelStr, Properties &properties) const {
         String tempLevelStr;
-        auto it = node.begin();
-        for (; it != node.end(); ++it)
-        {
+        auto it = node.node->begin();
+        for (; it != node.node->end(); ++it) {
             tempLevelStr = levelStr;
-            
-            const Node& key = it->first;
-            const Node& value = it->second;
+
+            const Node &key = it->first;
+            const Node &value = it->second;
             if (key.Type() == NodeType::Scalar) {
-              // This should be true; do something here with the scalar key.
-                if(!levelStr.isNullOrEmpty())
+                // This should be true; do something here with the scalar key.
+                if (!levelStr.isNullOrEmpty())
                     levelStr.append('.');
                 levelStr.append(key.as<string>());
                 properties.add(levelStr, String::Empty);
@@ -446,123 +324,166 @@ namespace Common
 //                Debug::writeLine(str);
 //#endif
             }
-            
-            getValueProperties(value, levelStr, properties);
-            
+
+            getValueProperties(YmlNodeInner((Node *) &value), levelStr, properties);
+
             levelStr = tempLevelStr;
         }
 //#ifdef DEBUG
-//        PList<String> keys;
+//        StringArray keys;
 //        properties.keys(keys);
-//        for (uint32_t i=0; i<keys.count(); i++)
+//        for (size_t i=0; i<keys.count(); i++)
 //        {
-//            const String *key = keys[i];
+//            const String &key = keys[i];
 //            String value;
-//            properties.at(*key, value);
-//            String str = String::format("%s=%s", (*key).c_str(), value.c_str());
+//            properties.at(key, value);
+//            String str = String::format("%s=%s", key.c_str(), value.c_str());
 //            Debug::writeLine(str);
 //        }
 //#endif
     }
-    void YmlNode::getValueProperties(const Node& node, String& levelStr, Properties& properties) const
-    {
-        if (node.Type() == NodeType::Map) {
-          // This should be true; do something here with the map.
+
+    void YmlNode::getValueProperties(const YmlNodeInner &node, String &levelStr, Properties &properties) const {
+        if (node.node->Type() == NodeType::Map) {
+            // This should be true; do something here with the map.
             getProperties(node, levelStr, properties);
             levelStr.empty();
-        } else if (node.Type() == NodeType::Scalar) {
-            properties.add(levelStr, node.as<string>());
+        } else if (node.node->Type() == NodeType::Scalar) {
+            properties.add(levelStr, node.node->as<string>());
 //#ifdef DEBUG
 //            String str = String::format("%s=%s", levelStr.c_str(), node.as<string>().c_str());
 //            Debug::writeLine(str);
 //#endif
-        } else if (node.Type() == NodeType::Sequence) {
-            for (std::size_t i=0;i<node.size();i++) {
-                getValueProperties(node[i], i, levelStr, properties);
+        } else if (node.node->Type() == NodeType::Sequence) {
+            for (std::size_t i = 0; i < node.node->size(); i++) {
+                const Node &subNode = (*node.node)[i];
+                getValueProperties(YmlNodeInner((Node *) &subNode), i, levelStr, properties);
             }
         }
     }
-    void YmlNode::getValueProperties(const Node& node, size_t index, String& levelStr, Properties& properties) const
-    {
-        if (node.Type() == NodeType::Map) {
-          // This should be true; do something here with the map.
+
+    void YmlNode::getValueProperties(const YmlNodeInner &node, size_t index, String &levelStr,
+                                     Properties &properties) const {
+        if (node.node->Type() == NodeType::Map) {
+            // This should be true; do something here with the map.
             String temp = levelStr;
             levelStr.append(String::format("[%d]", index));
             properties.add(levelStr, String::Empty);
-            
+
             getProperties(node, levelStr, properties);
             levelStr = temp;
-        } else if (node.Type() == NodeType::Scalar) {
+        } else if (node.node->Type() == NodeType::Scalar) {
             String temp = levelStr;
             levelStr.append(String::format("[%d]", index));
-            properties.add(levelStr, node.as<string>());
+            properties.add(levelStr, node.node->as<string>());
             levelStr = temp;
 //#ifdef DEBUG
 //            String str = String::format("%s=%s", levelStr.c_str(), node.as<string>().c_str());
 //            Debug::writeLine(str);
 //#endif
-        } else if (node.Type() == NodeType::Sequence) {
-            for (std::size_t i=0;i<node.size();i++) {
-                getValueProperties(node[i], i, levelStr, properties);
+        } else if (node.node->Type() == NodeType::Sequence) {
+            for (std::size_t i = 0; i < node.node->size(); i++) {
+                const Node &subNode = (*node.node)[i];
+                getValueProperties(YmlNodeInner((Node *) &subNode), i, levelStr, properties);
             }
         }
     }
-    bool YmlNode::getProperties(Properties& properties) const
-    {
-        try
-        {
-            String levelStr;
-            getProperties(*_inner, levelStr, properties);
-            return true;
-        }
-        catch (const exception& e)
-        {
-            Trace::error(e.what());
-        }
-        catch (...)
-        {
-        }
-        return false;
-    }
-    bool YmlNode::at(const String& name, YmlNode& node) const
-    {
-        try
-        {
-            const Node& temp = (*_inner)[name.c_str()];
-            if(temp.Type() != NodeType::Undefined)
-            {
-                node._inner->operator=(temp);
+
+    bool YmlNode::parse(const String &str, YmlNode &node) {
+        try {
+            YAML::Node temp = YAML::Load(str.c_str());
+            if (temp.Type() != NodeType::Undefined) {
+                node._node->node->operator=(temp);
                 return true;
             }
         }
-        catch (const exception& e)
-        {
+        catch (const exception &e) {
             Trace::error(e.what());
         }
-        catch (...)
-        {
+        catch (...) {
         }
         return false;
     }
-    
-    void YmlNode::operator=(const YmlNode& value)
-    {
-        _attach = value._attach;
-        if(value._attach)
-        {
-            _inner = value._inner;
+
+    bool YmlNode::parseFile(const String &fileName, YmlNode &node) {
+        try {
+            YAML::Node temp = YAML::LoadFile(fileName.c_str());
+            if (temp.Type() != NodeType::Undefined) {
+                node._node->node->operator=(temp);
+                return true;
+            }
         }
-        else
-        {
-            _inner->operator=(*value._inner);
+        catch (const exception &e) {
+            Trace::error(e.what());
         }
+        catch (...) {
+        }
+        return false;
     }
-    bool YmlNode::operator==(const YmlNode& value) const
-    {
-        return _inner->is(*value._inner);
+
+    bool YmlNode::updateFile(const String &fileName, const Properties &properties) {
+        try {
+            YAML::Node node;
+            if (File::exists(fileName))
+                node = YAML::LoadFile(fileName.c_str()); // gets the root node
+
+            StringArray keys;
+            properties.keys(keys);
+            for (size_t i = 0; i < keys.count(); i++) {
+                String key = keys[i];
+                String value;
+                if (properties.at(key, value)) {
+                    StringArray texts;
+                    StringArray::parse(key, texts, '.');
+                    YAML::Node *subNode = nullptr;
+                    for (size_t j = 0; j < texts.count(); j++) {
+                        const String &text = texts[j];
+                        YAML::Node *item = j == 0 ? &node : subNode;
+//                        int seq = -1;
+//                        String seqKey;
+//                        ssize_t seqStart = text.find('[');
+//                        if(seqStart > 0) {
+//                            ssize_t seqEnd = text.find(']');
+//                            if(Int32::parse(text.substr(seqStart + 1, seqEnd - seqStart - 1), seq)) {
+//                                seqKey = text.substr(0, seqStart);
+//                            }
+//                        }
+//                        if(seq >= 0) {
+//                            const YAML::Node &n = item->operator[](seqKey.c_str());
+//                            subNode = (YAML::Node *) &n;
+//                            subNode->push_back(value.c_str());
+//                        } else {
+//                            const YAML::Node &n = item->operator[](text.c_str());
+//                            subNode = (YAML::Node *) &n;
+//                        }
+                        const YAML::Node &n = item->operator[](text.c_str());
+                        subNode = (YAML::Node *) &n;
+                    }
+                    if (!value.isNullOrEmpty())
+                        subNode->operator=(value.c_str());
+                }
+            }
+
+            String path = Path::getDirectoryName(fileName);
+            if (!Directory::exists(path)) {
+                Directory::createDirectory(path);
+            }
+            String name = Path::getFileName(fileName);
+            String tempFileName = Path::combine(path, String("~") + name);
+            std::ofstream out(tempFileName);
+            out << node; // dump it back into the file
+            out.close();
+            return File::move(tempFileName, fileName);
+        }
+        catch (const exception &e) {
+            Trace::error(e.what());
+        }
+        catch (...) {
+        }
+        return false;
     }
-    bool YmlNode::operator!=(const YmlNode& value) const
-    {
-        return !operator==(value);
+
+    YmlNode::operator String() const {
+        return toString();
     }
 }

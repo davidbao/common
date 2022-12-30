@@ -8,10 +8,11 @@
 
 #include "microservice/ConsulService.h"
 #include "json/JsonNode.h"
-#include "IO/FileStream.h"
 #include "diag/Trace.h"
 #include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
+
+using namespace Config;
 
 namespace Microservice {
     const char *ConsulService::DeregisterUrl = "v1/agent/service/deregister/%s";

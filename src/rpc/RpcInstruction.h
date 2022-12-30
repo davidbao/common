@@ -15,248 +15,268 @@
 #include "rpc/RpcServer.h"
 #include "rpc/RpcClient.h"
 
-using namespace Common;
+using namespace Data;
 
-namespace rpc
-{
-    class RpcServerEventContainer
-    {
+namespace Rpc {
+    class RpcServerEventContainer {
     public:
-        RpcServerEventContainer(IRpcServerEvent* receiver);
+        RpcServerEventContainer(IRpcServerEvent *receiver);
+
         virtual ~RpcServerEventContainer();
-        
+
     protected:
-        bool onCloseClient(const Endpoint& endpoint);
-        
+        bool onCloseClient(const Endpoint &endpoint);
+
     private:
-        IRpcServerEvent* _receiver;
+        IRpcServerEvent *_receiver;
     };
 
-    class RpcReceiverEventContainer
-    {
+    class RpcReceiverEventContainer {
     public:
-        RpcReceiverEventContainer(IRpcReceiverEvent* receiver);
+        RpcReceiverEventContainer(IRpcReceiverEvent *receiver);
+
         virtual ~RpcReceiverEventContainer();
-        
+
     protected:
-        RpcSyncContext* onSyncSetValue(RpcSyncContext* context);
-        RpcAsyncRequestContext* onAsyncRequestSetValue(RpcAsyncRequestContext* context);
-        RpcNotifyContext* onNotifySetValue(RpcNotifyContext* context);
-        
+        RpcSyncContext *onSyncSetValue(RpcSyncContext *context);
+
+        RpcAsyncRequestContext *onAsyncRequestSetValue(RpcAsyncRequestContext *context);
+
+        RpcNotifyContext *onNotifySetValue(RpcNotifyContext *context);
+
     private:
-        IRpcReceiverEvent* _receiver;
+        IRpcReceiverEvent *_receiver;
     };
 
-    class RpcSenderEventContainer
-    {
+    class RpcSenderEventContainer {
     public:
-        RpcSenderEventContainer(IRpcSenderEvent* receiver);
+        RpcSenderEventContainer(IRpcSenderEvent *receiver);
+
         virtual ~RpcSenderEventContainer();
-        
+
     protected:
-        RpcAsyncResponseContext* onAsyncResponseSetValue(RpcAsyncResponseContext* context);
-        
+        RpcAsyncResponseContext *onAsyncResponseSetValue(RpcAsyncResponseContext *context);
+
     private:
-        IRpcSenderEvent* _receiver;
+        IRpcSenderEvent *_receiver;
     };
 
-    class HeartbeatInstruction : public ElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse>
-    {
+    class HeartbeatInstruction : public ElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse> {
     public:
-        HeartbeatInstruction(InstructionDescription* id);
+        HeartbeatInstruction(InstructionDescription *id);
+
         ~HeartbeatInstruction() override;
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
     };
-    class ServerHeartbeatInstruction : public ServerElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse>
-    {
+
+    class ServerHeartbeatInstruction : public ServerElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse> {
     public:
-        ServerHeartbeatInstruction(InstructionDescription* id);
+        ServerHeartbeatInstruction(InstructionDescription *id);
+
         ~ServerHeartbeatInstruction() override;
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
     };
 
-    class CloseInstruction : public ElementInstruction<RpcCloseRequest, RpcCloseResponse>
-    {
+    class CloseInstruction : public ElementInstruction<RpcCloseRequest, RpcCloseResponse> {
     public:
-        CloseInstruction(InstructionDescription* id);
+        CloseInstruction(InstructionDescription *id);
+
         ~CloseInstruction() override;
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
     };
-    class ServerCloseInstruction : public ServerElementInstruction<RpcCloseRequest, RpcCloseResponse>, public RpcServerEventContainer
-    {
+
+    class ServerCloseInstruction
+            : public ServerElementInstruction<RpcCloseRequest, RpcCloseResponse>, public RpcServerEventContainer {
     public:
-        ServerCloseInstruction(InstructionDescription* id, IRpcServerEvent* receiver);
+        ServerCloseInstruction(InstructionDescription *id, IRpcServerEvent *receiver);
+
         ~ServerCloseInstruction() override;
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
-        
-        ClientContext* setValue(ClientContext* context) override;
+
+        ClientContext *setValue(ClientContext *context) override;
     };
 
-    class RpcSyncInstruction : public ElementInstruction<RpcSyncRequest, RpcSyncResponse>
-    {
+    class RpcSyncInstruction : public ElementInstruction<RpcSyncRequest, RpcSyncResponse> {
     public:
-        RpcSyncInstruction(InstructionDescription* id);
+        RpcSyncInstruction(InstructionDescription *id);
+
         ~RpcSyncInstruction() override;
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
     };
 
-    class ServerRpcSyncInstruction : public ServerElementInstruction<RpcSyncRequest, RpcSyncResponse>, public RpcReceiverEventContainer
-    {
+    class ServerRpcSyncInstruction
+            : public ServerElementInstruction<RpcSyncRequest, RpcSyncResponse>, public RpcReceiverEventContainer {
     public:
-        ServerRpcSyncInstruction(InstructionDescription* id, IRpcReceiverEvent* receiver);
+        ServerRpcSyncInstruction(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
         ~ServerRpcSyncInstruction() override;
-        
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
-        
-        bool setCommandBuffer(MemoryStream& ms, ClientContext* context) override;
+
+        bool setCommandBuffer(MemoryStream &ms, ClientContext *context) override;
     };
 
-    class RpcAsyncRequestInstruction : public ElementAInstruction<RpcAsyncRequest>
-    {
+    class RpcAsyncRequestInstruction : public ElementAInstruction<RpcAsyncRequest> {
     public:
-        RpcAsyncRequestInstruction(InstructionDescription* id);
+        RpcAsyncRequestInstruction(InstructionDescription *id);
+
         ~RpcAsyncRequestInstruction() override;
 
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
-    };
-    class ServerRpcAsyncRequestInstruction : public ServerElementAInstruction<RpcAsyncRequest>, public RpcReceiverEventContainer
-    {
-    public:
-        ServerRpcAsyncRequestInstruction(InstructionDescription* id, IRpcReceiverEvent* receiver);
-        ~ServerRpcAsyncRequestInstruction() override;
-        
-        uint8_t command() const override;
-        
-        bool allowLogMessage() const override;
-        
-        bool setCommandBuffer(MemoryStream& ms, ClientContext* context) override;
     };
 
-    class RpcAsyncResponseInstruction : public ElementAInstruction<RpcAsyncResponse>
-    {
+    class ServerRpcAsyncRequestInstruction
+            : public ServerElementAInstruction<RpcAsyncRequest>, public RpcReceiverEventContainer {
     public:
-        RpcAsyncResponseInstruction(InstructionDescription* id);
+        ServerRpcAsyncRequestInstruction(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
+        ~ServerRpcAsyncRequestInstruction() override;
+
+        uint8_t command() const override;
+
+        bool allowLogMessage() const override;
+
+        bool setCommandBuffer(MemoryStream &ms, ClientContext *context) override;
+    };
+
+    class RpcAsyncResponseInstruction : public ElementAInstruction<RpcAsyncResponse> {
+    public:
+        RpcAsyncResponseInstruction(InstructionDescription *id);
+
         ~RpcAsyncResponseInstruction() override;
 
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
-    };
-    class ServerRpcAsyncResponseInstruction : public ServerElementAInstruction<RpcAsyncResponse>, public RpcSenderEventContainer
-    {
-    public:
-        ServerRpcAsyncResponseInstruction(InstructionDescription* id, IRpcSenderEvent* receiver);
-        ~ServerRpcAsyncResponseInstruction() override;
-        
-        uint8_t command() const override;
-        
-        bool allowLogMessage() const override;
-        
-        bool setCommandBuffer(MemoryStream& ms, ClientContext* context) override;
     };
 
-    class RpcNotifyInstruction : public ElementAInstruction<RpcNotifyInfo>
-    {
+    class ServerRpcAsyncResponseInstruction
+            : public ServerElementAInstruction<RpcAsyncResponse>, public RpcSenderEventContainer {
     public:
-        RpcNotifyInstruction(InstructionDescription* id);
+        ServerRpcAsyncResponseInstruction(InstructionDescription *id, IRpcSenderEvent *receiver);
+
+        ~ServerRpcAsyncResponseInstruction() override;
+
+        uint8_t command() const override;
+
+        bool allowLogMessage() const override;
+
+        bool setCommandBuffer(MemoryStream &ms, ClientContext *context) override;
+    };
+
+    class RpcNotifyInstruction : public ElementAInstruction<RpcNotifyInfo> {
+    public:
+        RpcNotifyInstruction(InstructionDescription *id);
+
         ~RpcNotifyInstruction() override;
 
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
     };
-    class ServerRpcNotifyInstruction : public ServerElementAInstruction<RpcNotifyInfo>, public RpcReceiverEventContainer
-    {
+
+    class ServerRpcNotifyInstruction
+            : public ServerElementAInstruction<RpcNotifyInfo>, public RpcReceiverEventContainer {
     public:
-        ServerRpcNotifyInstruction(InstructionDescription* id, IRpcReceiverEvent* receiver);
+        ServerRpcNotifyInstruction(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
         ~ServerRpcNotifyInstruction() override;
-        
+
         uint8_t command() const override;
-        
+
         bool allowLogMessage() const override;
-        
-        bool setCommandBuffer(MemoryStream& ms, ClientContext* context) override;
+
+        bool setCommandBuffer(MemoryStream &ms, ClientContext *context) override;
     };
 
-    class RpcSyncInstruction2 : public RpcSyncInstruction
-    {
+    class RpcSyncInstruction2 : public RpcSyncInstruction {
     public:
-        RpcSyncInstruction2(InstructionDescription* id);
+        RpcSyncInstruction2(InstructionDescription *id);
+
         ~RpcSyncInstruction2() override;
+
         uint8_t command() const override;
     };
 
-    class ServerRpcSyncInstruction2 : public ServerRpcSyncInstruction
-    {
+    class ServerRpcSyncInstruction2 : public ServerRpcSyncInstruction {
     public:
-        ServerRpcSyncInstruction2(InstructionDescription* id, IRpcReceiverEvent* receiver);
+        ServerRpcSyncInstruction2(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
         ~ServerRpcSyncInstruction2() override;
-        
+
         uint8_t command() const override;
     };
 
-    class RpcAsyncRequestInstruction2 : public RpcAsyncRequestInstruction
-    {
+    class RpcAsyncRequestInstruction2 : public RpcAsyncRequestInstruction {
     public:
-        RpcAsyncRequestInstruction2(InstructionDescription* id);
+        RpcAsyncRequestInstruction2(InstructionDescription *id);
+
         ~RpcAsyncRequestInstruction2() override;
 
         uint8_t command() const override;
     };
-    class ServerRpcAsyncRequestInstruction2 : public ServerRpcAsyncRequestInstruction
-    {
+
+    class ServerRpcAsyncRequestInstruction2 : public ServerRpcAsyncRequestInstruction {
     public:
-        ServerRpcAsyncRequestInstruction2(InstructionDescription* id, IRpcReceiverEvent* receiver);
+        ServerRpcAsyncRequestInstruction2(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
         ~ServerRpcAsyncRequestInstruction2() override;
-        
+
         uint8_t command() const override;
     };
 
-    class RpcAsyncResponseInstruction2 : public RpcAsyncResponseInstruction
-    {
+    class RpcAsyncResponseInstruction2 : public RpcAsyncResponseInstruction {
     public:
-        RpcAsyncResponseInstruction2(InstructionDescription* id);
+        RpcAsyncResponseInstruction2(InstructionDescription *id);
+
         ~RpcAsyncResponseInstruction2() override;
 
         uint8_t command() const override;
     };
-    class ServerRpcAsyncResponseInstruction2 : public ServerRpcAsyncResponseInstruction
-    {
+
+    class ServerRpcAsyncResponseInstruction2 : public ServerRpcAsyncResponseInstruction {
     public:
-        ServerRpcAsyncResponseInstruction2(InstructionDescription* id, IRpcSenderEvent* receiver);
+        ServerRpcAsyncResponseInstruction2(InstructionDescription *id, IRpcSenderEvent *receiver);
+
         ~ServerRpcAsyncResponseInstruction2() override;
-        
+
         uint8_t command() const override;
     };
 
-    class RpcNotifyInstruction2 : public RpcNotifyInstruction
-    {
+    class RpcNotifyInstruction2 : public RpcNotifyInstruction {
     public:
-        RpcNotifyInstruction2(InstructionDescription* id);
+        RpcNotifyInstruction2(InstructionDescription *id);
+
         ~RpcNotifyInstruction2() override;
 
         uint8_t command() const override;
     };
-    class ServerRpcNotifyInstruction2 : public ServerRpcNotifyInstruction
-    {
+
+    class ServerRpcNotifyInstruction2 : public ServerRpcNotifyInstruction {
     public:
-        ServerRpcNotifyInstruction2(InstructionDescription* id, IRpcReceiverEvent* receiver);
+        ServerRpcNotifyInstruction2(InstructionDescription *id, IRpcReceiverEvent *receiver);
+
         ~ServerRpcNotifyInstruction2() override;
-        
+
         uint8_t command() const override;
     };
 }

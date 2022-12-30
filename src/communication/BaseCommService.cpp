@@ -8,7 +8,7 @@
 #include "communication/BaseCommConfig.h"
 #include "communication/BaseCommService.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Drivers;
 
 namespace Communication

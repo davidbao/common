@@ -11,7 +11,7 @@
 
 #include "data/ValueType.h"
 
-namespace Common {
+namespace Data {
     enum DigitShapes {
         DigitShapesContext = 0x0000,   // The shape depends on the previous text in the same output.
         DigitShapesNone = 0x0001,   // Gives full Unicode compatibility.

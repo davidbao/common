@@ -9,18 +9,18 @@
 #ifndef Resources_h
 #define Resources_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 
-namespace Common
-{
-	class Resources
-	{
+using namespace Data;
+
+namespace System {
+    class Resources {
     public:
-        static String getString(const String& name);
+        static String getString(const String &name);
 
     private:
-        static String getStaticString(const String& name);
-	};
+        static String getStaticString(const String &name);
+    };
 }
 
 #endif // Resources_h

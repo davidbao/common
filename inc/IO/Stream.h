@@ -16,7 +16,9 @@
 #include "data/Version.h"
 #include "thread/Mutex.h"
 
-namespace Common {
+using namespace Data;
+
+namespace IO {
     enum SeekOrigin {
         // These constants match Win32's FILE_BEGIN, FILE_CURRENT, and FILE_END
         SeekBegin = SEEK_SET,

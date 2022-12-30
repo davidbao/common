@@ -16,7 +16,7 @@
 #include "data/Convert.h"
 #include "data/ByteArray.h"
 
-namespace Common {
+namespace Data {
     struct Variant
             : public IEvaluation<Variant>,
               public IEquatable<Variant>,

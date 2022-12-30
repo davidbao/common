@@ -22,14 +22,10 @@ namespace Xml {
         }
     };
 
-    XmlDocument::XmlDocument(const String &fileName) {
+    XmlDocument::XmlDocument() {
         _doc = new XmlDocumentInner();
 
-        if (!fileName.isNullOrEmpty()) {
-            load(fileName);
-        } else {
-            newDocument();
-        }
+        newDocument();
     }
 
     XmlDocument::~XmlDocument() {
@@ -52,6 +48,15 @@ namespace Xml {
             }
             _doc->doc = xmlParseFile(fileName);
         }
+        return _doc->doc != nullptr;
+    }
+
+    bool XmlDocument::loadXml(const String &xml) {
+        if (isValid()) {
+            xmlFreeDoc(_doc->doc);
+            _doc->doc = nullptr;
+        }
+        _doc->doc = xmlParseMemory(xml, xml.length());
         return _doc->doc != nullptr;
     }
 

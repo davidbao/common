@@ -15,13 +15,11 @@
 #include "rpc/RpcServer.h"
 #include <event2/http.h>
 
-using namespace Common;
-using namespace rpc;
+using namespace Data;
+using namespace Rpc;
 
-namespace Microservice
-{
-    enum TcpStatus
-    {
+namespace Microservice {
+    enum TcpStatus {
         TcpOk = HTTP_OK,    /**< request completed ok */
         TcpNoContent = HTTP_NOCONTENT,    /**< request does not have content */
         TcpMovePerm = HTTP_MOVEPERM,    /**< the uri moved permanently */
@@ -37,47 +35,52 @@ namespace Microservice
         TcpServuavail = HTTP_SERVUNAVAIL,    /**< the server is not available */
     };
 
-    class ITcpAction
-    {
+    class ITcpAction {
     public:
         ITcpAction();
+
         virtual ~ITcpAction();
-        
-        virtual TcpStatus onGetAction(const StringArray& texts, String& result);
-        virtual TcpStatus onPostAction(const StringArray& texts, const String& body, String& result);
+
+        virtual TcpStatus onGetAction(const StringArray &texts, String &result);
+
+        virtual TcpStatus onPostAction(const StringArray &texts, const String &body, String &result);
     };
+
     typedef PList<ITcpAction> TcpActions;
 
-    class ITcpService : public IService
-    {
+    class ITcpService : public IService {
     public:
-        virtual void registerMethod(RpcMethod* method) = 0;
-        
-        virtual void registerAction(ITcpAction* action) = 0;
-        virtual void deregisterAction(ITcpAction* action) = 0;
+        virtual void registerMethod(RpcMethod *method) = 0;
+
+        virtual void registerAction(ITcpAction *action) = 0;
+
+        virtual void deregisterAction(ITcpAction *action) = 0;
     };
 
-    class TcpService : public ITcpService
-    {
+    class TcpService : public ITcpService {
     public:
         TcpService();
+
         ~TcpService() override;
-        
+
         bool initialize();
+
         bool unInitialize();
-        
-        void registerMethod(RpcMethod* method) override;
-        
-        void registerAction(ITcpAction* action) override;
-        void deregisterAction(ITcpAction* action) override;
-        
+
+        void registerMethod(RpcMethod *method) override;
+
+        void registerAction(ITcpAction *action) override;
+
+        void deregisterAction(ITcpAction *action) override;
+
     private:
-        static bool onStringResponse(void* owner, const IRpcSyncRequestData* request, IRpcSyncResponseData* response);
-        bool onStringResponseInner(const IRpcSyncRequestData* request, IRpcSyncResponseData* response);
-        
+        static bool onStringResponse(void *owner, const IRpcSyncRequestData *request, IRpcSyncResponseData *response);
+
+        bool onStringResponseInner(const IRpcSyncRequestData *request, IRpcSyncResponseData *response);
+
     private:
-        RpcServer* _server;
-        
+        RpcServer *_server;
+
         Mutex _actionsMutex;
         TcpActions _actions;
     };

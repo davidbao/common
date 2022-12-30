@@ -7,58 +7,53 @@
 #include "driver/channels/UdpInteractive.h"
 #include "driver/channels/ChannelDescription.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Diag;
 
-namespace Drivers
-{
-    UdpInteractive::Client::Client(const IPAddress& address, int port, const String& iface)
-    {
+namespace Drivers {
+    UdpInteractive::Client::Client(const IPAddress &address, int port, const String &iface) {
         this->iface = iface;
         this->address = address;
         this->port = port;
         this->opened = !address.isEmpty();
         this->client = new UdpClient();
     }
-    UdpInteractive::Client::Client(const IPAddress& address, int port, bool opened)
-    {
+
+    UdpInteractive::Client::Client(const IPAddress &address, int port, bool opened) {
         this->address = address;
         this->port = port;
         this->opened = opened;
         this->client = new UdpClient();
     }
-    UdpInteractive::Client::Client(const Client& client) : Client(client.address,client.port, client.iface)
-    {        
+
+    UdpInteractive::Client::Client(const Client &client) : Client(client.address, client.port, client.iface) {
     }
-    UdpInteractive::Client::~Client()
-    {
+
+    UdpInteractive::Client::~Client() {
         delete this->client;
         this->client = nullptr;
     }
-    bool UdpInteractive::Client::open(UdpChannelContext* ucc)
-    {
+
+    bool UdpInteractive::Client::open(UdpChannelContext *ucc) {
         bool result = this->client->open(address.toString(), port);
-        if (result && ucc->sendBufferSize() > 0)
-        {
+        if (result && ucc->sendBufferSize() > 0) {
             this->client->setSendBufferSize(ucc->sendBufferSize());
         }
         return result;
     }
-    ssize_t UdpInteractive::Client::send(const uint16_t port, const uint8_t *data, size_t len)
-    {
+
+    ssize_t UdpInteractive::Client::send(const uint16_t port, const uint8_t *data, size_t len) {
 #ifdef WIN32
-		return this->client->write(port, data, len);
+        return this->client->write(port, data, len);
 #else
-        if(isOpened())
+        if (isOpened())
             return this->client->write(port, data, len);
-        else
-        {
+        else {
             IPAddress addr;
-            if(NetInterface::isInterfaceUp(iface))
-            {
+            if (NetInterface::isInterfaceUp(iface)) {
                 addr = NetInterface::getIpAddress(iface);
             }
-            if(!addr.isEmpty())
-            {
+            if (!addr.isEmpty()) {
                 Debug::writeFormatLine("open an udp client(delay), iface: %s, addr: %s, port: %d",
                                        iface.c_str(), addr.toString().c_str(), port);
                 address = addr;
@@ -70,149 +65,129 @@ namespace Drivers
         }
 #endif
     }
-    bool UdpInteractive::Client::isOpened() const
-    {
+
+    bool UdpInteractive::Client::isOpened() const {
         return opened;
     }
-    UdpInteractive::Clients::Clients()
-    {
+
+    UdpInteractive::Clients::Clients() {
     }
-    bool UdpInteractive::Clients::contains(const Client* client) const
-    {
-        for (uint32_t i=0; i<_items.count(); i++)
-        {
-            const Client* item = _items[i];
-            if(item->iface == client->iface)
+
+    bool UdpInteractive::Clients::contains(const Client *client) const {
+        for (uint32_t i = 0; i < _items.count(); i++) {
+            const Client *item = _items[i];
+            if (item->iface == client->iface)
                 return true;
         }
         return false;
     }
-    void UdpInteractive::Clients::add(const Client* client)
-    {
-        if(!contains(client))
+
+    void UdpInteractive::Clients::add(const Client *client) {
+        if (!contains(client))
             _items.add(client);
     }
-    void UdpInteractive::Clients::clear()
-    {
+
+    void UdpInteractive::Clients::clear() {
         _items.clear();
     }
-    size_t UdpInteractive::Clients::count() const
-    {
+
+    size_t UdpInteractive::Clients::count() const {
         return _items.count();
     }
-    UdpInteractive::Client* UdpInteractive::Clients::at(size_t pos) const
-    {
+
+    UdpInteractive::Client *UdpInteractive::Clients::at(size_t pos) const {
         return _items.at(pos);
     }
 
-	UdpInteractive::UdpInteractive(DriverManager* dm, Channel* channel) : Interactive(dm, channel)
-	{
-		if(channel == nullptr)
-			throw ArgumentException("channel");
-		if((UdpChannelContext*)channel->description()->context() == nullptr)
-			throw ArgumentException("channel");
-	}
+    UdpInteractive::UdpInteractive(DriverManager *dm, Channel *channel) : Interactive(dm, channel) {
+        if (channel == nullptr)
+            throw ArgumentException("channel");
+        if ((UdpChannelContext *) channel->description()->context() == nullptr)
+            throw ArgumentException("channel");
+    }
 
-	UdpInteractive::~UdpInteractive()
-	{
-		close();
-	}
+    UdpInteractive::~UdpInteractive() {
+        close();
+    }
 
-	bool UdpInteractive::open()
-	{
-		close();
+    bool UdpInteractive::open() {
+        close();
 
-		UdpChannelContext* ucc = getChannelContext();
+        UdpChannelContext *ucc = getChannelContext();
 #ifdef WIN32
-		Client* client = new Client(ucc->address(), ucc->port(), true);
-		_clients.add(client);
+        Client* client = new Client(ucc->address(), ucc->port(), true);
+        _clients.add(client);
         return client->open(ucc);
 #else
-        if(ucc->address() == "any")
-        {
+        if (ucc->address() == "any") {
             StringArray ifaces;
             NetInterface::getInterfaceNames(ifaces);
-            for(uint32_t i=0;i<ifaces.count();i++)
-            {
+            for (uint32_t i = 0; i < ifaces.count(); i++) {
                 String iface = ifaces[i];
-                if(iface.find("lo") < 0)
-                {
+                if (iface.find("lo") < 0) {
                     Debug::writeFormatLine("interface name: %s", iface.c_str());
                     IPAddress addr;
-                    if(NetInterface::isInterfaceUp(iface))
-                    {
+                    if (NetInterface::isInterfaceUp(iface)) {
                         addr = NetInterface::getIpAddress(iface);
                     }
 
-                    if(!addr.isEmpty())
-                    {
+                    if (!addr.isEmpty()) {
                         Debug::writeFormatLine("open an udp client, iface: %s, addr: %s, port: %d",
                                                iface.c_str(), addr.toString().c_str(), ucc->port());
-                        Client* client = new Client(addr, ucc->port(), iface);
+                        Client *client = new Client(addr, ucc->port(), iface);
                         _clients.add(client);
                         client->open(ucc);
-                    }
-                    else
-                    {
-                        Client* client = new Client(IPAddress::Empty, ucc->port(), iface);
+                    } else {
+                        Client *client = new Client(IPAddress::Empty, ucc->port(), iface);
                         _clients.add(client);
                     }
                 }
             }
             return true;
-        }
-        else
-        {
-            Client* client = new Client(ucc->address(), ucc->port(), true);
+        } else {
+            Client *client = new Client(ucc->address(), ucc->port(), true);
             _clients.add(client);
             return client->open(ucc);
         }
 #endif
-	}
+    }
 
-	void UdpInteractive::close()
-	{
-        for (uint32_t i=0; i<_clients.count(); i++)
-        {
-            Client* client = _clients[i];
-			client->client->close();
+    void UdpInteractive::close() {
+        for (uint32_t i = 0; i < _clients.count(); i++) {
+            Client *client = _clients[i];
+            client->client->close();
         }
         _clients.clear();
-	}
+    }
 
-	bool UdpInteractive::connected()
-	{
-		return _clients.count() > 0;
-	}
-    size_t UdpInteractive::available()
-	{
-		return 0;
-	}
+    bool UdpInteractive::connected() {
+        return _clients.count() > 0;
+    }
 
-	ssize_t UdpInteractive::send(const uint8_t* buffer, off_t offset, size_t count)
-	{
-		ssize_t len = 0;
-		if(connected())
-		{
-            for (size_t i=0; i<_clients.count(); i++)
-            {
-                Client* client = _clients[i];
+    size_t UdpInteractive::available() {
+        return 0;
+    }
+
+    ssize_t UdpInteractive::send(const uint8_t *buffer, off_t offset, size_t count) {
+        ssize_t len = 0;
+        if (connected()) {
+            for (size_t i = 0; i < _clients.count(); i++) {
+                Client *client = _clients[i];
                 ssize_t length = sendInner(client, buffer, offset, count);
-                if(length > 0)
+                if (length > 0)
                     len = length;
             }
-		}
-		return len;
-	}
-    ssize_t UdpInteractive::sendInner(Client* client, const uint8_t* buffer, off_t offset, size_t count)
-    {
+        }
+        return len;
+    }
+
+    ssize_t UdpInteractive::sendInner(Client *client, const uint8_t *buffer, off_t offset, size_t count) {
 #ifdef DEBUG
         Stopwatch sw("socket send", 1000);
 #endif
         ssize_t len = 0;
-        if(connected())
-        {
-            UdpChannelContext* context = getChannelContext();
+        if (connected()) {
+            UdpChannelContext *context = getChannelContext();
             len = client->send(context->port(), buffer + offset, count);
 //#ifdef DEBUG
 //            Debug::writeFormatLine("udp send, len: %d, iface: %s, addr: %s, port: %d", len, client->iface.c_str(), client->address.toString().c_str(), client->port);
@@ -221,8 +196,7 @@ namespace Drivers
         return len;
     }
 
-	ssize_t UdpInteractive::receive(uint8_t* buffer, off_t offset, size_t count)
-	{
-		throw new NotSupportedException("UdpClient can not receive anything.");
-	}
+    ssize_t UdpInteractive::receive(uint8_t *buffer, off_t offset, size_t count) {
+        throw new NotSupportedException("UdpClient can not receive anything.");
+    }
 }

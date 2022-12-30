@@ -14,7 +14,8 @@
 #include "IO/MemoryStream.h"
 #include "data/Culture.h"
 
-using namespace Common;
+using namespace Data;
+using namespace System;
 
 bool testBooleanConstructor() {
     {

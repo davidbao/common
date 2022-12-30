@@ -10,14 +10,14 @@
 #define SHAProvider_h
 
 #include "data/ByteArray.h"
+#include "data/String.h"
 
-namespace Common
-{
-    class SHAProvider
-    {
+using namespace Data;
+
+namespace Crypto {
+    class SHAProvider {
     public:
-        enum KeySize
-        {
+        enum KeySize {
             Key1 = 1,
             Key224 = 2,
             Key256 = 3,
@@ -26,12 +26,15 @@ namespace Common
             Default = Key1
         };
 
-        static bool computeHash(const String& src, ByteArray& output, KeySize size = KeySize::Default);
-        static bool computeHash(const ByteArray& src, ByteArray& output, KeySize size = KeySize::Default);
-        static bool computeHash(const String& src, String& output, KeySize size = KeySize::Default);
-        
+        static bool computeHash(const String &src, ByteArray &output, KeySize size = KeySize::Default);
+
+        static bool computeHash(const ByteArray &src, ByteArray &output, KeySize size = KeySize::Default);
+
+        static bool computeHash(const String &src, String &output, KeySize size = KeySize::Default);
+
     private:
-        static bool computeHash(const uint8_t* src, uint32_t length, ByteArray& output, KeySize size = KeySize::Default);
+        static bool
+        computeHash(const uint8_t *src, uint32_t length, ByteArray &output, KeySize size = KeySize::Default);
     };
 }
 

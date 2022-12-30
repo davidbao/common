@@ -17,7 +17,7 @@
 #include "data/Uuid.h"
 #include "data/StringArray.h"
 
-namespace Common {
+namespace Data {
     class StringMap : public Dictionary<String, String> {
     public:
         class KeyValue {

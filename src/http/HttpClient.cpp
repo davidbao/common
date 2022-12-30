@@ -13,7 +13,9 @@
 #include "system/PoolService.h"
 #include "curl/curl.h"
 
-namespace Common {
+using namespace Diag;
+
+namespace Http {
     class HttpRequestEntry : public IPoolEntry {
     public:
         HttpRequest request;

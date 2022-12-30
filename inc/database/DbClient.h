@@ -13,7 +13,7 @@
 #include "data/ValueType.h"
 #include "DataTable.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Database {
     class DbClient {

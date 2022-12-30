@@ -11,6 +11,8 @@
 #include "system/Math.h"
 #include "data/Convert.h"
 
+using namespace System;
+
 namespace Drawing {
     const SizeF SizeF::Empty;
     const SizeF SizeF::MinValue = SizeF(-FLT_MAX, -FLT_MAX);

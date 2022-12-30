@@ -11,28 +11,23 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-IF(COMMON_BUILD_HTTPCLIENT AND COMMON_BUILD_HTTPSERVER)
-    SET(HTTP_SRC
+set(HTTP_SRC
+        HttpContent.cpp
+        )
+if (COMMON_BUILD_HTTPCLIENT AND COMMON_BUILD_HTTPSERVER)
+    set(HTTP_SRC ${HTTP_SRC}
             HttpClient.cpp
-            HttpContent.cpp
+            HttpServer.cpp
+            )
+elseif (COMMON_BUILD_HTTPCLIENT)
+    set(HTTP_SRC ${HTTP_SRC}
+            HttpClient.cpp
+            )
+elseif (COMMON_BUILD_HTTPSERVER)
+    set(HTTP_SRC ${HTTP_SRC}
             HttpServer.cpp
             )
     add_library(http OBJECT ${HTTP_SRC})
-ELSEIF(COMMON_BUILD_HTTPCLIENT)
-    SET(HTTP_SRC
-            HttpClient.cpp
-            HttpContent.cpp
-            )
-    add_library(http OBJECT ${HTTP_SRC})
-ELSEIF(COMMON_BUILD_HTTPSERVER)
-    SET(HTTP_SRC
-            HttpContent.cpp
-            HttpServer.cpp
-            )
-    add_library(http OBJECT ${HTTP_SRC})
-ELSE()
-    SET(HTTP_SRC
-            HttpContent.cpp
-            )
-    add_library(http OBJECT ${HTTP_SRC})
-ENDIF()
+else ()
+endif ()
+add_library(http OBJECT ${HTTP_SRC})

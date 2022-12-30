@@ -12,7 +12,7 @@
 #include "IO/File.h"
 #include "IO/Directory.h"
 
-using namespace Common;
+using namespace Crypto;
 
 static const String _plainText = "ABC/abc123,)_中文";
 

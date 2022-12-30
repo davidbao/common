@@ -12,7 +12,7 @@
 #include "Application.h"
 #include "data/PositionCoord.h"
 
-namespace Common {
+namespace System {
     class PhoneApplication : public Application {
     public:
         typedef StringMap Arguments;

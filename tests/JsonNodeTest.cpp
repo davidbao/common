@@ -11,7 +11,7 @@
 #include "data/DateTime.h"
 #include "data/Version.h"
 
-using namespace Common;
+using namespace Json;
 
 template<class parseType, class keyType>
 bool testValueConstructor(JsonNode::Type type, const keyType &value) {
@@ -839,24 +839,24 @@ bool testCopyTo() {
             return false;
         }
         int v1;
-        if(!node.getAttribute("test1", v1)) {
+        if (!node.getAttribute("test1", v1)) {
             return false;
         }
-        if(v1 != 1) {
+        if (v1 != 1) {
             return false;
         }
         String v2;
-        if(!node.getAttribute("test2", v2)) {
+        if (!node.getAttribute("test2", v2)) {
             return false;
         }
-        if(v2 != "abc") {
+        if (v2 != "abc") {
             return false;
         }
         bool v3;
-        if(!node.getAttribute("test3", v3)) {
+        if (!node.getAttribute("test3", v3)) {
             return false;
         }
-        if(v3 != true) {
+        if (v3 != true) {
             return false;
         }
     }

@@ -12,7 +12,7 @@
 #include "data/ValueType.h"
 #include "IO/Stream.h"
 
-namespace Common {
+namespace Data {
     const StringArray StringArray::Empty;
 
     StringArray::StringArray(size_t capacity) : SortedVector<String>(capacity) {

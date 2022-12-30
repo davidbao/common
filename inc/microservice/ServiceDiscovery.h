@@ -16,7 +16,7 @@
 #include "microservice/ServiceInstance.h"
 #include "microservice/LoadBalancerClient.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Microservice
 {

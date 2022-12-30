@@ -3,7 +3,9 @@
 
 #include "data/ValueType.h"
 
-namespace Common {
+using namespace Data;
+
+namespace System {
     class Exception : public std::exception {
     public:
         Exception(const String &message, const Exception *innerException = nullptr);

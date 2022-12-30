@@ -9,7 +9,7 @@
 #include "data/Version.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testConstructor() {
     {

@@ -15,7 +15,10 @@
 #include "system/BCDUtilities.h"
 #include "TimeSpanFormat.h"
 
-namespace Common {
+using namespace IO;
+using namespace System;
+
+namespace Data {
     const TimeSpan TimeSpan::MaxValue(LLONG_MAX);
     const TimeSpan TimeSpan::MinValue(LLONG_MIN);
     const TimeSpan TimeSpan::Zero(0);

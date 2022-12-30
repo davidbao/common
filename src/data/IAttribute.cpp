@@ -8,7 +8,7 @@
 
 #include "data/IAttribute.h"
 
-namespace Common {
+namespace Data {
     String IAttributeGetter::getAttribute(const String &name) const {
         String value;
         getAttribute(name, value);

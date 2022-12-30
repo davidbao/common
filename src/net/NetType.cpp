@@ -14,6 +14,8 @@
 #include "data/Convert.h"
 #include "system/Regex.h"
 
+using namespace System;
+
 namespace Net {
     const MacAddress MacAddress::Empty = MacAddress();
 
@@ -1095,7 +1097,7 @@ namespace Net {
 
 #if defined(CC_CLANG) || !defined(CC_GNU) || CC_GNU >= 501
         static const Regex urlRegex(
-                R"(^(http|https|ws|wss|ease.tcp|ease.tcps|mysql|mysqls|mqtt|mqtts|coap)://([a-z|A-Z|0-9|.|_-]+)(:\d*|\S*)([a-zA-Z0-9=\-\.\?\,\'\/\\+&%\$#_]*)$)");
+                R"(^([a-z|A-Z|0-9|.|_-|]+)://([a-z|A-Z|0-9|.|_-]+)(:\d*|\S*)([a-zA-Z0-9=\-\.\?\,\'\/\\+&%\$#_]*)$)");
 //        static const char *fmt = R"(^(%s)://([a-z|A-Z|0-9|.|_-]+)(:\d*|\S*)([a-zA-Z0-9=\-\.\?\,\'\/\\+&%\$#_]*)$)";
 //        static const String pattern = String::format(fmt, Schemes.toString('|').c_str());
 //        static const Regex urlRegex(pattern);

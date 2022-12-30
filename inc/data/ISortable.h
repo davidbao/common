@@ -11,7 +11,7 @@
 
 #include "data/PrimitiveInterface.h"
 
-namespace Common {
+namespace Data {
     // Only use the Quicksort algorithm.
     template<typename T>
     class ISortable {

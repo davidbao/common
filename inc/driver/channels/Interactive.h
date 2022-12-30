@@ -13,7 +13,7 @@
 #include "data/Convert.h"
 #include "exception/Exception.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Net;
 
 namespace Drivers

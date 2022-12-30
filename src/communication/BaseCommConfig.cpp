@@ -4,7 +4,7 @@
 #include "IO/File.h"
 #include "communication/BaseCommConfig.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Communication
 {

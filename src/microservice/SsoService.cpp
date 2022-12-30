@@ -10,6 +10,8 @@
 #include "crypto/SmProvider.h"
 #include "configuration/ConfigService.h"
 
+using namespace Crypto;
+
 namespace Microservice {
     const char *SsoService::AccessTokenId = "accessToken";
     const char *SsoService::Sm2String = "SM2_";

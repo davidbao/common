@@ -9,7 +9,7 @@
 #include "data/Array.h"
 #include "data/String.h"
 
-using namespace Common;
+using namespace Data;
 
 typedef Array<int, 3> Integers;
 

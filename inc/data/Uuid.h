@@ -28,7 +28,7 @@ typedef GUID UUID;
 #include "data/Vector.h"
 #include "data/ValueType.h"
 
-namespace Common {
+namespace Data {
 #ifndef uuid_t
     typedef unsigned char uuid_t[16];
 #endif

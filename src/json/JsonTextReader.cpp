@@ -13,7 +13,10 @@
 #include "data/ValueType.h"
 #include "diag/Trace.h"
 
-namespace Common {
+using namespace Diag;
+using namespace System;
+
+namespace Json {
     JsonTextReader::JsonTextReader() : _iterator(-1) {
     }
 

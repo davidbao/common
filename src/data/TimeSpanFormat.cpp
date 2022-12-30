@@ -10,7 +10,9 @@
 #include "data/StringArray.h"
 #include "system/Math.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
     const String FormatLiterals::FixedNumberFormats[MaxSecondsFractionDigits] = {
             "0",
             "00",

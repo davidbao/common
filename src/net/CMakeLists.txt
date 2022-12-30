@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(NET_SRC
+set(NET_SRC
         Dns.cpp
         EthernetInfo.cpp
         NetInterface.cpp
@@ -24,14 +24,18 @@ SET(NET_SRC
         UdpServer.cpp
         )
 
-IF(COMMON_BUILD_REDISCLIENT)
+if (COMMON_BUILD_REDISCLIENT)
     SET(NET_SRC "${NET_SRC}" RedisClient.cpp)
-ENDIF()
-IF(COMMON_BUILD_MQTTCLIENT)
+endif ()
+if (COMMON_BUILD_MQTTCLIENT)
     SET(NET_SRC "${NET_SRC}" MqttClient.cpp)
-ENDIF()
-IF(COMMON_BUILD_OPCUACLIENT)
+endif ()
+if (COMMON_BUILD_OPCUACLIENT)
     SET(NET_SRC "${NET_SRC}" OpcuaContext.cpp OpcuaClient.cpp)
-ENDIF()
+endif ()
+
+if (NOT WEB_OS)
+    SET(NET_SRC "${NET_SRC}" BluetoothClient.cpp BluetoothServer.cpp)
+endif()
 
 ADD_LIBRARY(net OBJECT ${NET_SRC})

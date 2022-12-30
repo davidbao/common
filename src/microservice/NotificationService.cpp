@@ -10,7 +10,9 @@
 #include "system/ServiceFactory.h"
 #include "configuration/ConfigService.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Diag;
+using namespace Config;
 
 namespace Microservice {
     BaseNotification::BaseNotification(NotificationType type) : _type(type) {

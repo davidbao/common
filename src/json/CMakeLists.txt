@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(JSON_SRC
+set(JSON_SRC
         # json
         JsonNode.cpp
         JsonTextReader.cpp

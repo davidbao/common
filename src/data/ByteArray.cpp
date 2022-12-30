@@ -8,8 +8,11 @@
 
 #include "data/ByteArray.h"
 #include "system/Math.h"
+#include "IO/Stream.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
     const ByteArray ByteArray::Empty;
     const char *ByteArray::HexFormat = "%02X";
     const char *ByteArray::DecFormat = "%02d";

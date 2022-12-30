@@ -10,11 +10,14 @@
 #define ByteArray_h
 
 #include "data/Vector.h"
-#include "data/ValueType.h"
-#include "exception/Exception.h"
-#include "IO/Stream.h"
+#include "data/String.h"
 
-namespace Common {
+namespace IO {
+    class Stream;
+}
+using namespace IO;
+
+namespace Data {
     class ByteArray : public Vector<uint8_t> {
     public:
         explicit ByteArray(size_t capacity = DefaultCapacity);

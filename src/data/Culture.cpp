@@ -11,7 +11,7 @@
 #include "diag/Trace.h"
 #include "data/StringArray.h"
 
-namespace Common {
+namespace Data {
     NumberFormatInfo::NumberFormatInfo() = default;
 
     NumberFormatInfo::~NumberFormatInfo() = default;

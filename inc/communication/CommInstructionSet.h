@@ -12,7 +12,7 @@
 #include "driver/instructions/InstructionSet.h"
 #include "ServerInstruction.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Communication
 {

@@ -12,20 +12,21 @@
 #define REG_NOERROR 0
 #endif
 
-namespace Common
-{
-    class Regex
-    {
+namespace System {
+    class Regex {
     public:
-        Regex(const String& pattern);
+        Regex(const String &pattern);
+
         ~Regex();
-        
-        bool match(const String& input) const;
-        bool match(const String& input, StringArray& groups) const;
-        bool match(const String& input, StringMap& groups) const;
-        
+
+        bool match(const String &input) const;
+
+        bool match(const String &input, StringArray &groups) const;
+
+        bool match(const String &input, StringMap &groups) const;
+
     private:
-        regex* _regex;
+        regex *_regex;
     };
 
 //    class Regex2
@@ -43,11 +44,10 @@ namespace Common
 //        bool _created;
 //        String _pattern;
 //    };
-    
-    class SystemRegex
-    {
+
+    class SystemRegex {
     public:
-        static bool isPhoneNumber(const String& str);
+        static bool isPhoneNumber(const String &str);
     };
 }
 #endif // REGEX_H

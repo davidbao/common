@@ -11,6 +11,8 @@
 #include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
 
+using namespace Config;
+
 namespace Microservice {
     ServiceDiscovery::Item::Item(const String &serviceId, ILoadBalancer *lb) : serviceId(serviceId), lb(lb) {
     }

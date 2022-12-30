@@ -13,7 +13,7 @@
 #include "data/ValueType.h"
 #include "data/PList.h"
 
-namespace Common {
+namespace Data {
     class Convert {
     public:
         static String convertStr(bool value);

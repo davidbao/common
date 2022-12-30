@@ -18,6 +18,9 @@
 #include "configuration/ConfigService.h"
 #include "microservice/SummerApplication.h"
 
+
+using namespace Config;
+
 namespace Microservice {
     DataSourceService::DataSourceService() : _dbClient(nullptr) {
         ServiceFactory *factory = ServiceFactory::instance();

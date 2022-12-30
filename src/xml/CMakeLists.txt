@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(XML_SRC
+set(XML_SRC
         # xml
         XmlAttribute.cpp
         XmlDocument.cpp

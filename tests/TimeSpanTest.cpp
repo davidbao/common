@@ -9,7 +9,7 @@
 #include "data/TimeSpan.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testConstructor() {
     {
@@ -407,28 +407,28 @@ bool testToString() {
     {
         TimeSpan test(1, 2, 3, 4, 5);
         String str = test.toString("c");
-        if(str != "1.02:03:04.0050000") {
+        if (str != "1.02:03:04.0050000") {
             return false;
         }
     }
     {
         TimeSpan test(1, 2, 3, 4);
         String str = test.toString("c");
-        if(str != "1.02:03:04") {
+        if (str != "1.02:03:04") {
             return false;
         }
     }
     {
         TimeSpan test(1, 2, 3);
         String str = test.toString("c");
-        if(str != "01:02:03") {
+        if (str != "01:02:03") {
             return false;
         }
     }
     {
         TimeSpan test(0, 2, 3, 4);
         String str = test.toString("c");
-        if(str != "02:03:04") {
+        if (str != "02:03:04") {
             return false;
         }
     }
@@ -437,7 +437,7 @@ bool testToString() {
     {
         TimeSpan test(1, 2, 3, 4, 5);
         String str = test.toString("g");
-        if(str != "1:2:03:04.005") {
+        if (str != "1:2:03:04.005") {
             return false;
         }
     }
@@ -446,7 +446,7 @@ bool testToString() {
     {
         TimeSpan test(1, 2, 3);
         String str = test.toString("g");
-        if(str != "1:02:03") {
+        if (str != "1:02:03") {
             return false;
         }
     }
@@ -455,7 +455,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("%d");
-        if(str != "6") {
+        if (str != "6") {
             return false;
         }
     }
@@ -463,7 +463,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("ddd");
-        if(str != "006") {
+        if (str != "006") {
             return false;
         }
     }
@@ -471,7 +471,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("dd\\.hh\\:mm");
-        if(str != "06.14:32") {
+        if (str != "06.14:32") {
             return false;
         }
     }
@@ -480,7 +480,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("%h");
-        if(str != "14") {
+        if (str != "14") {
             return false;
         }
     }
@@ -488,7 +488,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("hh\\:mm");
-        if(str != "14:32") {
+        if (str != "14:32") {
             return false;
         }
     }
@@ -496,7 +496,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("hh");
-        if(str != "14") {
+        if (str != "14") {
             return false;
         }
     }
@@ -504,7 +504,7 @@ bool testToString() {
     {
         TimeSpan test(6, 8, 32, 17, 685);
         String str = test.toString("hh");
-        if(str != "08") {
+        if (str != "08") {
             return false;
         }
     }
@@ -513,7 +513,7 @@ bool testToString() {
     {
         TimeSpan test(6, 14, 32, 17, 685);
         String str = test.toString("%m");
-        if(str != "32") {
+        if (str != "32") {
             return false;
         }
     }
@@ -521,7 +521,7 @@ bool testToString() {
     {
         TimeSpan test(6, 8, 32, 17, 685);
         String str = test.toString("h\\:m");
-        if(str != "8:32") {
+        if (str != "8:32") {
             return false;
         }
     }
@@ -529,7 +529,7 @@ bool testToString() {
     {
         TimeSpan test(6, 8, 32, 17, 685);
         String str = test.toString("mm");
-        if(str != "32") {
+        if (str != "32") {
             return false;
         }
     }
@@ -537,7 +537,7 @@ bool testToString() {
     {
         TimeSpan test(6, 8, 32, 17, 685);
         String str = test.toString("d\\.hh\\:mm\\:ss");
-        if(str != "6.08:32:17") {
+        if (str != "6.08:32:17") {
             return false;
         }
     }
@@ -546,7 +546,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(12.965);
         String str = test.toString("%s");
-        if(str != "12") {
+        if (str != "12") {
             return false;
         }
     }
@@ -554,7 +554,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.965);
         String str = test.toString("ss");
-        if(str != "06") {
+        if (str != "06") {
             return false;
         }
     }
@@ -562,7 +562,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.965);
         String str = test.toString("ss\\.fff");
-        if(str != "06.965") {
+        if (str != "06.965") {
             return false;
         }
     }
@@ -571,7 +571,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.895);
         String str = test.toString("%f");
-        if(str != "8") {
+        if (str != "8") {
             return false;
         }
     }
@@ -579,7 +579,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.895);
         String str = test.toString("ff");
-        if(str != "89") {
+        if (str != "89") {
             return false;
         }
     }
@@ -587,7 +587,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.895);
         String str = test.toString("ss\\.ff");
-        if(str != "06.89") {
+        if (str != "06.89") {
             return false;
         }
     }
@@ -595,7 +595,7 @@ bool testToString() {
     {
         TimeSpan test = TimeSpan::fromSeconds(6.895);
         String str = test.toString("fff");
-        if(str != "895") {
+        if (str != "895") {
             return false;
         }
     }
@@ -604,7 +604,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:6.8954321", test);
         String str = test.toString("ffff");
-        if(str != "8954") {
+        if (str != "8954") {
             return false;
         }
     }
@@ -613,7 +613,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:6.8954321", test);
         String str = test.toString("fffff");
-        if(str != "89543") {
+        if (str != "89543") {
             return false;
         }
     }
@@ -622,7 +622,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:6.8954321", test);
         String str = test.toString("ffffff");
-        if(str != "895432") {
+        if (str != "895432") {
             return false;
         }
     }
@@ -631,7 +631,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:6.8954321", test);
         String str = test.toString("fffffff");
-        if(str != "8954321") {
+        if (str != "8954321") {
             return false;
         }
     }
@@ -641,7 +641,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.32", test);
         String str = test.toString("%F");
-        if(str != "3") {
+        if (str != "3") {
             return false;
         }
     }
@@ -650,7 +650,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.091", test);
         String str = test.toString("ss\\.F");
-        if(str != "03.") {
+        if (str != "03.") {
             return false;
         }
     }
@@ -660,7 +660,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.329", test);
         String str = test.toString("FF");
-        if(str != "32") {
+        if (str != "32") {
             return false;
         }
     }
@@ -669,7 +669,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.101", test);
         String str = test.toString("ss\\.FF");
-        if(str != "03.1") {
+        if (str != "03.1") {
             return false;
         }
     }
@@ -679,7 +679,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.3291", test);
         String str = test.toString("FFF");
-        if(str != "329") {
+        if (str != "329") {
             return false;
         }
     }
@@ -688,7 +688,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.1009", test);
         String str = test.toString("ss\\.FFF");
-        if(str != "03.1") {
+        if (str != "03.1") {
             return false;
         }
     }
@@ -698,7 +698,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.32917", test);
         String str = test.toString("FFFF");
-        if(str != "3291") {
+        if (str != "3291") {
             return false;
         }
     }
@@ -707,7 +707,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.10009", test);
         String str = test.toString("ss\\.FFFF");
-        if(str != "03.1") {
+        if (str != "03.1") {
             return false;
         }
     }
@@ -717,7 +717,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.329179", test);
         String str = test.toString("FFFFF");
-        if(str != "32917") {
+        if (str != "32917") {
             return false;
         }
     }
@@ -726,7 +726,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.100009", test);
         String str = test.toString("ss\\.FFFFF");
-        if(str != "03.1") {
+        if (str != "03.1") {
             return false;
         }
     }
@@ -736,7 +736,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.3291791", test);
         String str = test.toString("FFFFFF");
-        if(str != "329179") {
+        if (str != "329179") {
             return false;
         }
     }
@@ -745,7 +745,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.1000009", test);
         String str = test.toString("ss\\.FFFFFF");
-        if(str != "03.1") {
+        if (str != "03.1") {
             return false;
         }
     }
@@ -755,7 +755,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("00:00:06.3291791", test);
         String str = test.toString("FFFFFFF");
-        if(str != "3291791") {
+        if (str != "3291791") {
             return false;
         }
     }
@@ -764,7 +764,7 @@ bool testToString() {
         TimeSpan test;
         TimeSpan::parse("0:0:3.1900000", test);
         String str = test.toString("ss\\.FFFFFFF");
-        if(str != "03.19") {
+        if (str != "03.19") {
             return false;
         }
     }
@@ -773,7 +773,7 @@ bool testToString() {
     {
         TimeSpan test(14, 32, 17);
         String str = test.toString("hh':'mm':'ss");
-        if(str != "14:32:17") {
+        if (str != "14:32:17") {
             return false;
         }
     }
@@ -781,7 +781,7 @@ bool testToString() {
     {
         TimeSpan test(14, 32, 17);
         String str = test.toString("hh\\:mm\\:ss");
-        if(str != "14:32:17") {
+        if (str != "14:32:17") {
             return false;
         }
     }
@@ -789,12 +789,12 @@ bool testToString() {
     return true;
 }
 
-bool parseTimeSpan(const String& intervalStr, const String& expectStr) {
+bool parseTimeSpan(const String &intervalStr, const String &expectStr) {
     TimeSpan intervalVal;
     if (!TimeSpan::parse(intervalStr, intervalVal)) {
         return false;
     }
-    if(intervalVal.toString() != expectStr) {
+    if (intervalVal.toString() != expectStr) {
         return false;
     }
 
@@ -802,76 +802,79 @@ bool parseTimeSpan(const String& intervalStr, const String& expectStr) {
 }
 
 bool testParse() {
-    if(!parseTimeSpan("0","00:00:00")) {
+    if (!parseTimeSpan("0", "00:00:00")) {
         return false;
     }
-    if(!parseTimeSpan("14","14.00:00:00")) {
+    if (!parseTimeSpan("14", "14.00:00:00")) {
         return false;
     }
-    if(!parseTimeSpan("1:2:3","01:02:03")) {
+    if (!parseTimeSpan("1:2:3", "01:02:03")) {
         return false;
     }
-    if(!parseTimeSpan("0:0:0.250","00:00:00.2500000")) {
+    if (!parseTimeSpan("0:0:0.250", "00:00:00.2500000")) {
         return false;
     }
-    if(!parseTimeSpan("10.20:30:40.50","10.20:30:40.5000000")) {
+    if (!parseTimeSpan("10.20:30:40.50", "10.20:30:40.5000000")) {
         return false;
     }
-    if(!parseTimeSpan("99.23:59:59.9999999","99.23:59:59.9999999")) {
+    if (!parseTimeSpan("99.23:59:59.9999999", "99.23:59:59.9999999")) {
         return false;
     }
-    if(!parseTimeSpan("0023:0059:0059.0099","23:59:59.0099000")) {
+    if (!parseTimeSpan("0023:0059:0059.0099", "23:59:59.0099000")) {
         return false;
     }
-    if(!parseTimeSpan("23:0:0","23:00:00")) {
+    if (!parseTimeSpan("23:0:0", "23:00:00")) {
         return false;
     }
-    if(parseTimeSpan("24:0:0","")) {
+    if (parseTimeSpan("24:0:0", "")) {
         return false;
     }
-    if(!parseTimeSpan("0:59:0","00:59:00")) {
+    if (!parseTimeSpan("0:59:0", "00:59:00")) {
         return false;
     }
-    if(parseTimeSpan("0:60:0","")) {
+    if (parseTimeSpan("0:60:0", "")) {
         return false;
     }
-    if(!parseTimeSpan("0:0:59","00:00:59")) {
+    if (!parseTimeSpan("0:0:59", "00:00:59")) {
         return false;
     }
-    if(parseTimeSpan("0:0:60","")) {
+    if (parseTimeSpan("0:0:60", "")) {
         return false;
     }
-    if(parseTimeSpan("10:","")) {
+    if (parseTimeSpan("10:", "")) {
         return false;
     }
-    if(!parseTimeSpan("10:0","10:00:00")) {
+    if (!parseTimeSpan("10:0", "10:00:00")) {
         return false;
     }
-    if(parseTimeSpan(":10","")) {
+    if (parseTimeSpan(":10", "")) {
         return false;
     }
-    if(!parseTimeSpan("0:10","00:10:00")) {
+    if (!parseTimeSpan("0:10", "00:10:00")) {
         return false;
     }
-    if(parseTimeSpan("10:20:","")) {
+    if (parseTimeSpan("10:20:", "")) {
         return false;
     }
-    if(!parseTimeSpan("10:20:0","10:20:00")) {
+    if (!parseTimeSpan("10:20:0", "10:20:00")) {
         return false;
     }
-    if(parseTimeSpan(".123","")) {
+    if (parseTimeSpan(".123", "")) {
         return false;
     }
-    if(!parseTimeSpan("0.12:00","12:00:00")) {
+    if (!parseTimeSpan("0.12:00", "12:00:00")) {
         return false;
     }
-    if(parseTimeSpan("10.","")) {
+    if (parseTimeSpan("10.", "")) {
         return false;
     }
-    if(parseTimeSpan("10.12","")) {
+    if (parseTimeSpan("10.12", "")) {
         return false;
     }
-    if(!parseTimeSpan("10.12:00","10.12:00:00")) {
+    if (!parseTimeSpan("10.12:00", "10.12:00:00")) {
+        return false;
+    }
+    if (!parseTimeSpan("1", "1.00:00:00")) {
         return false;
     }
 

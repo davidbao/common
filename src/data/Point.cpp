@@ -13,6 +13,8 @@
 #include "data/ValueType.h"
 #include "data/Size.h"
 
+using namespace System;
+
 namespace Drawing {
     const PointF PointF::Empty;
     const PointF PointF::MinValue = PointF(-FLT_MAX, -FLT_MAX);

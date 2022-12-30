@@ -8,7 +8,7 @@
 
 #include "data/Variant.h"
 
-namespace Common {
+namespace Data {
     const Variant Variant::NullValue;
 
     Variant::Variant(Type type) : _type(type), _value(), _isNullValue(true) {
@@ -147,58 +147,98 @@ namespace Common {
     }
 
     bool Variant::equals(const Variant &other) const {
-        return equals(type(), value(), other.type(), other.value());
+        return _isNullValue == other._isNullValue &&
+               equals(type(), value(), other.type(), other.value());
     }
 
     bool Variant::equals(const bool &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const int8_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const uint8_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const int16_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const uint16_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const int32_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const uint32_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const int64_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const uint64_t &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const float &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const double &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const char *other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), String(other));
     }
 
     bool Variant::equals(const String &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
@@ -207,10 +247,16 @@ namespace Common {
     }
 
     bool Variant::equals(const TimeSpan &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 
     bool Variant::equals(const ByteArray &other) const {
+        if (_isNullValue) {
+            return false;
+        }
         return equals(type(), value(), other);
     }
 

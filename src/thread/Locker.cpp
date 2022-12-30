@@ -9,7 +9,7 @@
 #include "thread/Locker.h"
 #include "thread/Mutex.h"
 
-namespace Common {
+namespace Threading {
     Locker::Locker(IMutex *mutexp) : _mutex(nullptr) {
         if (mutexp != nullptr) {
             _mutex = mutexp;

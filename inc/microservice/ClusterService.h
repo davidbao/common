@@ -14,8 +14,8 @@
 #include "rpc/RpcServer.h"
 #include "system/ServiceFactory.h"
 
-using namespace Common;
-using namespace rpc;
+using namespace Data;
+using namespace Rpc;
 
 namespace Microservice
 {

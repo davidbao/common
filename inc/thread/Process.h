@@ -6,7 +6,9 @@
 #include "data/TimeSpan.h"
 #include "system/Delegate.h"
 
-namespace Common {
+using namespace System;
+
+namespace Threading {
     class Process;
 
     typedef PList<Process> Processes;

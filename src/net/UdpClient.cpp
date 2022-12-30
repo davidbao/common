@@ -36,7 +36,8 @@
 #define closesocket(a) ::close(a)
 #endif
 
-using namespace Common;
+using namespace Data;
+using namespace Diag;
 
 namespace Net {
     UdpClient::UdpClient() {

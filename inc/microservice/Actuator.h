@@ -12,7 +12,7 @@
 #include "data/ValueType.h"
 #include "microservice/HttpService.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Microservice
 {

@@ -10,34 +10,27 @@
 #include "system/Application.h"
 #include "data/StringArray.h"
 
-namespace Common
-{
-    class DefaultStrings
-    {
+namespace System {
+    class DefaultStrings {
     public:
-        DefaultStrings()
-        {
+        DefaultStrings() {
         }
 
-        virtual ~DefaultStrings()
-        {
+        virtual ~DefaultStrings() {
         }
 
-        String getString(const String& name)
-        {
+        String getString(const String &name) {
             String value;
             _map.at(name, value);
             return value;
         }
 
-        bool findString(const String& name)
-        {
+        bool findString(const String &name) {
             return _map.contains(name);
         }
 
     protected:
-        void add(const StringMap::KeyValue *kvs)
-        {
+        void add(const StringMap::KeyValue *kvs) {
             const StringMap::KeyValue *kv = kvs;
             while (kv != nullptr && !kv->key.isNullOrEmpty()) {
 #ifdef WIN32
@@ -53,11 +46,9 @@ namespace Common
         StringMap _map;
     };
 
-    class DefaultStrings_cn : public DefaultStrings
-    {
+    class DefaultStrings_cn : public DefaultStrings {
     public:
-        DefaultStrings_cn()
-        {
+        DefaultStrings_cn() {
             const StringMap::KeyValue kvs[] = {
                     {"Empty", ""},
                     {"Null", "-"},
@@ -111,63 +102,61 @@ namespace Common
         }
     };
 
-    class DefaultStrings_en : public DefaultStrings
-    {
+    class DefaultStrings_en : public DefaultStrings {
     public:
-        DefaultStrings_en()
-        {
+        DefaultStrings_en() {
             const StringMap::KeyValue kvs[] =
-            {
-                    {"Empty", ""},
-                    {"Null", "-"},
-                    {"Error", "Error"},
-                    {"Warning", "Warning"},
-                    {"Ok", "Ok"},
-                    {"Cancel", "Cancel"},
-                    {"Yes", "Yes"},
-                    {"No", "No"},
-                    {"Prompt", "Prompt"},
+                    {
+                            {"Empty", ""},
+                            {"Null", "-"},
+                            {"Error", "Error"},
+                            {"Warning", "Warning"},
+                            {"Ok", "Ok"},
+                            {"Cancel", "Cancel"},
+                            {"Yes", "Yes"},
+                            {"No", "No"},
+                            {"Prompt", "Prompt"},
 
-                    {"RemoveLogFilesSuccessfully", "Remove log file'%s' successfully!"},
-                    {"FailedToRemoveLogFiles", "Failed to remove log file'%s'!"},
+                            {"RemoveLogFilesSuccessfully", "Remove log file'%s' successfully!"},
+                            {"FailedToRemoveLogFiles", "Failed to remove log file'%s'!"},
 
-                    {"SocketListenFailed", "Failed to listen IP address'%s', port'%d'! The port may be used."},
-                    {"SocketBindingFailed", "Failed to bind IP address'%s', port'%d'! The port may be used."},
-                    {"BluetoothListenFailed", "Failed to listen bluetooth!"},
-                    {"BluetoothBindingFailed", "Failed to bind bluetooth!"},
+                            {"SocketListenFailed", "Failed to listen IP address'%s', port'%d'! The port may be used."},
+                            {"SocketBindingFailed", "Failed to bind IP address'%s', port'%d'! The port may be used."},
+                            {"BluetoothListenFailed", "Failed to listen bluetooth!"},
+                            {"BluetoothBindingFailed", "Failed to bind bluetooth!"},
 
-                    {"UnableToConnectDevice", "Unable to connect the device, name: %s"},
-                    {"DeviceFailure", "The device is failure, name: %s"},
-                    {"RetryingConnectDevice", "Retry to connect the device, name: %s"},
+                            {"UnableToConnectDevice", "Unable to connect the device, name: %s"},
+                            {"DeviceFailure", "The device is failure, name: %s"},
+                            {"RetryingConnectDevice", "Retry to connect the device, name: %s"},
 
-                    {"SocketBindingFailedStr2", "Failed to bind UDP, port'%d'! The port may be used."},
+                            {"SocketBindingFailedStr2", "Failed to bind UDP, port'%d'! The port may be used."},
 
-                    {"NetSendInfo", "send: %s"},
-                    {"NetReceivedInfo", "recv: %s"},
+                            {"NetSendInfo", "send: %s"},
+                            {"NetReceivedInfo", "recv: %s"},
 
-                    {"NetStateChanged", "The server'%s' status changed, from'%s'to'%s'."},
+                            {"NetStateChanged", "The server'%s' status changed, from'%s'to'%s'."},
 
-                    {"CreateTcpChannelInfo", "Create tcp channel: name: %s, IP address: %s, port: %d"},
-                    {"CreateTcpServerChannelInfo",
-                     "Create tcp server channel: name: %s, IP address: %s, port: %d"},
+                            {"CreateTcpChannelInfo", "Create tcp channel: name: %s, IP address: %s, port: %d"},
+                            {"CreateTcpServerChannelInfo",
+                             "Create tcp server channel: name: %s, IP address: %s, port: %d"},
 
-                    {"FailedToSendInstruction", "Failed to send the instruction, name: '%s', exception: %s"},
-                    {"CommunicationException", "Communication exception"},
+                            {"FailedToSendInstruction", "Failed to send the instruction, name: '%s', exception: %s"},
+                            {"CommunicationException", "Communication exception"},
 
-                    {"Yesterday", "Yesterday"},
-                    {"Monday", "Monday"},
-                    {"Tuesday", "Tuesday"},
-                    {"Wednesday", "Wednesday"},
-                    {"Thursday", "Thursday"},
-                    {"Friday", "Friday"},
-                    {"Saturday", "Saturday"},
-                    {"Sunday", "Sunday"},
+                            {"Yesterday", "Yesterday"},
+                            {"Monday", "Monday"},
+                            {"Tuesday", "Tuesday"},
+                            {"Wednesday", "Wednesday"},
+                            {"Thursday", "Thursday"},
+                            {"Friday", "Friday"},
+                            {"Saturday", "Saturday"},
+                            {"Sunday", "Sunday"},
 
-                    {"Year", "Year"},
-                    {"Month", "Month"},
-                    {"Day", "Day"},
-                    nullptr
-            };
+                            {"Year", "Year"},
+                            {"Month", "Month"},
+                            {"Day", "Day"},
+                            nullptr
+                    };
             add(kvs);
         }
     };
@@ -181,13 +170,10 @@ namespace Common
     String Resources::getStaticString(const String &name) {
         const Culture &culture = Application::instance()->culture();
         bool isChinese = culture.isChinese();
-        if(isChinese)
-        {
+        if (isChinese) {
             static DefaultStrings_cn cn;
             return cn.getString(name);
-        }
-        else
-        {
+        } else {
             static DefaultStrings_en en;
             return en.getString(name);
         }

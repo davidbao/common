@@ -15,7 +15,7 @@
 #include "microservice/RestTemplate.h"
 #include "microservice/ServiceInstance.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Microservice
 {

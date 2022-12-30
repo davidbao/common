@@ -43,7 +43,9 @@
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)	/* directory */
 #endif
 
-namespace Common {
+using namespace Diag;
+
+namespace IO {
     bool File::exists(const String &path) {
         if (path.isNullOrEmpty())
             return false;

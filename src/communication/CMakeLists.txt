@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(COMMUNICATION_SRC
+set(COMMUNICATION_SRC
         BaseCommConfig.cpp
         BaseCommContext.cpp
         BaseCommService.cpp

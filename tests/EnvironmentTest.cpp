@@ -9,7 +9,8 @@
 #include "system/Environment.h"
 #include "diag/Trace.h"
 
-using namespace Common;
+using namespace Diag;
+using namespace System;
 
 #ifdef WIN32
 static const char* TestName = "PATHEXT";

@@ -11,27 +11,28 @@
 
 #include "configuration/Configuration.h"
 
-namespace Common
-{
-    class INameContainer
-    {
+namespace System {
+    class INameContainer {
     public:
         INameContainer();
+
         virtual ~INameContainer();
-        
-        virtual bool containName(const String& name) const = 0;
+
+        virtual bool containName(const String &name) const = 0;
     };
-    class NameService
-    {
+
+    class NameService {
     public:
-        static String createNameByType(const INameContainer* container, const String& typeName);
-        static String createNameByName(const INameContainer* container, const String& name);
-        
-        static bool validate(const INameContainer* container, const String& name);
-        static bool validate(const String& name);
-        
+        static String createNameByType(const INameContainer *container, const String &typeName);
+
+        static String createNameByName(const INameContainer *container, const String &name);
+
+        static bool validate(const INameContainer *container, const String &name);
+
+        static bool validate(const String &name);
+
     private:
-        static String createNameInner(const String& name, int index = 1);
+        static String createNameInner(const String &name, int index = 1);
     };
 }
 

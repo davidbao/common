@@ -9,7 +9,7 @@
 #include "crypto/Md5Provider.h"
 #include <openssl/evp.h>
 
-namespace Common {
+namespace Crypto {
     bool Md5Provider::computeHash(const String &data, ByteArray &output) {
         ByteArray array((uint8_t *) data.c_str(), data.length());
         return computeHash(array, output);

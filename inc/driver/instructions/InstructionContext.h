@@ -12,7 +12,8 @@
 #include "exception/Exception.h"
 #include "driver/Context.h"
 
-using namespace Common;
+using namespace Data;
+using namespace System;
 
 namespace Drivers {
     class InstructionContext : public Context {

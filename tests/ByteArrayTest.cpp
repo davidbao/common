@@ -9,7 +9,7 @@
 #include "data/ByteArray.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 #define DefaultCapacity 125
 

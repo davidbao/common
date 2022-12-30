@@ -8,7 +8,7 @@
 
 #include "system/Random.h"
 
-using namespace Common;
+using namespace System;
 
 bool testFloat32_1() {
     float min = 0.0f, max = 100.0f;

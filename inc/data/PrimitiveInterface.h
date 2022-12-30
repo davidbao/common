@@ -11,7 +11,7 @@
 
 #include "system/OsDefine.h"
 
-namespace Common {
+namespace Data {
     template<typename T, typename K = T>
     class IEquatable {
     public:

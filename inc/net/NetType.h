@@ -13,11 +13,10 @@
 #include "net/NetType.h"
 #include "data/ValueType.h"
 
-using namespace Common;
-
-namespace Common {
+namespace Data {
     class StringArray;
 }
+using namespace Data;
 
 namespace Net {
     struct MacAddress : public IEquatable<MacAddress>, public IEvaluation<MacAddress>, public IComparable<MacAddress> {

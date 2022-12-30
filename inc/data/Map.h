@@ -15,7 +15,9 @@
 #include "data/IEnumerable.h"
 #include "data/PrimitiveInterface.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     template<class TKey, class TValue>
     class Map : public PairIterator<TKey, TValue *>, public IMutex {
     public:

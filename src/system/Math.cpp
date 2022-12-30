@@ -8,7 +8,7 @@
 
 #include "system/Math.h"
 
-namespace Common {
+namespace System {
     const double Math::PI = 3.14159265358979323846;
     const double Math::RadianFactor = PI / 180.0;
     const double Math::AngleFactor = 180.0 / PI;

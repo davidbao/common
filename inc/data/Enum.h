@@ -16,10 +16,9 @@
 #include <string>
 #include <vector>
 
-namespace Common
-{
+namespace Data {
 //    DECLARE_ENUM_WITH_TYPE(TestEnumClass, int32_t, ZERO = 0x00, TWO = 0x02, ONE = 0x01, THREE = 0x03, FOUR);
-    
+
 //    TestEnumClass first, second;
 //    first = TestEnumClass::FOUR;
 //    second = TestEnumClass::TWO;
@@ -38,8 +37,8 @@ namespace Common
 //    strThree += second;
 //    std::cout << strThree << std::endl; // TestEnumClass: TWO
 //    std::cout << "Enum count=" << *first << std::endl;
-    
-    #define STRING_REMOVE_CHAR(str, ch) str.erase(std::remove(str.begin(), str.end(), ch), str.end())
+
+#define STRING_REMOVE_CHAR(str, ch) str.erase(std::remove(str.begin(), str.end(), ch), str.end())
 
     std::vector<std::string> splitString(std::string str, char sep = ',') {
         std::vector<std::string> vecString;
@@ -47,15 +46,14 @@ namespace Common
 
         std::stringstream stringStream(str);
 
-        while (std::getline(stringStream, item, sep))
-        {
+        while (std::getline(stringStream, item, sep)) {
             vecString.push_back(item);
         }
 
         return vecString;
     }
 
-    #define DECLARE_ENUM_WITH_TYPE(E, T, ...)                                                                     \
+#define DECLARE_ENUM_WITH_TYPE(E, T, ...)                                                                     \
         enum class E : T                                                                                          \
         {                                                                                                         \
             __VA_ARGS__                                                                                           \
@@ -89,10 +87,10 @@ namespace Common
         }                                                                                                         \
         bool valid##E(T value) { return (E##MapName.find(value) != E##MapName.end()); }
 
-    #define DECLARE_ENUM(E, ...) DECLARE_ENUM_WITH_TYPE(E, int32_t, __VA_ARGS__)
-    template <typename T>
-    std::map<T, std::string> generateEnumMap(std::string strMap)
-    {
+#define DECLARE_ENUM(E, ...) DECLARE_ENUM_WITH_TYPE(E, int32_t, __VA_ARGS__)
+
+    template<typename T>
+    std::map<T, std::string> generateEnumMap(std::string strMap) {
         STRING_REMOVE_CHAR(strMap, ' ');
         STRING_REMOVE_CHAR(strMap, '(');
 
@@ -101,26 +99,19 @@ namespace Common
         T inxMap;
 
         inxMap = 0;
-        for (auto iter = enumTokens.begin(); iter != enumTokens.end(); ++iter)
-        {
+        for (auto iter = enumTokens.begin(); iter != enumTokens.end(); ++iter) {
             // Token: [EnumName | EnumName=EnumValue]
             std::string enumName;
             T enumValue;
-            if (iter->find('=') == std::string::npos)
-            {
+            if (iter->find('=') == std::string::npos) {
                 enumName = *iter;
-            }
-            else
-            {
+            } else {
                 std::vector<std::string> enumNameValue(splitString(*iter, '='));
                 enumName = enumNameValue[0];
                 //inxMap = static_cast<T>(enumNameValue[1]);
-                if (std::is_unsigned<T>::value)
-                {
+                if (std::is_unsigned<T>::value) {
                     inxMap = static_cast<T>(std::stoull(enumNameValue[1], 0, 0));
-                }
-                else
-                {
+                } else {
                     inxMap = static_cast<T>(std::stoll(enumNameValue[1], 0, 0));
                 }
             }

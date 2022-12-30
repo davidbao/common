@@ -12,7 +12,7 @@
 #include <type_traits>
 #include "system/OsDefine.h"
 
-namespace Common {
+namespace Data {
     template<typename T>
     static constexpr bool _isRelocatable() {
 #if defined(CC_CLANG) || !defined(CC_GNU) || CC_GNU >= 501

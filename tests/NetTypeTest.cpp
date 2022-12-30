@@ -1850,7 +1850,10 @@ bool testUrlConstructor() {
     {
         String str = "abc://localhost:8080/";
         Url url(str);
-        if (!url.isEmpty()) {
+        if (url.isEmpty()) {
+            return false;
+        }
+        if (url.scheme() != "abc") {
             return false;
         }
     }
@@ -2092,6 +2095,12 @@ bool testUrlEmpty() {
     }
     {
         Url test("abc://192.167.0.1:8080/test.html");
+        if (test.isEmpty()) {
+            return false;
+        }
+    }
+    {
+        Url test("ab~c://192.167.0.1:8080/test.html");
         if (!test.isEmpty()) {
             return false;
         }
@@ -2238,6 +2247,14 @@ bool testUrlParse() {
 
     {
         String str = "abc://localhost:8080/";
+        Url url;
+        if (!Url::parse(str, url)) {
+            return false;
+        }
+    }
+
+    {
+        String str = "ab@c://localhost:8080/";
         Url url;
         if (Url::parse(str, url)) {
             return false;

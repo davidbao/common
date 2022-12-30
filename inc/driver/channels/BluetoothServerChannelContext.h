@@ -5,7 +5,7 @@
 #include "data/TimeSpan.h"
 #include "BluetoothChannelContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

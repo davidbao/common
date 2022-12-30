@@ -10,6 +10,7 @@
 #define WebApplication_h
 
 #ifdef __EMSCRIPTEN__
+
 #include "data/ValueType.h"
 #include "net/NetType.h"
 #include "data/Dictionary.h"
@@ -19,24 +20,26 @@
 
 using namespace Net;
 
-namespace Common
-{
-	struct InitializeWebApplication;
-    class WebApplication : public Application
-    {
-    public:
-    	typedef StringMap Arguments;
+namespace System {
+    struct InitializeWebApplication;
 
-    	WebApplication(const String& name, int argc = 0, const char * argv[] = nullptr);
+    class WebApplication : public Application {
+    public:
+        typedef StringMap Arguments;
+
+        WebApplication(const String &name, int argc = 0, const char *argv[] = nullptr);
+
         ~WebApplication() override;
-        
-        static WebApplication* instance();
+
+        static WebApplication *instance();
 
         bool useSSL() const;
-        const String& urlStr() const;
+
+        const String &urlStr() const;
+
         const Url url() const;
 
-        const Arguments& arguments() const;
+        const Arguments &arguments() const;
 
         void runLoop() override;
 
@@ -44,7 +47,7 @@ namespace Common
 
         const String name() const override;
 
-        Delegates* exitDelegates();
+        Delegates *exitDelegates();
 
     protected:
         void runLoop(loop_callback callback) override;
@@ -65,9 +68,9 @@ namespace Common
 
     private:
         static String _homePath;
-		static TraceListenerContexts _traceContexts;
+        static TraceListenerContexts _traceContexts;
 
-		static String _url;
+        static String _url;
     };
 }
 #endif

@@ -12,7 +12,7 @@
 #include "data/ValueType.h"
 #include "data/StringMap.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Database {
     class SqlSelectFilter {
@@ -21,11 +21,13 @@ namespace Database {
 
         SqlSelectFilter(int page, int pageSize, std::initializer_list<StringMap::ValueType> list);
 
-        SqlSelectFilter(const SqlSelectFilter& filter);
+        SqlSelectFilter(const SqlSelectFilter &filter);
 
         int offset() const;
 
         int limit() const;
+
+        bool hasLimit() const;
 
         int page() const;
 
@@ -47,6 +49,14 @@ namespace Database {
 
         String getValue(const String &key) const;
 
+        String orderBy() const;
+
+        void setOrderBy(const String &orderBy);
+
+        String toQuerySql(const String &tableName) const;
+
+        String toCountSql(const String &tableName) const;
+
     public:
         static bool parse(const String &str, SqlSelectFilter &filter);
 
@@ -55,8 +65,11 @@ namespace Database {
 
         String toRangeStr(const String &key, const String &keyAlias, bool hasQuotes) const;
 
+        String toSql(const String &tableName, const String &columnStr) const;
+
     private:
         StringMap _values;
+        String _orderBy;
 
         int _page;
         int _pageSize;

@@ -17,7 +17,9 @@
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     template<typename type>
     class LoopVector : public IIndexGetter<const type&>, public IMutex {
     public:

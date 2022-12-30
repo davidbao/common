@@ -417,17 +417,31 @@ namespace Database {
         _totalCount = totalCount >= 0 ? totalCount : 0;
     }
 
-    void DataTable::toJsonNode(JsonNode &node) const {
-        node = JsonNode(JsonNode::TypeArray);
-        for (size_t i = 0; i < rowCount(); i++) {
-            const DataRow &row = rows().at(i);
-            const DataCells &cells = row.cells();
-            JsonNode rowNode;
-            for (size_t j = 0; j < cells.count(); j++) {
-                const DataCell &cell = cells.at(j);
-                rowNode.add(JsonNode(cell.columnName(), !cell.isNullValue() ? cell.valueStr() : String::Empty));
+    void DataTable::toJsonNode(JsonNode &node, const String &format) const {
+        String fmt = format.isNullOrEmpty() ? "g" : format;
+        node = JsonNode(name(), JsonNode::TypeArray);
+        if (String::equals(fmt, "g", true) || String::equals(fmt, "l", true)) {
+            for (size_t i = 0; i < rowCount(); i++) {
+                const DataRow &row = rows().at(i);
+                const DataCells &cells = row.cells();
+                JsonNode rowNode;
+                for (size_t j = 0; j < cells.count(); j++) {
+                    const DataCell &cell = cells.at(j);
+                    rowNode.add(JsonNode(cell.columnName(), !cell.isNullValue() ? cell.valueStr() : String::Empty));
+                }
+                node.add(rowNode);
             }
-            node.add(rowNode);
+        } else if (String::equals(fmt, "s", true)) {
+            for (size_t i = 0; i < rowCount(); i++) {
+                const DataRow &row = rows().at(i);
+                const DataCells &cells = row.cells();
+                StringArray texts;
+                for (size_t j = 0; j < cells.count(); j++) {
+                    const DataCell &cell = cells.at(j);
+                    texts.add(!cell.isNullValue() ? cell.valueStr() : String::Empty);
+                }
+                node.add(JsonNode("row", texts));
+            }
         }
     }
 

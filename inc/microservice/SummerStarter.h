@@ -14,12 +14,15 @@
 #include "diag/Trace.h"
 #include "microservice/SummerApplication.h"
 
-using namespace Common;
+using namespace Data;
+
+namespace Config {
+    class ConfigService;
+}
+using namespace Config;
 
 namespace Microservice {
     class SummerApplication;
-
-    class ConfigService;
 
     class ServiceRegister;
 

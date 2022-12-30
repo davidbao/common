@@ -13,8 +13,12 @@
 #include "data/PrimitiveInterface.h"
 #include "data/String.h"
 
-namespace Common {
+namespace IO {
     class Stream;
+}
+using namespace IO;
+
+namespace Data {
     class NumberFormatInfo;
 
     enum NumberStyles : uint32_t {

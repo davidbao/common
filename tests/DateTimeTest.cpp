@@ -9,7 +9,7 @@
 #include "data/DateTime.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testConstructor() {
     {
@@ -203,7 +203,7 @@ bool testComparison() {
 bool testProperty() {
     {
         DateTime test(2010, 1, 2, 3, 4, 5);
-        if (test.dayOfWeek() != DateTime::Saturday) {
+        if (test.dayOfWeek() != DayOfWeek::Saturday) {
             return false;
         }
     }

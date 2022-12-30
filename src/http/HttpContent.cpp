@@ -11,7 +11,9 @@
 #include <stdarg.h>
 #include "curl/curl.h"
 
-namespace Common {
+using namespace Diag;
+
+namespace Http {
     HttpHeader::HttpHeader(const String &name, const String &value) : name(name), value(value) {
     }
 
@@ -769,8 +771,6 @@ namespace Common {
     }
 
     String HttpProperties::operator[](const String &key) const {
-        std::vector<int> a;
-
         return _values[key];
     }
 

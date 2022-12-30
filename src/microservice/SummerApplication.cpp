@@ -11,7 +11,7 @@
 #include "IO/Directory.h"
 #include "diag/FileTraceListener.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Microservice {
     static const char* __Summer_default_ProdName = "easesuite";

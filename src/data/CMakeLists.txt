@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(DATA_SRC
+set(DATA_SRC
         ByteArray.cpp
         Convert.cpp
         Culture.cpp

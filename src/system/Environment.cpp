@@ -16,12 +16,13 @@ extern char **environ;
 extern char** _environ;
 #endif
 
-namespace Common {
+namespace System {
 #ifndef WIN32
-    char** const Environment::AllEnvironments = environ;
+    char **const Environment::AllEnvironments = environ;
 #else
     char** const Environment::AllEnvironments = _environ;
 #endif
+
     void Environment::getVariables(StringMap &variables) {
 //        static const Regex regex("^(\\S+)=(\\S+)$");
 
@@ -29,7 +30,7 @@ namespace Common {
             const char *env = AllEnvironments[i];
             StringArray texts;
             StringArray::parse(env, texts, '=');
-            if(texts.count() == 2) {
+            if (texts.count() == 2) {
                 String key = texts[0].trim();
                 String value = texts[1].trim();
                 variables.add(key, value);
@@ -51,8 +52,7 @@ namespace Common {
     }
 
     bool Environment::setVariable(const String &name, const String &value, bool overwrite) {
-        if (!overwrite)
-        {
+        if (!overwrite) {
             String v;
             if (getVariable(name, v))
                 return false;

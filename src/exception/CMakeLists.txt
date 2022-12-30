@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(EXCEPTION_SRC
+set(EXCEPTION_SRC
         Exception.cpp
         )
 

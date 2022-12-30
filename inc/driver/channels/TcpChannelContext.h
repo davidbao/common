@@ -6,7 +6,7 @@
 #include "data/TimeSpan.h"
 #include "EthernetContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

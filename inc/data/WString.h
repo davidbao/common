@@ -13,11 +13,14 @@
 #include "data/PrimitiveInterface.h"
 #include <string>
 
+namespace IO {
+    class Stream;
+}
+using namespace IO;
+
 using namespace std;
 
-namespace Common {
-    class Stream;
-
+namespace Data {
     class ByteArray;
 
     class String;

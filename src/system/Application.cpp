@@ -26,9 +26,11 @@
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #elif __APPLE__
+
 #include <sys/param.h>
 #include <unistd.h>
 #include <mach-o/dyld.h>
+
 #else
 #include <sys/vfs.h>
 #include <libgen.h>
@@ -42,7 +44,7 @@
 #endif // __arm_linux__
 #endif
 
-namespace Common {
+namespace System {
     Application *Application::_instance = nullptr;
 
     Application::Application(int argc, const char *argv[],
@@ -97,17 +99,17 @@ namespace Common {
     Application::~Application() {
         _instance = nullptr;
 
-        if (System::isRebooting())
+        if (OS::isRebooting())
             Trace::writeLine("start to reboot.", Trace::Info);
-        else if (System::isPowerOffing())
+        else if (OS::isPowerOffing())
             Trace::writeLine("start to power off.", Trace::Info);
 
         unInitLog();
 
-        if (System::isRebooting())
-            System::reboot();
-        else if (System::isPowerOffing())
-            System::powerOff();
+        if (OS::isRebooting())
+            OS::reboot();
+        else if (OS::isPowerOffing())
+            OS::powerOff();
     }
 
     Application *Application::instance() {
@@ -136,7 +138,7 @@ namespace Common {
 
             String locale = String::format("%s.UTF-8", culture.name().c_str());
             const char *result = setlocale(LC_ALL, locale);
-            if(result != nullptr) {
+            if (result != nullptr) {
                 Trace::info(String::format("The current language is '%s'", culture.name().c_str()));
             }
         }
@@ -256,7 +258,7 @@ namespace Common {
 
     static void Application_forceExitProc(void *state) {
         Trace::info("Force exiting!");
-        System::reboot();
+        OS::reboot();
     }
 
     void Application::exit(int code) {
@@ -435,31 +437,31 @@ namespace Common {
         return filePath;
     }
 
-    System::Actions System::_action = System::None;
+    OS::Actions OS::_action = OS::None;
 
-    System::Actions System::action() {
+    OS::Actions OS::action() {
         return _action;
     }
 
-    void System::postReboot() {
+    void OS::postReboot() {
         _action = Reboot;
         Application::instance()->exit(-1);
     }
 
-    void System::postPowerOff() {
+    void OS::postPowerOff() {
         _action = PowerOff;
         Application::instance()->exit(-1);
     }
 
-    bool System::isRebooting() {
+    bool OS::isRebooting() {
         return _action == Reboot;
     }
 
-    bool System::isPowerOffing() {
+    bool OS::isPowerOffing() {
         return _action == PowerOff;
     }
 
-    void System::reboot() {
+    void OS::reboot() {
 #ifdef __arm_linux__
         sync();    // save all of files.
 //        Thread::msleep(3000);
@@ -474,7 +476,7 @@ namespace Common {
 #endif
     }
 
-    void System::powerOff() {
+    void OS::powerOff() {
 #ifdef __arm_linux__
         sync();    // save all of files.
 //        Thread::msleep(3000);

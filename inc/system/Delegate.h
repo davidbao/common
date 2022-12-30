@@ -12,52 +12,59 @@
 #include "thread/Mutex.h"
 #include "data/PList.h"
 
-namespace Common
-{
-    class EventArgs
-    {
+using namespace Data;
+
+namespace System {
+    class EventArgs {
     public:
         EventArgs();
+
         virtual ~EventArgs();
     };
-    class HandledEventArgs : public EventArgs
-    {
+
+    class HandledEventArgs : public EventArgs {
     public:
         HandledEventArgs(bool handled = false);
-        
+
     public:
         bool handled;
     };
-    
-    typedef void (*EventHandler)(void*, void*, EventArgs*);
+
+    typedef void (*EventHandler)(void *, void *, EventArgs *);
 //    typedef void (*HandledEventHandler)(void*, HandledEventArgs*);
-    
-    class Delegate
-    {
+
+    class Delegate {
     public:
-        Delegate(const Delegate& delegate);
+        Delegate(const Delegate &delegate);
+
         Delegate(EventHandler handler);
-        Delegate(void* owner, EventHandler handler);
-        
-        void invoke(void* sender = nullptr, EventArgs* args = nullptr);
-        
+
+        Delegate(void *owner, EventHandler handler);
+
+        void invoke(void *sender = nullptr, EventArgs *args = nullptr);
+
     public:
         EventHandler handler;
-        void* owner;
+        void *owner;
     };
+
 //    typedef PList<Delegate> Delegates;
-    class Delegates : public PList<Delegate>
-    {
+    class Delegates : public PList<Delegate> {
     public:
         Delegates(bool autoDelete = true, uint32_t capacity = 5);
 
-        void add(const Delegate& delegate);
-        void remove(const Delegate& delegate);
-        void add(void* owner, EventHandler handler);
-        void remove(void* owner, EventHandler handler);
-        void invoke(void* sender = nullptr, EventArgs* args = nullptr);
+        void add(const Delegate &delegate);
+
+        void remove(const Delegate &delegate);
+
+        void add(void *owner, EventHandler handler);
+
+        void remove(void *owner, EventHandler handler);
+
+        void invoke(void *sender = nullptr, EventArgs *args = nullptr);
+
         bool contains(EventHandler handler);
-        
+
     private:
         Mutex _mutex;
     };

@@ -14,6 +14,8 @@
 #include "data/Convert.h"
 #include "oci/oci.h"
 
+using namespace Diag;
+
 namespace Database {
     class InnerColumn {
     public:

@@ -19,7 +19,7 @@
 #include "data/PrimitiveInterface.h"
 #include "driver/instructions/InstructionContext.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Net;
 using namespace Drivers;
 

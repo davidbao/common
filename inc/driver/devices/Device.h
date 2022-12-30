@@ -8,7 +8,7 @@
 #include "driver/instructions/Instruction.h"
 #include "DeviceDescription.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {
@@ -37,8 +37,8 @@ namespace Drivers
             StatusSnap(Status status);
             StatusSnap(Status oldStatus, Status newStatus);
 
-            void write(Common::Stream* stream) const override;
-            void read(Common::Stream* stream) override;
+            void write(Stream* stream) const override;
+            void read(Stream* stream) override;
             void copyFrom(const StatusSnap* status);
 		};
         

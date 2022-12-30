@@ -13,24 +13,16 @@
 #include "TimeSpan.h"
 #include "IO/Stream.h"
 #include "data/ValueType.h"
+#include "data/Culture.h"
 
 using namespace std;
 using namespace std::chrono;
 
-namespace Common {
+namespace Data {
     class DateTimeFormat;
 
     struct DateTime : public IEquatable<DateTime>, public IEvaluation<DateTime>, public IComparable<DateTime> {
     public:
-        enum DayOfWeek {
-            Sunday = 0,
-            Monday = 1,
-            Tuesday = 2,
-            Wednesday = 3,
-            Thursday = 4,
-            Friday = 5,
-            Saturday = 6,
-        };
         enum Kind {
             Unspecified = 0,
             Utc = 1,

@@ -25,7 +25,7 @@
 #include "system/Math.h"
 #include "BaseCommContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Communication
 {

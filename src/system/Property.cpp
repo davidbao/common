@@ -10,147 +10,143 @@
 #include <assert.h>
 #include "data/Convert.h"
 
-namespace Common
-{
-    Property::Value::Value()
-    {
+namespace System {
+    Property::Value::Value() {
     }
-    Property::Value::~Value()
-    {
+
+    Property::Value::~Value() {
     }
-    
+
     Property Property::Empty = Property();
-    Property::Property() : Property(0, String::Empty, Type::Null)
-    {
+
+    Property::Property() : Property(0, String::Empty, Type::Null) {
     }
-    Property::Property(const Property& property)
-    {
+
+    Property::Property(const Property &property) {
         this->operator=(property);
     }
-    Property::Property(uint32_t ownerId, const String& name, Type type, const FixedValue& value) : Property(ownerId, name, type)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, Type type, const FixedValue &value) : Property(ownerId,
+                                                                                                            name,
+                                                                                                            type) {
         setValue(type, value);
     }
-    Property::Property(uint32_t ownerId, const String& name, Type type)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, Type type) {
         this->ownerId = ownerId;
         this->name = name;
         this->type = type;
         this->value.lValue = 0;
     }
-    Property::Property(uint32_t ownerId, const String& name, bool value) : Property(ownerId, name, Type::Digital)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, bool value) : Property(ownerId, name, Type::Digital) {
         this->value.bValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, char value) : Property(ownerId, name, Type::Integer8)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, char value) : Property(ownerId, name, Type::Integer8) {
         this->value.cValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, uint8_t value) : Property(ownerId, name, Type::Integer8)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, uint8_t value) : Property(ownerId, name, Type::Integer8) {
         this->value.cValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, short value) : Property(ownerId, name, Type::Integer16)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, short value) : Property(ownerId, name, Type::Integer16) {
         this->value.sValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, uint16_t value) : Property(ownerId, name, Type::Integer16)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, uint16_t value) : Property(ownerId, name,
+                                                                                        Type::Integer16) {
         this->value.sValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, int value) : Property(ownerId, name, Type::Integer32)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, int value) : Property(ownerId, name, Type::Integer32) {
         this->value.nValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, uint32_t value) : Property(ownerId, name, Type::Integer32)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, uint32_t value) : Property(ownerId, name,
+                                                                                        Type::Integer32) {
         this->value.nValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, int64_t value) : Property(ownerId, name, Type::Integer64)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, int64_t value) : Property(ownerId, name, Type::Integer64) {
         this->value.lValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, uint64_t value) : Property(ownerId, name, Type::Integer64)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, uint64_t value) : Property(ownerId, name,
+                                                                                        Type::Integer64) {
         this->value.tValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, float value) : Property(ownerId, name, Type::Float32)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, float value) : Property(ownerId, name, Type::Float32) {
         this->value.fValue = value;
     }
-    Property::Property(uint32_t ownerId, const String& name, double value) : Property(ownerId, name, Type::Float64)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, double value) : Property(ownerId, name, Type::Float64) {
         this->value.dValue = value;
-    }    
-    Property::Property(uint32_t ownerId, const String& name, const String& value) : Property(ownerId, name, Type::Text)
-    {
+    }
+
+    Property::Property(uint32_t ownerId, const String &name, const String &value) : Property(ownerId, name,
+                                                                                             Type::Text) {
         this->value.strValue = nullptr;
         setStringValue(value, Type::Text, this->value);
     }
-    Property::Property(uint32_t ownerId, const String& name, const DateTime& value) : Property(ownerId, name, Type::Date)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, const DateTime &value) : Property(ownerId, name,
+                                                                                               Type::Date) {
         this->value.tValue = value.ticks();
     }
-    Property::Property(uint32_t ownerId, const String& name, const TimeSpan& value) : Property(ownerId, name, Type::TimeRange)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, const TimeSpan &value) : Property(ownerId, name,
+                                                                                               Type::TimeRange) {
         this->value.tValue = value.ticks();
     }
-    Property::Property(uint32_t ownerId, const String& name, const Value& value) : Property(ownerId, name, Type::Custom)
-    {
+
+    Property::Property(uint32_t ownerId, const String &name, const Value &value) : Property(ownerId, name,
+                                                                                            Type::Custom) {
         this->value.objValue = value.clone();
     }
-    Property::~Property()
-    {
-        if (type == Text)
-        {
+
+    Property::~Property() {
+        if (type == Text) {
             assert(value.strValue);
             delete[] value.strValue;
             value.strValue = nullptr;
-        }
-        else if(type == Custom)
-        {
+        } else if (type == Custom) {
             assert(value.objValue);
             delete value.objValue;
             value.objValue = nullptr;
         }
     }
-    
-    void Property::setValue(Type type, const FixedValue& value)
-    {
+
+    void Property::setValue(Type type, const FixedValue &value) {
         this->type = type;
-        if (type == Text)
-        {
+        if (type == Text) {
             setStringValue(value.strValue, type, this->value);
-        }
-        else if(type == Custom)
-        {
+        } else if (type == Custom) {
             this->value.objValue = value.objValue->clone();
-        }
-        else
-        {
+        } else {
             this->value = value;
         }
     }
-    
-    void Property::operator=(const Property& property)
-    {
+
+    void Property::operator=(const Property &property) {
         this->ownerId = property.ownerId;
         this->name = property.name;
         this->type = property.type;
         this->value.strValue = nullptr;
         this->setValue(property.type, property.value);
     }
-    bool Property::operator==(const Property& property) const
-    {
-        if(this->ownerId != property.ownerId)
+
+    bool Property::operator==(const Property &property) const {
+        if (this->ownerId != property.ownerId)
             return false;
-        if(this->name != property.name)
+        if (this->name != property.name)
             return false;
-        if(this->type != property.type)
+        if (this->type != property.type)
             return false;
-        
-        switch (type)
-        {
+
+        switch (type) {
             case Null:
                 return false;
             case Digital:
@@ -168,9 +164,8 @@ namespace Common
             case Float64:
                 return this->value.dValue == property.value.dValue;
             case Text:
-                if(this->value.strValue == nullptr ||
-                   property.value.strValue == nullptr)
-                {
+                if (this->value.strValue == nullptr ||
+                    property.value.strValue == nullptr) {
                     return false;
                 }
                 return strcmp(this->value.strValue, property.value.strValue) == 0;
@@ -185,40 +180,32 @@ namespace Common
         }
         return false;
     }
-    bool Property::operator!=(const Property& property) const
-    {
+
+    bool Property::operator!=(const Property &property) const {
         return !operator==(property);
     }
-    
-    void Property::setStringValue(const String& str, Type type, FixedValue& value)
-    {
-        if (type == Text)
-        {
-            if (value.strValue != nullptr)
-            {
+
+    void Property::setStringValue(const String &str, Type type, FixedValue &value) {
+        if (type == Text) {
+            if (value.strValue != nullptr) {
                 delete[] value.strValue;
             }
             size_t len = strlen(str);
-            if (len > 0)
-            {
+            if (len > 0) {
                 value.strValue = new char[len + 1];
                 strcpy(value.strValue, str);
-            }
-            else
-            {
+            } else {
                 value.strValue = new char[1];
                 value.strValue[0] = '\0';
             }
         }
     }
-    
-    void Property::write(Stream* stream, bool bigEndian) const
-    {
+
+    void Property::write(Stream *stream, bool bigEndian) const {
         UInt32(this->ownerId).write(stream, bigEndian);
         this->name.write(stream);
         Byte(this->type).write(stream);
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 break;
             case Digital:
@@ -242,8 +229,7 @@ namespace Common
             case Float64:
                 Double(this->value.dValue).write(stream, bigEndian);
                 break;
-            case Text:
-            {
+            case Text: {
                 String str = value.strValue;
                 str.write(stream);
             }
@@ -261,13 +247,12 @@ namespace Common
                 break;
         }
     }
-    void Property::read(Stream* stream, bool bigEndian)
-    {
+
+    void Property::read(Stream *stream, bool bigEndian) {
         this->ownerId = stream->readUInt32(bigEndian);
         this->name.read(stream);
-        this->type = (Type)stream->readByte();
-        switch (type)
-        {
+        this->type = (Type) stream->readByte();
+        switch (type) {
             case Null:
                 break;
             case Digital:
@@ -291,8 +276,7 @@ namespace Common
             case Float64:
                 this->value.dValue = stream->readDouble(bigEndian);
                 break;
-            case Text:
-            {
+            case Text: {
                 String str = stream->readStr();
                 setStringValue(str, type, value);
             }
@@ -310,34 +294,30 @@ namespace Common
                 break;
         }
     }
-    void Property::copyFrom(const Property* property)
-    {
+
+    void Property::copyFrom(const Property *property) {
         this->ownerId = property->ownerId;
         this->name = property->name;
         this->type = property->type;
         this->setValue(property->type, property->value);
     }
-    
-    Property* Property::clone() const
-    {
-        Property* property = new Property();
+
+    Property *Property::clone() const {
+        Property *property = new Property();
         property->copyFrom(this);
         return property;
     }
-    
-    const String Property::toString() const
-    {
+
+    const String Property::toString() const {
         String valueStr;
         toString(type, value, valueStr);
         return String::convert("ownerId: %d, name: %s, type: %s, value: %s",
                                ownerId, name.c_str(), toTypeStr(type).c_str(), valueStr.c_str());
     }
-    
-    bool Property::toString(Type type, const FixedValue& value, String& v)
-    {
+
+    bool Property::toString(Type type, const FixedValue &value, String &v) {
         bool changed = true;
-        switch (type)
-        {
+        switch (type) {
             case Null:
                 changed = false;
                 break;
@@ -365,14 +345,12 @@ namespace Common
             case Text:
                 v = value.strValue;
                 break;
-            case Date:
-            {
+            case Date: {
                 DateTime time(value.tValue);
                 v = time.toString();
                 break;
             }
-            case TimeRange:
-            {
+            case TimeRange: {
                 TimeSpan ts(value.tValue);
                 v = ts.toString();
                 break;
@@ -386,10 +364,9 @@ namespace Common
         }
         return changed;
     }
-    String Property::toTypeStr(Type type)
-    {
-        switch (type)
-        {
+
+    String Property::toTypeStr(Type type) {
+        switch (type) {
             case Null:
                 return "Null";
             case Digital:
@@ -418,145 +395,122 @@ namespace Common
                 return "Null";
         }
     }
-    Property::Type Property::fromTypeStr(const String& str)
-    {
-        if(String::equals(str, "Digital", true) ||
-           String::equals(str, "Boolean", true) ||
-           String::equals(str, "Bit", true))
-        {
+
+    Property::Type Property::fromTypeStr(const String &str) {
+        if (String::equals(str, "Digital", true) ||
+            String::equals(str, "Boolean", true) ||
+            String::equals(str, "Bit", true)) {
             return Type::Digital;
-        }
-        else if(String::equals(str, "Int8", true) ||
-                String::equals(str, "Byte", true) ||
-                String::equals(str, "Integer8", true))
-        {
+        } else if (String::equals(str, "Int8", true) ||
+                   String::equals(str, "Byte", true) ||
+                   String::equals(str, "Integer8", true)) {
             return Type::Integer8;
-        }
-        else if(String::equals(str, "Int16", true) ||
-                String::equals(str, "Short", true) ||
-                String::equals(str, "WORD", true) ||
-                String::equals(str, "Integer16", true))
-        {
+        } else if (String::equals(str, "Int16", true) ||
+                   String::equals(str, "Short", true) ||
+                   String::equals(str, "WORD", true) ||
+                   String::equals(str, "Integer16", true)) {
             return Type::Integer16;
-        }
-        else if(String::equals(str, "Int32", true) ||
-                String::equals(str, "Integer32", true) ||
-                String::equals(str, "DWORD", true) ||
-                String::equals(str, "Integer", true))
-        {
+        } else if (String::equals(str, "Int32", true) ||
+                   String::equals(str, "Integer32", true) ||
+                   String::equals(str, "DWORD", true) ||
+                   String::equals(str, "Integer", true)) {
             return Type::Integer32;
-        }
-        else if(String::equals(str, "Integer64", true))
-        {
+        } else if (String::equals(str, "Integer64", true)) {
             return Type::Integer64;
-        }
-        else if(String::equals(str, "Float32", true) ||
-                String::equals(str, "Single", true) ||
-                String::equals(str, "Float", true))
-        {
+        } else if (String::equals(str, "Float32", true) ||
+                   String::equals(str, "Single", true) ||
+                   String::equals(str, "Float", true)) {
             return Type::Float32;
-        }
-        else if(String::equals(str, "Float64", true) ||
-                String::equals(str, "Double", true))
-        {
+        } else if (String::equals(str, "Float64", true) ||
+                   String::equals(str, "Double", true)) {
             return Type::Float64;
-        }
-        else if(String::equals(str, "Text", true))
-        {
+        } else if (String::equals(str, "Text", true)) {
             return Type::Text;
-        }
-        else if(String::equals(str, "Date", true) ||
-                String::equals(str, "DateTime", true) ||
-                String::equals(str, "Time", true))
-        {
+        } else if (String::equals(str, "Date", true) ||
+                   String::equals(str, "DateTime", true) ||
+                   String::equals(str, "Time", true)) {
             return Type::Date;
-        }
-        else if(String::equals(str, "TimeRange", true) ||
-                String::equals(str, "TimeSpan", true))
-        {
+        } else if (String::equals(str, "TimeRange", true) ||
+                   String::equals(str, "TimeSpan", true)) {
             return Type::TimeRange;
-        }
-        else if(String::equals(str, "Custom", true))
-        {
+        } else if (String::equals(str, "Custom", true)) {
             return Type::Custom;
         }
         return Type::Null;
     }
-    
-    IPropertyChanged::IPropertyChanged()
-    {
+
+    IPropertyChanged::IPropertyChanged() {
     }
-    IPropertyChanged::~IPropertyChanged()
-    {
+
+    IPropertyChanged::~IPropertyChanged() {
     }
-    Delegates* IPropertyChanged::propertyChangedDelegates()
-    {
+
+    Delegates *IPropertyChanged::propertyChangedDelegates() {
         return &_propertyChangedDelegates;
     }
-    void IPropertyChanged::propertyChanged(const Property& property)
-    {
+
+    void IPropertyChanged::propertyChanged(const Property &property) {
         PropertyChangedEventArgs args(property);
         _propertyChangedDelegates.invoke(this, &args);
     }
-    
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, bool value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, bool value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, char value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, char value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint8_t value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, uint8_t value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, short value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, short value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint16_t value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, uint16_t value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, int value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, int value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint32_t value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, uint32_t value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, int64_t value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, int64_t value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, uint64_t value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, uint64_t value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, float value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, float value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, double value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, double value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const String& value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, const String &value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const DateTime& value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, const DateTime &value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const TimeSpan& value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, const TimeSpan &value) {
         propertyChanged(Property(ownerId, propName, value));
     }
-    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String& propName, const Property::Value& value)
-    {
+
+    void IPropertyChanged::propertyChanged(uint32_t ownerId, const String &propName, const Property::Value &value) {
         propertyChanged(Property(ownerId, propName, value));
     }
 }

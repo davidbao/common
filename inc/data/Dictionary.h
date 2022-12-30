@@ -15,7 +15,9 @@
 #include "data/IEnumerable.h"
 #include "data/PrimitiveInterface.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     template<typename TKey, typename TValue>
     class KeyValuePair
             : public IEquatable<KeyValuePair<TKey, TValue>>,
@@ -179,7 +181,7 @@ namespace Common {
         }
 
         inline TValue &operator[](const TKey &key) {
-            return at(key);
+            return _map[key];
         }
 
         inline bool set(const TKey &key, const TValue &value) {

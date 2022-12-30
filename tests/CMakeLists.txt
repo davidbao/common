@@ -47,10 +47,14 @@ if (COMMON_ENABLE_TEST)
             crypto${CMAKE_FIND_LIBRARY_SUFFIXES}
             json${CMAKE_FIND_LIBRARY_SUFFIXES})
 
+    if (COMMON_STATIC_STDLIB)
+        set(EXTERNALS_LIB ${EXTERNALS_LIB} stdc++${CMAKE_FIND_LIBRARY_SUFFIXES})
+    endif()
+
     if (MAC_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv)
     elseif (LINUX_OS)
-        set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid pthread dl)
+        set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid pthread dl rt)
     elseif (ARM_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid${CMAKE_FIND_LIBRARY_SUFFIXES} pthread dl)
     elseif (ANDROID_OS)
@@ -106,7 +110,9 @@ if (COMMON_ENABLE_TEST)
             # system
             RandomTest ResourcesTest EnvironmentTest
             # xml
-            XmlDocumentTest XmlTextReaderTest XmlTextWriterTest)
+            XmlDocumentTest XmlTextReaderTest XmlTextWriterTest
+            # yml
+            YmlNodeTest)
 
     if (${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
         set(TEST_SRC ${TEST_SRC} HttpClientTest)
@@ -131,7 +137,7 @@ if (COMMON_ENABLE_TEST)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation -framework SystemConfiguration")
     endif ()
 
-    set(CMAKE_CXX_FLAGS_TEMP ${CMAKE_CXX_FLAGS})
+#    set(CMAKE_CXX_FLAGS_TEMP ${CMAKE_CXX_FLAGS})
     foreach (item ${TEST_SRC})
         add_executable(${item} ${item}.cpp)
         target_link_libraries(${item} ${COMMON_LIB})

@@ -18,187 +18,208 @@
 #include "communication/BaseCommContext.h"
 #include "rpc/RpcContext.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Communication;
 
-namespace rpc
-{
-    class RpcStreamContext
-    {
+namespace Rpc {
+    class RpcStreamContext {
     public:
         RpcStreamContext();
+
         virtual ~RpcStreamContext();
-        
-        void setStream(Stream* stream)
-        {
+
+        void setStream(Stream *stream) {
             assert(stream);
             _stream = stream;
         }
-        
-        Stream* stream() const
-        {
+
+        Stream *stream() const {
             return _stream;
         }
-        
+
     protected:
-        Stream* _stream;
+        Stream *_stream;
     };
 
-    class RpcHeartbeatRequest
-    {
+    class RpcHeartbeatRequest {
     public:
         RpcHeartbeatRequest();
-        
-        void write(Stream* stream) const;
-        void read(Stream* stream);
-        void copyFrom(const RpcHeartbeatRequest* value);
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
+
+        void copyFrom(const RpcHeartbeatRequest *value);
     };
-    class RpcHeartbeatResponse
-    {
+
+    class RpcHeartbeatResponse {
     public:
         RpcHeartbeatResponse();
-        
-        void write(Stream* stream) const;
-        void read(Stream* stream);
-        void copyFrom(const RpcHeartbeatResponse* value);
-    };
-    class RpcHeartbeatContext : public ElementContext<RpcHeartbeatRequest, RpcHeartbeatResponse>
-    {
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
+
+        void copyFrom(const RpcHeartbeatResponse *value);
     };
 
-    class RpcCloseRequest
-    {
+    class RpcHeartbeatContext : public ElementContext<RpcHeartbeatRequest, RpcHeartbeatResponse> {
+    };
+
+    class RpcCloseRequest {
     public:
         RpcCloseRequest();
-        
-        void write(Stream* stream) const;
-        void read(Stream* stream);
-        void copyFrom(const RpcCloseRequest* value);
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
+
+        void copyFrom(const RpcCloseRequest *value);
     };
-    class RpcCloseResponse
-    {
+
+    class RpcCloseResponse {
     public:
         RpcCloseResponse();
-        
-        void write(Stream* stream) const;
-        void read(Stream* stream);
-        void copyFrom(const RpcCloseResponse* value);
-    };
-    class RpcCloseContext : public ElementContext<RpcCloseRequest, RpcCloseResponse>
-    {
+
+        void write(Stream *stream) const;
+
+        void read(Stream *stream);
+
+        void copyFrom(const RpcCloseResponse *value);
     };
 
-    class RpcSyncRequest
-    {
+    class RpcCloseContext : public ElementContext<RpcCloseRequest, RpcCloseResponse> {
+    };
+
+    class RpcSyncRequest {
     public:
-        RpcSyncRequest(const RpcMethodContext& context = RpcMethodContext::Empty, const IRpcSyncRequestData* data = nullptr);
+        RpcSyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
+                       const IRpcSyncRequestData *data = nullptr);
+
         virtual ~RpcSyncRequest();
-        
-        virtual void write(Stream* stream) const;
-        virtual void read(Stream* stream);
-        virtual void copyFrom(const RpcSyncRequest* value);
-        
-        const RpcMethodContext& methodContext() const;
-        
-        IRpcSyncRequestData* data() const;
-        
+
+        virtual void write(Stream *stream) const;
+
+        virtual void read(Stream *stream);
+
+        virtual void copyFrom(const RpcSyncRequest *value);
+
+        const RpcMethodContext &methodContext() const;
+
+        IRpcSyncRequestData *data() const;
+
     private:
         RpcMethodContext _context;
-        IRpcSyncRequestData* _data;
+        IRpcSyncRequestData *_data;
     };
-    class RpcSyncResponse
-    {
+
+    class RpcSyncResponse {
     public:
-        RpcSyncResponse(const RpcMethodContext& context = RpcMethodContext::Empty, IRpcSyncResponseData* data = nullptr);
+        RpcSyncResponse(const RpcMethodContext &context = RpcMethodContext::Empty,
+                        IRpcSyncResponseData *data = nullptr);
+
         virtual ~RpcSyncResponse();
-        
-        virtual void write(Stream* stream) const;
-        virtual void read(Stream* stream);
-        virtual void copyFrom(const RpcSyncResponse* value);
-        
-        const RpcMethodContext& methodContext() const;
-        
-        IRpcSyncResponseData* data() const;
-        void setData(IRpcSyncResponseData* data);
-        
+
+        virtual void write(Stream *stream) const;
+
+        virtual void read(Stream *stream);
+
+        virtual void copyFrom(const RpcSyncResponse *value);
+
+        const RpcMethodContext &methodContext() const;
+
+        IRpcSyncResponseData *data() const;
+
+        void setData(IRpcSyncResponseData *data);
+
     private:
         RpcMethodContext _context;
-        IRpcSyncResponseData* _data;
-    };
-    class RpcSyncContext : public ElementContext<RpcSyncRequest, RpcSyncResponse>, public RpcStreamContext
-    {
+        IRpcSyncResponseData *_data;
     };
 
-    class RpcAsyncRequest
-    {
+    class RpcSyncContext : public ElementContext<RpcSyncRequest, RpcSyncResponse>, public RpcStreamContext {
+    };
+
+    class RpcAsyncRequest {
     public:
-        RpcAsyncRequest(const RpcMethodContext& context = RpcMethodContext::Empty, const IRpcAsyncRequestData* data = nullptr);
+        RpcAsyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
+                        const IRpcAsyncRequestData *data = nullptr);
+
         virtual ~RpcAsyncRequest();
-        
-        virtual void write(Stream* stream) const;
-        virtual void read(Stream* stream);
-        virtual void copyFrom(const RpcAsyncRequest* value);
-        
-        const RpcMethodContext& methodContext() const;
-        
-        IRpcAsyncRequestData* data() const;
-        
+
+        virtual void write(Stream *stream) const;
+
+        virtual void read(Stream *stream);
+
+        virtual void copyFrom(const RpcAsyncRequest *value);
+
+        const RpcMethodContext &methodContext() const;
+
+        IRpcAsyncRequestData *data() const;
+
         Uuid token() const;
-        
+
     private:
         RpcMethodContext _context;
-        IRpcAsyncRequestData* _data;
+        IRpcAsyncRequestData *_data;
         Uuid _token;
-    };
-    class RpcAsyncResponse
-    {
-    public:
-        RpcAsyncResponse(const RpcMethodContext& context = RpcMethodContext(), const Uuid& token = Uuid::Empty, IRpcAsyncResponseData* data = nullptr);
-        virtual ~RpcAsyncResponse();
-        
-        virtual void write(Stream* stream) const;
-        virtual void read(Stream* stream);
-        virtual void copyFrom(const RpcAsyncResponse* value);
-        
-        const RpcMethodContext& methodContext() const;
-        
-        IRpcAsyncResponseData* data() const;
-        void setData(IRpcAsyncResponseData* data);
-        
-        Uuid token() const;
-        
-    private:
-        RpcMethodContext _context;
-        IRpcAsyncResponseData* _data;
-        Uuid _token;
-    };
-    class RpcAsyncRequestContext : public ElementAContext<RpcAsyncRequest>, public RpcStreamContext
-    {
-    };
-    class RpcAsyncResponseContext : public ElementAContext<RpcAsyncResponse>, public RpcStreamContext
-    {
     };
 
-    class RpcNotifyInfo
-    {
+    class RpcAsyncResponse {
     public:
-        RpcNotifyInfo(const RpcMethodContext& context = RpcMethodContext(), const IRpcNotifyInfo* info = nullptr);
-        virtual ~RpcNotifyInfo();
-        
-        virtual void write(Stream* stream) const;
-        virtual void read(Stream* stream);
-        virtual void copyFrom(const RpcNotifyInfo* value);
-        
-        const RpcMethodContext& methodContext() const;
-        
-        IRpcNotifyInfo* info() const;
-        
+        RpcAsyncResponse(const RpcMethodContext &context = RpcMethodContext(), const Uuid &token = Uuid::Empty,
+                         IRpcAsyncResponseData *data = nullptr);
+
+        virtual ~RpcAsyncResponse();
+
+        virtual void write(Stream *stream) const;
+
+        virtual void read(Stream *stream);
+
+        virtual void copyFrom(const RpcAsyncResponse *value);
+
+        const RpcMethodContext &methodContext() const;
+
+        IRpcAsyncResponseData *data() const;
+
+        void setData(IRpcAsyncResponseData *data);
+
+        Uuid token() const;
+
     private:
         RpcMethodContext _context;
-        IRpcNotifyInfo* _info;
+        IRpcAsyncResponseData *_data;
+        Uuid _token;
     };
-    class RpcNotifyContext : public ElementAContext<RpcNotifyInfo>, public RpcStreamContext
-    {
+
+    class RpcAsyncRequestContext : public ElementAContext<RpcAsyncRequest>, public RpcStreamContext {
+    };
+
+    class RpcAsyncResponseContext : public ElementAContext<RpcAsyncResponse>, public RpcStreamContext {
+    };
+
+    class RpcNotifyInfo {
+    public:
+        RpcNotifyInfo(const RpcMethodContext &context = RpcMethodContext(), const IRpcNotifyInfo *info = nullptr);
+
+        virtual ~RpcNotifyInfo();
+
+        virtual void write(Stream *stream) const;
+
+        virtual void read(Stream *stream);
+
+        virtual void copyFrom(const RpcNotifyInfo *value);
+
+        const RpcMethodContext &methodContext() const;
+
+        IRpcNotifyInfo *info() const;
+
+    private:
+        RpcMethodContext _context;
+        IRpcNotifyInfo *_info;
+    };
+
+    class RpcNotifyContext : public ElementAContext<RpcNotifyInfo>, public RpcStreamContext {
     };
 }
 

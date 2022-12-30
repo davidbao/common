@@ -13,7 +13,7 @@
 #include "IO/FileStream.h"
 #include "data/PList.h"
 
-namespace Common {
+namespace IO {
     class MappingStream : public Stream {
     public:
 #if WIN32

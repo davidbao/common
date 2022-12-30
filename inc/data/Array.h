@@ -14,7 +14,9 @@
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     template<typename type, size_t size>
     class Array : public IEquatable<Array<type, size>>,
                   public Iterator<type>,

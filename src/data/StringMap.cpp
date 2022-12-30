@@ -9,7 +9,7 @@
 #include "data/StringMap.h"
 #include "data/ValueType.h"
 
-namespace Common {
+namespace Data {
     const StringMap StringMap::Empty;
 
     StringMap::StringMap(bool ignoreKeyCase) : _ignoreKeyCase(ignoreKeyCase) {

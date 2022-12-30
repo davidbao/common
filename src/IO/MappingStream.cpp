@@ -9,13 +9,17 @@
 #include "IO/MappingStream.h"
 #include "IO/File.h"
 #include "system/Math.h"
+#include "exception/Exception.h"
 #if WIN32
 #include <Windows.h>
 #else
 #include <sys/mman.h>
 #endif
 
-namespace Common {
+using namespace Diag;
+using namespace System;
+
+namespace IO {
     MappingStream::View::View(ViewMapping mapping, FileAccess access, off_t offset, size_t size) {
         this->_mapping = mapping;
         this->offset = offset;

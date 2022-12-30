@@ -10,8 +10,11 @@
 #define MD5Provider_h
 
 #include "data/ByteArray.h"
+#include "data/String.h"
 
-namespace Common {
+using namespace Data;
+
+namespace Crypto {
     class Md5Provider {
     public:
         static const int Length = 16;

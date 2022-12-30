@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(SYSTEM_SRC
+set(SYSTEM_SRC
         Application.cpp
         BCDUtilities.cpp
         CheckUtilities.cpp
@@ -31,21 +31,21 @@ SET(SYSTEM_SRC
         ServiceFactory.cpp
         )
 
-IF (WIN_OS)
+if (WIN_OS)
     SET(SYSTEM_SRC
             ${SYSTEM_SRC}
             getopt.cpp
             )
-ELSEIF (WEB_OS)
+elseif (WEB_OS)
     SET(SYSTEM_SRC
             ${SYSTEM_SRC}
             WebApplication.cpp
             WebStarter.cpp)
-ELSEIF (ANDROID_OS)
+elseif (ANDROID_OS)
     SET(SYSTEM_SRC
             ${SYSTEM_SRC}
             PhoneApplication.cpp)
-ELSE ()
-ENDIF ()
+else ()
+endif ()
 
 add_library(system OBJECT ${SYSTEM_SRC})

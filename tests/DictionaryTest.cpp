@@ -9,7 +9,7 @@
 #include "data/Dictionary.h"
 #include "data/ValueType.h"
 
-using namespace Common;
+using namespace Data;
 
 class Key : public IEquatable<Key>, public IEquatable<Key, int>, public IEquatable<Key, String>,
             public IComparable<Key>, public IEvaluation<Key> {

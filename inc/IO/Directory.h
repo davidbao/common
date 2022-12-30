@@ -12,7 +12,7 @@
 #include "data/StringArray.h"
 #include "data/ValueType.h"
 
-namespace Common {
+namespace IO {
     enum SearchOption {
         TopDirectoryOnly,
         AllDirectories

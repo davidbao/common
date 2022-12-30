@@ -7,6 +7,7 @@
 #include "IO/File.h"
 #include "thread/Process.h"
 #include "thread/Thread.h"
+
 #ifdef WIN32
 #include <windows.h>
 //#pragma comment (lib, "Advapi32.lib")
@@ -15,6 +16,7 @@
 #include <linux/rtc.h>
 #include <sys/ioctl.h>
 #endif
+
 #include <fcntl.h>
 #include <limits.h>
 #include <unistd.h>
@@ -22,29 +24,31 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <stdlib.h>
+
 #endif
 
-namespace Common
-{
+using namespace Diag;
+
+namespace System {
 #ifdef WIN32
-	void EnableSystemTimePriv()
-	{
-		HANDLE hToken;
-		LUID luid;
-		TOKEN_PRIVILEGES tkp;
+    void EnableSystemTimePriv()
+    {
+        HANDLE hToken;
+        LUID luid;
+        TOKEN_PRIVILEGES tkp;
 
-		OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken );
+        OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken );
 
-		LookupPrivilegeValue( NULL, SE_SYSTEMTIME_NAME, &luid );
+        LookupPrivilegeValue( NULL, SE_SYSTEMTIME_NAME, &luid );
 
-		tkp.PrivilegeCount = 1;
-		tkp.Privileges[0].Luid = luid;
-		tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+        tkp.PrivilegeCount = 1;
+        tkp.Privileges[0].Luid = luid;
+        tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-		AdjustTokenPrivileges( hToken, false, &tkp, sizeof( tkp ), NULL, NULL );
+        AdjustTokenPrivileges( hToken, false, &tkp, sizeof( tkp ), NULL, NULL );
 
-		CloseHandle( hToken ); 
-	}
+        CloseHandle( hToken );
+    }
     void EnableTimeZonePriv()
     {
         HANDLE hToken;
@@ -65,86 +69,84 @@ namespace Common
     }
 #endif
 
-	bool LocalTime::setTime(const time_t& timep)
-	{
+    bool LocalTime::setTime(const time_t &timep) {
 #ifdef WIN32
-		EnableSystemTimePriv();
+        EnableSystemTimePriv();
 
-		struct tm* t = localtime(&timep);
+        struct tm* t = localtime(&timep);
 
-		SYSTEMTIME st;
-		st.wYear = t->tm_year;
-		st.wMonth = t->tm_mon;
-		st.wDay = t->tm_mday;
-		st.wHour = t->tm_hour;
-		st.wMinute = t->tm_min;
-		st.wSecond = t->tm_sec;
-		st.wMilliseconds = 0;
-		return SetLocalTime(&st) ? true : false;
+        SYSTEMTIME st;
+        st.wYear = t->tm_year;
+        st.wMonth = t->tm_mon;
+        st.wDay = t->tm_mday;
+        st.wHour = t->tm_hour;
+        st.wMinute = t->tm_min;
+        st.wSecond = t->tm_sec;
+        st.wMilliseconds = 0;
+        return SetLocalTime(&st) ? true : false;
 #elif __EMSCRIPTEN__
-		// Can not update time by browser.
-		return false;
+        // Can not update time by browser.
+        return false;
 #else
-		struct tm* t = localtime(&timep);
+        struct tm *t = localtime(&timep);
 
-		struct timeval tv;
-		tv.tv_sec = mktime(t);
-		tv.tv_usec = 0;
-		return settimeofday(&tv, NULL) == 0;
+        struct timeval tv;
+        tv.tv_sec = mktime(t);
+        tv.tv_usec = 0;
+        return settimeofday(&tv, NULL) == 0;
 #endif
-	}
-	bool LocalTime::setTime(const DateTime& time, const TimeZone& tz)
-	{
+    }
+
+    bool LocalTime::setTime(const DateTime &time, const TimeZone &tz) {
 #ifdef DEBUG
         Debug::writeFormatLine("LocalTime::setTime, time: %s, time zone: %s",
                                time.toString().c_str(), tz.toString().c_str());
 #endif
-        
+
         LocalTime::setTimeZone(tz);
-        
+
 #ifdef WIN32
-		EnableSystemTimePriv();
+        EnableSystemTimePriv();
         
-		SYSTEMTIME st;
-		st.wYear = time.year();
-		st.wMonth = time.month();
-		st.wDay = time.day();
-		st.wHour = time.hour();
-		st.wMinute = time.minute();
-		st.wSecond = time.second();
-		st.wMilliseconds = time.millisecond();
-		return SetLocalTime(&st) ? true : false;
+        SYSTEMTIME st;
+        st.wYear = time.year();
+        st.wMonth = time.month();
+        st.wDay = time.day();
+        st.wHour = time.hour();
+        st.wMinute = time.minute();
+        st.wSecond = time.second();
+        st.wMilliseconds = time.millisecond();
+        return SetLocalTime(&st) ? true : false;
 #elif __EMSCRIPTEN__
-		// Can not update time by browser.
-		return false;
+        // Can not update time by browser.
+        return false;
 #else
-        const TimeZone& local = tz.isEmpty() ? TimeZone::Local : tz;
+        const TimeZone &local = tz.isEmpty() ? TimeZone::Local : tz;
         static const DateTime startUtc = DateTime(1970, 1, 1, 0, 0, 0, DateTime::Utc);
         static const DateTime startLocal = local.toLocalTime(startUtc);
         DateTime start = time.kind() == DateTime::Kind::Utc ? startUtc : startLocal;
         struct timeval tv;
-        TimeSpan diff = (DateTime)time - start;
-        tv.tv_sec = (time_t)diff.totalSeconds();
+        TimeSpan diff = (DateTime) time - start;
+        tv.tv_sec = (time_t) diff.totalSeconds();
         tv.tv_usec = 0;
-        if(settimeofday(&tv, NULL) != 0)
-        {
+        if (settimeofday(&tv, NULL) != 0) {
             Debug::writeFormatLine("LocalTime::setTime failed, reason: %s", strerror(errno));
             return false;
         }
-        
+
 #if __linux__ && !__ANDROID__
         return hwclock(time.kind() == DateTime::Kind::Utc ? local.toLocalTime(time) : time);
 #endif
         return true;
 #endif
-	}
-    bool LocalTime::setTimeZone(const TimeZone& tz)
-    {
-        if(tz.isEmpty())
+    }
+
+    bool LocalTime::setTimeZone(const TimeZone &tz) {
+        if (tz.isEmpty())
             return false;
-        if(tz == TimeZone::Local)
+        if (tz == TimeZone::Local)
             return false;
-        
+
 #ifdef WIN32
         EnableTimeZonePriv();
         
@@ -158,17 +160,14 @@ namespace Common
         }
 #else
         TimeZone::Type type = tz.type();
-        if(type < TimeZone::Type::Count)
-        {
+        if (type < TimeZone::Type::Count) {
             String zoneFileName = Path::combine("/usr/share/zoneinfo/", TimeZone::FileNames[type]);
             Debug::writeFormatLine("timezone file name: %s", zoneFileName.c_str());
-            if(File::exists(zoneFileName))
-            {
+            if (File::exists(zoneFileName)) {
                 // ln /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
                 Process::start(String("ln"), String::convert("-s -f %s /etc/localtime", zoneFileName.c_str()));
                 Thread::msleep(1000);
-                if(LocalTime::setTime(DateTime::now()))
-                {
+                if (LocalTime::setTime (DateTime::now())) {
                     TimeZone::updateLocal(tz);
                     return true;
                 }
@@ -177,7 +176,7 @@ namespace Common
 #endif
         return false;
     }
-    
+
 #if __linux__ && !__ANDROID__
     bool LocalTime::hwclock(const DateTime& time)
     {

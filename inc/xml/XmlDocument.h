@@ -17,11 +17,13 @@ namespace Xml {
 
     class XmlDocument {
     public:
-        XmlDocument(const String &fileName = String::Empty);
+        XmlDocument();
 
         ~XmlDocument();
 
         bool load(const String &fileName);
+
+        bool loadXml(const String &xml);
 
         bool save(const String &fileName);
 

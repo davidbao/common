@@ -13,7 +13,7 @@
 #include "data/String.h"
 #include "data/PrimitiveInterface.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drawing {
     struct Point;

@@ -3,6 +3,7 @@
 #include "data/ByteArray.h"
 #include "thread/TickTimeout.h"
 #include "IO/IOPort.h"
+
 #if WIN32
 #include <Windows.h>
 #endif
@@ -22,181 +23,160 @@
 #define FIOASYNC _IOW('f',125,u_long)
 #endif
 
-using namespace Common;
+using namespace Diag;
 
-namespace Common
-{
-	IOPort::IOPort(const String& name)
-	{
-		_portName = name;
-		_handle = invalidHandle;
-	}
+namespace IO {
+    IOPort::IOPort(const String &name) {
+        _portName = name;
+        _handle = invalidHandle;
+    }
 
-	IOPort::~IOPort()
-	{
-		close();
-	}
+    IOPort::~IOPort() {
+        close();
+    }
 
-	bool IOPort::open()
-	{
+    bool IOPort::open() {
 #ifdef DEBUG
-		Stopwatch sw(String::convert("IOPort::Open, name: %s", _portName.c_str()), 200);
+        Stopwatch sw(String::convert("IOPort::Open, name: %s", _portName.c_str()), 200);
 #endif
 #ifdef WIN32
-		String portExt = "\\\\.\\";
-		if(_portName.length() > 4)
-		{
-			_portName = portExt + _portName;
-		}
-		if (isOpen())
-		{
-			close();
-		}
-		_handle = CreateFileA(_portName.c_str(), 
-			GENERIC_READ|GENERIC_WRITE,
-			FILE_SHARE_READ|FILE_SHARE_WRITE, 
-			NULL, 
-			OPEN_EXISTING, 
-			0,
-			NULL);
-		if (_handle == INVALID_HANDLE_VALUE)
-		{
-			return false;
-		}
+        String portExt = "\\\\.\\";
+        if(_portName.length() > 4)
+        {
+            _portName = portExt + _portName;
+        }
+        if (isOpen())
+        {
+            close();
+        }
+        _handle = CreateFileA(_portName.c_str(),
+            GENERIC_READ|GENERIC_WRITE,
+            FILE_SHARE_READ|FILE_SHARE_WRITE,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+        if (_handle == INVALID_HANDLE_VALUE)
+        {
+            return false;
+        }
 
-		COMMTIMEOUTS ct;
-		ct.ReadIntervalTimeout = 10;
-		ct.ReadTotalTimeoutConstant = 10;
-		ct.ReadTotalTimeoutMultiplier = 0;
-		ct.WriteTotalTimeoutMultiplier = 10;
-		ct.WriteTotalTimeoutConstant = 3000;
-		SetCommTimeouts(_handle, &ct);
+        COMMTIMEOUTS ct;
+        ct.ReadIntervalTimeout = 10;
+        ct.ReadTotalTimeoutConstant = 10;
+        ct.ReadTotalTimeoutMultiplier = 0;
+        ct.WriteTotalTimeoutMultiplier = 10;
+        ct.WriteTotalTimeoutConstant = 3000;
+        SetCommTimeouts(_handle, &ct);
 #else
-		if (isOpen()) 
-		{
-			close();
-		}
-		/*open the port*/
-		_handle = ::open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
-		if(_handle < 0)
-		{
-			Debug::writeFormatLine("Can not find the comport, name: %s", _portName.c_str());
-			return false;
-		}
+        if (isOpen()) {
+            close();
+        }
+        /*open the port*/
+        _handle = ::open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+        if (_handle < 0) {
+            Debug::writeFormatLine("Can not find the comport, name: %s", _portName.c_str());
+            return false;
+        }
 
-		//struct termios ts;
-		//tcgetattr(_handle, &ts);
-		//ts.c_cc[VTIME] = 150;
-		//ts.c_cc[VMIN] = 1;
-		//tcsetattr(_handle, TCSANOW, &ts);
+        //struct termios ts;
+        //tcgetattr(_handle, &ts);
+        //ts.c_cc[VTIME] = 150;
+        //ts.c_cc[VMIN] = 1;
+        //tcsetattr(_handle, TCSANOW, &ts);
 #endif
-		return true;
-	}
+        return true;
+    }
 
-	void IOPort::close()
-	{
+    void IOPort::close() {
 #ifdef DEBUG
-		Stopwatch sw(String::convert("IOPort::Close, name: %s", _portName.c_str()), 200);
+        Stopwatch sw(String::convert("IOPort::Close, name: %s", _portName.c_str()), 200);
 #endif
-		if (isOpen()) 
-		{
+        if (isOpen()) {
 #if WIN32
-			CloseHandle(_handle);
+            CloseHandle(_handle);
 #else
-			::close(_handle);
+            ::close(_handle);
 #endif
-			_handle = invalidHandle;
-		}
-	}
+            _handle = invalidHandle;
+        }
+    }
 
-    bool IOPort::isOpen() const
-    {
+    bool IOPort::isOpen() const {
         return _handle != invalidHandle;
     }
 
-    const String& IOPort::portName() const
-    {
+    const String &IOPort::portName() const {
         return _portName;
     }
 
-	size_t IOPort::available()
-	{
-		size_t nb = 0;
-		if(isOpen())
-		{
+    size_t IOPort::available() {
+        size_t nb = 0;
+        if (isOpen()) {
 #ifdef WIN32
-			DWORD dwErrorFlags = 0;
-			COMSTAT ComStat;
-			memset(&ComStat, 0, sizeof(ComStat));
-			ClearCommError(_handle, &dwErrorFlags, &ComStat); 
-			nb = ComStat.cbInQue;
+            DWORD dwErrorFlags = 0;
+            COMSTAT ComStat;
+            memset(&ComStat, 0, sizeof(ComStat));
+            ClearCommError(_handle, &dwErrorFlags, &ComStat);
+            nb = ComStat.cbInQue;
 #else
-			//Debug::writeLine("IOPort::available()");
-			ioctl(_handle, FIONREAD, &nb);
+            //Debug::writeLine("IOPort::available()");
+            ioctl(_handle, FIONREAD, &nb);
 #endif
-		}
-		return nb;
-	}
+        }
+        return nb;
+    }
 
-	ssize_t IOPort::write(const char *data, size_t count)
-	{
-		ssize_t len = 0;
-		if(isOpen())
-		{
+    ssize_t IOPort::write(const char *data, size_t count) {
+        ssize_t len = 0;
+        if (isOpen()) {
 #ifdef WIN32
-			LPDWORD length = 0;
-			COMSTAT ComStat;
-			DWORD dwErrorFlags;
-			ClearCommError(_handle,&dwErrorFlags,&ComStat);
-			if (!WriteFile(_handle, (void*)data, (DWORD)count,(LPDWORD) &length, NULL))
-			{
-				length = (LPDWORD)-1;
-			}
-			len = (ssize_t)length;
+            LPDWORD length = 0;
+            COMSTAT ComStat;
+            DWORD dwErrorFlags;
+            ClearCommError(_handle,&dwErrorFlags,&ComStat);
+            if (!WriteFile(_handle, (void*)data, (DWORD)count,(LPDWORD) &length, NULL))
+            {
+                length = (LPDWORD)-1;
+            }
+            len = (ssize_t)length;
 #else
-			len = ::write(_handle, data, count);
+            len = ::write(_handle, data, count);
 #endif
-		}
-		return len;
-	}
+        }
+        return len;
+    }
 
-	ssize_t IOPort::read(char *data, size_t count)
-	{
-		ssize_t len = 0;
-		if(isOpen())
-		{
+    ssize_t IOPort::read(char *data, size_t count) {
+        ssize_t len = 0;
+        if (isOpen()) {
 #ifdef WIN32
-			LPDWORD length=0;
-			if (!ReadFile(_handle, (void*)data, (DWORD)count, (LPDWORD)&length, NULL))
-			{
-				length = (LPDWORD)-1;
-			}
-			len = (ssize_t)length;
+            LPDWORD length=0;
+            if (!ReadFile(_handle, (void*)data, (DWORD)count, (LPDWORD)&length, NULL))
+            {
+                length = (LPDWORD)-1;
+            }
+            len = (ssize_t)length;
 #else
-			len = ::read(_handle, data, count);
+            len = ::read(_handle, data, count);
 #endif
-		}
-		return len;
-	}
+        }
+        return len;
+    }
 
-	ssize_t IOPort::read(char *data, size_t count, uint32_t timeout)
-	{
-		ssize_t len = 0;
-		if(isOpen())
-		{
+    ssize_t IOPort::read(char *data, size_t count, uint32_t timeout) {
+        ssize_t len = 0;
+        if (isOpen()) {
             uint32_t startTime = TickTimeout::getCurrentTickCount();
             uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
-            do
-            {
+            do {
                 size_t available = this->available();
-                if (available >= count)
-                {
+                if (available >= count) {
                     len = count;
                     break;
                 }
 
-                if (TickTimeout::isTimeout(startTime, deadTime))
-                {
+                if (TickTimeout::isTimeout(startTime, deadTime)) {
                     len = available;
                     break;
                 }
@@ -206,79 +186,64 @@ namespace Common
 
             return read(data, len);
         }
-		return len;
-	}
-    
-    ssize_t IOPort::readEndBytes(char *buffer, size_t bufferLength, const char* endBuffer, size_t ebLength, int suffix, uint32_t timeout)
-    {
+        return len;
+    }
+
+    ssize_t IOPort::readEndBytes(char *buffer, size_t bufferLength, const char *endBuffer, size_t ebLength, int suffix,
+                                 uint32_t timeout) {
         ssize_t received = 0;
-        if (isOpen())
-        {
+        if (isOpen()) {
             if (buffer == nullptr || endBuffer == nullptr)
                 return received;
-            
+
             bool bReceiveEndBytes = false;
             int nSuffix = 0, nStartByte = 0;
             uint32_t startTime = TickTimeout::getCurrentTickCount();
             uint32_t deadTime = TickTimeout::getDeadTickCount(startTime, timeout);
-            do
-            {
+            do {
                 if (bReceiveEndBytes && nSuffix >= suffix)
                     break;
-                int nBytesToRead = (int)available();
-                if (nBytesToRead <= 0)
-                {
+                int nBytesToRead = (int) available();
+                if (nBytesToRead <= 0) {
                     Thread::msleep(1);
                     if (TickTimeout::isTimeout(startTime, deadTime))
                         break;
                     continue;
                 }
-                if (received + 1 <= (uint32_t)bufferLength)
-                {
+                if (received + 1 <= (uint32_t) bufferLength) {
                     received += read(buffer + received, 1);
-                }
-                else
-                {
+                } else {
                     return received;
                 }
-                
-                if (!bReceiveEndBytes)
-                {
-                    if (buffer[received - 1] == endBuffer[nStartByte])
-                    {
+
+                if (!bReceiveEndBytes) {
+                    if (buffer[received - 1] == endBuffer[nStartByte]) {
                         nStartByte++;
-                        if (nStartByte == ebLength)
-                        {
+                        if (nStartByte == ebLength) {
                             bReceiveEndBytes = true;
                         }
-                    }
-                    else
-                    {
-                        if (nStartByte == 0)
-                        {
+                    } else {
+                        if (nStartByte == 0) {
                             continue;
                         }
-                        
+
                         nStartByte = 0;
-                        if (buffer[received - 1] == endBuffer[nStartByte])
-                        {
+                        if (buffer[received - 1] == endBuffer[nStartByte]) {
                             nStartByte++;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     nSuffix++;
                 }
-                
+
                 deadTime = TickTimeout::getDeadTickCount(timeout);
             } while (true);
             return received;
         }
         return received;
     }
-    ssize_t IOPort::readLine(char *data, size_t count, uint32_t timeout, const char* newLine)
-    {
+
+    ssize_t IOPort::readLine(char *data, size_t count, uint32_t timeout, const char *newLine) {
         return readEndBytes(data, count, newLine, strlen(newLine), 0, timeout);
     }
 }

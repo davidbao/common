@@ -7,7 +7,9 @@
 #include "exception/Exception.h"
 #include "diag/Trace.h"
 
-namespace Common {
+using namespace Diag;
+
+namespace System {
     Exception::Exception(const String &message, const Exception *innerException) {
         _message = message;
         _innerException = innerException;

@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(DIAG_SRC
+set(DIAG_SRC
         # diag
         FileTraceListener.cpp
         MemoryTraceListener.cpp

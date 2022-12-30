@@ -36,7 +36,9 @@
 
 #endif
 
-namespace Common {
+using namespace Diag;
+
+namespace Threading {
     Process::Process() : Process(-1) {
     }
 

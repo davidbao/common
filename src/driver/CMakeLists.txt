@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(DRIVER_SRC
+set(DRIVER_SRC
         Context.cpp
         DriverDescription.cpp
         DriverManager.cpp
@@ -34,8 +34,8 @@ SET(DRIVER_SRC
         instructions/Instruction.cpp
         )
 
-IF (NOT WEB_OS)
-    SET(DRIVER_SRC
+if (NOT WEB_OS)
+    set(DRIVER_SRC
             ${DRIVER_SRC}
             channels/BluetoothInteractive.cpp
             channels/BluetoothServerClient.cpp
@@ -46,6 +46,6 @@ IF (NOT WEB_OS)
             channels/SerialInteractive.cpp
             channels/SerialServerInteractive.cpp
             )
-ENDIF ()
+endif ()
 
-ADD_LIBRARY(driver OBJECT ${DRIVER_SRC})
+add_library(driver OBJECT ${DRIVER_SRC})

@@ -12,7 +12,8 @@
 #include "system/Math.h"
 #include "driver/DriverManager.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Diag;
 
 namespace Drivers {
     InstructionContext::InstructionContext() {

@@ -14,7 +14,7 @@
 #include "data/DateTime.h"
 #include "data/Culture.h"
 
-namespace Common {
+namespace Data {
     /*
          Customized format patterns:
          P.S. Format in the table below is the number format used to display the pattern.

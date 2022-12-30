@@ -14,7 +14,9 @@
 #include <openssl/bio.h>
 #include <openssl/bn.h>
 
-namespace Common {
+using namespace Diag;
+
+namespace Crypto {
     // openssl genrsa -out rsa_private_key.pem 512, rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem
     // 512
     const char *RSAProvider::DefaultPriKey = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOwIBAAJBAN3R9PYMqXz3B9lx1x18xSuYXtCnhPHlXkSRdQo8m+6IYEttEBz7\nBDbnl3QpdEQiN95lvpiiWD+SXYuOWcKGwcUCAwEAAQJAfaDUqKmhMCpEYs2LtKKe\nlMM2J9xIeiuaiSEMdWDAO4YpLRRqodJhlKJvlX8Uga4aokBG3BB+L+sb0BMjHw0B\ngQIhAPooGY7g7tZVAS1LLsxzXafTHoUgK45+DJbuOxe9DpLhAiEA4wBosBXBNjbK\nIM2KIRF+M/4nVN0QFN6ZRpweWxA/r2UCIQCILCn1f/YjUDSKzmFUQ/yYbbEwcJml\nQHJj+pzKSEzVoQIgWX+8xsgdAHIDqYFAV59dAcTP3w61m3TUO9mrwj2azl0CIQDS\n8wzFdQSxO6Gpdp37mZrQEr0K21fx3xzO4gqAaDW/AA==\n-----END RSA PRIVATE KEY-----\n";
@@ -55,7 +57,8 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPublicKey);
         uint8_t *pEncode = new uint8_t[nLen + 1];
-        int ret = RSA_public_encrypt((int)data.count(), data.data(), (uint8_t *) pEncode, pRSAPublicKey, RSA_PKCS1_PADDING);
+        int ret = RSA_public_encrypt((int) data.count(), data.data(), (uint8_t *) pEncode, pRSAPublicKey,
+                                     RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = ByteArray(pEncode, ret);
         } else {
@@ -97,7 +100,8 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPriKey);
         uint8_t *pDecode = new uint8_t[nLen + 1];
-        int ret = RSA_private_decrypt((int)data.count(), data.data(), (uint8_t *) pDecode, pRSAPriKey, RSA_PKCS1_PADDING);
+        int ret = RSA_private_decrypt((int) data.count(), data.data(), (uint8_t *) pDecode, pRSAPriKey,
+                                      RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = ByteArray(pDecode, ret);
         } else {
@@ -182,7 +186,8 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPublicKey);
         char *pEncode = new char[nLen + 1];
-        int ret = RSA_public_encrypt((int)data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pEncode,
+        int ret = RSA_public_encrypt((int) data.length(), (const unsigned char *) data.c_str(),
+                                     (unsigned char *) pEncode,
                                      pRSAPublicKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = String(pEncode, ret);
@@ -213,7 +218,8 @@ namespace Common {
 
         int nLen = RSA_size(pRSAPriKey);
         char *pDecode = new char[nLen + 1];
-        int ret = RSA_private_decrypt((int)data.length(), (const unsigned char *) data.c_str(), (unsigned char *) pDecode,
+        int ret = RSA_private_decrypt((int) data.length(), (const unsigned char *) data.c_str(),
+                                      (unsigned char *) pDecode,
                                       pRSAPriKey, RSA_PKCS1_PADDING);
         if (ret >= 0) {
             out = String(pDecode, ret);
@@ -236,7 +242,7 @@ namespace Common {
             case KeySize::Key256:
                 return Default256PubKey;
             default:
-                assert(false);
+                return DefaultPubKey;
                 break;
         }
         return nullptr;
@@ -253,7 +259,7 @@ namespace Common {
             case KeySize::Key256:
                 return Default256PriKey;
             default:
-                assert(false);
+                return DefaultPriKey;
                 break;
         }
         return nullptr;

@@ -9,6 +9,5 @@
 #include "data/Enum.h"
 #include "data/ValueType.h"
 
-namespace Common
-{
+namespace Data {
 }

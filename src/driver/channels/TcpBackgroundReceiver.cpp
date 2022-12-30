@@ -10,127 +10,115 @@
 #include "driver/channels/TcpInteractive.h"
 #include "driver/channels/TcpBackgroundReceiver.h"
 
-namespace Drivers
-{
-    TcpBackgroundReceiver::TcpBackgroundReceiver(DriverManager* dm, Channel* channel, TcpClient* client)
-    {
-        if(dm == nullptr)
+using namespace Diag;
+
+namespace Drivers {
+    TcpBackgroundReceiver::TcpBackgroundReceiver(DriverManager *dm, Channel *channel, TcpClient *client) {
+        if (dm == nullptr)
             throw ArgumentNullException("dm");
         if (client == nullptr)
             throw ArgumentNullException("client");
         if (channel == nullptr)
             throw ArgumentNullException("channel");
-        
+
         _client = client;
         _manager = dm;
         _originalDevice = nullptr;
-        
-        _context = dynamic_cast<TcpChannelContext*>(channel->description()->context());
+
+        _context = dynamic_cast<TcpChannelContext *>(channel->description()->context());
         assert(_context);
-        
+
         createDevice(channel);
     }
-    TcpBackgroundReceiver::~TcpBackgroundReceiver()
-    {
-        if(_originalDevice != nullptr)
-        {
+
+    TcpBackgroundReceiver::~TcpBackgroundReceiver() {
+        if (_originalDevice != nullptr) {
             _originalDevice->removeReceiveDevice(_device);
             _originalDevice = nullptr;
         }
-        
-        if (_channel != nullptr)
-        {
+
+        if (_channel != nullptr) {
             delete _channel;
             _channel = nullptr;
         }
-        if (_device != nullptr)
-        {
+        if (_device != nullptr) {
             delete _device;
             _device = nullptr;
         }
-        if (_dd != nullptr)
-        {
+        if (_dd != nullptr) {
             delete _dd;
             _dd = nullptr;
         }
-        if(_client != nullptr)
-        {
+        if (_client != nullptr) {
             _client = nullptr;
         }
     }
 
-    size_t TcpBackgroundReceiver::available()
-    {
+    size_t TcpBackgroundReceiver::available() {
         return _client != nullptr ? _client->available() : 0;
     }
-    bool TcpBackgroundReceiver::connected() const
-    {
+
+    bool TcpBackgroundReceiver::connected() const {
         return _client != nullptr ? _client->connected() : false;
     }
-    
-    TcpClient* TcpBackgroundReceiver::tcpClient() const
-    {
+
+    TcpClient *TcpBackgroundReceiver::tcpClient() const {
         return _client;
     }
-    const Endpoint& TcpBackgroundReceiver::peerEndpoint() const
-    {
+
+    const Endpoint &TcpBackgroundReceiver::peerEndpoint() const {
         return _client->peerEndpoint();
     }
-    const Endpoint& TcpBackgroundReceiver::endpoint() const
-    {
+
+    const Endpoint &TcpBackgroundReceiver::endpoint() const {
         return _client->endpoint();
     }
-    int TcpBackgroundReceiver::socketId() const
-    {
+
+    int TcpBackgroundReceiver::socketId() const {
         return _client->socketId();
     }
-    
-    Device* TcpBackgroundReceiver::device() const
-    {
+
+    Device *TcpBackgroundReceiver::device() const {
         return _device;
     }
-    
-    Channel* TcpBackgroundReceiver::channel() const
-    {
+
+    Channel *TcpBackgroundReceiver::channel() const {
         return _channel;
     }
 
-    const TcpChannelContext* TcpBackgroundReceiver::context() const
-    {
+    const TcpChannelContext *TcpBackgroundReceiver::context() const {
         return _context;
     }
 
-    DriverManager* TcpBackgroundReceiver::manager()
-    {
+    DriverManager *TcpBackgroundReceiver::manager() {
         return _manager;
     }
-    
-    void TcpBackgroundReceiver::createDevice(const Channel* channel)
-    {
-        DriverManager* dm = manager();
+
+    void TcpBackgroundReceiver::createDevice(const Channel *channel) {
+        DriverManager *dm = manager();
         assert(dm);
-        Device* device = dm->getDevice(channel);
+        Device *device = dm->getDevice(channel);
         assert(device);
         _originalDevice = device;
-        
+
         String channelName = String::convert("%s_%s:%d",
                                              channel->name().c_str(),
                                              _client->peerEndpoint().address.c_str(),
                                              _client->peerEndpoint().port);
-        ChannelDescription* cd = new ChannelDescription(channelName, channel->description()->clientInteractiveName());
+        ChannelDescription *cd = new ChannelDescription(channelName, channel->description()->clientInteractiveName());
 //        cd->context()->setReopened(false);
-        TcpChannelContext* tc = dynamic_cast<TcpChannelContext*>(cd->context());
+        TcpChannelContext *tc = dynamic_cast<TcpChannelContext *>(cd->context());
         tc->copyFrom(_context);
         _channel = new Channel(dm, cd);
-        TcpInteractive* ti = dynamic_cast<TcpInteractive*>(_channel->interactive());
+        TcpInteractive *ti = dynamic_cast<TcpInteractive *>(_channel->interactive());
         assert(ti);
         ti->updateTcpClient(_client);
-        
+
         String deviceName = String::convert("%s_%s:%d",
                                             device->name().c_str(),
                                             _client->peerEndpoint().address.c_str(),
                                             _client->peerEndpoint().port);
-        DeviceDescription* dd = new DeviceDescription(deviceName.c_str(), cd,
+        DeviceDescription *dd = new DeviceDescription(deviceName.c_str(), cd,
                                                       device->instructionSet()->clone(),
                                                       device->description()->context()->clone());
         _dd = dd;
@@ -138,41 +126,37 @@ namespace Drivers
         device->addReceiveDevice(_device);
     }
 
-    void TcpBackgroundReceiver::start()
-    {
+    void TcpBackgroundReceiver::start() {
     }
-    void TcpBackgroundReceiver::stop()
-    {
+
+    void TcpBackgroundReceiver::stop() {
     }
-    bool TcpBackgroundReceiver::processBuffer(const ByteArray& buffer)
-    {
+
+    bool TcpBackgroundReceiver::processBuffer(const ByteArray &buffer) {
         return false;
     }
 
-    TcpAsyncReceiver::TcpAsyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpBackgroundReceiver(dm, channel, client), _receiveThread(nullptr)
-    {
+    TcpAsyncReceiver::TcpAsyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client) : TcpBackgroundReceiver(
+            dm, channel, client), _receiveThread(nullptr) {
     }
-    TcpAsyncReceiver::~TcpAsyncReceiver()
-    {
+
+    TcpAsyncReceiver::~TcpAsyncReceiver() {
         stopInner();
     }
 
-    void TcpAsyncReceiver::start()
-    {
-        if(_receiveThread == nullptr)
-        {
+    void TcpAsyncReceiver::start() {
+        if (_receiveThread == nullptr) {
             _receiveThread = new Thread("Tcp_receiveProc");
             _receiveThread->startProc(tcp_receiveProc, this, 1);
         }
     }
-    void TcpAsyncReceiver::stop()
-    {
+
+    void TcpAsyncReceiver::stop() {
         stopInner();
     }
-    void TcpAsyncReceiver::stopInner()
-    {
-        if (_receiveThread != nullptr)
-        {
+
+    void TcpAsyncReceiver::stopInner() {
+        if (_receiveThread != nullptr) {
             uint32_t timeout = _dd->receiveDelay();
             _receiveThread->stop(TimeSpan::fromSeconds(timeout));
             delete _receiveThread;
@@ -180,24 +164,20 @@ namespace Drivers
         }
     }
 
-    void TcpAsyncReceiver::receiveProcInner()
-    {
+    void TcpAsyncReceiver::receiveProcInner() {
 //#ifdef DEBUG
 //        Stopwatch sw(1000);
 //#endif
-        try
-        {
-            if (connected() && available() > 0)
-            {
+        try {
+            if (connected() && available() > 0) {
                 receiveFromBuffer(_device);
             }
         }
-        catch (const exception& e)
-        {
+        catch (const exception &e) {
             String str = String::convert("TcpBackgroundReceiver::receiveProcInner error'%s'", e.what());
             Trace::writeLine(str, Trace::Error);
         }
-        
+
 //#ifdef DEBUG
 //        if(sw.elapsed() > sw.dateTime())
 //        {
@@ -208,175 +188,165 @@ namespace Drivers
 //#endif
     }
 
-    void TcpAsyncReceiver::tcp_receiveProc(void* parameter)
-    {
-        TcpAsyncReceiver* ti = (TcpAsyncReceiver*)parameter;
+    void TcpAsyncReceiver::tcp_receiveProc(void *parameter) {
+        TcpAsyncReceiver *ti = (TcpAsyncReceiver *) parameter;
         assert(ti);
         ti->receiveProcInner();
     }
 
-    TcpSyncReceiver::TcpSyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpBackgroundReceiver(dm, channel, client)
-    {
-    }
-    TcpSyncReceiver::~TcpSyncReceiver()
-    {
+    TcpSyncReceiver::TcpSyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client) : TcpBackgroundReceiver(dm,
+                                                                                                                     channel,
+                                                                                                                     client) {
     }
 
-    bool TcpSyncReceiver::processBuffer(const ByteArray& buffer)
-    {
+    TcpSyncReceiver::~TcpSyncReceiver() {
+    }
+
+    bool TcpSyncReceiver::processBuffer(const ByteArray &buffer) {
 #ifdef DEBUG
         Stopwatch sw("multiplexing.TcpSyncReceiver::processBuffer", 1000);
 #endif
-        if(connected() && buffer.count() > 0)
-        {
+        if (connected() && buffer.count() > 0) {
             return _device->executeInstruction(buffer);
         }
         return false;
     }
 
-    TcpClientAsyncReceiver::TcpClientAsyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpAsyncReceiver(dm, channel, client)
-    {
-    }
-    TcpClientAsyncReceiver::~TcpClientAsyncReceiver()
-    {
+    TcpClientAsyncReceiver::TcpClientAsyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client)
+            : TcpAsyncReceiver(dm, channel, client) {
     }
 
-    TcpClientSyncReceiver::TcpClientSyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpSyncReceiver(dm, channel, client)
-    {
+    TcpClientAsyncReceiver::~TcpClientAsyncReceiver() {
     }
-    TcpClientSyncReceiver::~TcpClientSyncReceiver()
-    {
+
+    TcpClientSyncReceiver::TcpClientSyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client)
+            : TcpSyncReceiver(dm, channel, client) {
     }
-    bool TcpClientSyncReceiver::processBuffer(const ByteArray& buffer)
-    {
-        if(buffer.count() > 0)
+
+    TcpClientSyncReceiver::~TcpClientSyncReceiver() {
+    }
+
+    bool TcpClientSyncReceiver::processBuffer(const ByteArray &buffer) {
+        if (buffer.count() > 0)
             _startTime = TickTimeout::getCurrentTickCount();
-        
+
         return TcpSyncReceiver::processBuffer(buffer);
     }
-    bool TcpClientSyncReceiver::isTimeout() const
-    {
-        const TimeSpan& closeTimeout = _context->closeTimeout();
+
+    bool TcpClientSyncReceiver::isTimeout() const {
+        const TimeSpan &closeTimeout = _context->closeTimeout();
         if (TickTimeout::isTimeout(_startTime, closeTimeout))
             return true;
         return false;
     }
-    void TcpClientSyncReceiver::start()
-    {
+
+    void TcpClientSyncReceiver::start() {
         _startTime = TickTimeout::getCurrentTickCount();
     }
-    void TcpClientSyncReceiver::stop()
-    {
+
+    void TcpClientSyncReceiver::stop() {
     }
-    bool TcpClientSyncReceiver::connected() const
-    {
-        if(_channel->interactive()->isClosing())
-        {
+
+    bool TcpClientSyncReceiver::connected() const {
+        if (_channel->interactive()->isClosing()) {
             return false;
         }
-        
-        if(isTimeout())
-        {
+
+        if (isTimeout()) {
             return false;
         }
-        
+
         return TcpSyncReceiver::connected();
     }
 
-    TcpServerAsyncReceiver::TcpServerAsyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpAsyncReceiver(dm, channel, client), _startTime(0)
-    {
-    }
-    TcpServerAsyncReceiver::~TcpServerAsyncReceiver()
-    {
+    TcpServerAsyncReceiver::TcpServerAsyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client)
+            : TcpAsyncReceiver(dm, channel, client), _startTime(0) {
     }
 
-    void TcpServerAsyncReceiver::start()
-    {
+    TcpServerAsyncReceiver::~TcpServerAsyncReceiver() {
+    }
+
+    void TcpServerAsyncReceiver::start() {
         _startTime = TickTimeout::getCurrentTickCount();
-        
+
         TcpAsyncReceiver::start();
     }
-    void TcpServerAsyncReceiver::stop()
-    {
+
+    void TcpServerAsyncReceiver::stop() {
         TcpAsyncReceiver::stop();
     }
-    size_t TcpServerAsyncReceiver::available()
-    {
+
+    size_t TcpServerAsyncReceiver::available() {
         size_t result = TcpAsyncReceiver::available();
-        if (result > 0)
-        {
+        if (result > 0) {
             _startTime = TickTimeout::getCurrentTickCount();
         }
         return result;
     }
-    bool TcpServerAsyncReceiver::isTimeout() const
-    {
-        const TimeSpan& closeTimeout = _context->closeTimeout();
+
+    bool TcpServerAsyncReceiver::isTimeout() const {
+        const TimeSpan &closeTimeout = _context->closeTimeout();
         if (TickTimeout::isTimeout(_startTime, closeTimeout))
             return true;
         return false;
     }
-    bool TcpServerAsyncReceiver::connected() const
-    {
-        if(_channel->interactive()->isClosing())
-        {
+
+    bool TcpServerAsyncReceiver::connected() const {
+        if (_channel->interactive()->isClosing()) {
             return false;
         }
-        
-        if(isTimeout())
-        {
+
+        if (isTimeout()) {
             return false;
         }
-        
+
         return TcpAsyncReceiver::connected();
     }
 
-    TcpServerSyncReceiver::TcpServerSyncReceiver(DriverManager* dm, Channel* channel, TcpClient* client) : TcpSyncReceiver(dm, channel, client), _startTime(0)
-    {
+    TcpServerSyncReceiver::TcpServerSyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client)
+            : TcpSyncReceiver(dm, channel, client), _startTime(0) {
     }
-    TcpServerSyncReceiver::~TcpServerSyncReceiver()
-    {
+
+    TcpServerSyncReceiver::~TcpServerSyncReceiver() {
     }
-    bool TcpServerSyncReceiver::processBuffer(const ByteArray& buffer)
-    {
-        if(buffer.count() > 0)
+
+    bool TcpServerSyncReceiver::processBuffer(const ByteArray &buffer) {
+        if (buffer.count() > 0)
             _startTime = TickTimeout::getCurrentTickCount();
-        
+
         return TcpSyncReceiver::processBuffer(buffer);
     }
-    bool TcpServerSyncReceiver::isTimeout() const
-    {
-        const TimeSpan& closeTimeout = _context->closeTimeout();
+
+    bool TcpServerSyncReceiver::isTimeout() const {
+        const TimeSpan &closeTimeout = _context->closeTimeout();
         if (TickTimeout::isTimeout(_startTime, closeTimeout))
             return true;
         return false;
     }
-    void TcpServerSyncReceiver::start()
-    {
+
+    void TcpServerSyncReceiver::start() {
         _startTime = TickTimeout::getCurrentTickCount();
     }
-    void TcpServerSyncReceiver::stop()
-    {
+
+    void TcpServerSyncReceiver::stop() {
     }
-    bool TcpServerSyncReceiver::connected() const
-    {
-        if(_channel->interactive()->isClosing())
-        {
+
+    bool TcpServerSyncReceiver::connected() const {
+        if (_channel->interactive()->isClosing()) {
 #ifdef DEBUG
             Debug::writeLine("The server sync receiver is closing!");
 #endif
             return false;
         }
-        
-        if(isTimeout())
-        {
+
+        if (isTimeout()) {
 #ifdef DEBUG
-            const TimeSpan& closeTimeout = _context->closeTimeout();
+            const TimeSpan &closeTimeout = _context->closeTimeout();
             Debug::writeFormatLine("The server sync receiver is timeout'%s'", closeTimeout.toString().c_str());
 #endif
             return false;
         }
-        
+
         return TcpSyncReceiver::connected();
     }
 }

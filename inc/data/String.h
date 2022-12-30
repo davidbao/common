@@ -13,11 +13,14 @@
 #include "data/PrimitiveInterface.h"
 #include <string>
 
+namespace IO {
+    class Stream;
+}
+using namespace IO;
+
 using namespace std;
 
-namespace Common {
-    class Stream;
-
+namespace Data {
     class ByteArray;
 
     class WString;
@@ -26,7 +29,7 @@ namespace Common {
             : public IEquatable<String>, public IEquatable<String, char *>, public IEquatable<String, string>,
               public IComparable<String>, public IComparable<string>, public IComparable<char *>,
               public IEvaluation<String>,
-              public IIndexable<const char&, char>,
+              public IIndexable<const char &, char>,
               public Iterator<char> {
     public:
         using IComparable<String>::operator>;

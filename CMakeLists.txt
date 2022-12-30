@@ -14,6 +14,7 @@
 cmake_minimum_required(VERSION 3.2.3)
 project(common)
 
+option(COMMON_STATIC_STDLIB "Option for build with static libstdc++" OFF)
 option(COMMON_ENABLE_TEST "Option for build with test" ON)
 option(COMMON_BUILD_DATABASE "Option for build with database" ON)
 option(COMMON_BUILD_SQLITE "Option for build with sqlite" ON)
@@ -94,6 +95,7 @@ if (ARM_OS)
 endif ()
 
 # show options.
+message(STATUS "COMMON_STATIC_STDLIB: " ${COMMON_STATIC_STDLIB})
 message(STATUS "COMMON_ENABLE_TEST: " ${COMMON_ENABLE_TEST})
 message(STATUS "COMMON_BUILD_DATABASE: " ${COMMON_BUILD_DATABASE})
 message(STATUS "COMMON_BUILD_SQLITE: " ${COMMON_BUILD_SQLITE})

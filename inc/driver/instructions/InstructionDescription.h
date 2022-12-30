@@ -7,7 +7,7 @@
 #include "../IContextProperty.h"
 #include "InstructionContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

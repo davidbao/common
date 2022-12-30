@@ -4,7 +4,7 @@
 #include "ChannelContext.h"
 #include "IO/SerialInfo.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

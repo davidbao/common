@@ -11,6 +11,8 @@
 #include "microservice/LoadBalancerClient.h"
 #include "microservice/ServiceDiscovery.h"
 
+using namespace Diag;
+
 namespace Microservice {
     LoadBalancers::LoadBalancers() : _lbs(true) {
     }

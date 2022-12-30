@@ -20,7 +20,7 @@
 // Limits of integer and floating-point types
 // https://en.cppreference.com/w/cpp/types/climits
 
-namespace Common {
+namespace Data {
     const Boolean Boolean::TrueValue = true;
     const Boolean Boolean::FalseValue = false;
 
@@ -1260,7 +1260,7 @@ namespace Common {
     }
 
     String Int8::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool Int8::parse(const String &str, Int8 &value, NumberStyles style) {
@@ -1308,7 +1308,7 @@ namespace Common {
     }
 
     String UInt8::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool UInt8::parse(const String &str, UInt8 &value, NumberStyles style) {
@@ -1356,7 +1356,7 @@ namespace Common {
     }
 
     String Int16::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool Int16::parse(const String &str, Int16 &value, NumberStyles style) {
@@ -1404,7 +1404,7 @@ namespace Common {
     }
 
     String UInt16::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool UInt16::parse(const String &str, UInt16 &value, NumberStyles style) {
@@ -1452,7 +1452,7 @@ namespace Common {
     }
 
     String Int32::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool Int32::parse(const String &str, Int32 &value, NumberStyles style) {
@@ -1500,7 +1500,7 @@ namespace Common {
     }
 
     String UInt32::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool UInt32::parse(const String &str, UInt32 &value, NumberStyles style) {
@@ -1548,7 +1548,7 @@ namespace Common {
     }
 
     String Int64::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool Int64::parse(const String &str, Int64 &value, NumberStyles style) {
@@ -1596,7 +1596,7 @@ namespace Common {
     }
 
     String UInt64::toString(const String &format, const IFormatProvider<NumberFormatInfo> *provider) const {
-        return toValueString(_value, format, provider);
+        return toValueString(_value, format.isNullOrEmpty() ? "d" : format, provider);
     }
 
     bool UInt64::parse(const String &str, UInt64 &value, NumberStyles style) {

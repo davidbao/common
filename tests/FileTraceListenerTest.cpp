@@ -10,7 +10,8 @@
 #include "diag/FileTraceListener.h"
 #include "IO/Directory.h"
 
-using namespace Common;
+using namespace Data;
+using namespace Diag;
 
 bool testLog1() {
     static const String logStr = "logs";

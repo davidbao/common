@@ -11,7 +11,7 @@
 #include "UdpChannelContext.h"
 #include "BluetoothServerChannelContext.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

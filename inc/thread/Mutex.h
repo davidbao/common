@@ -13,7 +13,7 @@
 
 using namespace std;
 
-namespace Common {
+namespace Threading {
     class IMutex {
     public:
         IMutex();

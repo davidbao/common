@@ -11,144 +11,138 @@
 
 #include "data/ValueType.h"
 #include "data/Vector.h"
-#include "data/PList.h"
+#include "data/List.h"
 #include "data/Dictionary.h"
 #include "data/StringMap.h"
-#include "yaml-cpp/yaml.h"
+#include "data/IAttribute.h"
 
-namespace Common
-{
+namespace Yml {
+    class YmlNodeInner;
+
     class YmlNode
-    {
+            : public IEquatable<YmlNode>,
+              public IEvaluation<YmlNode>,
+              public IIndexGetter<YmlNode>,
+              public IPositionGetter<YmlNode, const String &>,
+              public IAttributeGetter,
+              public IAttributeSetter {
     public:
-        enum Type
-        {
+        using IAttributeGetter::getAttribute;
+        using IIndexGetter<YmlNode>::operator[];
+        using IPositionGetter<YmlNode, const String &>::operator[];
+
+        enum Type {
             TypeUndefined, TypeNull, TypeScalar, TypeSequence, TypeMap
         };
-        
-        typedef StringMap Properties;
-        
-        YmlNode(Type type = Type::TypeUndefined);
-        YmlNode(const YmlNode& node);
-        YmlNode(const bool& value);
-        YmlNode(const char& value);
-        YmlNode(const uint8_t& value);
-        YmlNode(const short& value);
-        YmlNode(const uint16_t& value);
-        YmlNode(const int& value);
-        YmlNode(const uint32_t& value);
-        YmlNode(const int64_t& value);
-        YmlNode(const uint64_t& value);
-        YmlNode(const float& value);
-        YmlNode(const double& value);
-        YmlNode(const char* value);
-        YmlNode(const String& value);
 
-        template <class T>
-        YmlNode(const T& value) : YmlNode(value.toString())
-        {
+        typedef StringMap Properties;
+
+        explicit YmlNode(Type type = Type::TypeUndefined);
+
+        YmlNode(const YmlNode &node);
+
+        explicit YmlNode(const bool &value);
+
+        explicit YmlNode(const char &value);
+
+        explicit YmlNode(const int8_t &value);
+
+        explicit YmlNode(const uint8_t &value);
+
+        explicit YmlNode(const int16_t &value);
+
+        explicit YmlNode(const uint16_t &value);
+
+        explicit YmlNode(const int32_t &value);
+
+        explicit YmlNode(const uint32_t &value);
+
+        explicit YmlNode(const int64_t &value);
+
+        explicit YmlNode(const uint64_t &value);
+
+        explicit YmlNode(const float &value);
+
+        explicit YmlNode(const double &value);
+
+        explicit YmlNode(const char *value);
+
+        explicit YmlNode(const String &value);
+
+        template<class T>
+        explicit YmlNode(const T &value) : YmlNode(value.toString()) {
         }
-        template <class T>
-        YmlNode(const Vector<T>& value) : YmlNode(Type::TypeMap)
-        {
-            for (uint32_t i=0; i<value.count(); i++)
-            {
-                add(YmlNode("item", value[i]));
+
+        template<class T>
+        explicit YmlNode(const Vector<T> &value) : YmlNode(Type::TypeSequence) {
+            for (size_t i = 0; i < value.count(); i++) {
+                add(YmlNode(value[i]));
             }
         }
-        template <class T>
-        YmlNode(const PList<T>& value) : YmlNode(Type::TypeMap)
-        {
-            for (uint32_t i=0; i<value.count(); i++)
-            {
-                add(YmlNode("item", value[i]));
+
+        template<class T>
+        explicit YmlNode(const List<T> &value) : YmlNode(Type::TypeSequence) {
+            for (size_t i = 0; i < value.count(); i++) {
+                add(YmlNode(value[i]));
             }
         }
-        
-        ~YmlNode();
-        
-        void add(const YmlNode& node);
-        void add(const String& name, const YmlNode& value);
-        
+
+        ~YmlNode() override;
+
+        bool equals(const YmlNode &other) const override;
+
+        void evaluates(const YmlNode &other) override;
+
+        YmlNode at(size_t pos) const override;
+
+        YmlNode at(const String &name) const override;
+
+        bool at(size_t pos, YmlNode &node) const;
+
+        bool at(const String &name, YmlNode &node) const;
+
+        bool getAttribute(const String &name, String &value) const override;
+
+        bool setAttribute(const String &name, const String &value) override;
+
+        void setAttributes(const StringMap &values);
+
+        YmlNode &operator=(const YmlNode &value);
+
         String toString() const;
 
-        bool getAttribute(const String& name, String& value) const;
-        template <class T>
-        bool getAttribute(const String& name, T& value) const
-        {
-            String str;
-            return getAttribute(name, str) && T::parse(str, value);
-        }
-        bool getAttribute(const String& name, bool& value) const;
-        bool getAttribute(const String& name, uint8_t& value) const;
-        bool getAttribute(const String& name, int& value) const;
-        bool getAttribute(const String& name, uint32_t& value) const;
-        bool getAttribute(const String& name, int64_t& value) const;
-        bool getAttribute(const String& name, uint64_t& value) const;
-        bool getAttribute(const String& name, float& value) const;
-        bool getAttribute(const String& name, double& value) const;
-        template <class T>
-        bool getAttribute(const String& name, Vector<T>& value) const
-        {
-            StringArray texts;
-            if(!getAttribute(name, texts))
-                return false;
-            
-            for (uint32_t i=0; i<texts.count(); i++)
-            {
-                T item;
-                if(T::parse(texts[i], item))
-                {
-                    value.add(item);
-                }
-            }
-            return value.count() == texts.count();
-        }
-        
-        bool setAttribute(const String& name, const String& value);
-        template <class T>
-        bool setAttribute(const String& name, const T& value)
-        {
-            return setAttribute(name, value.toString());
-        }
-        bool setAttribute(const String& name, const bool& value);
-        bool setAttribute(const String& name, const uint8_t& value);
-        bool setAttribute(const String& name, const int& value);
-        bool setAttribute(const String& name, const uint32_t& value);
-        bool setAttribute(const String& name, const int64_t& value);
-        bool setAttribute(const String& name, const uint64_t& value);
-        bool setAttribute(const String& name, const float& value);
-        bool setAttribute(const String& name, const double& value);
-        void setAttributes(const StringMap& values);
-
-        bool getProperties(Properties& properties) const;
-        bool at(const String& name, YmlNode& node) const;
-        
         Type type() const;
+
         size_t size() const;
+
         bool isEmpty() const;
-        
-        void operator=(const YmlNode& value);
-        bool operator==(const YmlNode& value) const;
-        bool operator!=(const YmlNode& value) const;
-        
+
+        void add(const YmlNode &node);
+
+        void add(const String &name, const YmlNode &node);
+
+        bool getProperties(Properties &properties) const;
+
+        operator String() const;
+
     private:
-        YmlNode(YAML::Node* node);
-        
-        void getProperties(const YAML::Node& node, String& levelStr, Properties& properties) const;
-        void getValueProperties(const YAML::Node& node, String& levelStr, Properties& properties) const;
-        void getValueProperties(const YAML::Node& node, size_t index, String& levelStr, Properties& properties) const;
-        
+        void getProperties(const YmlNodeInner &node, String &levelStr, Properties &properties) const;
+
+        void getValueProperties(const YmlNodeInner &node, String &levelStr, Properties &properties) const;
+
+        void getValueProperties(const YmlNodeInner &node, size_t index, String &levelStr, Properties &properties) const;
+
     public:
-        static bool parse(const String& str, YmlNode& node);
-        static bool parseFile(const String& fileName, YmlNode& node);
-        
-        static bool updateFile(const String& fileName, const Properties& properties);
-        
+        static bool parse(const String &str, YmlNode &node);
+
+        static bool parseFile(const String &fileName, YmlNode &node);
+
+        static bool updateFile(const String &fileName, const Properties &properties);
+
     private:
-        YAML::Node* _inner;
+        YmlNodeInner *_node;
         bool _attach;
     };
 }
 
-#endif /* YmlNode_h */
+#endif // YmlNode_h

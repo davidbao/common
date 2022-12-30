@@ -14,9 +14,9 @@
 #include "IO/File.h"
 #include "IO/Directory.h"
 
-using namespace Common;
+using namespace Data;
 using namespace Net;
-using namespace Microservice;
+using namespace Config;
 
 static String _rootPath = Path::combine(Directory::getTempPath(), "common.ConfigServiceTest");
 

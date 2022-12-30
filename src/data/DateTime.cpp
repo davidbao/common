@@ -15,7 +15,9 @@
 #include "system/Resources.h"
 #include "DateTimeFormat.h"
 
-namespace Common {
+using namespace System;
+
+namespace Data {
     const int DateTime::DaysToMonth365[13] = {
             0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
     const int DateTime::DaysToMonth366[13] = {
@@ -267,7 +269,7 @@ namespace Common {
     // Monday, 2 indicates Tuesday, 3 indicates Wednesday, 4 indicates
     // Thursday, 5 indicates Friday, and 6 indicates Saturday.
     //
-    DateTime::DayOfWeek DateTime::dayOfWeek() const {
+    DayOfWeek DateTime::dayOfWeek() const {
         return (DayOfWeek) ((internalTicks() / TicksPerDay + 1) % 7);
     }
 

@@ -10,6 +10,8 @@
 #include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
 
+using namespace Config;
+
 namespace Microservice {
     ServiceRegister::ServiceRegister() : _registered(false), _registerTimer(nullptr), _service(nullptr) {
         ServiceFactory *factory = ServiceFactory::instance();

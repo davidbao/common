@@ -21,7 +21,7 @@
 #include <netinet/tcp.h>
 #endif
 
-using namespace Common;
+using namespace Data;
 
 namespace Net
 {

@@ -69,13 +69,13 @@ namespace Microservice {
     }
 
     void IHttpInterceptor::addWhitelist(const StringArray &list) {
-        for (uint32_t i = 0; i < list.count(); i++) {
+        for (size_t i = 0; i < list.count(); i++) {
             String path = list[i].trim();
             _whitelist.add(path, path);
         }
     }
 
-    HttpService::HttpService() : _actions(false), _sessionTimer(nullptr) {
+    HttpService::HttpService() : _actions(false), _sessionTimer(nullptr), _homePages({"index.html", "index.htm"}) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
         factory->addService<IHttpRegister>(this);
@@ -126,8 +126,8 @@ namespace Microservice {
         }
 
         // add http header from yml file.
-        static const uint32_t MaxHeader = 200;
-        for (uint32_t i = 0; i < MaxHeader; i++) {
+        static const size_t MaxHeader = 200;
+        for (size_t i = 0; i < MaxHeader; i++) {
             const String prefix = String::format("server.http.headers[%d]", i);
             const String k = String::format("%s.name", prefix.c_str());
             const String v = String::format("%s.value", prefix.c_str());
@@ -152,8 +152,8 @@ namespace Microservice {
         }
 
         // ext mine types.
-        static const uint32_t MaxTypes = 200;
-        for (uint32_t i = 0; i < MaxTypes; i++) {
+        static const size_t MaxTypes = 200;
+        for (size_t i = 0; i < MaxTypes; i++) {
             const String prefix = String::format("server.http.mineTypes[%d]", i);
             const String k = String::format("%s.extName", prefix.c_str());
             const String v = String::format("%s.type", prefix.c_str());
@@ -193,12 +193,15 @@ namespace Microservice {
         _actions.remove(action);
     }
 
-    void HttpService::registerWebServer(const String &webPath, const StringArray &homePages) {
-        _webPath = webPath;
-        if (homePages.count() > 0)
-            _homePages = homePages;
-        else {
-            _homePages.addArray("index.html", "index.htm", nullptr);
+    void HttpService::registerWebPath(const String &relativeUrl, const String &webPath) {
+        if (Directory::exists(webPath) && !_webPath.contains(webPath)) {
+            _webPath.add(relativeUrl, webPath);
+        }
+    }
+
+    void HttpService::registerHomePage(const StringArray &homePages) {
+        if (homePages.count() > 0) {
+            _homePages.insertRange(0, homePages);
         }
     }
 
@@ -243,7 +246,7 @@ namespace Microservice {
 
     HttpStatus HttpService::onActionProcess(const HttpRequest &request, HttpResponse &response) {
         Locker locker(&_actionsMutex);
-        for (uint32_t i = 0; i < _actions.count(); i++) {
+        for (size_t i = 0; i < _actions.count(); i++) {
             IHttpAction *action = _actions[i];
             HttpStatus status = action->onAction(request, response);
             if (status != HttpStatus::HttpNotFound)
@@ -254,7 +257,7 @@ namespace Microservice {
 
     HttpStatus HttpService::onMappingProcess(const HttpRequest &request, HttpResponse &response) {
         Locker locker(&_mappingsMutex);
-        for (uint32_t i = 0; i < _mappings.count(); i++) {
+        for (size_t i = 0; i < _mappings.count(); i++) {
             BaseHttpMapping *mapping = _mappings[i];
             if (mapping->match(request)) {
                 if (mapping->method() == HttpMethod::Options) {
@@ -271,16 +274,51 @@ namespace Microservice {
 
     HttpStatus HttpService::onWebServerProcess(const HttpRequest &request, HttpResponse &response) {
         // process web server.
-        if (Directory::exists(_webPath)) {
-            StringArray files;
-            String fileName = Path::combine(_webPath,
-                                            !request.url.relativeUrl().isNullOrEmpty() ? request.url.relativeUrl()
-                                                                                       : existHomePage());
+        HttpStatus status = HttpStatus::HttpNotFound;
+
+        // process default web path.
+        status = onWebServerProcess(defaultWebPath(), request, response);
+        if (status == HttpStatus::HttpOk)
+            return status;
+
+        // process the others.
+        for (auto it = _webPath.begin(); it != _webPath.end(); ++it) {
+            const String &relativeUrl = it.key();
+            const String &webPath = it.value();
+            if (!relativeUrl.isNullOrEmpty() && request.url.relativeUrl().find(relativeUrl) >= 0) {
+                status = onWebServerProcess(relativeUrl, webPath, request, response);
+                if (status == HttpStatus::HttpOk)
+                    break;
+            }
+        }
+        return status;
+    }
+
+    HttpStatus
+    HttpService::onWebServerProcess(const String &relativeUrl, const String &webPath, const HttpRequest &request,
+                                    HttpResponse &response) {
+        if (Directory::exists(webPath)) {
+            String name;
+            if (relativeUrl.isNullOrEmpty()) {
+                name = !request.url.relativeUrl().isNullOrEmpty() ? request.url.relativeUrl() : existHomePage(webPath);
+            } else {
+                if (!request.url.relativeUrl().isNullOrEmpty()) {
+                    name = String::replace(request.url.relativeUrl(), relativeUrl, String::Empty);
+                    if (name.length() > 0 && name[0] == '/') {
+                        name = name.substr(1);
+                    }
+                    if (name.isNullOrEmpty()) {
+                        name = existHomePage(webPath);
+                    }
+                } else {
+                    return HttpStatus::HttpNotFound;
+                }
+            }
+            String fileName = Path::combine(webPath, name);
             if (File::exists(fileName)) {
                 String type;
                 if (getMimeType(fileName, type)) {
-                    response.setContent(
-                            new FileStream(fileName, FileMode::FileOpenWithoutException, FileAccess::FileRead));
+                    response.setContent(new FileStream(fileName, FileMode::FileOpen, FileAccess::FileRead));
 
                     type = String::format("%s; charset=UTF-8", type.c_str());
                     response.headers.add("Content-Type", type);
@@ -293,18 +331,31 @@ namespace Microservice {
                                             request.url.toString().c_str()));
             }
         } else {
-            Trace::error(String::format("Can not find root path'%s'!", _webPath.c_str()));
+            Trace::error(String::format("Can not find root path'%s'!", webPath.c_str()));
         }
         return HttpStatus::HttpNotFound;
     }
 
-    String HttpService::existHomePage() const {
-        for (uint32_t i = 0; i < _homePages.count(); i++) {
+    HttpStatus
+    HttpService::onWebServerProcess(const String &webPath, const HttpRequest &request, HttpResponse &response) {
+        return onWebServerProcess(String::Empty, webPath, request, response);
+    }
+
+    String HttpService::existHomePage(const String &webPath) const {
+        for (size_t i = 0; i < _homePages.count(); i++) {
             const String &homePage = _homePages[i];
-            if (File::exists(Path::combine(_webPath, homePage)))
+            if (File::exists(Path::combine(webPath, homePage)))
                 return homePage;
         }
         return String::Empty;
+    }
+
+    String HttpService::existHomePage() const {
+        return existHomePage(defaultWebPath());
+    }
+
+    String HttpService::defaultWebPath() const {
+        return _webPath[String::Empty];
     }
 
     String HttpService::addSession(const String &name, const TimeSpan &expiredTime, bool kickout) {
@@ -381,7 +432,9 @@ namespace Microservice {
         if (_whitelist.count() == 0)
             return true;
 
-        const String path = !request.url.relativeUrl().isNullOrEmpty() ? request.url.relativeUrl() : existHomePage();
+        const String path = !request.url.relativeUrl().isNullOrEmpty() ?
+                            request.url.relativeUrl() :
+                            existHomePage();
 //        Trace::debug(String::format("http: %s", path.c_str()));
 
         if (_whitelist.contains(path))
@@ -389,7 +442,7 @@ namespace Microservice {
 
         StringArray paths;
         _whitelist.keys(paths);
-        for (uint32_t i = 0; i < paths.count(); i++) {
+        for (size_t i = 0; i < paths.count(); i++) {
             const String &p = paths[i];
             String directoryName = Path::getDirectoryName(p);
             String fileName = Path::getFileName(p);

@@ -9,7 +9,7 @@
 #include <assert.h>
 #include "system/PoolService.h"
 
-namespace Common {
+namespace System {
     PoolBaseService::PoolBaseService(TimeSpan interval) {
         _thread = nullptr;
         _interval = interval;

@@ -16,9 +16,11 @@
 #include "data/IAttribute.h"
 #include "yml/YmlNode.h"
 
+using namespace Yml;
+
 class JSONNode;
 
-namespace Common {
+namespace Json {
     class JsonTextReader;
 
     class JsonNode;
@@ -99,6 +101,8 @@ namespace Common {
 
         JsonNode(const String &name, const StringArray &value);
 
+        JsonNode(const String &name, const StringMap &value);
+
         JsonNode(std::initializer_list<JsonNode> list);
 
         JsonNode(const String &name, std::initializer_list<JsonNode> list);
@@ -130,36 +134,6 @@ namespace Common {
         bool getAttribute(StringArray &value) const;
 
         bool getAttribute(StringMap &value) const;
-
-        template<class T>
-        bool getAttribute(const String &name, Vector<T> &value) const {
-            StringArray texts;
-            if (!getAttribute(name, texts))
-                return false;
-
-            for (size_t i = 0; i < texts.count(); i++) {
-                T item;
-                if (T::parse(texts[i], item)) {
-                    value.add(item);
-                }
-            }
-            return value.count() == texts.count();
-        }
-
-        template<class T>
-        bool getAttribute(const String &name, List<T> &value) const {
-            StringArray texts;
-            if (!getAttribute(name, texts))
-                return false;
-
-            for (size_t i = 0; i < texts.count(); i++) {
-                T item;
-                if (T::parse(texts[i], item)) {
-                    value.add(item);
-                }
-            }
-            return value.count() == texts.count();
-        }
 
         bool hasAttribute(const String &name) const;
 

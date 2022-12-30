@@ -9,8 +9,9 @@
 #include "json/JsonNode.h"
 #include "libjson/libjson.h"
 #include "diag/Trace.h"
+#include <cmath>
 
-namespace Common {
+namespace Json {
     JsonNode::JsonNode(Type type) : _attach(false) {
         if (type == Type::TypeNode)
             _inner = new JSONNode(JSON_NODE);
@@ -117,6 +118,12 @@ namespace Common {
     JsonNode::JsonNode(const String &name, const StringArray &value) : JsonNode(name, Type::TypeArray) {
         for (size_t i = 0; i < value.count(); i++) {
             add(JsonNode("item", value[i]));
+        }
+    }
+
+    JsonNode::JsonNode(const String &name, const StringMap &value) : JsonNode(name, Type::TypeNode) {
+        for (auto it = value.begin(); it != value.end(); ++it) {
+            add(JsonNode(it.key(), it.value()));
         }
     }
 

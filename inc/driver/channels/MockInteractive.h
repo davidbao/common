@@ -5,7 +5,7 @@
 #include "Interactive.h"
 #include "ChannelDescription.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

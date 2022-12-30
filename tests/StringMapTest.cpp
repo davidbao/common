@@ -8,7 +8,7 @@
 
 #include "data/StringMap.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testConstructor() {
     {

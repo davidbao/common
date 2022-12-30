@@ -11,7 +11,7 @@
 #include "IO/FileStream.h"
 #include "system/Application.h"
 
-using namespace Common;
+using namespace System;
 
 static const String _path = Path::combine(Directory::getTempPath(), "directory_test");
 

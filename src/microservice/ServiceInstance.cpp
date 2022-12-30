@@ -9,6 +9,8 @@
 #include "microservice/ServiceInstance.h"
 #include "system/Regex.h"
 
+using namespace System;
+
 namespace Microservice {
     const ServerProperty ServerProperty::Empty;
     const String ServerProperty::UNKNOWN_ZONE = "UNKNOWN";

@@ -9,7 +9,7 @@
 #include "data/TypeInfo.h"
 #include "data/ValueType.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testIsSpecialized() {
     {

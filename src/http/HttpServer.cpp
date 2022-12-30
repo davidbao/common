@@ -31,7 +31,9 @@
 
 #endif
 
-namespace Common {
+using namespace System;
+
+namespace Http {
     HttpServer::Actions::Actions(void *owner, action_process_action processAction) {
         this->owner = owner;
         this->processAction = processAction;
@@ -669,7 +671,7 @@ namespace Common {
             if (streamContent == nullptr) {
                 HttpStringContent *stringContent = dynamic_cast<HttpStringContent *>(response.content);
                 const String &body = stringContent != nullptr ? stringContent->value() : String::Empty;
-                Debug::writeLine(body);
+//                Debug::writeLine(body);
                 evbuffer_add(evb, body.c_str(), body.length());
                 evhttp_send_reply(req, code, reason, evb);
             } else {

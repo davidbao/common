@@ -17,42 +17,36 @@
 
 using namespace Xml;
 
-namespace Common
-{
-    struct SerialInfo
-    {
+namespace IO {
+    struct SerialInfo {
     public:
-        enum DataBitsType : uint8_t
-        {
+        enum DataBitsType : uint8_t {
             DATA_5 = 5,
             DATA_6,
             DATA_7,
             DATA_8
         };
-        
-        enum ParityType : uint8_t
-        {
+
+        enum ParityType : uint8_t {
             PAR_NONE = 0,
             PAR_ODD,
             PAR_EVEN,
             PAR_MARK,               //WINDOWS ONLY
             PAR_SPACE
         };
-        
-        enum StopBitsType : uint8_t
-        {
+
+        enum StopBitsType : uint8_t {
             STOP_1 = 1,
             STOP_1_5,               //WINDOWS ONLY
             STOP_2
         };
-        
-        enum HandshakeType : uint8_t
-        {
+
+        enum HandshakeType : uint8_t {
             FLOW_OFF = 0,
             FLOW_HARDWARE,
             FLOW_XONXOFF
         };
-        
+
         String portName;
         int baudRate;
         DataBitsType dataBits;
@@ -62,43 +56,55 @@ namespace Common
         bool rtsEnable;
         bool dtrEnable;
         bool useSignal;
-        
-        SerialInfo(const String& portName = String::Empty);
-        
-        void read(XmlTextReader& reader);
-        void write(XmlTextWriter& writer) const;
-        
-        void read(JsonTextReader& reader);
-        void write(JsonTextWriter& writer) const;
-        
-        void write(JsonNode& node) const;
-        
-        void read(Stream* stream);
-        void write(Stream* stream) const;
 
-		String dataBitsStr() const;
-		String parityStr() const;
-		String stopBitsStr() const;
-		String handshakeStr() const;
-        
-        void operator=(const SerialInfo& value);
-        bool operator==(const SerialInfo& value) const;
-        bool operator!=(const SerialInfo& value) const;
-        
+        SerialInfo(const String &portName = String::Empty);
+
+        void read(XmlTextReader &reader);
+
+        void write(XmlTextWriter &writer) const;
+
+        void read(JsonTextReader &reader);
+
+        void write(JsonTextWriter &writer) const;
+
+        void write(JsonNode &node) const;
+
+        void read(Stream *stream);
+
+        void write(Stream *stream) const;
+
+        String dataBitsStr() const;
+
+        String parityStr() const;
+
+        String stopBitsStr() const;
+
+        String handshakeStr() const;
+
+        void operator=(const SerialInfo &value);
+
+        bool operator==(const SerialInfo &value) const;
+
+        bool operator!=(const SerialInfo &value) const;
+
         const String toString() const;
-        
+
         bool isEmpty() const;
-        
-        static DataBitsType parseDataBits(const String& str);
+
+        static DataBitsType parseDataBits(const String &str);
+
         static String convertDataBitsStr(DataBitsType dataBits);
-        
-        static ParityType parseParity(const String& str);
+
+        static ParityType parseParity(const String &str);
+
         static String convertParityStr(ParityType parity);
-        
-        static StopBitsType parseStopBits(const String& str);
+
+        static StopBitsType parseStopBits(const String &str);
+
         static String convertStopBitsStr(StopBitsType stopBits);
-        
-        static HandshakeType parseHandshake(const String& str);
+
+        static HandshakeType parseHandshake(const String &str);
+
         static String convertHandshakeStr(HandshakeType handshake);
     };
 }

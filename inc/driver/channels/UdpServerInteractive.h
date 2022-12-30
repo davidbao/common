@@ -11,7 +11,7 @@
 #include "thread/Locker.h"
 #include "driver/devices/Device.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

@@ -13,7 +13,7 @@
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

@@ -13,180 +13,177 @@
 #include "RpcInstruction.h"
 #include "communication/ServerService.h"
 
-namespace rpc
-{
-    RpcServerContext::RpcServerContext(const Endpoint& endpoint, const Secure& secure) : endpoint(endpoint), secure(secure)
-    {
+namespace Rpc {
+    RpcServerContext::RpcServerContext(const Endpoint &endpoint, const Secure &secure) : endpoint(endpoint),
+                                                                                         secure(secure) {
     }
-    RpcServerContext::RpcServerContext(const RpcServerContext& value)
-    {
+
+    RpcServerContext::RpcServerContext(const RpcServerContext &value) {
         this->operator=(value);
     }
-    
-    void RpcServerContext::operator=(const RpcServerContext& value)
-    {
+
+    void RpcServerContext::operator=(const RpcServerContext &value) {
         this->endpoint = value.endpoint;
         this->secure = value.secure;
     }
-    bool RpcServerContext::operator==(const RpcServerContext& value) const
-    {
+
+    bool RpcServerContext::operator==(const RpcServerContext &value) const {
         return this->endpoint == value.endpoint && this->secure == value.secure;
     }
-    bool RpcServerContext::operator!=(const RpcServerContext& value) const
-    {
+
+    bool RpcServerContext::operator!=(const RpcServerContext &value) const {
         return !operator==(value);
     }
 
-    IRpcServerEvent::IRpcServerEvent()
-    {
-    }
-    IRpcServerEvent::~IRpcServerEvent()
-    {
+    IRpcServerEvent::IRpcServerEvent() {
     }
 
-    RpcServer::RpcServer(const RpcServerContext& context) : _context(context), _service(nullptr)
-    {
+    IRpcServerEvent::~IRpcServerEvent() {
     }
-    RpcServer::~RpcServer()
-    {
+
+    RpcServer::RpcServer(const RpcServerContext &context) : _context(context), _service(nullptr) {
+    }
+
+    RpcServer::~RpcServer() {
         unInitService();
     }
 
-    bool RpcServer::start()
-    {
+    bool RpcServer::start() {
         return initService();
     }
-    bool RpcServer::stop()
-    {
+
+    bool RpcServer::stop() {
         return unInitService();
     }
 
-    bool RpcServer::connected() const
-    {
+    bool RpcServer::connected() const {
         return _service != nullptr;
     }
 
-    bool RpcServer::sendAsync(const Endpoint& peerEndpoint, const RpcAsyncResponse& response, const String& name)
-    {
-        if(peerEndpoint.isEmpty())
+    bool RpcServer::sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) {
+        if (peerEndpoint.isEmpty())
             return _service->sendAsyncAll<RpcAsyncResponse, RpcAsyncResponseContext>(response, name);
         else
             return _service->sendAsync<RpcAsyncResponse, RpcAsyncResponseContext>(peerEndpoint, response, name);
     }
 
-    bool RpcServer::sendSync(const RpcMethodContext& context, const RpcSyncRequest& request, RpcSyncResponse& response, const String& name)
-    {
-        if(context.endpoint.isEmpty())
-            return _service->sendSyncAll<RpcSyncRequest, RpcSyncResponse, RpcSyncContext>(request, response, name, context.tryCount);
+    bool RpcServer::sendSync(const RpcMethodContext &context, const RpcSyncRequest &request, RpcSyncResponse &response,
+                             const String &name) {
+        if (context.endpoint.isEmpty())
+            return _service->sendSyncAll<RpcSyncRequest, RpcSyncResponse, RpcSyncContext>(request, response, name,
+                                                                                          context.tryCount);
         else
-            return _service->sendSync<RpcSyncRequest, RpcSyncResponse, RpcSyncContext>(context.endpoint, request, response, name, context.tryCount);
+            return _service->sendSync<RpcSyncRequest, RpcSyncResponse, RpcSyncContext>(context.endpoint, request,
+                                                                                       response, name,
+                                                                                       context.tryCount);
     }
-    bool RpcServer::sendAsync(const RpcMethodContext& context, const RpcAsyncRequest& request, const String& name)
-    {
-        if(context.endpoint.isEmpty())
+
+    bool RpcServer::sendAsync(const RpcMethodContext &context, const RpcAsyncRequest &request, const String &name) {
+        if (context.endpoint.isEmpty())
             return _service->sendAsyncAll<RpcAsyncRequest, RpcAsyncRequestContext>(request, name);
         else
             return _service->sendAsync<RpcAsyncRequest, RpcAsyncRequestContext>(context.endpoint, request, name);
     }
-    bool RpcServer::sendAsync(const RpcMethodContext& context, const RpcNotifyInfo& info, const String& name)
-    {
-        if(context.endpoint.isEmpty())
+
+    bool RpcServer::sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) {
+        if (context.endpoint.isEmpty())
             return _service->sendAsyncAll<RpcNotifyInfo, RpcNotifyContext>(info, name);
         else
             return _service->sendAsync<RpcNotifyInfo, RpcNotifyContext>(context.endpoint, info, name);
     }
 
-    bool RpcServer::closeClient(const Endpoint& endpoint)
-    {
-        if(_service != nullptr)
-        {
+    bool RpcServer::closeClient(const Endpoint &endpoint) {
+        if (_service != nullptr) {
             return _service->closeClient(endpoint);
         }
         return false;
     }
 
-    void RpcServer::onClientOpened(const Endpoint& endpoint)
-    {
-    }
-    void RpcServer::onClientClosed(const Endpoint& endpoint)
-    {
+    void RpcServer::onClientOpened(const Endpoint &endpoint) {
     }
 
-    bool RpcServer::initService()
-    {
-        if(_service == nullptr)
-        {
+    void RpcServer::onClientClosed(const Endpoint &endpoint) {
+    }
+
+    bool RpcServer::initService() {
+        if (_service == nullptr) {
             Server server(true);
             server.address = _context.endpoint.address;
             server.port = _context.endpoint.port;
             server.secure = _context.secure;
-            server.sendBufferSize =  2 * 1024 * 1024;
-            server.receiveBufferSize =  2 * 1024 * 1024;
-            
-            _service = ServerServiceFactory::create(server);            
+            server.sendBufferSize = 2 * 1024 * 1024;
+            server.receiveBufferSize = 2 * 1024 * 1024;
+
+            _service = ServerServiceFactory::create(server);
             BaseCommService::InstructionCallback server_callback;
             server_callback.tcpInstructions = generateInstructions;
             server_callback.owner = this;
-            if(!_service->initialize(server_callback))
+            if (!_service->initialize(server_callback))
                 return false;
-            
+
             _service->addCloseDelegate(Delegate(this, clientCloseEventHandler));
             _service->addAcceptDelegate(Delegate(this, clientAcceptEventHandler));
-            
+
             return true;
         }
         return false;
     }
-    bool RpcServer::unInitService()
-    {
-        if(_service != nullptr)
-        {
+
+    bool RpcServer::unInitService() {
+        if (_service != nullptr) {
             _service->removeCloseDelegate(Delegate(this, clientCloseEventHandler));
             _service->removeAcceptDelegate(Delegate(this, clientAcceptEventHandler));
-            
+
             return _service->unInitialize();
         }
         return false;
     }
 
-    void RpcServer::generateInstructions(void* owner, Instructions* instructions)
-    {
-        RpcServer* cs = static_cast<RpcServer*>(owner);
+    void RpcServer::generateInstructions(void *owner, Instructions *instructions) {
+        RpcServer *cs = static_cast<RpcServer *>(owner);
         assert(cs);
-        
+
         // receiver's instructions.
-        instructions->add(new ServerHeartbeatInstruction(new InstructionDescription("ServerHeartbeat", new RpcHeartbeatContext())));
-        instructions->add(new ServerCloseInstruction(new InstructionDescription("ServerClose", new RpcCloseContext()), cs));
-        
-        instructions->add(new ServerRpcSyncInstruction(new InstructionDescription("ServerRpcSync", new RpcSyncContext()), cs));
-        
-        instructions->add(new ServerRpcAsyncRequestInstruction(new InstructionDescription("ServerRpcAsyncRequest", new RpcAsyncRequestContext()), cs));
-        instructions->add(new RpcAsyncResponseInstruction(new InstructionDescription("RpcAsyncResponse", new RpcAsyncResponseContext())));
-        
-        instructions->add(new ServerRpcNotifyInstruction(new InstructionDescription("ServerRpcNotify", new RpcNotifyContext()), cs));
+        instructions->add(new ServerHeartbeatInstruction(
+                new InstructionDescription("ServerHeartbeat", new RpcHeartbeatContext())));
+        instructions->add(
+                new ServerCloseInstruction(new InstructionDescription("ServerClose", new RpcCloseContext()), cs));
+
+        instructions->add(
+                new ServerRpcSyncInstruction(new InstructionDescription("ServerRpcSync", new RpcSyncContext()), cs));
+
+        instructions->add(new ServerRpcAsyncRequestInstruction(
+                new InstructionDescription("ServerRpcAsyncRequest", new RpcAsyncRequestContext()), cs));
+        instructions->add(new RpcAsyncResponseInstruction(
+                new InstructionDescription("RpcAsyncResponse", new RpcAsyncResponseContext())));
+
+        instructions->add(
+                new ServerRpcNotifyInstruction(new InstructionDescription("ServerRpcNotify", new RpcNotifyContext()),
+                                               cs));
 
         // sender's instructions.
         instructions->add(new RpcSyncInstruction2(new InstructionDescription("RpcSync", new RpcSyncContext())));
-        
-        instructions->add(new RpcAsyncRequestInstruction2(new InstructionDescription("RpcAsyncRequest", new RpcAsyncRequestContext())));
-        instructions->add(new ServerRpcAsyncResponseInstruction2(new InstructionDescription("ServerRpcAsyncResponse", new RpcAsyncResponseContext()), cs));
-        
+
+        instructions->add(new RpcAsyncRequestInstruction2(
+                new InstructionDescription("RpcAsyncRequest", new RpcAsyncRequestContext())));
+        instructions->add(new ServerRpcAsyncResponseInstruction2(
+                new InstructionDescription("ServerRpcAsyncResponse", new RpcAsyncResponseContext()), cs));
+
         instructions->add(new RpcNotifyInstruction2(new InstructionDescription("RpcNotify", new RpcNotifyContext())));
     }
-    
-    void RpcServer::clientCloseEventHandler(void* owner, void* sender, EventArgs* args)
-    {
-        RpcServer* cs = static_cast<RpcServer*>(owner);
+
+    void RpcServer::clientCloseEventHandler(void *owner, void *sender, EventArgs *args) {
+        RpcServer *cs = static_cast<RpcServer *>(owner);
         assert(cs);
-        TcpClientEventArgs* e = dynamic_cast<TcpClientEventArgs*>(args);
+        TcpClientEventArgs *e = dynamic_cast<TcpClientEventArgs *>(args);
         assert(e);
         cs->onClientClosed(e->endpoint);
     }
-    void RpcServer::clientAcceptEventHandler(void* owner, void* sender, EventArgs* args)
-    {
-        RpcServer* cs = static_cast<RpcServer*>(owner);
+
+    void RpcServer::clientAcceptEventHandler(void *owner, void *sender, EventArgs *args) {
+        RpcServer *cs = static_cast<RpcServer *>(owner);
         assert(cs);
-        TcpClientEventArgs* e = dynamic_cast<TcpClientEventArgs*>(args);
+        TcpClientEventArgs *e = dynamic_cast<TcpClientEventArgs *>(args);
         assert(e);
         cs->onClientOpened(e->endpoint);
     }

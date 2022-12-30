@@ -11,7 +11,7 @@
 
 # Note: on OS X you should install XCode and the associated command-line tools
 
-SET(CONFIGURATION_SRC
+set(CONFIGURATION_SRC
         ConfigFile.cpp
         ConfigService.cpp
         Configuration.cpp

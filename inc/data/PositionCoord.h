@@ -11,9 +11,12 @@
 
 #include "data/ValueType.h"
 
-namespace Common {
+namespace IO {
     class Stream;
+}
+using namespace IO;
 
+namespace Data {
     struct PositionCoord
             : public IEquatable<PositionCoord>, public IEvaluation<PositionCoord>, public IComparable<PositionCoord> {
     public:

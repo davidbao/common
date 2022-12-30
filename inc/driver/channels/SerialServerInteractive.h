@@ -9,7 +9,7 @@
 #include "thread/Locker.h"
 #include "IO/SerialPort.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drivers
 {

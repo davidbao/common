@@ -13,12 +13,12 @@
 #include "data/Point.h"
 #include "data/Size.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drawing {
     struct Rectangle;
 
-    struct RectangleF  : public IEquatable<RectangleF>, public IEvaluation<RectangleF>, public IComparable<RectangleF>{
+    struct RectangleF : public IEquatable<RectangleF>, public IEvaluation<RectangleF>, public IComparable<RectangleF> {
     public:
         explicit RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
 

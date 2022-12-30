@@ -9,7 +9,7 @@
 #include "data/TimeZone.h"
 #include "IO/MemoryStream.h"
 
-using namespace Common;
+using namespace Data;
 
 bool testConstructor() {
     {

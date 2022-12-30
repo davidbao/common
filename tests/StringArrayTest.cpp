@@ -9,7 +9,7 @@
 #include "data/StringArray.h"
 #include "thread/Thread.h"
 
-using namespace Common;
+using namespace Data;
 
 #define DefaultCapacity 125
 

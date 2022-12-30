@@ -14,7 +14,7 @@
 #include <Windows.h>
 #endif
 
-namespace Common {
+namespace Data {
     TimeZone TimeZone::Local = TimeZone();
     TimeZone TimeZone::Empty = TimeZone();
     const String TimeZone::FileNames[] =

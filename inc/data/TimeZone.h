@@ -12,9 +12,11 @@
 #include "IO/Stream.h"
 #include "DateTime.h"
 
-namespace Common {
+namespace System {
     class LocalTime;
+}
 
+namespace Data {
     struct TimeZone : public IEquatable<TimeZone>, public IEvaluation<TimeZone>, public IComparable<TimeZone> {
     public:
         enum Type : uint8_t {
@@ -122,7 +124,7 @@ namespace Common {
         static TimeZone Empty;
 
     private:
-        friend LocalTime;
+        friend System::LocalTime;
 
         int64_t _ticksOffset;
 

@@ -10,10 +10,8 @@
 #include "data/Convert.h"
 #include "data/ValueType.h"
 
-namespace Common
-{
-    SerialInfo::SerialInfo(const String& portName)
-    {
+namespace IO {
+    SerialInfo::SerialInfo(const String &portName) {
         this->portName = portName;
         this->baudRate = 9600;
         this->dataBits = DATA_8;
@@ -24,8 +22,8 @@ namespace Common
         this->dtrEnable = false;
         this->useSignal = false;
     }
-    void SerialInfo::read(XmlTextReader& reader)
-    {
+
+    void SerialInfo::read(XmlTextReader &reader) {
         portName = reader.getAttribute("portname");
         Int32::parse(reader.getAttribute("baudrate"), baudRate);
         dataBits = parseDataBits(reader.getAttribute("databits"));
@@ -36,24 +34,24 @@ namespace Common
         Boolean::parse(reader.getAttribute("dtrenable"), dtrEnable);
         Boolean::parse(reader.getAttribute("usesignal"), useSignal);
     }
-    void SerialInfo::write(XmlTextWriter& writer) const
-    {
+
+    void SerialInfo::write(XmlTextWriter &writer) const {
         writer.writeAttribute("portname", portName);
         writer.writeAttribute("baudrate", baudRate);
         writer.writeAttribute("databits", convertDataBitsStr(dataBits));
         writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
         writer.writeAttribute("parity", convertParityStr(parity));
-        if(handshake != HandshakeType::FLOW_OFF)
+        if (handshake != HandshakeType::FLOW_OFF)
             writer.writeAttribute("handshake", convertHandshakeStr(handshake));
-        if(rtsEnable)
+        if (rtsEnable)
             writer.writeAttribute("rtsenable", rtsEnable);
-        if(dtrEnable)
+        if (dtrEnable)
             writer.writeAttribute("dtrenable", dtrEnable);
-        if(useSignal)
+        if (useSignal)
             writer.writeAttribute("usesignal", useSignal);
     }
-    void SerialInfo::read(JsonTextReader& reader)
-    {
+
+    void SerialInfo::read(JsonTextReader &reader) {
         portName = reader.getAttribute("portname");
         Int32::parse(reader.getAttribute("baudrate"), baudRate);
         dataBits = parseDataBits(reader.getAttribute("databits"));
@@ -64,53 +62,52 @@ namespace Common
         Boolean::parse(reader.getAttribute("dtrenable"), dtrEnable);
         Boolean::parse(reader.getAttribute("usesignal"), useSignal);
     }
-    void SerialInfo::write(JsonTextWriter& writer) const
-    {
+
+    void SerialInfo::write(JsonTextWriter &writer) const {
         writer.writeAttribute("portname", portName);
         writer.writeAttribute("baudrate", baudRate);
         writer.writeAttribute("databits", convertDataBitsStr(dataBits));
         writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
         writer.writeAttribute("parity", convertParityStr(parity));
-        if(handshake != HandshakeType::FLOW_OFF)
+        if (handshake != HandshakeType::FLOW_OFF)
             writer.writeAttribute("handshake", convertHandshakeStr(handshake));
-        if(rtsEnable)
+        if (rtsEnable)
             writer.writeAttribute("rtsenable", rtsEnable);
-        if(dtrEnable)
+        if (dtrEnable)
             writer.writeAttribute("dtrenable", dtrEnable);
-        if(useSignal)
+        if (useSignal)
             writer.writeAttribute("usesignal", useSignal);
     }
-    void SerialInfo::write(JsonNode& node) const
-    {
+
+    void SerialInfo::write(JsonNode &node) const {
         node.add(JsonNode("portname", portName));
         node.add(JsonNode("baudrate", baudRate));
         node.add(JsonNode("databits", convertDataBitsStr(dataBits)));
         node.add(JsonNode("stopbits", convertStopBitsStr(stopBits)));
         node.add(JsonNode("parity", convertParityStr(parity)));
-        if(handshake != HandshakeType::FLOW_OFF)
+        if (handshake != HandshakeType::FLOW_OFF)
             node.add(JsonNode("handshake", convertHandshakeStr(handshake)));
-        if(rtsEnable)
+        if (rtsEnable)
             node.add(JsonNode("rtsenable", rtsEnable));
-        if(dtrEnable)
+        if (dtrEnable)
             node.add(JsonNode("dtrenable", dtrEnable));
-        if(useSignal)
+        if (useSignal)
             node.add(JsonNode("usesignal", useSignal));
     }
-    
-    void SerialInfo::read(Stream* stream)
-    {
+
+    void SerialInfo::read(Stream *stream) {
         portName = stream->readStr();
         baudRate = stream->readInt32();
-        dataBits = (DataBitsType)stream->readByte();
-        stopBits = (StopBitsType)stream->readByte();
-        parity = (ParityType)stream->readByte();
-        handshake = (HandshakeType)stream->readByte();
+        dataBits = (DataBitsType) stream->readByte();
+        stopBits = (StopBitsType) stream->readByte();
+        parity = (ParityType) stream->readByte();
+        handshake = (HandshakeType) stream->readByte();
         rtsEnable = stream->readBoolean();
         dtrEnable = stream->readBoolean();
         useSignal = stream->readBoolean();
     }
-    void SerialInfo::write(Stream* stream) const
-    {
+
+    void SerialInfo::write(Stream *stream) const {
         stream->writeStr(portName);
         stream->writeInt32(baudRate);
         stream->writeByte(dataBits);
@@ -121,26 +118,24 @@ namespace Common
         stream->writeBoolean(dtrEnable);
         stream->writeBoolean(useSignal);
     }
-    
-	String SerialInfo::dataBitsStr() const
-	{
-		return convertDataBitsStr(dataBits);
-	}
-	String SerialInfo::parityStr() const
-	{
-		return convertParityStr(parity);
-	}
-	String SerialInfo::stopBitsStr() const
-	{
-		return convertStopBitsStr(stopBits);
-	}
-	String SerialInfo::handshakeStr() const
-	{
-		return convertHandshakeStr(handshake);
-	}
-    
-    void SerialInfo::operator=(const SerialInfo& value)
-    {
+
+    String SerialInfo::dataBitsStr() const {
+        return convertDataBitsStr(dataBits);
+    }
+
+    String SerialInfo::parityStr() const {
+        return convertParityStr(parity);
+    }
+
+    String SerialInfo::stopBitsStr() const {
+        return convertStopBitsStr(stopBits);
+    }
+
+    String SerialInfo::handshakeStr() const {
+        return convertHandshakeStr(handshake);
+    }
+
+    void SerialInfo::operator=(const SerialInfo &value) {
         this->portName = value.portName;
         this->baudRate = value.baudRate;
         this->dataBits = value.dataBits;
@@ -151,25 +146,24 @@ namespace Common
         this->dtrEnable = value.dtrEnable;
         this->useSignal = value.useSignal;
     }
-    bool SerialInfo::operator==(const SerialInfo& value) const
-    {
+
+    bool SerialInfo::operator==(const SerialInfo &value) const {
         return this->portName == value.portName &&
-            this->baudRate == value.baudRate &&
-            this->dataBits == value.dataBits &&
-            this->stopBits == value.stopBits &&
-            this->handshake == value.handshake &&
-            this->parity == value.parity &&
-            this->rtsEnable == value.rtsEnable &&
-            this->dtrEnable == value.dtrEnable &&
-            this->useSignal == value.useSignal;
+               this->baudRate == value.baudRate &&
+               this->dataBits == value.dataBits &&
+               this->stopBits == value.stopBits &&
+               this->handshake == value.handshake &&
+               this->parity == value.parity &&
+               this->rtsEnable == value.rtsEnable &&
+               this->dtrEnable == value.dtrEnable &&
+               this->useSignal == value.useSignal;
     }
-    bool SerialInfo::operator!=(const SerialInfo& value) const
-    {
+
+    bool SerialInfo::operator!=(const SerialInfo &value) const {
         return !operator==(value);
     }
-    
-    const String SerialInfo::toString() const
-    {
+
+    const String SerialInfo::toString() const {
         return String::convert("port: %s, baudrate: %d, databits: %s, stopbits: %s, parity: %s",
                                portName.c_str(),
                                baudRate,
@@ -177,14 +171,12 @@ namespace Common
                                convertStopBitsStr(stopBits).c_str(),
                                convertParityStr(parity).c_str());
     }
-    
-    bool SerialInfo::isEmpty() const
-    {
+
+    bool SerialInfo::isEmpty() const {
         return this->portName.isNullOrEmpty();
     }
-    
-    SerialInfo::DataBitsType SerialInfo::parseDataBits(const String& str)
-    {
+
+    SerialInfo::DataBitsType SerialInfo::parseDataBits(const String &str) {
         if (str == "8")
             return DATA_8;
         else if (str == "7")
@@ -193,15 +185,13 @@ namespace Common
             return DATA_6;
         else if (str == "5")
             return DATA_5;
-        else
-        {
+        else {
             return DATA_8;
         }
     }
-    String SerialInfo::convertDataBitsStr(DataBitsType dataBits)
-    {
-        switch (dataBits)
-        {
+
+    String SerialInfo::convertDataBitsStr(DataBitsType dataBits) {
+        switch (dataBits) {
             case SerialInfo::DATA_5:
                 return "5";
             case SerialInfo::DATA_6:
@@ -213,9 +203,8 @@ namespace Common
                 return "8";
         }
     }
-    
-    SerialInfo::ParityType SerialInfo::parseParity(const String& str)
-    {
+
+    SerialInfo::ParityType SerialInfo::parseParity(const String &str) {
         if (str == "N" || str == "n" || str.toLower() == "none")
             return PAR_NONE;
         else if (str == "O" || str == "o" || str.toLower() == "odd")
@@ -226,15 +215,13 @@ namespace Common
             return PAR_MARK;
         else if (str == "S" || str == "s" || str.toLower() == "space")
             return PAR_SPACE;
-        else
-        {
+        else {
             return PAR_NONE;
         }
     }
-    String SerialInfo::convertParityStr(ParityType parity)
-    {
-        switch (parity)
-        {
+
+    String SerialInfo::convertParityStr(ParityType parity) {
+        switch (parity) {
             case SerialInfo::PAR_NONE:
                 return "N";
             case SerialInfo::PAR_ODD:
@@ -249,24 +236,21 @@ namespace Common
                 return "N";
         }
     }
-    
-    SerialInfo::StopBitsType SerialInfo::parseStopBits(const String& str)
-    {
+
+    SerialInfo::StopBitsType SerialInfo::parseStopBits(const String &str) {
         if (str == "1")
             return STOP_1;
         else if (str == "1.5")
             return STOP_1_5;
         else if (str == "2")
             return STOP_2;
-        else
-        {
+        else {
             return STOP_1;
         }
     }
-    String SerialInfo::convertStopBitsStr(StopBitsType stopBits)
-    {
-        switch (stopBits)
-        {
+
+    String SerialInfo::convertStopBitsStr(StopBitsType stopBits) {
+        switch (stopBits) {
             case SerialInfo::STOP_1:
                 return "1";
             case SerialInfo::STOP_1_5:
@@ -277,24 +261,21 @@ namespace Common
                 return "1";
         }
     }
-    
-    SerialInfo::HandshakeType SerialInfo::parseHandshake(const String& str)
-    {
+
+    SerialInfo::HandshakeType SerialInfo::parseHandshake(const String &str) {
         if (String::equals("OFF", str, true))
             return FLOW_OFF;
         else if (String::equals("HARDWARE", str, true))
             return FLOW_HARDWARE;
         else if (String::equals("XONXOFF", str, true))
             return FLOW_XONXOFF;
-        else
-        {
+        else {
             return FLOW_OFF;
         }
     }
-    String SerialInfo::convertHandshakeStr(HandshakeType handshake)
-    {
-        switch (handshake)
-        {
+
+    String SerialInfo::convertHandshakeStr(HandshakeType handshake) {
+        switch (handshake) {
             case SerialInfo::FLOW_OFF:
                 return "OFF";
             case SerialInfo::FLOW_HARDWARE:

@@ -18,7 +18,9 @@
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
-namespace Common {
+using namespace Threading;
+
+namespace Data {
     template<class type>
     class PList : public Iterator<type *>,
                   public IIndexGetter<type *>,

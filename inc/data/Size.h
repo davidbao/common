@@ -12,7 +12,7 @@
 #include "data/Vector.h"
 #include "data/String.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Drawing {
     struct Size;

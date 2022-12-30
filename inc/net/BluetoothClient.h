@@ -4,7 +4,7 @@
 #include "data/ValueType.h"
 #include "net/NetType.h"
 
-using namespace Common;
+using namespace Data;
 
 namespace Net
 {

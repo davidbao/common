@@ -15,22 +15,25 @@
 #include "data/Culture.h"
 #include "data/DateTime.h"
 #include "Delegate.h"
+
 #ifdef WIN32
 #include "getopt.h"
 #else
+
 #include <getopt.h>
+
 #endif
 
-namespace Common
-{
-    class Console
-    {
+namespace System {
+    class Console {
     public:
         static const String readLine(int bufferCount = 1024);
-        
-        static int getopt_long(int, char * const *, const char *, const struct option *, int *);
-        static int getopt_long_only(int, char * const *, const char *, const struct option *, int *);
-        static int getopt(int, char * const [], const char *);
+
+        static int getopt_long(int, char *const *, const char *, const struct option *, int *);
+
+        static int getopt_long_only(int, char *const *, const char *, const struct option *, int *);
+
+        static int getopt(int, char *const[], const char *);
     };
 }
 

@@ -11,7 +11,9 @@
 #include "data/ByteArray.h"
 #include "system/Math.h"
 
-namespace Common {
+using namespace System;
+
+namespace IO {
     Stream::Stream() {
     }
 
