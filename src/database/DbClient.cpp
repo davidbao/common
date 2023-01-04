@@ -20,6 +20,18 @@ namespace Database {
 
     DbClient::~DbClient() = default;
 
+    bool DbClient::executeSql(const String &sql) {
+        return executeSql(sql, false);
+    }
+
+    bool DbClient::executeSqlInsert(const DataTable &table) {
+        return executeSqlInsert(table, false);
+    }
+
+    bool DbClient::executeSqlReplace(const DataTable &table) {
+        return executeSqlReplace(table, false);
+    }
+
     bool DbClient::retrieveCount(const String &sql, int &count) {
         DataTable table("countTable");
         table.addColumn(DataColumn("count", ValueTypes::Integer32));

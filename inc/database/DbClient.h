@@ -26,13 +26,13 @@ namespace Database {
 
         virtual bool close() = 0;
 
-        virtual bool executeSql(const String &sql, bool transaction = true) = 0;
+        virtual bool executeSql(const String &sql, bool transaction) = 0;
 
         virtual bool executeSqlQuery(const String &sql, DataTable &table) = 0;
 
-        virtual bool executeSqlInsert(const DataTable &table, bool transaction = true) = 0;
+        virtual bool executeSqlInsert(const DataTable &table, bool transaction) = 0;
 
-        virtual bool executeSqlReplace(const DataTable &table, bool transaction = true) = 0;
+        virtual bool executeSqlReplace(const DataTable &table, bool transaction) = 0;
 
         virtual String getErrorMsg() = 0;
 
@@ -41,6 +41,13 @@ namespace Database {
         virtual bool commitTransaction() = 0;
 
         virtual bool rollbackTransaction() = 0;
+
+    public:
+        bool executeSql(const String &sql);
+
+        bool executeSqlInsert(const DataTable &table);
+
+        bool executeSqlReplace(const DataTable &table);
 
         bool retrieveCount(const String &sql, int &count);
 

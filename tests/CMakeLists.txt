@@ -49,7 +49,7 @@ if (COMMON_ENABLE_TEST)
 
     if (COMMON_STATIC_STDLIB)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} stdc++${CMAKE_FIND_LIBRARY_SUFFIXES})
-    endif()
+    endif ()
 
     if (MAC_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv)
@@ -65,31 +65,34 @@ if (COMMON_ENABLE_TEST)
         set(EXTERNALS_LIB ${EXTERNALS_LIB})
     endif ()
 
-    if (${COMMON_BUILD_HTTPCLIENT})
+    if (COMMON_BUILD_HTTPCLIENT)
         set(EXTERNALS_LIB curl${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
-    endif()
+    endif ()
 
-    if (${COMMON_BUILD_HTTPSERVER})
+    if (COMMON_BUILD_HTTPSERVER})
         set(EXTERNALS_LIB
                 event_openssl${CMAKE_FIND_LIBRARY_SUFFIXES}
                 event${CMAKE_FIND_LIBRARY_SUFFIXES}
                 ${EXTERNALS_LIB}
                 )
-    endif()
+    endif ()
 
-    if (${COMMON_BUILD_DATABASE})
-        if (${COMMON_BUILD_SQLITE})
+    if (COMMON_BUILD_DATABASE)
+        if (COMMON_BUILD_SQLITE)
             set(EXTERNALS_LIB sqlite3${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
         endif ()
-        if (${COMMON_BUILD_MYSQL})
+        if (COMMON_BUILD_MYSQL)
             set(EXTERNALS_LIB mysqlclient${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
         endif ()
-        if (${COMMON_BUILD_ORACLE})
+        if (COMMON_BUILD_ORACLE)
+        endif ()
+        if (COMMON_BUILD_KINGBASE)
+            set(EXTERNALS_LIB kci${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
         endif ()
     endif ()
 
     set(COMMON_LIB common ${EXTERNALS_LIB})
-#    message(STATUS "COMMON_LIB: " ${COMMON_LIB})
+    #    message(STATUS "COMMON_LIB: " ${COMMON_LIB})
 
     # application settings
     set(TEST_SRC
@@ -114,22 +117,25 @@ if (COMMON_ENABLE_TEST)
             # yml
             YmlNodeTest)
 
-    if (${COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
+    if (COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
         set(TEST_SRC ${TEST_SRC} HttpClientTest)
     endif ()
-    if (${COMMON_BUILD_MICROSERVICE})
+    if (COMMON_BUILD_MICROSERVICE)
         set(TEST_SRC ${TEST_SRC} SummerApplicationTest)
     endif ()
 
-    if (${COMMON_BUILD_DATABASE})
+    if (COMMON_BUILD_DATABASE)
         set(TEST_SRC ${TEST_SRC} DataTableTest SqlSelectFilterTest)
-        if (${COMMON_BUILD_SQLITE})
+        if (COMMON_BUILD_SQLITE)
             set(TEST_SRC ${TEST_SRC} SqliteClientTest)
         endif ()
-        if (${COMMON_BUILD_MYSQL})
+        if (COMMON_BUILD_MYSQL)
             set(TEST_SRC ${TEST_SRC} MysqlClientTest)
         endif ()
-        if (${COMMON_BUILD_ORACLE})
+        if (COMMON_BUILD_ORACLE)
+        endif ()
+        if (COMMON_BUILD_KINGBASE)
+            set(TEST_SRC ${TEST_SRC} KingbaseClientTest)
         endif ()
     endif ()
 
@@ -137,7 +143,7 @@ if (COMMON_ENABLE_TEST)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation -framework SystemConfiguration")
     endif ()
 
-#    set(CMAKE_CXX_FLAGS_TEMP ${CMAKE_CXX_FLAGS})
+    #    set(CMAKE_CXX_FLAGS_TEMP ${CMAKE_CXX_FLAGS})
     foreach (item ${TEST_SRC})
         add_executable(${item} ${item}.cpp)
         target_link_libraries(${item} ${COMMON_LIB})

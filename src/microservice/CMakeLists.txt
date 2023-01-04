@@ -19,7 +19,6 @@ set(MICROSERVICE_SRC
         HttpService.cpp
         LoadBalancerClient.cpp
         NacosService.cpp
-        NotificationService.cpp
         RestTemplate.cpp
         ServiceDiscovery.cpp
         ServiceGovernance.cpp
@@ -31,5 +30,9 @@ set(MICROSERVICE_SRC
         TcpService.cpp
         TcpTemplate.cpp
         )
+
+if (COMMON_BUILD_NOTIFICATION)
+    SET(MICROSERVICE_SRC "${MICROSERVICE_SRC}" NotificationService.cpp)
+endif ()
 
 add_library(microservice OBJECT ${MICROSERVICE_SRC})

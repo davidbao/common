@@ -18,7 +18,10 @@
 #include "microservice/DataSourceService.h"
 #include "microservice/ClusterService.h"
 #include "microservice/TcpService.h"
+
+#ifdef HAS_NOTIFICATION
 #include "microservice/NotificationService.h"
+#endif
 
 namespace Microservice {
     SummerStarter::SummerStarter(int argc, const char *argv[]) {
@@ -32,7 +35,9 @@ namespace Microservice {
         _tcp = new TcpService();
         _dataSource = new DataSourceService();
         _cluster = new ClusterService();
+#ifdef HAS_NOTIFICATION
         _notification = new NotificationService();
+#endif
 
         initialize();
     }
@@ -47,7 +52,9 @@ namespace Microservice {
         delete _config;
         delete _dataSource;
         delete _cluster;
+#ifdef HAS_NOTIFICATION
         delete _notification;
+#endif
         delete _app;
     }
 
@@ -101,11 +108,15 @@ namespace Microservice {
         _tcp->initialize();
         _actuator->initialize();
         _cluster->initialize();
+#ifdef HAS_NOTIFICATION
         _notification->initialize();
+#endif
     }
 
     void SummerStarter::unInitialize() {
+#ifdef HAS_NOTIFICATION
         _notification->unInitialize();
+#endif
         _cluster->unInitialize();
         _lbc->unInitialize();
         _discovery->unInitialize();

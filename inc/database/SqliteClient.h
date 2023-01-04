@@ -16,6 +16,10 @@ namespace Database {
 
     class SqliteClient : public DbClient {
     public:
+        using DbClient::executeSql;
+        using DbClient::executeSqlInsert;
+        using DbClient::executeSqlReplace;
+
         SqliteClient();
 
         ~SqliteClient() override;
@@ -24,13 +28,13 @@ namespace Database {
 
         bool close() override;
 
-        bool executeSql(const String &sql, bool transaction = true) override;
+        bool executeSql(const String &sql, bool transaction) override;
 
         bool executeSqlQuery(const String &sql, DataTable &table) override;
 
-        bool executeSqlInsert(const DataTable &table, bool transaction = true) override;
+        bool executeSqlInsert(const DataTable &table, bool transaction) override;
 
-        bool executeSqlReplace(const DataTable &table, bool transaction = true) override;
+        bool executeSqlReplace(const DataTable &table, bool transaction) override;
 
         String getErrorMsg() override;
 

@@ -18,7 +18,7 @@ namespace Net {
     MqttClient::ConnectOptions::ConnectOptions() {
         keepAliveInterval = TimeSpan::fromSeconds(10);
         connectTimeout = TimeSpan::fromSeconds(10);
-        cleansession = true;
+        cleanSession = true;
     }
 
     MqttClient::ConnectOptions::ConnectOptions(const ConnectOptions &options) {
@@ -34,7 +34,7 @@ namespace Net {
         this->password = value.password;
         this->keepAliveInterval = value.keepAliveInterval;
         this->connectTimeout = value.connectTimeout;
-        this->cleansession = value.cleansession;
+        this->cleanSession = value.cleanSession;
     }
 
     bool MqttClient::ConnectOptions::operator==(const ConnectOptions &value) const {
@@ -43,7 +43,7 @@ namespace Net {
                this->password == value.password &&
                this->keepAliveInterval == value.keepAliveInterval &&
                this->connectTimeout == value.connectTimeout &&
-               this->cleansession == value.cleansession;
+               this->cleanSession == value.cleanSession;
     }
 
     bool MqttClient::ConnectOptions::operator!=(const ConnectOptions &value) const {
@@ -179,7 +179,7 @@ namespace Net {
             conn_opts.password = options.password.c_str();
         conn_opts.connectTimeout = (int) options.connectTimeout.totalSeconds();
         conn_opts.keepAliveInterval = (int) options.keepAliveInterval.totalSeconds();
-        conn_opts.cleansession = options.cleansession ? 1 : 0;
+        conn_opts.cleansession = options.cleanSession ? 1 : 0;
 
         _clientMutex.lock();
         if ((rc = MQTTClient_connect(_client, &conn_opts)) != MQTTCLIENT_SUCCESS) {

@@ -45,7 +45,7 @@ namespace Microservice {
         _service = new MqttClient(String::format("Notification-%s", Uuid::generate().toString().c_str()));
 
         _initTimerMutex.lock();
-        TimeSpan interval = TimeSpan::fromSeconds(3);
+        static const TimeSpan interval = TimeSpan::fromSeconds(3);
         _initTimer = new Timer("mqtt.notification.init.timer", initTimeUp, this, interval);
         _initTimerMutex.unlock();
     }
@@ -152,7 +152,7 @@ namespace Microservice {
                                             options.keepAliveInterval);
                             cs->getProperty(String::format("%s.connectTimeout", prefix.c_str()),
                                             options.connectTimeout);
-                            cs->getProperty(String::format("%s.cleansession", prefix.c_str()), options.cleansession);
+                            cs->getProperty(String::format("%s.cleanSession", prefix.c_str()), options.cleanSession);
                             n = new MqttNotification(options);
                         }
                     }

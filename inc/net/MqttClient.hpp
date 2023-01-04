@@ -58,7 +58,7 @@ namespace Net {
             String password;
             TimeSpan keepAliveInterval;
             TimeSpan connectTimeout;
-            bool cleansession;
+            bool cleanSession;
         };
 
         class Message {

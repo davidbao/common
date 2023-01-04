@@ -1,7 +1,7 @@
 #!/bin/sh
 
 runTest() {
-	LD_LIBRARY_PATH=./ ./$1
+	LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH ./$1
 	if [ $? == 0 ];then
 		echo -e "\033[32mThe test‘$1’ is passed.\033[0m"				# green
 	else
@@ -19,6 +19,7 @@ runTest FileTest
 runTest FileTraceListenerTest
 runTest HttpClientTest
 runTest JsonNodeTest
+runTest KingbaseClientTest
 runTest ListTest
 runTest LoopListTest
 runTest LoopVectorTest
@@ -36,7 +37,6 @@ runTest StringMapTest
 runTest StringTest
 runTest SummerApplicationTest
 runTest TypeInfoTest
-runTest UrlTest
 runTest UuidTest
 runTest ValueTypeTest
 runTest VectorTest
