@@ -69,7 +69,7 @@ namespace Microservice {
                     size_t upCount = reachableServers.count();
                     size_t serverCount = allServers.count();
                     if (upCount != 0 && serverCount != 0) {
-                        int nextServerIndex = incrementAndGetModulo(serverCount);
+                        int nextServerIndex = incrementAndGetModulo((int) serverCount);
                         server = allServers.at(nextServerIndex);
                         if (server.isEmpty()) {
                             Thread::msleep(100);

@@ -53,7 +53,7 @@ namespace Data {
         static const String FixedNumberFormats[MaxSecondsFractionDigits];
     };
 
-    class TimeSpanFormat {
+    struct TimeSpanFormat {
     public:
         enum Pattern {
             PatternNone = 0,

@@ -157,7 +157,7 @@ namespace Net {
             socklen_t len = sizeof(sin);
 
             //            return (int)::recv(_socket, data, maxlen, 0);
-            ssize_t result = ::recvfrom(_socket, (char *) data, count, peek ? MSG_PEEK : 0, (struct sockaddr *) &sin,
+            ssize_t result = ::recvfrom(_socket, (char *) data, (int) count, peek ? MSG_PEEK : 0, (struct sockaddr *) &sin,
                                         &len);
 #if WIN32
             // If the datagram or message is larger than the buffer specified, the buffer is filled with the first part of the datagram,

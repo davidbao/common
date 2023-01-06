@@ -160,7 +160,7 @@ namespace Net {
             bool isBroadcast = this->isBroadcast(host);
             sin.sin_addr.s_addr = isBroadcast ? htonl(INADDR_BROADCAST) : inet_addr(host);
 
-            ssize_t result = ::sendto(_socket, (char *) data, count, 0, (struct sockaddr *) &sin, sizeof(sin));
+            ssize_t result = ::sendto(_socket, (char *) data, (int) count, 0, (struct sockaddr *) &sin, sizeof(sin));
             if (result == -1) {
 //				Debug::writeFormatLine("udp sendto failed with errorno: %d, error = %s", errno, strerror(errno));
             }

@@ -166,7 +166,7 @@ namespace Json {
     JsonNode JsonNode::at(size_t pos) const {
         JsonNode node(JsonNode::TypeNone);
         if (pos < count()) {
-            const JSONNode &temp = _inner->at(pos);
+            const JSONNode &temp = _inner->at((json_index_t)pos);
             if (temp.type() != JSON_NULL) {
                 node._inner->operator=(temp);
             }

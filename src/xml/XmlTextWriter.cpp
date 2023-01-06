@@ -200,14 +200,14 @@ namespace Xml {
     bool XmlTextWriter::writeBase64(const ByteArray &buffer) {
         if (isValid()) {
             String str = buffer.toHexString();
-            return xmlTextWriterWriteBase64(_writer->writer, str, 0, str.length()) == XmlSuccess;
+            return xmlTextWriterWriteBase64(_writer->writer, str, 0, (int) str.length()) == XmlSuccess;
         }
         return false;
     }
 
     bool XmlTextWriter::writeBinHex(const ByteArray &buffer) {
         if (isValid()) {
-            return xmlTextWriterWriteBinHex(_writer->writer, (const char *) buffer.data(), 0, buffer.count()) ==
+            return xmlTextWriterWriteBinHex(_writer->writer, (const char *) buffer.data(), 0, (int) buffer.count()) ==
                    XmlSuccess;
         }
         return false;

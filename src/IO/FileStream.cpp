@@ -150,7 +150,7 @@ namespace IO {
             ftruncate(_fd, length);
 #endif
             if (pos != length) {
-                if (pos < length) {
+                if (pos < (off_t) length) {
                     seek(pos, SeekBegin);
                 } else {
                     seek(0, SeekEnd);

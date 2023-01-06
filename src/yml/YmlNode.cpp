@@ -15,7 +15,6 @@
 #include <fstream>
 #include <map>
 
-using namespace YAML;
 using namespace Diag;
 
 namespace Yml {
@@ -26,22 +25,26 @@ namespace Yml {
         explicit YmlNodeInner(YAML::Node *node = nullptr) {
             this->node = node;
         }
+
+        explicit YmlNodeInner(const YAML::Node *node) {
+            this->node = (YAML::Node *)node;
+        }
     };
 
     YmlNode::YmlNode(Type type) : _attach(false) {
-        Node *node;
+        YAML::Node *node;
         if (type == Type::TypeUndefined)
-            node = new Node(NodeType::Undefined);
+            node = new YAML::Node(YAML::NodeType::Undefined);
         else if (type == Type::TypeNull)
-            node = new Node(NodeType::Null);
+            node = new YAML::Node(YAML::NodeType::Null);
         else if (type == Type::TypeScalar)
-            node = new Node(NodeType::Scalar);
+            node = new YAML::Node(YAML::NodeType::Scalar);
         else if (type == Type::TypeSequence)
-            node = new Node(NodeType::Sequence);
+            node = new YAML::Node(YAML::NodeType::Sequence);
         else if (type == Type::TypeMap)
-            node = new Node(NodeType::Map);
+            node = new YAML::Node(YAML::NodeType::Map);
         else
-            node = new Node();
+            node = new YAML::Node();
         _node = new YmlNodeInner(node);
     }
 
@@ -50,7 +53,7 @@ namespace Yml {
             _node = new YmlNodeInner(node._node->node);
             _attach = node._attach;
         } else {
-            _node = new YmlNodeInner(new Node());
+            _node = new YmlNodeInner(new YAML::Node());
             _node->node->operator=(*node._node->node);
         }
     }
@@ -59,7 +62,7 @@ namespace Yml {
     }
 
     YmlNode::YmlNode(const String &value) : _attach(false) {
-        _node = new YmlNodeInner(new Node(value.c_str()));
+        _node = new YmlNodeInner(new YAML::Node(value.c_str()));
     }
 
     YmlNode::YmlNode(const bool &value) : YmlNode(((Boolean) value).toString()) {
@@ -142,8 +145,8 @@ namespace Yml {
                     int index = 0;
                     auto it = yNode->begin();
                     for (; it != yNode->end(); ++it) {
-                        const Node &key = it->first;
-                        const Node &value = it->second;
+                        const YAML::Node &key = it->first;
+                        const YAML::Node &value = it->second;
                         if (index == pos) {
                             node._node->node->operator=(value);
                             return true;
@@ -168,8 +171,8 @@ namespace Yml {
         try {
             YAML::Node *yNode = _node->node;
             if (yNode->IsMap()) {
-                const Node &temp = (*yNode)[name.c_str()];
-                if (temp.Type() != NodeType::Undefined) {
+                const YAML::Node &temp = (*yNode)[name.c_str()];
+                if (temp.Type() != YAML::NodeType::Undefined) {
                     node._node->node->operator=(temp);
                     return true;
                 }
@@ -185,7 +188,7 @@ namespace Yml {
 
     bool YmlNode::getAttribute(const String &name, String &value) const {
         try {
-            const Node &node = _node->node->operator[](name.c_str());
+            const YAML::Node &node = _node->node->operator[](name.c_str());
             value = node.as<std::string>();
             return true;
         }
@@ -245,15 +248,15 @@ namespace Yml {
 
     YmlNode::Type YmlNode::type() const {
         switch (_node->node->Type()) {
-            case NodeType::Undefined:
+            case YAML::NodeType::Undefined:
                 return TypeUndefined;
-            case NodeType::Null:
+            case YAML::NodeType::Null:
                 return TypeNull;
-            case NodeType::Sequence:
+            case YAML::NodeType::Sequence:
                 return TypeSequence;
-            case NodeType::Scalar:
+            case YAML::NodeType::Scalar:
                 return TypeScalar;
-            case NodeType::Map:
+            case YAML::NodeType::Map:
                 return TypeMap;
             default:
                 return TypeUndefined;
@@ -311,21 +314,25 @@ namespace Yml {
         for (; it != node.node->end(); ++it) {
             tempLevelStr = levelStr;
 
-            const Node &key = it->first;
-            const Node &value = it->second;
-            if (key.Type() == NodeType::Scalar) {
+            const YAML::Node &key = it->first;
+            const YAML::Node &value = it->second;
+            if (key.Type() == YAML::NodeType::Scalar) {
                 // This should be true; do something here with the scalar key.
                 if (!levelStr.isNullOrEmpty())
                     levelStr.append('.');
                 levelStr.append(key.as<string>());
                 properties.add(levelStr, String::Empty);
+                if (value.Type() == YAML::NodeType::Scalar) {
+                    value.as<string>(); // Fixed BUG: crash without value invoked.
+                }
 //#ifdef DEBUG
 //                String str = String::format("%s=%s", levelStr.c_str(), String::Empty.c_str());
 //                Debug::writeLine(str);
 //#endif
             }
 
-            getValueProperties(YmlNodeInner((Node *) &value), levelStr, properties);
+            const YmlNodeInner innerNode(&value);
+            getValueProperties(innerNode, levelStr, properties);
 
             levelStr = tempLevelStr;
         }
@@ -344,27 +351,28 @@ namespace Yml {
     }
 
     void YmlNode::getValueProperties(const YmlNodeInner &node, String &levelStr, Properties &properties) const {
-        if (node.node->Type() == NodeType::Map) {
+        if (node.node->Type() == YAML::NodeType::Map) {
             // This should be true; do something here with the map.
             getProperties(node, levelStr, properties);
             levelStr.empty();
-        } else if (node.node->Type() == NodeType::Scalar) {
+        } else if (node.node->Type() == YAML::NodeType::Scalar) {
             properties.add(levelStr, node.node->as<string>());
 //#ifdef DEBUG
 //            String str = String::format("%s=%s", levelStr.c_str(), node.as<string>().c_str());
 //            Debug::writeLine(str);
 //#endif
-        } else if (node.node->Type() == NodeType::Sequence) {
+        } else if (node.node->Type() == YAML::NodeType::Sequence) {
             for (std::size_t i = 0; i < node.node->size(); i++) {
-                const Node &subNode = (*node.node)[i];
-                getValueProperties(YmlNodeInner((Node *) &subNode), i, levelStr, properties);
+                const YAML::Node &subNode = (*node.node)[i];
+                const YmlNodeInner innerNode(&subNode);
+                getValueProperties(innerNode, i, levelStr, properties);
             }
         }
     }
 
     void YmlNode::getValueProperties(const YmlNodeInner &node, size_t index, String &levelStr,
                                      Properties &properties) const {
-        if (node.node->Type() == NodeType::Map) {
+        if (node.node->Type() == YAML::NodeType::Map) {
             // This should be true; do something here with the map.
             String temp = levelStr;
             levelStr.append(String::format("[%d]", index));
@@ -372,7 +380,7 @@ namespace Yml {
 
             getProperties(node, levelStr, properties);
             levelStr = temp;
-        } else if (node.node->Type() == NodeType::Scalar) {
+        } else if (node.node->Type() == YAML::NodeType::Scalar) {
             String temp = levelStr;
             levelStr.append(String::format("[%d]", index));
             properties.add(levelStr, node.node->as<string>());
@@ -381,10 +389,11 @@ namespace Yml {
 //            String str = String::format("%s=%s", levelStr.c_str(), node.as<string>().c_str());
 //            Debug::writeLine(str);
 //#endif
-        } else if (node.node->Type() == NodeType::Sequence) {
+        } else if (node.node->Type() == YAML::NodeType::Sequence) {
             for (std::size_t i = 0; i < node.node->size(); i++) {
-                const Node &subNode = (*node.node)[i];
-                getValueProperties(YmlNodeInner((Node *) &subNode), i, levelStr, properties);
+                const YAML::Node &subNode = (*node.node)[i];
+                const YmlNodeInner innerNode(&subNode);
+                getValueProperties(innerNode, i, levelStr, properties);
             }
         }
     }
@@ -392,7 +401,7 @@ namespace Yml {
     bool YmlNode::parse(const String &str, YmlNode &node) {
         try {
             YAML::Node temp = YAML::Load(str.c_str());
-            if (temp.Type() != NodeType::Undefined) {
+            if (temp.Type() != YAML::NodeType::Undefined) {
                 node._node->node->operator=(temp);
                 return true;
             }
@@ -408,7 +417,7 @@ namespace Yml {
     bool YmlNode::parseFile(const String &fileName, YmlNode &node) {
         try {
             YAML::Node temp = YAML::LoadFile(fileName.c_str());
-            if (temp.Type() != NodeType::Undefined) {
+            if (temp.Type() != YAML::NodeType::Undefined) {
                 node._node->node->operator=(temp);
                 return true;
             }

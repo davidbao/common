@@ -2001,7 +2001,7 @@ namespace Data {
             case Null:
                 return false;
             case Digital:
-                return value.bValue == v != 0;
+                return value.bValue == (bool) (v != 0);
             case Integer8:
                 return value.cValue == (int8_t) v;
             case UInteger8:

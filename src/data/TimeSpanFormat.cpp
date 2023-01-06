@@ -97,7 +97,7 @@ namespace Data {
         char quote = '\'';
         int field = 0;
 
-        for (int i = 0; i < format.length(); i++) {
+        for (size_t i = 0; i < format.length(); i++) {
             switch (format[i]) {
                 case '\'':
                 case '\"':
@@ -283,7 +283,7 @@ namespace Data {
         int tokenLen;
         String result;
 
-        while (i < format.length()) {
+        while (i < (int) format.length()) {
             char ch = format[i];
             int nextChar;
             switch (ch) {
@@ -403,12 +403,12 @@ namespace Data {
     String TimeSpanFormat::intToString(int64_t n, int digits) {
         char result[64];
         sprintf(result, "%0*"
-        PRId64, digits, n);
+                        PRId64, digits, n);
         return result;
     }
 
     int TimeSpanFormat::parseRepeatPattern(const String &format, int pos, char patternChar) {
-        int len = format.length();
+        int len = (int) format.length();
         int index = pos + 1;
         while ((index < len) && (format[index] == patternChar)) {
             index++;
@@ -454,7 +454,7 @@ namespace Data {
         //
         // NOTE : pos will be the index of the quote character in the 'format' string.
         //
-        int formatLen = format.length();
+        int formatLen = (int) format.length();
         int beginPos = pos;
         char quoteChar = format[pos++]; // Get the character used to quote the following string.
 
@@ -500,7 +500,7 @@ namespace Data {
     // Otherwise, return value is the int value of the next character.
     //
     int TimeSpanFormat::parseNextChar(const String &format, int pos) {
-        if (pos >= format.length() - 1) {
+        if (pos >= (int) format.length() - 1) {
             return (-1);
         }
         return ((int) format[pos + 1]);
@@ -601,7 +601,7 @@ namespace Data {
     }
 
     bool TimeSpanParse::TimeSpanTokenizer::EOL() const {
-        return m_pos >= (m_value.length() - 1);
+        return m_pos >= ((int) m_value.length() - 1);
     }
 
     // BackOne, NextChar, CurrentChar - used by ParseExact (ParseByFormat) to operate
@@ -616,7 +616,7 @@ namespace Data {
     }
 
     char TimeSpanParse::TimeSpanTokenizer::CurrentChar() const {
-        if (m_pos > -1 && m_pos < m_value.length()) {
+        if (m_pos > -1 && m_pos < (int) m_value.length()) {
             return m_value[m_pos];
         } else {
             return (char) 0;
@@ -862,7 +862,7 @@ namespace Data {
             return false;
         }
         str = input;
-        len = input.length();
+        len = (int) input.length();
         pos = -1;
         NextChar();
         SkipBlanks();
@@ -1698,7 +1698,7 @@ namespace Data {
         TimeSpanTokenizer tokenizer;
         tokenizer.Init(input, -1);
 
-        while (i < format.length()) {
+        while (i < (int) format.length()) {
             char ch = format[i];
             int nextFormatChar;
             switch (ch) {
@@ -1858,7 +1858,7 @@ namespace Data {
     }
 
     bool TimeSpanParse::ParseExactLiteral(TimeSpanTokenizer &tokenizer, const String &enquotedString) {
-        for (int i = 0; i < enquotedString.length(); i++) {
+        for (size_t i = 0; i < enquotedString.length(); i++) {
             if (enquotedString[i] != tokenizer.NextChar())
                 return false;
         }
@@ -1902,7 +1902,7 @@ namespace Data {
         // Do a loop through the provided formats and see if we can parse succesfully in
         // one of the formats.
         //
-        for (int i = 0; i < formats.count(); i++) {
+        for (size_t i = 0; i < formats.count(); i++) {
             if (formats[i].length() == 0) {
                 result.SetFailure(ParseFailureKind::Format, "Format_BadFormatSpecifier");
                 return false;
@@ -1923,7 +1923,7 @@ namespace Data {
     }
 
     int TimeSpanParse::ParseRepeatPattern(const String &format, int pos, char patternChar) {
-        int len = format.length();
+        int len = (int) format.length();
         int index = pos + 1;
         while ((index < len) && (format[index] == patternChar)) {
             index++;
@@ -1936,7 +1936,7 @@ namespace Data {
         // NOTE : pos will be the index of the quote character in the 'format' string.
         //
         returnValue = 0;
-        int formatLen = format.length();
+        int formatLen = (int) format.length();
         int beginPos = pos;
         char quoteChar = format[pos++]; // Get the character used to quote the following string.
 
@@ -1983,7 +1983,7 @@ namespace Data {
     // Otherwise, return value is the int value of the next character.
     //
     int TimeSpanParse::ParseNextChar(const String &format, int pos) {
-        if (pos >= format.length() - 1) {
+        if (pos >= (int) format.length() - 1) {
             return (-1);
         }
         return ((int) format[pos + 1]);

@@ -24,8 +24,10 @@
 #include <sys/stat.h>
 
 #elif WIN_OS
+
 #include <Windows.h>
 #include <strsafe.h>
+
 #elif LINUX_OS
 #include <sys/vfs.h>
 #include <unistd.h>
@@ -43,23 +45,23 @@
 #endif
 
 #ifdef WIN_OS
+
 //Time conversion
-static __int64 file_time_2_utc(const FILETIME* ftime)
-{
+static __int64 file_time_2_utc(const FILETIME *ftime) {
     LARGE_INTEGER li;
 
     li.LowPart = ftime->dwLowDateTime;
     li.HighPart = ftime->dwHighDateTime;
     return li.QuadPart;
 }
+
 #endif
 
 namespace IO {
     bool DiskStat::isDiskFull(const String &path, int maxBytes) {
 #if WIN32
         ULARGE_INTEGER available, total, free;
-        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free))
-        {
+        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free)) {
             return (available.QuadPart < maxBytes);
         }
 #else
@@ -74,8 +76,7 @@ namespace IO {
     uint64_t DiskStat::getTotal(const String &path) {
 #if WIN32
         ULARGE_INTEGER available, total, free;
-        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free))
-        {
+        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free)) {
             return total.QuadPart;
         }
 #else
@@ -90,8 +91,7 @@ namespace IO {
     uint64_t DiskStat::getFree(const String &path) {
 #if WIN32
         ULARGE_INTEGER available, total, free;
-        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free))
-        {
+        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free)) {
             return free.QuadPart;
         }
 #else
@@ -106,8 +106,7 @@ namespace IO {
     uint64_t DiskStat::getAvailable(const String &path) {
 #if WIN32
         ULARGE_INTEGER available, total, free;
-        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free))
-        {
+        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free)) {
             return available.QuadPart;
         }
 #else
@@ -124,50 +123,44 @@ namespace IO {
     }
 
 #ifdef WIN_OS
-    LARGE_INTEGER __GetDirectorySize(const char* szDir)
-    {
+
+    LARGE_INTEGER __GetDirectorySize(const char *szDir) {
         WIN32_FIND_DATA ffd;
         LARGE_INTEGER diretorySize;
         diretorySize.QuadPart = 0;
-     
+
         HANDLE hFind = INVALID_HANDLE_VALUE;
         DWORD dwError = 0;
-     
+
         char szDirAll[MAX_PATH];
         StringCchCopy(szDirAll, MAX_PATH, szDir);
         StringCchCat(szDirAll, MAX_PATH, TEXT("\\*"));
-     
+
         hFind = FindFirstFile(szDirAll, &ffd);
-        if (INVALID_HANDLE_VALUE == hFind)
-        {
+        if (INVALID_HANDLE_VALUE == hFind) {
             return diretorySize;
         }
-     
-        do
-        {
-            if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                if (strcmp((char*)ffd.cFileName, ".")==0 || strcmp((char*)ffd.cFileName, "..")==0)
-                {
+
+        do {
+            if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                if (strcmp((char *) ffd.cFileName, ".") == 0 || strcmp((char *) ffd.cFileName, "..") == 0) {
                     continue;
                 }
-     
+
                 TCHAR szSubDir[MAX_PATH];
                 StringCchCopy(szSubDir, MAX_PATH, szDir);
                 StringCchCat(szSubDir, MAX_PATH, TEXT("\\"));
                 StringCchCat(szSubDir, MAX_PATH, ffd.cFileName);
-     
+
                 LARGE_INTEGER subDirSize = __GetDirectorySize(szSubDir);
                 diretorySize.QuadPart += subDirSize.QuadPart;
-            }
-            else
-            {
+            } else {
                 diretorySize.QuadPart += ffd.nFileSizeLow + ffd.nFileSizeHigh;
             }
         } while (FindNextFile(hFind, &ffd) != 0);
-     
+
         FindClose(hFind);
-     
+
         return diretorySize;
     }
 
@@ -358,25 +351,18 @@ namespace IO {
         __int64 time;
         __int64 system_time_delta;
         __int64 time_delta;
-        if(processor_count_ == -1)
-        {
+        if (processor_count_ == -1) {
             processor_count_ = numCPUs();
         }
 
         GetSystemTimeAsFileTime(&now);
-
-        Process process;
-        Process::getCurrentProcess(process);
-        HANDLE hProcess = (HANDLE)process.id();
-        if (!GetProcessTimes(hProcess, &creation_time, &exit_time, &kernel_time, &user_time))
-        {
+        if (!GetProcessTimes(GetCurrentProcess(), &creation_time, &exit_time, &kernel_time, &user_time)) {
             return -1;
         }
         system_time = (file_time_2_utc(&kernel_time) + file_time_2_utc(&user_time)) / processor_count_;
         time = file_time_2_utc(&now);
 
-        if ((last_system_time_ == 0) || (last_time_ == 0))
-        {
+        if ((last_system_time_ == 0) || (last_time_ == 0)) {
             last_system_time_ = system_time;
             last_time_ = time;
             return -1;
@@ -388,7 +374,7 @@ namespace IO {
         if (time_delta == 0)
             return -1;
 
-        int cpu = (int)((system_time_delta * 100 + time_delta / 2) / time_delta);
+        int cpu = (int) ((system_time_delta * 100 + time_delta / 2) / time_delta);
         last_system_time_ = system_time;
         last_time_ = time;
         return cpu;
@@ -500,8 +486,8 @@ namespace IO {
         /* Use new 64-bit MEMORYSTATUSEX, not old 32-bit MEMORYSTATUS */
         MEMORYSTATUSEX status;
         status.dwLength = sizeof(status);
-        GlobalMemoryStatusEx( &status );
-        return (size_t)status.ullTotalPhys;
+        GlobalMemoryStatusEx(&status);
+        return (size_t) status.ullTotalPhys;
 
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
         /* UNIX variants. ------------------------------------------- */

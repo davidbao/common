@@ -11,7 +11,7 @@
 namespace System {
     uint8_t BccUtilities::checkByBit(const uint8_t *buffer, off_t offset, size_t count) {
         uint8_t result = 0;
-        for (off_t i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             result ^= buffer[i];
         }
         return result;
@@ -23,7 +23,7 @@ namespace System {
 
     uint8_t SumUtilities::checkByBit(const uint8_t *buffer, off_t offset, size_t count) {
         uint8_t result = 0;
-        for (off_t i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             result += buffer[i];
         }
         return result;
@@ -32,7 +32,7 @@ namespace System {
     // Longitudinal Redundancy Check
     uint8_t LrcUtilities::checkByBit(const uint8_t *buffer, off_t offset, size_t count) {
         uint8_t result = 0;
-        for (off_t i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             result += buffer[i];
         }
         result = -result;
@@ -87,7 +87,7 @@ namespace System {
     unsigned short
     Crc16Utilities::checkByBit(const uint8_t *buffer, off_t offset, size_t count, unsigned short initValue,
                                unsigned short polynomial) {
-        for (off_t i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             initValue = (unsigned short) (initValue ^ buffer[i]);
             for (int j = 0; j < 8; j++) {
                 int msbInfo = initValue & 0x0001;
@@ -113,7 +113,7 @@ namespace System {
 
         u8CRCLo = initValue & 0xFF;
         u8CRCHi = (initValue >> 8) & 0xFF;
-        for (int i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             // calculate the CRC
             u8Index = u8CRCHi ^ buffer[i];
             u8CRCHi = u8CRCLo ^ s_aCRCHi[u8Index];
@@ -149,7 +149,7 @@ namespace System {
 
     uint8_t Crc8Utilities::checkByBit(const uint8_t *buffer, off_t offset, size_t count, uint8_t initValue,
                                       uint8_t polynomial) {
-        for (int i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             initValue = (uint8_t) (initValue ^ buffer[i]);
             for (int j = 0; j < 8; j++) {
                 int msbInfo = initValue & 0x01;
@@ -169,7 +169,7 @@ namespace System {
     uint8_t Crc8Utilities::quickCheckByBit(const uint8_t *buffer, off_t offset, size_t count, uint8_t initValue) {
         unsigned char crc = initValue;
 
-        for (off_t i = offset; i < count + offset; i++) {
+        for (off_t i = offset; i < (off_t) count + offset; i++) {
             crc = s_aCRC[crc ^ buffer[i]];
         }
         return (crc);

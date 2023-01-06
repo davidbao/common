@@ -52,18 +52,18 @@ namespace IO {
 
     bool MemoryStream::seek(off_t offset, SeekOrigin origin) {
         if (origin == SEEK_SET) {
-            if (offset >= 0 && offset <= _buffer->count()) {
+            if (offset >= 0 && offset <= (off_t) _buffer->count()) {
                 _position = offset;
                 return true;
             }
         } else if (origin == SEEK_CUR) {
-            if (offset >= 0 && offset <= _buffer->count() - _position) {
+            if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
                 _position += offset;
                 return true;
             }
         } else if (origin == SEEK_END) {
-            if (offset >= 0 && offset <= _buffer->count() - _position) {
-                _position = _buffer->count() - offset;
+            if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
+                _position = (off_t) _buffer->count() - offset;
                 return true;
             }
         }
@@ -80,9 +80,9 @@ namespace IO {
     }
 
     ssize_t MemoryStream::write(const uint8_t *array, off_t offset, size_t count) {
-        if (_position == _buffer->count()) {
+        if (_position == (off_t) _buffer->count()) {
             _buffer->addRange((array + offset), count);
-        } else if (_position < _buffer->count()) {
+        } else if (_position < (off_t) _buffer->count()) {
             _buffer->setRange((uint32_t) _position, (array + offset), count);
         } else    // _position > _buffer->count()
         {
@@ -93,7 +93,7 @@ namespace IO {
             _buffer->addRange((array + offset), count);
             delete[] zero;
         }
-        _position += count;
+        _position += (off_t) count;
         return count;
     }
 
@@ -108,7 +108,7 @@ namespace IO {
             size_t bufferCount = _buffer->count();
             size_t readCount = minInteger(count, bufferCount - _position);
             memcpy(array + offset, temp + (int) _position, readCount);
-            _position += readCount;
+            _position += (off_t) readCount;
             return readCount;
         }
         return 0;

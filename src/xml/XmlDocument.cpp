@@ -56,7 +56,7 @@ namespace Xml {
             xmlFreeDoc(_doc->doc);
             _doc->doc = nullptr;
         }
-        _doc->doc = xmlParseMemory(xml, xml.length());
+        _doc->doc = xmlParseMemory(xml, (int) xml.length());
         return _doc->doc != nullptr;
     }
 

@@ -1,4 +1,5 @@
 #if WIN32
+
 #include <winsock2.h>
 #include <ws2bth.h>
 #include <bthsdpdef.h>
@@ -55,9 +56,8 @@ namespace Net {
 #if WIN32
             SOCKADDR_BTH sab;
             int clen = sizeof(sab);
-            int result = ::getpeername(_socket, (struct sockaddr *)&sab, &clen);
-            if(result != -1)
-            {
+            int result = ::getpeername(_socket, (struct sockaddr *) &sab, &clen);
+            if (result != -1) {
                 _peerEndpoint.address = String::format("%04x%08x", GET_NAP(sab.btAddr), GET_SAP(sab.btAddr));
                 _peerEndpoint.port = sab.port;
             }
@@ -105,11 +105,11 @@ namespace Net {
     }
 
     ssize_t BluetoothClient::write(const uint8_t *data, size_t count) {
-        return _socket != -1 ? ::send(_socket, (char *) data, count, 0) : 0;
+        return _socket != -1 ? ::send(_socket, (char *) data, (int) count, 0) : 0;
     }
 
     ssize_t BluetoothClient::read(uint8_t *data, size_t count) {
-        return _socket != -1 ? ::recv(_socket, (char *) data, count, 0) : 0;
+        return _socket != -1 ? ::recv(_socket, (char *) data, (int) count, 0) : 0;
     }
 
     bool BluetoothClient::connected() {

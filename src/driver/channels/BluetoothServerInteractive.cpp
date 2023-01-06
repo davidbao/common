@@ -141,7 +141,7 @@ namespace Drivers {
 
     bool BluetoothServerInteractive::connected() {
         Locker locker(&_mutexClients);
-        for (off_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             BluetoothServerClient *client = _clients.at(i);
             if (client != nullptr) {
                 if (client->connected()) {
@@ -160,7 +160,7 @@ namespace Drivers {
 
     ssize_t BluetoothServerInteractive::send(const uint8_t *buffer, off_t offset, size_t count) {
         Locker locker(&_mutexClients);
-        for (off_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             BluetoothServerClient *client = _clients.at(i);
             if (client != nullptr) {
                 // todo: add a pool that it contains buffer.
@@ -198,7 +198,7 @@ namespace Drivers {
 
     void BluetoothServerInteractive::closeProcInner() {
         _mutexClients.lock();
-        for (off_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             BluetoothServerClient *client = _clients.at(i);
             if (client != nullptr) {
                 if (!client->connected()) {

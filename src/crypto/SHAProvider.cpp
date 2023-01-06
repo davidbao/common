@@ -32,7 +32,7 @@ namespace Crypto {
         return true;
     }
 
-    bool SHAProvider::computeHash(const uint8_t *src, uint32_t length, ByteArray &output, KeySize size) {
+    bool SHAProvider::computeHash(const uint8_t *src, size_t length, ByteArray &output, KeySize size) {
         if (size == KeySize::Key1) {
             unsigned char digest[SHA_DIGEST_LENGTH];
             memset(digest, 0, sizeof(digest));

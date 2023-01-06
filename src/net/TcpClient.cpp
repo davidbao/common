@@ -1,8 +1,10 @@
 #if WIN32
+
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <WSPiApi.h>
 #include <iphlpapi.h>
+
 #define poll WSAPoll
 #else
 
@@ -347,7 +349,7 @@ namespace Net {
 
     ssize_t TcpClient::write(const uint8_t *data, size_t count) {
         if (_socket != -1) {
-            ssize_t length = ::send(_socket, (const char *) data, count, 0);
+            ssize_t length = ::send(_socket, (const char *) data, (int) count, 0);
 #ifdef __EMSCRIPTEN__
             if (length == -1)
             {
@@ -384,7 +386,7 @@ namespace Net {
 
     ssize_t TcpClient::read(uint8_t *data, size_t count) {
         if (_socket != -1) {
-            ssize_t length = ::recv(_socket, (char *) data, count, 0);
+            ssize_t length = ::recv(_socket, (char *) data, (int) count, 0);
             return length >= 0 ? length : 0;
         }
         return 0;
@@ -464,8 +466,7 @@ namespace Net {
             WSADATA wsaData = {0};
             // Initialize Winsock
             int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-            if (result != 0)
-            {
+            if (result != 0) {
                 Debug::writeFormatLine("WSAStartup failed: %d", result);
                 return;
             }
@@ -1001,11 +1002,11 @@ namespace Net {
                 int nRes = SSL_get_error((SSL *) _ssl, ires);
                 if (nRes == SSL_ERROR_NONE) {
                     if (ires > 0) {
-                        if (icount >= count) {
+                        if (icount >= (ssize_t) count) {
                             break;
                         }
                         icount += ires;
-                        if (icount >= count) {
+                        if (icount >= (ssize_t) count) {
                             break;
                         }
                         continue;
@@ -1027,7 +1028,7 @@ namespace Net {
         Stopwatch sw("TcpSSLClient::read", 1000);
 #endif
         if (_ssl != nullptr) {
-            int length = SSL_read((SSL *) _ssl, data, count);
+            int length = SSL_read((SSL *) _ssl, data, (int) count);
             return length >= 0 ? length : 0;
         }
         return 0;
@@ -1046,7 +1047,7 @@ namespace Net {
                 if (nRes == SSL_ERROR_NONE) {
                     if (ires > 0) {
                         icount += ires;
-                        if (icount >= count) {
+                        if (icount >= (ssize_t) count) {
                             break;
                         }
                         continue;
@@ -1542,7 +1543,7 @@ namespace Net {
 
     size_t WebSocketSSLClient::available() {
         if (_buffer.count() > 0 &&
-            _position >= 0 && _position < _buffer.count()) {
+            _position >= 0 && _position < (off_t) _buffer.count()) {
             size_t bufferCount = _buffer.count() - _position;
             return bufferCount + 6;     // buffer count + header count
         }

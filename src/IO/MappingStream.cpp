@@ -255,13 +255,13 @@ namespace IO {
         for (size_t i = 0; i < _views.count(); i++) {
             View *view = _views[i];
             size += view->size;
-            if (size > position()) {
+            if ((off_t) size > position()) {
                 length = Math::min((int64_t) (count - length), (int64_t) (view->size - (position() - view->offset)));
                 view->write(position() - view->offset, array, offset, length);
                 offset += (off_t)length;
                 pos += length;
                 seek((off_t)pos, SeekOrigin::SeekBegin);
-                if (offset >= count)
+                if (offset >= (off_t) count)
                     break;
             }
         }
@@ -292,7 +292,7 @@ namespace IO {
         for (size_t i = 0; i < _views.count(); i++) {
             View *view = _views[i];
             size += view->size;
-            if (size > position()) {
+            if ((off_t) size > position()) {
                 length += view->read(position() - view->offset, array, offset + (off_t)length, count - length);
                 pos += (off_t)length;
                 seek(pos, SeekOrigin::SeekBegin);

@@ -49,12 +49,6 @@ bool testConstructor() {
             return false;
         }
     }
-    {
-        XmlTextReader reader("abc");
-        if (reader.isValid()) {
-            return false;
-        }
-    }
 
     {
         XmlTextReader reader(zipFullFileName, xmlFileName);

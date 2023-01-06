@@ -34,7 +34,7 @@ namespace Crypto {
 
     private:
         static bool
-        computeHash(const uint8_t *src, uint32_t length, ByteArray &output, KeySize size = KeySize::Default);
+        computeHash(const uint8_t *src, size_t length, ByteArray &output, KeySize size = KeySize::Default);
     };
 }
 

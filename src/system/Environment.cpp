@@ -6,6 +6,7 @@
 //  Copyright © 2020 com. All rights reserved.
 //
 
+#define _DCRTIMP
 #include "system/Environment.h"
 //#include "system/Regex.h"
 #include <cstdlib>

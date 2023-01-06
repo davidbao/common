@@ -89,7 +89,7 @@ namespace Data {
     }
 
     int DateTimeFormat::ParseRepeatPattern(const String &format, int pos, char patternChar) {
-        int len = format.length();
+        int len = (int) format.length();
         int index = pos + 1;
         while ((index < len) && (format[index] == patternChar)) {
             index++;
@@ -125,7 +125,7 @@ namespace Data {
         //
         // NOTE : pos will be the index of the quote character in the 'format' string.
         //
-        int formatLen = format.length();
+        int formatLen = (int) format.length();
         int beginPos = pos;
         char quoteChar = format[pos++]; // Get the character used to quote the following string.
 
@@ -171,7 +171,7 @@ namespace Data {
     // Otherwise, return value is the int value of the next character.
     //
     int DateTimeFormat::ParseNextChar(const String &format, int pos) {
-        if (pos >= format.length() - 1) {
+        if (pos >= (int) format.length() - 1) {
             return (-1);
         }
         return ((int) format[pos + 1]);
@@ -222,12 +222,12 @@ namespace Data {
 
         // Find first "d"
         for (i = index + tokenLen;
-             i < format.length() && format[i] != patternToMatch; i++) { /* Do nothing here */ };
+             i < (int) format.length() && format[i] != patternToMatch; i++) { /* Do nothing here */ };
 
-        if (i < format.length()) {
+        if (i < (int) format.length()) {
             repeat = 0;
             // Find a "d", so continue the walk to see how may "d" that we can find.
-            while (++i < format.length() && format[i] == patternToMatch) {
+            while (++i < (int) format.length() && format[i] == patternToMatch) {
                 repeat++;
             }
             //
@@ -251,13 +251,13 @@ namespace Data {
                                      const TimeSpan &offset) {
         String result;
 
-        // This is a flag to indicate if we are formating hour/minute/second only.
+        // This is a flag to indicate if we are formatting hour/minute/second only.
         bool bTimeOnly = true;
 
         int i = 0;
         int tokenLen, hour12;
 
-        while (i < format.length()) {
+        while (i < (int) format.length()) {
             char ch = format[i];
             int nextChar;
             switch (ch) {

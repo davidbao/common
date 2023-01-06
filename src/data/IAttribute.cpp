@@ -188,6 +188,10 @@ namespace Data {
         return setAttribute(name, String(value));
     }
 
+    bool IAttributeSetter::setStringAttribute(const String &name, const String &value) {
+        return setAttribute(name, value);
+    }
+
     bool IAttributeSetter::writeAttribute(const String &name, const String &value) {
         return setAttribute(name, value);
     }
@@ -242,5 +246,9 @@ namespace Data {
 
     bool IAttributeSetter::writeAttribute(const String &name, const char *value) {
         return writeAttribute(name, String(value));
+    }
+
+    bool IAttributeSetter::writeStringAttribute(const String &name, const String &value) {
+        return writeAttribute(name, value);
     }
 }

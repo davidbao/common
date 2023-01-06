@@ -137,11 +137,11 @@ namespace Communication {
         return _transfer == TransferStatus;
     }
 
-    uint32_t BasePacketContext::packetLength() const {
+    size_t BasePacketContext::packetLength() const {
         return _packetLength < MaxPacketLength ? _packetLength : MaxPacketLength;
     }
 
-    void BasePacketContext::setPacketLength(uint32_t packetLength) {
+    void BasePacketContext::setPacketLength(size_t packetLength) {
         if (packetLength < MinPacketLength)
             _packetLength = MinPacketLength;
         else if (packetLength > MaxPacketLength)

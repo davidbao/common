@@ -29,11 +29,11 @@ namespace Net {
 
             do {
                 length = receive(temp, 0, count);
-                if (length > 0 && length <= count) {
+                if (length > 0 && length <= (ssize_t)count) {
                     buffer.addRange(temp, length);
                     totalLength += length;
                 }
-            } while (length > 0 && totalLength < count);
+            } while (length > 0 && totalLength < (ssize_t)count);
 
             delete[] temp;
             return totalLength;
@@ -336,7 +336,7 @@ namespace Net {
                         break;
                     continue;
                 }
-                if (received + 1 <= bufferLength) {
+                if (received + 1 <= (ssize_t)bufferLength) {
                     received += this->receive(buffer, received + offset, 1);
                 } else {
                     return received;
@@ -357,7 +357,7 @@ namespace Net {
                 } else {
                     startByte = 0;
                 }
-                if (received >= count && startByte <= 0) {
+                if (received >= (ssize_t)count && startByte <= 0) {
                     return received;
                 }
                 deadTime = TickTimeout::getDeadTickCount(timeout);
@@ -373,7 +373,7 @@ namespace Net {
                 if (readlen <= 0) {
                     return 0;
                 }
-                if (received + 1 <= bufferLength) {
+                if (received + 1 <= (ssize_t)bufferLength) {
                     received += readlen;
                 } else {
                     return received;
@@ -394,7 +394,7 @@ namespace Net {
                 } else {
                     startByte = 0;
                 }
-                if (received >= count && startByte <= 0) {
+                if (received >= (ssize_t)count && startByte <= 0) {
                     return received;
                 }
             } while (true);
@@ -489,7 +489,7 @@ namespace Net {
                 buffer->addRange(temp, readCount);
                 totalCount += readCount;
             }
-        } while (readCount > 0 && totalCount < count);
+        } while (readCount > 0 && totalCount < (ssize_t)count);
         return totalCount;
     }
 

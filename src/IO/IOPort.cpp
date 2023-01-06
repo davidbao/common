@@ -210,7 +210,7 @@ namespace IO {
                         break;
                     continue;
                 }
-                if (received + 1 <= (uint32_t) bufferLength) {
+                if (received + 1 <= (ssize_t) bufferLength) {
                     received += read(buffer + received, 1);
                 } else {
                     return received;

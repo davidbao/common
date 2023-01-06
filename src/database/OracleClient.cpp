@@ -390,7 +390,7 @@ namespace Database {
         }
 
         InnerColumns icolumns;
-        int table_columnCount = table.columnCount();
+        int table_columnCount = (int)table.columnCount();
         if ((table_columnCount > 0 && table_columnCount == numcols) ||
             table_columnCount == 0) {
             OCIParam *paramhp;
@@ -494,7 +494,7 @@ namespace Database {
 
     String OracleClient::toInsertStr(const DataTable &table) {
         const char *insertStr = "INSERT INTO %s(%s) VALUES (%s)";
-        uint32_t columnCount = table.columnCount();
+        size_t columnCount = table.columnCount();
 
         String columsStr;
         String valuesStr;
@@ -627,8 +627,8 @@ namespace Database {
             return result;
         }
 
-        uint32_t columnCount = table.columnCount();
-        uint32_t rowCount = table.rowCount();
+        size_t columnCount = table.columnCount();
+        size_t rowCount = table.rowCount();
         String sql = toInsertStr(table);
         const char *sqlStr = sql.c_str();
         result = OCIStmtPrepare(statement, _oracleDb->error, (const OraText *) sqlStr, (ub4) sql.length(),
@@ -660,17 +660,17 @@ namespace Database {
                     value = String::Empty;
                 }
                 strcpy(values[i], value.c_str());
-                alenp[i] = value.length();
+                alenp[i] = (ub2)value.length();
             }
 
-            result = OCIBindByPos(statement, &binds[j], _oracleDb->error, j + 1, (dvoid *) values[0], StrLength,
+            result = OCIBindByPos(statement, &binds[j], _oracleDb->error, (ub4)(j + 1), (dvoid *) values[0], StrLength,
                                   SQLT_CHR, 0, alenp, 0, 0, 0, OCI_DEFAULT);
             if (result) {
                 printErrorInfo("OCIBindByPos", result, sqlStr);
             }
         }
 
-        result = OCIStmtExecute(_oracleDb->context, statement, _oracleDb->error, rowCount, 0, nullptr, nullptr,
+        result = OCIStmtExecute(_oracleDb->context, statement, _oracleDb->error, (ub4)rowCount, 0, nullptr, nullptr,
                                 OCI_BATCH_ERRORS);
         if (!(result == OCI_SUCCESS || result == OCI_SUCCESS_WITH_INFO)) {
             printErrorInfo("OCIStmtExecute", result, sqlStr);
@@ -722,7 +722,7 @@ namespace Database {
         }
 
         const int patchCount = 500;
-        uint32_t rowCount = table.rowCount();
+        size_t rowCount = table.rowCount();
         String sql;
         for (size_t i = 0; i < rowCount; i++) {
             const DataRow &row = table.rows().at(i);

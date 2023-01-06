@@ -17,9 +17,8 @@
 
 #include "net/TcpServer.h"
 #include "net/TcpClient.h"
-#include <errno.h>
+#include <cerrno>
 #include "diag/Trace.h"
-#include "data/Convert.h"
 #include "thread/TickTimeout.h"
 #include "system/Math.h"
 #include "net/Dns.h"
@@ -29,12 +28,9 @@
 #include "diag/Stopwatch.h"
 
 #include <openssl/sha.h>
-#include <openssl/rsa.h>
 #include <openssl/crypto.h>
 #include <openssl/x509.h>
-#include <openssl/pem.h>
 #include <openssl/ssl.h>
-#include <openssl/err.h>
 #include <openssl/rand.h>
 
 #if WIN32
@@ -146,7 +142,7 @@ namespace Net {
 //                }
 //#endif
                 if (!handshaking(client, timeout)) {
-                    Debug::writeFormatLine("Failed to hanshake, sockId: %d", client->socketId());
+                    Debug::writeFormatLine("Failed to handshake, sockId: %d", client->socketId());
                     delete client;
                     return nullptr;
                 }
@@ -577,7 +573,7 @@ namespace Net {
                 client->Receiver::clearReceiveBuffer();
                 Debug::writeFormatLine("send back='%s'", response.c_str());
                 // send back
-                wsc->sendWithoutEncoding((const uint8_t *) response.c_str(), 0, response.length());
+                wsc->sendWithoutEncoding((const uint8_t *) response.c_str(), 0, (int) response.length());
                 wsc->enableDecoding();
 
                 return true;
@@ -585,7 +581,7 @@ namespace Net {
         }
         wsc->enableDecoding();
 
-        Debug::writeFormatLine("Failed to ws hanshake, received buffer length: %d", length);
+        Debug::writeFormatLine("Failed to ws handshake, received buffer length: %d", length);
         return false;
     }
 
@@ -651,7 +647,7 @@ namespace Net {
         }
         wsc->enableDecoding();
 
-        Debug::writeFormatLine("Failed to wss hanshake, received buffer length: %d", length);
+        Debug::writeFormatLine("Failed to wss handshake, received buffer length: %d", length);
         return false;
     }
 

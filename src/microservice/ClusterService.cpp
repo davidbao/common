@@ -598,7 +598,7 @@ namespace Microservice {
 
         const size_t count = _contexts.count();
         for (size_t i = 0; i < count; i += _maxPacketCount) {
-            off_t offset = i;
+            off_t offset = (off_t) i;
             size_t minCount = Math::min(_maxPacketCount, (int) (count - i));
             if (!pushAllSync(server, endpoint, _contexts, offset, minCount))
                 return false;

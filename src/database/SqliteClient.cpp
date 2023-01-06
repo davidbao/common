@@ -219,7 +219,7 @@ namespace Database {
         // such like '"INSERT INTO example VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)";'
         String valuesStr;
         int columnCount = (int)table.columnCount();
-        for (size_t i = 0; i < columnCount; i++) {
+        for (int i = 0; i < columnCount; i++) {
             if (i != 0) {
                 valuesStr += ", ";
             }

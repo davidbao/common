@@ -143,8 +143,8 @@ namespace Data {
         bool setAttribute(const String &name, const char *value);
 
         template<typename T>
-        bool setAttribute(const String &name, const T &value) const {
-            return setAttribute(name, value.toString());
+        bool setAttribute(const String &name, const T &value) {
+            return setStringAttribute(name, value.toString());
         }
 
         bool writeAttribute(const String &name, const String &value);
@@ -176,9 +176,14 @@ namespace Data {
         bool writeAttribute(const String &name, const char *value);
 
         template<typename T>
-        bool writeAttribute(const String &name, const T &value) const {
-            return writeAttribute(name, value.toString());
+        bool writeAttribute(const String &name, const T &value) {
+            return writeStringAttribute(name, value.toString());
         }
+
+    private:
+        bool setStringAttribute(const String &name, const String &value);
+
+        bool writeStringAttribute(const String &name, const String &value);
     };
 }
 #endif // IAttribute_h

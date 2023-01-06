@@ -21,7 +21,7 @@ namespace IO {
     }
 
     bool Stream::isEnd() const {
-        return position() >= length();
+        return position() >= (off_t) length();
     }
 
     void Stream::writeStr(const String &str, String::StreamLength lengthCount) {

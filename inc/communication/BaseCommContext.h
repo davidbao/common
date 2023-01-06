@@ -172,8 +172,8 @@ namespace Communication
         bool isTransferData() const;
         bool isTransferStatus() const;
 
-        uint32_t packetLength() const;
-        void setPacketLength(uint32_t packetLength);
+        size_t packetLength() const;
+        void setPacketLength(size_t packetLength);
         
     public:
         static const uint8_t TransferHeader = 0x01;
