@@ -19,12 +19,21 @@ using namespace Threading;
 namespace Data {
     template<typename type, size_t size>
     class Array : public IEquatable<Array<type, size>>,
+                  public IEvaluation<Array<type, size>>,
                   public Iterator<type>,
                   public IIndexGetter<const type &>,
                   public IMutex {
     public:
         Array(std::initializer_list<type> list) {
             copy(_array, list.begin(), list.size());
+        }
+
+        Array(const type array[], size_t count) {
+            copy(_array, array, count);
+        }
+
+        Array(const Array &array) {
+            copy(_array, array._array, array.count());
         }
 
         inline size_t count() const {
@@ -41,6 +50,13 @@ namespace Data {
 
         inline bool isEmpty() const {
             return count() == 0;
+        }
+
+        Array &operator=(const Array &other) {
+            if (this != &other) {
+                evaluates(other);
+            }
+            return *this;
         }
 
         inline const type &at(size_t pos) const override {
@@ -83,6 +99,10 @@ namespace Data {
                 }
             }
             return -1;
+        }
+
+        inline void evaluates(const Array &other) override {
+            copy(_array, other._array, other.count());
         }
 
         inline bool equals(const Array &other) const override {

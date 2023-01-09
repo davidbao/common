@@ -8,9 +8,12 @@
 
 #include "system/Environment.h"
 #include "diag/Trace.h"
+#include "IO/Path.h"
+#include "IO/Directory.h"
 
 using namespace Diag;
 using namespace System;
+using namespace IO;
 
 #ifdef WIN32
 static const char* TestName = "PATHEXT";
@@ -22,6 +25,8 @@ static const char* PathContent = "/";
 static const char* TestName = "PATH";
 static const char* PathContent = "/usr/bin";
 #endif
+
+static const String _path = Path::combine(Path::getTempPath(), "environment_test");
 
 bool testGetVariables() {
     StringMap variables;
@@ -121,6 +126,30 @@ bool testRemoveVariable() {
     return true;
 }
 
+bool testCurrentDirectory() {
+    String path = Environment::getCurrentDirectory();
+    if (path.isNullOrEmpty()) {
+        return false;
+    }
+
+    String newPath = Path::combine(_path, "current.level1");
+    Directory::createDirectory(newPath);
+    if (!Environment::setCurrentDirectory(newPath)) {
+        Directory::deleteDirectory(newPath);
+        return false;
+    }
+    String path2 = Environment::getCurrentDirectory();
+    if (path2.find(newPath) < 0) {
+        Directory::deleteDirectory(newPath);
+        return false;
+    }
+    Environment::setCurrentDirectory(path);
+
+    Directory::deleteDirectory(newPath);
+
+    return true;
+}
+
 int main() {
     if(!testGetVariables()) {
         return 1;
@@ -133,6 +162,9 @@ int main() {
     }
     if(!testRemoveVariable()) {
         return 4;
+    }
+    if(!testCurrentDirectory()) {
+        return 5;
     }
 
     return 0;

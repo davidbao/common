@@ -1,20 +1,25 @@
+//
+//  Receiver.cpp
+//  common
+//
+//  Created by baowei on 2016/12/12.
+//  Copyright © 2016 com. All rights reserved.
+//
+
 #include "net/Receiver.h"
 #include "data/ByteArray.h"
-#include "exception/Exception.h"
 #include "thread/TickTimeout.h"
 #include "system/Math.h"
 #include "diag/Trace.h"
 #include "diag/Stopwatch.h"
-#include "system/Application.h"
 
+using namespace Diag;
 using namespace System;
 
 namespace Net {
-    Receiver::Receiver() {
-    }
+    Receiver::Receiver() = default;
 
-    Receiver::~Receiver() {
-    }
+    Receiver::~Receiver() = default;
 
     ssize_t Receiver::receive(size_t count, ByteArray &buffer) {
 #ifdef DEBUG
@@ -23,17 +28,17 @@ namespace Net {
         if (count > 0 && count <= 20 * 1024 * 1024)  // 20M
         {
             buffer.clear();
-            uint8_t *temp = new uint8_t[count];
+            auto temp = new uint8_t[count];
             memset(temp, 0, count);
             ssize_t length = 0, totalLength = 0;
 
             do {
                 length = receive(temp, 0, count);
-                if (length > 0 && length <= (ssize_t)count) {
+                if (length > 0 && length <= (ssize_t) count) {
                     buffer.addRange(temp, length);
                     totalLength += length;
                 }
-            } while (length > 0 && totalLength < (ssize_t)count);
+            } while (length > 0 && totalLength < (ssize_t) count);
 
             delete[] temp;
             return totalLength;
@@ -45,15 +50,12 @@ namespace Net {
                                     const EscapeOption *escape) {
         if (buffer == nullptr) {
             return 0;
-//            throw ArgumentNullException("buffer");
         }
         if (offset < 0) {
             return 0;
-//            throw ArgumentOutOfRangeException("offset", "Receiver::receiveBySize, Non-negative number required.");
         }
-        if (count < 0) {
+        if (offset >= count) {
             return 0;
-//            throw ArgumentOutOfRangeException("count", "Receiver::receiveBySize, Non-negative number required.");
         }
 
         if (connected()) {
@@ -74,15 +76,9 @@ namespace Net {
     }
 
     ssize_t Receiver::receiveBySize(ByteArray *buffer, size_t count, uint32_t timeout, const EscapeOption *escape) {
-        if (count < 0) {
-            return 0;
-//            throw ArgumentOutOfRangeException("count", "Receiver::receiveBySize, Non-negative number required.");
-        }
-
         if (connected()) {
             if (escape != nullptr) {
-                throw NotImplementedException("receiveBySizeWithEscape with ByteArray.");
-                // return receiveBySizeWithEscape(buffer, count, timeout, escape);
+                return 0;
             }
             return receiveBySizeWithoutEscape(buffer, count, timeout);
         }
@@ -97,18 +93,15 @@ namespace Net {
     ssize_t Receiver::receiveByEndBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *endBuffer, size_t ebLength,
                                         int suffix, uint32_t timeout) {
         if (buffer == nullptr) {
-            throw ArgumentNullException("buffer");
+            return 0;
         }
         if (endBuffer == nullptr) {
-            throw ArgumentNullException("endBuffer");
+            return 0;
         }
 
         if (!useReceiveTimeout()) {
             uint32_t received = 0;
             if (connected()) {
-                if (buffer == nullptr || endBuffer == nullptr)
-                    return received;
-
                 bool bReceiveEndBytes = false;
                 int nSuffix = 0, nStartByte = 0;
                 uint32_t startTime = TickTimeout::getCurrentTickCount();
@@ -165,21 +158,18 @@ namespace Net {
         } else {
             uint32_t received = 0;
             if (connected()) {
-                if (buffer == nullptr || endBuffer == nullptr)
-                    return received;
-
                 bool bReceiveEndBytes = false;
                 int nSuffix = 0, nStartByte = 0;
                 do {
                     if (bReceiveEndBytes && nSuffix >= suffix)
                         break;
 
-                    int readlen = this->receive(buffer, received, 1, timeout);
-                    if (readlen <= 0) {
+                    ssize_t readLen = this->receive(buffer, received, 1, timeout);
+                    if (readLen <= 0) {
                         return 0;
                     }
                     if (received + 1 <= (uint32_t) bufferLength) {
-                        received += readlen;
+                        received += readLen;
                     } else {
                         return received;
                     }
@@ -214,13 +204,13 @@ namespace Net {
     Receiver::receiveByEndBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *startBuffer, size_t sbLength,
                                 const uint8_t *endBuffer, size_t ebLength, int suffix, uint32_t timeout) {
         if (buffer == nullptr) {
-            throw ArgumentNullException("buffer");
+            return 0;
         }
         if (startBuffer == nullptr) {
-            throw ArgumentNullException("startBuffer");
+            return 0;
         }
         if (endBuffer == nullptr) {
-            throw ArgumentNullException("endBuffer");
+            return 0;
         }
 
         if (receiveStartBytes(startBuffer, sbLength, timeout)) {
@@ -229,7 +219,7 @@ namespace Net {
                 buffer[i] = startBuffer[i];
             }
             if (bufferLength > startCount) {
-                uint8_t *buffer2 = new uint8_t[bufferLength - startCount];
+                auto buffer2 = new uint8_t[bufferLength - startCount];
                 memset(buffer2, 0, bufferLength - startCount);
                 size_t count = receiveByEndBytes(buffer2, bufferLength - startCount, endBuffer, ebLength, suffix,
                                                  timeout);
@@ -297,7 +287,7 @@ namespace Net {
 
     bool Receiver::receiveStartBytes(const uint8_t *startBuffer, size_t sbLength, uint32_t timeout) {
         if (startBuffer == nullptr) {
-            throw ArgumentNullException("startBuffer");
+            return false;
         }
 
         uint8_t buffer[1024];
@@ -307,15 +297,14 @@ namespace Net {
     bool Receiver::receiveStartBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *startBuffer, size_t sbLength,
                                      uint32_t timeout) {
         if (buffer == nullptr) {
-            throw ArgumentNullException("buffer");
+            return false;
         }
         if (startBuffer == nullptr) {
-            throw ArgumentNullException("startBuffer");
+            return false;
         }
 
-        uint32_t nReadStartCount = (uint32_t) receiveByEndBytes(buffer, bufferLength, startBuffer, sbLength, 0,
-                                                                timeout);
-        return nReadStartCount >= (uint32_t) sbLength;
+        ssize_t nReadStartCount = receiveByEndBytes(buffer, bufferLength, startBuffer, sbLength, 0, timeout);
+        return nReadStartCount >= (ssize_t) sbLength;
     }
 
     ssize_t Receiver::receiveBySizeWithEscape(uint8_t *buffer, size_t bufferLength, off_t offset, size_t count,
@@ -336,7 +325,7 @@ namespace Net {
                         break;
                     continue;
                 }
-                if (received + 1 <= (ssize_t)bufferLength) {
+                if (received + 1 <= (ssize_t) bufferLength) {
                     received += this->receive(buffer, received + offset, 1);
                 } else {
                     return received;
@@ -357,7 +346,7 @@ namespace Net {
                 } else {
                     startByte = 0;
                 }
-                if (received >= (ssize_t)count && startByte <= 0) {
+                if (received >= (ssize_t) count && startByte <= 0) {
                     return received;
                 }
                 deadTime = TickTimeout::getDeadTickCount(timeout);
@@ -369,12 +358,12 @@ namespace Net {
             ssize_t received = 0;
             uint32_t startByte = 0;
             do {
-                ssize_t readlen = this->receive(buffer, received + offset, 1, timeout);
-                if (readlen <= 0) {
+                ssize_t readLen = this->receive(buffer, received + offset, 1, timeout);
+                if (readLen <= 0) {
                     return 0;
                 }
-                if (received + 1 <= (ssize_t)bufferLength) {
-                    received += readlen;
+                if (received + 1 <= (ssize_t) bufferLength) {
+                    received += readLen;
                 } else {
                     return received;
                 }
@@ -394,11 +383,10 @@ namespace Net {
                 } else {
                     startByte = 0;
                 }
-                if (received >= (ssize_t)count && startByte <= 0) {
+                if (received >= (ssize_t) count && startByte <= 0) {
                     return received;
                 }
             } while (true);
-            return received;
         }
     }
 
@@ -472,7 +460,6 @@ namespace Net {
         } else {
             return this->receive(buffer, count, timeout);
         }
-        return 0;
     }
 
     ssize_t Receiver::receiveDirectly(ByteArray *buffer, size_t count) {
@@ -489,7 +476,7 @@ namespace Net {
                 buffer->addRange(temp, readCount);
                 totalCount += readCount;
             }
-        } while (readCount > 0 && totalCount < (ssize_t)count);
+        } while (readCount > 0 && totalCount < (ssize_t) count);
         return totalCount;
     }
 
@@ -500,7 +487,7 @@ namespace Net {
 #ifdef DEBUG
                 Debug::writeFormatLine("clearReceiveBuffer, available: %d", available);
 #endif
-                uint8_t *buffer = new uint8_t[available];
+                auto buffer = new uint8_t[available];
                 receiveBySize(buffer, available, available, 1000);
                 delete[] buffer;
             }

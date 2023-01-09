@@ -1,3 +1,11 @@
+//
+//  TcpClient.cpp
+//  common
+//
+//  Created by baowei on 2016/12/31.
+//  Copyright © 2016 com. All rights reserved.
+//
+
 #if WIN32
 
 #include <winsock2.h>
@@ -16,7 +24,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <signal.h>
+#include <csignal>
 #include <netinet/tcp.h>
 #include <poll.h>
 
@@ -35,19 +43,17 @@
 #endif
 #endif
 
-#include <errno.h>
+#include <cerrno>
 #include "net/TcpClient.h"
 #include "diag/Trace.h"
+#include "diag/Stopwatch.h"
 #include "system/Math.h"
-#include "data/Convert.h"
 #include "data/DateTime.h"
 #include "data/ByteArray.h"
 #include "thread/TickTimeout.h"
 #include "exception/Exception.h"
 #include "net/Dns.h"
 #include "IO/File.h"
-#include "system/Application.h"
-#include "diag/Stopwatch.h"
 
 #include <openssl/rsa.h>
 #include <openssl/crypto.h>
@@ -74,6 +80,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
+using namespace Diag;
 using namespace System;
 
 namespace Net {
@@ -83,7 +90,7 @@ namespace Net {
         }
     } InitializeTcpClient;
 
-    TcpClient::TcpClient(int socketId, bool ipv4) {
+    TcpClient::TcpClient(int socketId, IPVersion ipVersion) {
         _socket = -1;
         _connected = false;
 
@@ -93,7 +100,7 @@ namespace Net {
             _socket = socketId;
             _connected = true;
 
-            updateEndpoints(ipv4 ? AF_INET : AF_INET6);
+            updateEndpoints(ipVersion == IPVersion::IPV4 ? AF_INET : AF_INET6);
         }
     }
 
@@ -247,7 +254,7 @@ namespace Net {
             Debug::writeFormatLine("invalid port \"%d\"", port);
 
         //		/* Map host name to IP address, allowing for dotted decimal */
-        //		if ( (phe = gethostbyname(host)) != NULL )
+        //		if ( (phe = gethostbyname(host)) != nullptr )
         //			memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
         //		else if ( (sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE )
         //			Debug::writeFormatLine("can't get \"%s\" host entry", host);
@@ -780,7 +787,7 @@ namespace Net {
         }
     } InitializeTcpSSLClient;
 
-    TcpSSLClient::TcpSSLClient(SSLVersion version, int socketId, bool ipv4) : TcpClient(socketId, ipv4) {
+    TcpSSLClient::TcpSSLClient(SSLVersion version, int socketId, IPVersion ipVersion) : TcpClient(socketId, ipVersion) {
         _version = version;
         _sslContext = nullptr;
         _ssl = nullptr;
@@ -841,8 +848,8 @@ namespace Net {
 
 //        if(File::exists(_cacert))
 //        {
-//            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
-//            SSL_CTX_load_verify_locations(ctx, _cacert, NULL);
+//            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+//            SSL_CTX_load_verify_locations(ctx, _cacert, nullptr);
 //        }
 //
 //        if(File::exists(_certf))
@@ -897,7 +904,7 @@ namespace Net {
         }
 
         SSL *ssl = SSL_new(ctx);
-        if (ssl == NULL) {
+        if (ssl == nullptr) {
             Trace::writeLine("Failed to create SSL instance!", Trace::Error);
             _connected = false;
             SSL_CTX_free(ctx);
@@ -950,7 +957,7 @@ namespace Net {
         }
 
 //        X509* server_cert = SSL_get_peer_certificate(ssl);
-//        if(server_cert != NULL)
+//        if(server_cert != nullptr)
 //        {
 ////#ifdef DEBUG
 ////            Debug::writeFormatLine("server cert, name: %s, issuer: %s",
@@ -1085,10 +1092,10 @@ namespace Net {
         assert(ctx);
 
         BIO *in = nullptr;
-        if ((in = BIO_new_mem_buf(keyStr, -1)) == NULL)
+        if ((in = BIO_new_mem_buf(keyStr, -1)) == nullptr)
             return false;
 //        BIO*in = BIO_new(BIO_s_file_internal());
-//        if (in == NULL) {
+//        if (in == nullptr) {
 //            SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_BUF_LIB);
 //            return false;
 //        }
@@ -1099,7 +1106,7 @@ namespace Net {
 //        }
         EVP_PKEY *pkey = PEM_read_bio_PrivateKey(in, nullptr, 0, nullptr);
         if (pkey == nullptr) {
-            if (in != NULL)
+            if (in != nullptr)
                 BIO_free(in);
             return false;
         }
@@ -1108,13 +1115,13 @@ namespace Net {
         {
             Trace::writeLine("Failed to use the key!", Trace::Error);
             EVP_PKEY_free(pkey);
-            if (in != NULL)
+            if (in != nullptr)
                 BIO_free(in);
             return false;
         }
 
         EVP_PKEY_free(pkey);
-        if (in != NULL)
+        if (in != nullptr)
             BIO_free(in);
 
         return true;
@@ -1125,10 +1132,10 @@ namespace Net {
         assert(ctx);
 
         BIO *in = nullptr;
-        if ((in = BIO_new_mem_buf(certStr, -1)) == NULL)
+        if ((in = BIO_new_mem_buf(certStr, -1)) == nullptr)
             return false;
 //        BIO*in = BIO_new(BIO_s_file_internal());
-//        if (in == NULL) {
+//        if (in == nullptr) {
 //            SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_BUF_LIB);
 //            return false;
 //        }
@@ -1139,7 +1146,7 @@ namespace Net {
 //        }
         X509 *x = PEM_read_bio_X509(in, nullptr, 0, nullptr);
         if (x == nullptr) {
-            if (in != NULL)
+            if (in != nullptr)
                 BIO_free(in);
             return false;
         }
@@ -1148,13 +1155,13 @@ namespace Net {
         {
             Trace::writeLine("Failed to use the cert!", Trace::Error);
             X509_free(x);
-            if (in != NULL)
+            if (in != nullptr)
                 BIO_free(in);
             return false;
         }
 
         X509_free(x);
-        if (in != NULL)
+        if (in != nullptr)
             BIO_free(in);
 
         return true;
@@ -1186,7 +1193,7 @@ namespace Net {
 
     const TimeSpan WebSocketClient::MinReceiveTimeout = TimeSpan::fromSeconds(1);
 
-    WebSocketClient::WebSocketClient(int sockfd, bool ipv4, const TimeSpan &receiveTimeout) : TcpClient(sockfd, ipv4) {
+    WebSocketClient::WebSocketClient(int sockfd, IPVersion ipVersion, const TimeSpan &receiveTimeout) : TcpClient(sockfd, ipVersion) {
         _position = -1;
         _decoding = true;
         _encoding = true;
@@ -1517,8 +1524,8 @@ namespace Net {
 
     const TimeSpan WebSocketSSLClient::MinReceiveTimeout = TimeSpan::fromSeconds(1);
 
-    WebSocketSSLClient::WebSocketSSLClient(SSLVersion version, int sockfd, bool ipv4, const TimeSpan &receiveTimeout)
-            : TcpSSLClient(version, sockfd, ipv4) {
+    WebSocketSSLClient::WebSocketSSLClient(SSLVersion version, int sockfd, IPVersion ipVersion, const TimeSpan &receiveTimeout)
+            : TcpSSLClient(version, sockfd, ipVersion) {
         _position = -1;
         _decoding = true;
         _encoding = true;

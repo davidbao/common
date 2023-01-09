@@ -69,7 +69,7 @@ if (COMMON_ENABLE_TEST)
         set(EXTERNALS_LIB curl${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
     endif ()
 
-    if (COMMON_BUILD_HTTPSERVER})
+    if (COMMON_BUILD_HTTPSERVER)
         set(EXTERNALS_LIB
                 event_openssl${CMAKE_FIND_LIBRARY_SUFFIXES}
                 event${CMAKE_FIND_LIBRARY_SUFFIXES}
@@ -102,14 +102,16 @@ if (COMMON_ENABLE_TEST)
             SmProviderTest Md5ProviderTest
             # data
             ArrayTest ByteArrayTest DateTimeTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest RectangleTest
-            SizeTest StringTest StringArrayTest StringMapTest PListTest PointTest NetTypeTest TypeInfoTest TimeSpanTest
+            SizeTest StringTest StringArrayTest StringMapTest PListTest PointTest TypeInfoTest TimeSpanTest
             TimeZoneTest UuidTest ValueTypeTest VariantTest VectorTest VersionTest WStringTest
             # diag
             FileTraceListenerTest
             # IO
-            FileTest DirectoryTest MappingStreamTest
+            FileTest DirectoryTest MappingStreamTest PathTest
             # json
             JsonNodeTest
+            # net
+            NetTypeTest TcpClientTest
             # system
             RandomTest ResourcesTest EnvironmentTest
             # xml
@@ -117,7 +119,7 @@ if (COMMON_ENABLE_TEST)
             # yml
             YmlNodeTest)
 
-    if (COMMON_BUILD_HTTPCLIENT} AND ${COMMON_BUILD_HTTPSERVER})
+    if (COMMON_BUILD_HTTPCLIENT AND COMMON_BUILD_HTTPSERVER)
         set(TEST_SRC ${TEST_SRC} HttpClientTest)
     endif ()
     if (COMMON_BUILD_MICROSERVICE)

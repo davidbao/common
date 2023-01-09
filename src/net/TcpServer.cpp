@@ -1,3 +1,11 @@
+//
+//  TcpServer.cpp
+//  common
+//
+//  Created by baowei on 2015/7/14.
+//  Copyright © 2015 com. All rights reserved.
+//
+
 #if WIN32
 #include <winsock2.h>
 #else
@@ -84,7 +92,7 @@ namespace Net {
             anyAddr = true;
         }
         if (!anyAddr) {
-//            if ( (phe = gethostbyname(address.c_str())) != NULL )
+//            if ( (phe = gethostbyname(address.c_str())) != nullptr )
 //                memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 //            else if ( (sin.sin_addr.s_addr = inet_addr(address.c_str())) == INADDR_NONE )
 //                Debug::writeFormatLine("can't get \"%s\" host entry", address.c_str());
@@ -388,10 +396,10 @@ namespace Net {
         }
 
         if (File::exists(_cacert)) {
-            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
-            SSL_CTX_load_verify_locations(ctx, _cacert, NULL);
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+            SSL_CTX_load_verify_locations(ctx, _cacert, nullptr);
         } else {
-            SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
         }
 
         if (File::exists(_certf)) {
@@ -429,7 +437,7 @@ namespace Net {
         }
 
         SSL *ssl = SSL_new(ctx);
-        if (ssl == NULL) {
+        if (ssl == nullptr) {
             Trace::writeLine("Failed to create SSL instance!", Trace::Error);
             SSL_CTX_free(ctx);
             return false;
@@ -485,7 +493,7 @@ namespace Net {
         }
 
 //        X509* server_cert = SSL_get_peer_certificate(ssl);
-//        if(server_cert != NULL)
+//        if(server_cert != nullptr)
 //        {
 //            //#ifdef DEBUG
 //            //            Debug::writeFormatLine("server cert, name: %s, issuer: %s",
@@ -586,7 +594,7 @@ namespace Net {
     }
 
     TcpClient *WebSocketServer::createClient(int sockfd) const {
-        return new WebSocketClient(sockfd, true, receiveTimeout());
+        return new WebSocketClient(sockfd, TcpClient::IPV4, receiveTimeout());
     }
 
     WebSocketSSLServer::WebSocketSSLServer(SSLVersion version) : TcpSSLServer(version) {
@@ -652,7 +660,7 @@ namespace Net {
     }
 
     TcpClient *WebSocketSSLServer::createClient(int sockfd) const {
-        return new WebSocketSSLClient(_version, sockfd, true, receiveTimeout());
+        return new WebSocketSSLClient(_version, sockfd, TcpClient::IPV4, receiveTimeout());
     }
 
 #endif

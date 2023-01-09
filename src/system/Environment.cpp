@@ -7,15 +7,19 @@
 //
 
 #define _DCRTIMP
+#include "diag/Trace.h"
 #include "system/Environment.h"
-//#include "system/Regex.h"
 #include <cstdlib>
 
-#ifndef WIN32
-extern char **environ;
-#else
+#ifdef WIN32
+#include <Windows.h>
 extern char** _environ;
+#else
+#include <unistd.h>
+extern char **environ;
 #endif
+
+using namespace Diag;
 
 namespace System {
 #ifndef WIN32
@@ -79,6 +83,35 @@ namespace System {
         return false;
 #else
         return unsetenv(name) == 0;
+#endif
+    }
+
+    String Environment::getCurrentDirectory() {
+#ifdef WIN32
+        char path[MAX_PATH];
+        memset(path, 0, sizeof(path));
+        if (GetCurrentDirectory(sizeof(path), path) > 0)
+            return (String) path;
+#else
+        char path[PATH_MAX];
+        memset(path, 0, sizeof(path));
+        if (getcwd(path, sizeof(path)) != nullptr)
+            return (String) path;
+#endif
+        return String::Empty;
+    }
+
+    bool Environment::setCurrentDirectory(const String &path) {
+#ifdef WIN32
+        return SetCurrentDirectory(path.c_str()) == TRUE;
+#else
+        bool result = chdir(path.c_str()) == 0;
+#ifdef DEBUG
+        if (!result) {
+            Debug::writeFormatLine("chdir failed with error: %s", strerror(errno));
+        }
+#endif
+        return result;
 #endif
     }
 }

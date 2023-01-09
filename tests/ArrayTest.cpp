@@ -97,6 +97,29 @@ bool testIntConstructor() {
         }
     }
 
+    {
+        int array[] = {1, 2, 3};
+        Integers test(array, 3);
+        if (test.count() != 3) {
+            return false;
+        }
+    }
+
+    {
+        Integers test = {1, 2, 3};
+        Integers test2(test);
+        if (test2 != test) {
+            return false;
+        }
+    }
+    {
+        Integers test = {1, 2, 3};
+        Integers test2 = test;
+        if (test2 != test) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -226,6 +249,36 @@ bool testValueConstructor() {
     {
         Values test = {1, 2, 3};
         if (test.count() != 3) {
+            return false;
+        }
+    }
+
+    {
+        Value array[] = {1, 2, 3};
+        Values test(array, 3);
+        if (test.count() != 3) {
+            return false;
+        }
+    }
+
+    {
+        Values test = {1, 2, 3};
+        Values test2(test);
+        if (test2 != test) {
+            return false;
+        }
+    }
+    {
+        Values test = {1, 2, 3};
+        Values test2 = test;
+        if (test2 != test) {
+            return false;
+        }
+    }
+    {
+        Values test = {1, 2, 3};
+        Values test2 = test;
+        if (test2 != test) {
             return false;
         }
     }

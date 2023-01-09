@@ -16,7 +16,7 @@ using namespace Http;
 int _serverPort = 8059;
 String _downloadFileName = Path::combine(Directory::getTempPath(), "download_source_test.txt");
 
-void clean() {
+void cleanUp() {
     if(File::exists(_downloadFileName)) {
         File::deleteFile(_downloadFileName);
     }
@@ -297,20 +297,20 @@ int main() {
     if(!testGet()) {
         result = 1;
     }
-//    if(!testPost()) {
-//        result = 2;
-//    }
-//    if(!testPut()) {
-//        result = 3;
-//    }
-//    if(!testDownload()) {
-//        result = 4;
-//    }
-//    if(!testUpload()) {
-//        result = 5;
-//    }
+    if(!testPost()) {
+        result = 2;
+    }
+    if(!testPut()) {
+        result = 3;
+    }
+    if(!testDownload()) {
+        result = 4;
+    }
+    if(!testUpload()) {
+        result = 5;
+    }
 
-    clean();
+    cleanUp();
 
     return result;
 }

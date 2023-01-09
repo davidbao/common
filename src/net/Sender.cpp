@@ -1,17 +1,21 @@
+//
+//  Sender.cpp
+//  common
+//
+//  Created by baowei on 2016/12/31.
+//  Copyright © 2016 com. All rights reserved.
+//
+
 #include "net/Sender.h"
 #include "data/ByteArray.h"
-#include "exception/Exception.h"
-#include "thread/TickTimeout.h"
 #include "diag/Stopwatch.h"
 
 using namespace Diag;
 
 namespace Net {
-    Sender::Sender() {
-    }
+    Sender::Sender() = default;
 
-    Sender::~Sender() {
-    }
+    Sender::~Sender() = default;
 
     void Sender::getEscapeBuffer(const uint8_t *buffer, off_t offset, size_t count, ByteArray &dst,
                                  const EscapeOption *escape) {
@@ -31,15 +35,12 @@ namespace Net {
 
         if (buffer == nullptr) {
             return 0;
-//            throw ArgumentNullException("buffer");
         }
         if (offset < 0) {
             return 0;
-//            throw ArgumentOutOfRangeException("offset", "Sender::send, Non-negative number required.");
         }
         if (count < 0) {
             return 0;
-//            throw ArgumentOutOfRangeException("count", "Sender::send, Non-negative number required.");
         }
 
         if (connected()) {
