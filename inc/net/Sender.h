@@ -9,7 +9,7 @@
 #ifndef Sender_h
 #define Sender_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/ByteArray.h"
 #include "net/EscapeOption.h"
 

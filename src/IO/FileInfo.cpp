@@ -1,3 +1,11 @@
+//
+//  FileInfo.cpp
+//  common
+//
+//  Created by baowei on 2015/7/21.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
 #include "IO/File.h"
 #include "IO/FileInfo.h"
 
@@ -28,17 +36,9 @@
 #endif
 
 namespace IO {
-    FileInfo::FileInfo() : FileInfo(String::Empty) {
-    }
-
-    FileInfo::FileInfo(const String &name) : FileInfo(name.c_str()) {
-    }
-
-    FileInfo::FileInfo(const char *name) {
-        if (name != NULL) {
-            _name = name;
-        }
-        _attributes = FileAttributes::Unkown;
+    FileInfo::FileInfo(const String &name) {
+        _name = name;
+        _attributes = FileAttributes::Unknown;
         _size = 0;
         _modifiedTime = 0;
 

@@ -2,13 +2,11 @@
 //  SerialInfo.cpp
 //  common
 //
-//  Created by baowei on 15/7/31.
+//  Created by baowei on 2015/7/31.
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
 #include "IO/SerialInfo.h"
-#include "data/Convert.h"
-#include "data/ValueType.h"
 
 namespace IO {
     SerialInfo::SerialInfo(const String &portName) {
@@ -23,76 +21,69 @@ namespace IO {
         this->useSignal = false;
     }
 
-    void SerialInfo::read(XmlTextReader &reader) {
-        portName = reader.getAttribute("portname");
-        Int32::parse(reader.getAttribute("baudrate"), baudRate);
-        dataBits = parseDataBits(reader.getAttribute("databits"));
-        stopBits = parseStopBits(reader.getAttribute("stopbits"));
-        parity = parseParity(reader.getAttribute("parity"));
-        handshake = parseHandshake(reader.getAttribute("handshake"));
-        Boolean::parse(reader.getAttribute("rtsenable"), rtsEnable);
-        Boolean::parse(reader.getAttribute("dtrenable"), dtrEnable);
-        Boolean::parse(reader.getAttribute("usesignal"), useSignal);
+    SerialInfo::SerialInfo(const String &portName, int baudRate, DataBitsType dataBits, StopBitsType stopBits,
+                           ParityType parity) {
+        this->portName = portName;
+        this->baudRate = baudRate;
+        this->dataBits = dataBits;
+        this->stopBits = stopBits;
+        this->parity = parity;
+        this->handshake = FLOW_OFF;
+        this->rtsEnable = false;
+        this->dtrEnable = false;
+        this->useSignal = false;
     }
 
-    void SerialInfo::write(XmlTextWriter &writer) const {
-        writer.writeAttribute("portname", portName);
-        writer.writeAttribute("baudrate", baudRate);
-        writer.writeAttribute("databits", convertDataBitsStr(dataBits));
-        writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
-        writer.writeAttribute("parity", convertParityStr(parity));
-        if (handshake != HandshakeType::FLOW_OFF)
-            writer.writeAttribute("handshake", convertHandshakeStr(handshake));
-        if (rtsEnable)
-            writer.writeAttribute("rtsenable", rtsEnable);
-        if (dtrEnable)
-            writer.writeAttribute("dtrenable", dtrEnable);
-        if (useSignal)
-            writer.writeAttribute("usesignal", useSignal);
+    SerialInfo::SerialInfo(const SerialInfo &other) : SerialInfo(String::Empty) {
+        SerialInfo::evaluates(other);
     }
 
-    void SerialInfo::read(JsonTextReader &reader) {
-        portName = reader.getAttribute("portname");
-        Int32::parse(reader.getAttribute("baudrate"), baudRate);
-        dataBits = parseDataBits(reader.getAttribute("databits"));
-        stopBits = parseStopBits(reader.getAttribute("stopbits"));
-        parity = parseParity(reader.getAttribute("parity"));
-        handshake = parseHandshake(reader.getAttribute("handshake"));
-        Boolean::parse(reader.getAttribute("rtsenable"), rtsEnable);
-        Boolean::parse(reader.getAttribute("dtrenable"), dtrEnable);
-        Boolean::parse(reader.getAttribute("usesignal"), useSignal);
+    bool SerialInfo::equals(const SerialInfo &other) const {
+        return this->portName == other.portName &&
+               this->baudRate == other.baudRate &&
+               this->dataBits == other.dataBits &&
+               this->stopBits == other.stopBits &&
+               this->handshake == other.handshake &&
+               this->parity == other.parity &&
+               this->rtsEnable == other.rtsEnable &&
+               this->dtrEnable == other.dtrEnable &&
+               this->useSignal == other.useSignal;
     }
 
-    void SerialInfo::write(JsonTextWriter &writer) const {
-        writer.writeAttribute("portname", portName);
-        writer.writeAttribute("baudrate", baudRate);
-        writer.writeAttribute("databits", convertDataBitsStr(dataBits));
-        writer.writeAttribute("stopbits", convertStopBitsStr(stopBits));
-        writer.writeAttribute("parity", convertParityStr(parity));
-        if (handshake != HandshakeType::FLOW_OFF)
-            writer.writeAttribute("handshake", convertHandshakeStr(handshake));
-        if (rtsEnable)
-            writer.writeAttribute("rtsenable", rtsEnable);
-        if (dtrEnable)
-            writer.writeAttribute("dtrenable", dtrEnable);
-        if (useSignal)
-            writer.writeAttribute("usesignal", useSignal);
+    void SerialInfo::evaluates(const SerialInfo &other) {
+        this->portName = other.portName;
+        this->baudRate = other.baudRate;
+        this->dataBits = other.dataBits;
+        this->stopBits = other.stopBits;
+        this->handshake = other.handshake;
+        this->parity = other.parity;
+        this->rtsEnable = other.rtsEnable;
+        this->dtrEnable = other.dtrEnable;
+        this->useSignal = other.useSignal;
     }
 
-    void SerialInfo::write(JsonNode &node) const {
-        node.add(JsonNode("portname", portName));
-        node.add(JsonNode("baudrate", baudRate));
-        node.add(JsonNode("databits", convertDataBitsStr(dataBits)));
-        node.add(JsonNode("stopbits", convertStopBitsStr(stopBits)));
-        node.add(JsonNode("parity", convertParityStr(parity)));
-        if (handshake != HandshakeType::FLOW_OFF)
-            node.add(JsonNode("handshake", convertHandshakeStr(handshake)));
-        if (rtsEnable)
-            node.add(JsonNode("rtsenable", rtsEnable));
-        if (dtrEnable)
-            node.add(JsonNode("dtrenable", dtrEnable));
-        if (useSignal)
-            node.add(JsonNode("usesignal", useSignal));
+    void SerialInfo::read(IAttributeGetter &getter) {
+        portName = getter.getAttribute("portname");
+        Int32::parse(getter.getAttribute("baudrate"), baudRate);
+        dataBits = parseDataBits(getter.getAttribute("databits"));
+        stopBits = parseStopBits(getter.getAttribute("stopbits"));
+        parity = parseParity(getter.getAttribute("parity"));
+        handshake = parseHandshake(getter.getAttribute("handshake"));
+        Boolean::parse(getter.getAttribute("rtsenable"), rtsEnable);
+        Boolean::parse(getter.getAttribute("dtrenable"), dtrEnable);
+        Boolean::parse(getter.getAttribute("usesignal"), useSignal);
+    }
+
+    void SerialInfo::write(IAttributeSetter &setter) const {
+        setter.writeAttribute("portname", portName);
+        setter.writeAttribute("baudrate", baudRate);
+        setter.writeAttribute("databits", convertDataBitsStr(dataBits));
+        setter.writeAttribute("stopbits", convertStopBitsStr(stopBits));
+        setter.writeAttribute("parity", convertParityStr(parity));
+        setter.writeAttribute("handshake", convertHandshakeStr(handshake));
+        setter.writeAttribute("rtsenable", rtsEnable);
+        setter.writeAttribute("dtrenable", dtrEnable);
+        setter.writeAttribute("usesignal", useSignal);
     }
 
     void SerialInfo::read(Stream *stream) {
@@ -135,41 +126,15 @@ namespace IO {
         return convertHandshakeStr(handshake);
     }
 
-    void SerialInfo::operator=(const SerialInfo &value) {
-        this->portName = value.portName;
-        this->baudRate = value.baudRate;
-        this->dataBits = value.dataBits;
-        this->stopBits = value.stopBits;
-        this->handshake = value.handshake;
-        this->parity = value.parity;
-        this->rtsEnable = value.rtsEnable;
-        this->dtrEnable = value.dtrEnable;
-        this->useSignal = value.useSignal;
+    SerialInfo &SerialInfo::operator=(const SerialInfo &value) {
+        SerialInfo::evaluates(value);
+        return *this;
     }
 
-    bool SerialInfo::operator==(const SerialInfo &value) const {
-        return this->portName == value.portName &&
-               this->baudRate == value.baudRate &&
-               this->dataBits == value.dataBits &&
-               this->stopBits == value.stopBits &&
-               this->handshake == value.handshake &&
-               this->parity == value.parity &&
-               this->rtsEnable == value.rtsEnable &&
-               this->dtrEnable == value.dtrEnable &&
-               this->useSignal == value.useSignal;
-    }
-
-    bool SerialInfo::operator!=(const SerialInfo &value) const {
-        return !operator==(value);
-    }
-
-    const String SerialInfo::toString() const {
-        return String::convert("port: %s, baudrate: %d, databits: %s, stopbits: %s, parity: %s",
-                               portName.c_str(),
-                               baudRate,
-                               convertDataBitsStr(dataBits).c_str(),
-                               convertStopBitsStr(stopBits).c_str(),
-                               convertParityStr(parity).c_str());
+    String SerialInfo::toString() const {
+        JsonNode node;
+        write(node);
+        return node.toString();
     }
 
     bool SerialInfo::isEmpty() const {
@@ -185,9 +150,7 @@ namespace IO {
             return DATA_6;
         else if (str == "5")
             return DATA_5;
-        else {
-            return DATA_8;
-        }
+        return DATA_8;
     }
 
     String SerialInfo::convertDataBitsStr(DataBitsType dataBits) {
@@ -215,9 +178,7 @@ namespace IO {
             return PAR_MARK;
         else if (str == "S" || str == "s" || str.toLower() == "space")
             return PAR_SPACE;
-        else {
-            return PAR_NONE;
-        }
+        return PAR_NONE;
     }
 
     String SerialInfo::convertParityStr(ParityType parity) {
@@ -244,9 +205,7 @@ namespace IO {
             return STOP_1_5;
         else if (str == "2")
             return STOP_2;
-        else {
-            return STOP_1;
-        }
+        return STOP_1;
     }
 
     String SerialInfo::convertStopBitsStr(StopBitsType stopBits) {
@@ -269,9 +228,7 @@ namespace IO {
             return FLOW_HARDWARE;
         else if (String::equals("XONXOFF", str, true))
             return FLOW_XONXOFF;
-        else {
-            return FLOW_OFF;
-        }
+        return FLOW_OFF;
     }
 
     String SerialInfo::convertHandshakeStr(HandshakeType handshake) {

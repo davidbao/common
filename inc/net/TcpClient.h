@@ -9,7 +9,7 @@
 #ifndef TcpClient_h
 #define TcpClient_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/ByteArray.h"
 #include "data/TimeSpan.h"
 #include "net/NetType.h"

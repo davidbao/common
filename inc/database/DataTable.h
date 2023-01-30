@@ -11,7 +11,7 @@
 
 #include "data/List.h"
 #include "data/Dictionary.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/StringArray.h"
 #include "data/DateTime.h"
 #include "database/DbValue.h"

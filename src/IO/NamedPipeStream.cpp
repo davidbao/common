@@ -1,9 +1,12 @@
 #if WIN32
+
 #include <io.h>
 #include <Windows.h>
+
 #else
 
 #include <errno.h>
+#include <termios.h>
 
 #endif
 
@@ -22,24 +25,23 @@ namespace IO {
         _pipeName = name;
         _pipeMode = mode;
         _fd = CreateNamedPipe(name, fifoMode(mode), PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 1, 0, 0, 1000, nullptr);
-        if (_fd == INVALID_HANDLE_VALUE)
-        {
+        if (_fd == INVALID_HANDLE_VALUE) {
             // Retrieve the system error message for the last-error code
 
             LPVOID lpMsgBuf;
             DWORD dw = GetLastError();
 
             FormatMessage(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-                nullptr,
-                dw,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                (LPTSTR)&lpMsgBuf,
-                0, nullptr);
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_FROM_SYSTEM |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr,
+                    dw,
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    (LPTSTR) &lpMsgBuf,
+                    0, nullptr);
 
-            Debug::writeFormatLine("can't open named pipe: name: %s, error: %s", pipeName.c_str(), (LPTSTR)lpMsgBuf);
+            Debug::writeFormatLine("can't open named pipe: name: %s, error: %s", pipeName.c_str(), (LPTSTR) lpMsgBuf);
             LocalFree(lpMsgBuf);
         }
 #else
@@ -74,7 +76,7 @@ namespace IO {
         if (isOpen()) {
 #ifdef WIN32
             DWORD len;
-            if(WriteFile(_fd, array + offset, (DWORD)count, &len, nullptr))
+            if (WriteFile(_fd, array + offset, (DWORD) count, &len, nullptr))
                 return len;
 #else
             return ::write(_fd, array + offset, count);
@@ -87,7 +89,7 @@ namespace IO {
         if (isOpen()) {
 #ifdef WIN32
             DWORD len;
-            if (ReadFile(_fd, array + offset, (DWORD)count, &len, nullptr))
+            if (ReadFile(_fd, array + offset, (DWORD) count, &len, nullptr))
                 return len;
 #else
             return ::read(_fd, array + offset, count);
@@ -104,8 +106,18 @@ namespace IO {
         throw NotSupportedException("The named pipe can not support seek.");
     }
 
-    bool NamedPipeStream::seek(off_t offset, SeekOrigin origin) {
+    off_t NamedPipeStream::seek(off_t offset, SeekOrigin origin) {
         throw NotSupportedException("The named pipe can not support seek.");
+    }
+
+    void NamedPipeStream::flush() {
+        if (isOpen()) {
+#if WIN32
+            FlushFileBuffers(_fd);
+#else
+            tcflush(_fd, TCIOFLUSH);
+#endif
+        }
     }
 
     void NamedPipeStream::close() {
@@ -142,16 +154,15 @@ namespace IO {
 
     mode_t NamedPipeStream::fifoMode(PipeMode mode) {
 #ifdef WIN32
-        switch (mode)
-        {
-        case PipeRead:
-            return PIPE_ACCESS_INBOUND;
-        case PipeWrite:
-            return PIPE_ACCESS_OUTBOUND;
-        case PipeReadWrite:
-            return PIPE_ACCESS_DUPLEX;
-        default:
-            return PIPE_ACCESS_INBOUND;
+        switch (mode) {
+            case PipeRead:
+                return PIPE_ACCESS_INBOUND;
+            case PipeWrite:
+                return PIPE_ACCESS_OUTBOUND;
+            case PipeReadWrite:
+                return PIPE_ACCESS_DUPLEX;
+            default:
+                return PIPE_ACCESS_INBOUND;
         }
 #else
         switch (mode) {
@@ -169,17 +180,16 @@ namespace IO {
 
     mode_t NamedPipeStream::openMode(PipeMode mode) {
 #ifdef WIN32
-        switch (mode)
-        {
-        case PipeRead:
-            return GENERIC_READ;
-        case PipeWrite:
-            return GENERIC_WRITE;
-        case PipeReadWrite:
-            return GENERIC_READ | GENERIC_WRITE;
-        default:
-            return GENERIC_READ;
-    }
+        switch (mode) {
+            case PipeRead:
+                return GENERIC_READ;
+            case PipeWrite:
+                return GENERIC_WRITE;
+            case PipeReadWrite:
+                return GENERIC_READ | GENERIC_WRITE;
+            default:
+                return GENERIC_READ;
+        }
 #else
         switch (mode) {
             case PipeRead:
@@ -195,25 +205,24 @@ namespace IO {
     }
 
 #ifdef WIN32
-    bool NamedPipeStream::connect() const
-    {
+
+    bool NamedPipeStream::connect() const {
         if (isOpen())
             return ConnectNamedPipe(_fd, nullptr) ? true : (GetLastError() == ERROR_PIPE_CONNECTED);
         else
             return false;
     }
-    bool NamedPipeStream::waitForConnection(uint32_t timeout)
-    {
-        while (1)
-        {
+
+    bool NamedPipeStream::waitForConnection(uint32_t timeout) {
+        while (1) {
             _fd = CreateFile(
-                _pipeName,   // pipe name
-                openMode(_pipeMode),
-                0,              // no sharing
-                nullptr,           // default security attributes
-                OPEN_EXISTING,  // opens existing pipe
-                0,              // default attributes
-                nullptr);          // no template file
+                    _pipeName,   // pipe name
+                    openMode(_pipeMode),
+                    0,              // no sharing
+                    nullptr,           // default security attributes
+                    OPEN_EXISTING,  // opens existing pipe
+                    0,              // default attributes
+                    nullptr);          // no template file
 
             // Break if the pipe handle is valid.
 
@@ -222,20 +231,19 @@ namespace IO {
 
             // Exit if an error other than ERROR_PIPE_BUSY occurs.
 
-            if (GetLastError() != ERROR_PIPE_BUSY)
-            {
+            if (GetLastError() != ERROR_PIPE_BUSY) {
                 Debug::writeFormatLine("Could not open pipe. GLE=%d", GetLastError());
                 return false;
             }
 
             // All pipe instances are busy, so wait for 20 seconds.
 
-            if (!WaitNamedPipe(_pipeName, timeout))
-            {
+            if (!WaitNamedPipe(_pipeName, timeout)) {
                 Debug::writeFormatLine("Could not open pipe: %d ms wait timed out.", timeout);
                 return false;
             }
         }
     }
+
 #endif
 }

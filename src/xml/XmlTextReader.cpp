@@ -9,7 +9,7 @@
 #include "xml/XmlTextReader.h"
 #include "exception/Exception.h"
 #include "IO/Path.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "diag/Trace.h"
 #include "libxml/xmlreader.h"
 
@@ -84,7 +84,7 @@ namespace Xml {
 #else
         _configFile.fileName = fileName;
 #endif
-        _zipFile = zip->open(_configFile.fileName);
+        _zipFile = zip->openFile(_configFile.fileName);
         if (_zipFile != nullptr)
             _reader->reader = xmlReaderForIO(Zip::zipRead, nullptr, _zipFile->context(), nullptr, nullptr, 0);
     }
@@ -110,7 +110,7 @@ namespace Xml {
 #else
             _configFile.fileName = fileName;
 #endif
-            _zipFile = zip->open(_configFile.fileName);
+            _zipFile = zip->openFile(_configFile.fileName);
             _reader->reader = xmlReaderForIO(Zip::zipRead, nullptr, _zipFile->context(), nullptr, nullptr, 0);
         } else {
             delete zip;
@@ -118,12 +118,10 @@ namespace Xml {
     }
 
     XmlTextReader::~XmlTextReader() {
-        if (isValid()) {
-            xmlFreeTextReader(_reader->reader);
-        }
+        close();
 
         if (_configFile.isZip() && _zipFile != nullptr) {
-            _configFile.zip->close(_zipFile);
+            _configFile.zip->closeFile(_zipFile);
             if (_deleteZip) {
                 delete _configFile.zip;
             }
@@ -132,6 +130,28 @@ namespace Xml {
         }
 
         delete _reader;
+    }
+
+    bool XmlTextReader::isValid() const {
+        return _reader->reader != nullptr && xmlTextReaderIsValid(_reader->reader) != XmlFailed;
+    }
+
+    bool XmlTextReader::close() {
+        if (isValid()) {
+
+            xmlFreeTextReader(_reader->reader);
+            _reader->reader = nullptr;
+
+            return true;
+        }
+        return false;
+    }
+
+    bool XmlTextReader::read() {
+        if (isValid()) {
+            return xmlTextReaderRead(_reader->reader) == XmlSuccess;
+        }
+        return false;
     }
 
     bool XmlTextReader::getAttribute(const String &name, String &value) const {
@@ -170,9 +190,9 @@ namespace Xml {
                 return false;
             }
             for (int i = 0; i < count; i++) {
-                if(xmlTextReaderMoveToAttributeNo(_reader->reader, i) == XmlSuccess) {
+                if (xmlTextReaderMoveToAttributeNo(_reader->reader, i) == XmlSuccess) {
                     const xmlChar *name = xmlTextReaderConstName(_reader->reader);
-                    names.add((const char*)name);
+                    names.add((const char *) name);
                 }
             }
             return true;
@@ -194,17 +214,6 @@ namespace Xml {
                 return 0;
             }
             return result;
-        }
-        return false;
-    }
-
-    bool XmlTextReader::isValid() const {
-        return _reader->reader != nullptr && xmlTextReaderIsValid(_reader->reader) != XmlFailed;
-    }
-
-    bool XmlTextReader::read() {
-        if (isValid()) {
-            return xmlTextReaderRead(_reader->reader) == XmlSuccess;
         }
         return false;
     }

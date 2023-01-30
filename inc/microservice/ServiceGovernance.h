@@ -9,7 +9,7 @@
 #ifndef ServiceGovernance_h
 #define ServiceGovernance_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "json/JsonNode.h"
 #include "system/ServiceFactory.h"
 #include "microservice/RestTemplate.h"

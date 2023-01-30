@@ -1,5 +1,13 @@
-#ifndef ZIP_H
-#define ZIP_H
+//
+//  Zip.h
+//  common
+//
+//  Created by baowei on 2016/3/28.
+//  Copyright © 2016 com. All rights reserved.
+//
+
+#ifndef Zip_h
+#define Zip_h
 
 #include "data/ByteArray.h"
 #include "data/String.h"
@@ -25,7 +33,7 @@ namespace IO {
         ~ZipFile();
 
     private:
-        ZipFile(ZipFileInner *handle);
+        explicit ZipFile(ZipFileInner *handle);
 
         void *context() const;
 
@@ -38,17 +46,19 @@ namespace IO {
 
     class Zip {
     public:
-        Zip(const String &fileName);
+        explicit Zip(const String &fileName);
 
-        Zip(const ByteArray &buffer);
+        explicit Zip(const ByteArray &buffer);
 
         ~Zip();
 
         bool isValid() const;
 
-        ZipFile *open(const String &fileName) const;
+        void close();
 
-        void close(ZipFile *file);
+        ZipFile *openFile(const String &fileName) const;
+
+        void closeFile(ZipFile *file);
 
         bool read(const String &fileName, ByteArray &buffer);
 
@@ -62,20 +72,18 @@ namespace IO {
         int64_t getPosition(const String &fileName) const;
 
     public:
-        static bool extract(const String &zipfile, const String &path);
+        static bool extract(const String &zipfile, const String &path, const String &password = String::Empty);
 
-        static bool compress(const String &path, const String &zipfile);
+        static bool compress(const String &path, const String &zipfile, const String &password = String::Empty);
 
-        static bool compressFile(const String &fileName, const String &zipfile);
+        static bool compressFile(const String &fileName, const String &zipfile, const String &password = String::Empty);
 
-        static bool compressFile(const String &cpath, const StringArray &filenames, const String &zipfile);
+        static bool compressFile(const String &path, const StringArray &fileNames, const String &zipfile, const String &password = String::Empty);
 
-        static bool compressFile(const StringArray &filenames, const String &zipfile);
+        static bool compressFile(const StringArray &fileNames, const String &zipfile, const String &password = String::Empty);
 
     private:
         static int zipRead(void *context, char *buffer, int len);
-
-        static int zipClose(void *context);
 
     private:
         friend Xml::XmlTextReader;
@@ -87,4 +95,4 @@ namespace IO {
     };
 }
 
-#endif    // ZIP_H
+#endif  // Zip_h

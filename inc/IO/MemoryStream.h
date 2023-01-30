@@ -9,7 +9,7 @@
 #ifndef MemoryStream_h
 #define MemoryStream_h
 
-#include "Stream.h"
+#include "IO/Stream.h"
 
 namespace Data {
     class ByteArray;
@@ -18,9 +18,11 @@ namespace Data {
 namespace IO {
     class MemoryStream : public Stream {
     public:
-        MemoryStream(size_t capacity = DefaultCapacity);
+        using Stream::seek;
 
-        MemoryStream(const ByteArray *buffer, bool copyBuffer = true);
+        explicit MemoryStream(size_t capacity = DefaultCapacity);
+
+        explicit MemoryStream(const ByteArray *buffer, bool copyBuffer = true);
 
         MemoryStream(const uint8_t *buffer, size_t count, size_t capacity = DefaultCapacity);
 
@@ -36,24 +38,24 @@ namespace IO {
 
         size_t length() const override;
 
-        bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) override;
+        off_t seek(off_t offset, SeekOrigin origin) override;
+
+        void flush() override;
+
+        void close() override;
 
         void clear();
 
         const ByteArray *buffer() const;
 
-        void copyTo(uint8_t *buffer) const;
-
         void copyTo(ByteArray &buffer) const;
-
-    private:
-        size_t minInteger(size_t a, size_t b);
 
     private:
         ByteArray *_buffer;
         bool _copyBuffer;
         off_t _position;
 
+    private:
         static const int DefaultCapacity = 1024;
     };
 }

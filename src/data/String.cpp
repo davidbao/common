@@ -9,8 +9,10 @@
 #include <cctype>
 #include <cstdarg>
 #include <cinttypes>
+#include <assert.h>
 #include "iconv.h"
 #include "data/String.h"
+#include "data/ValueType.h"
 #include "data/ByteArray.h"
 #include "data/WString.h"
 #include "IO/Stream.h"

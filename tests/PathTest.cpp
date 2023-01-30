@@ -8,49 +8,50 @@
 
 #include "IO/Path.h"
 #include "system/Environment.h"
+#include "system/Application.h"
 
 using namespace IO;
 using namespace System;
 
 bool testChangeExtension() {
     {
-        String goodFileName = "C:\\mydir\\myfile.com.extension";
-        if (Path::changeExtension(goodFileName, ".old") != "C:\\mydir\\myfile.com.old") {
+        String goodFileName = "C:\\myDir\\myFile.com.extension";
+        if (Path::changeExtension(goodFileName, ".old") != "C:\\myDir\\myFile.com.old") {
             return false;
         }
     }
 
     {
-        String goodFileName = "C:\\mydir\\myfile.com.extension";
-        if (Path::changeExtension(goodFileName, "") != "C:\\mydir\\myfile.com") {
+        String goodFileName = "C:\\myDir\\myFile.com.extension";
+        if (Path::changeExtension(goodFileName, "") != "C:\\myDir\\myFile.com") {
             return false;
         }
     }
 
     {
-        String badFileName = "C:\\mydir\\";
-        if (Path::changeExtension(badFileName, ".old") != "C:\\mydir\\.old") {
+        String badFileName = "C:\\myDir\\";
+        if (Path::changeExtension(badFileName, ".old") != "C:\\myDir\\.old") {
             return false;
         }
     }
 
     {
-        String goodFileName = "/usr/local/mydir/myfile.com.extension";
-        if (Path::changeExtension(goodFileName, ".old") != "/usr/local/mydir/myfile.com.old") {
+        String goodFileName = "/usr/local/myDir/myFile.com.extension";
+        if (Path::changeExtension(goodFileName, ".old") != "/usr/local/myDir/myFile.com.old") {
             return false;
         }
     }
 
     {
-        String goodFileName = "/usr/local/mydir/myfile.com.extension";
-        if (Path::changeExtension(goodFileName, "") != "/usr/local/mydir/myfile.com") {
+        String goodFileName = "/usr/local/myDir/myFile.com.extension";
+        if (Path::changeExtension(goodFileName, "") != "/usr/local/myDir/myFile.com") {
             return false;
         }
     }
 
     {
-        String badFileName = "/usr/local/mydir/";
-        if (Path::changeExtension(badFileName, ".old") != "/usr/local/mydir/.old") {
+        String badFileName = "/usr/local/myDir/";
+        if (Path::changeExtension(badFileName, ".old") != "/usr/local/myDir/.old") {
             return false;
         }
     }
@@ -61,98 +62,98 @@ bool testChangeExtension() {
 bool testCombine() {
 #ifdef WIN32
     {
-        String path1 = "C:\\mydir";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "C:\\mydir\\myfile.com.extension") {
+        String path1 = "C:\\myDir";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "C:\\myDir\\myFile.com.extension") {
             return false;
         }
     }
     {
-        String path1 = "C:\\mydir\\";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "C:\\mydir\\myfile.com.extension") {
-            return false;
-        }
-    }
-
-    {
-        String path1 = "mydir";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "mydir\\myfile.com.extension") {
+        String path1 = "C:\\myDir\\";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "C:\\myDir\\myFile.com.extension") {
             return false;
         }
     }
 
     {
-        String path1 = "C:\\mydir\\";
-        String path2 = "mydir2";
-        String path3 = "myfile.com.extension";
-        if (Path::combine(path1, path2, path3) != "C:\\mydir\\mydir2\\myfile.com.extension") {
+        String path1 = "myDir";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "myDir\\myFile.com.extension") {
             return false;
         }
     }
 
     {
-        String path1 = "C:\\mydir\\";
-        String path2 = "mydir2";
-        String path3 = "mydir3";
-        String path4 = "myfile.com.extension";
-        if (Path::combine(path1, path2, path3, path4) != "C:\\mydir\\mydir2\\mydir3\\myfile.com.extension") {
+        String path1 = "C:\\myDir\\";
+        String path2 = "myDir2";
+        String path3 = "myFile.com.extension";
+        if (Path::combine(path1, path2, path3) != "C:\\myDir\\myDir2\\myFile.com.extension") {
             return false;
         }
     }
 
     {
-        StringArray paths = {"C:\\mydir\\", "mydir2", "mydir3", "myfile.com.extension"};
-        if (Path::combine(paths) != "C:\\mydir\\mydir2\\mydir3\\myfile.com.extension") {
+        String path1 = "C:\\myDir\\";
+        String path2 = "myDir2";
+        String path3 = "myDir3";
+        String path4 = "myFile.com.extension";
+        if (Path::combine(path1, path2, path3, path4) != "C:\\myDir\\myDir2\\myDir3\\myFile.com.extension") {
+            return false;
+        }
+    }
+
+    {
+        StringArray paths = {"C:\\myDir\\", "myDir2", "myDir3", "myFile.com.extension"};
+        if (Path::combine(paths) != "C:\\myDir\\myDir2\\myDir3\\myFile.com.extension") {
             return false;
         }
     }
 #else
     {
-        String path1 = "/usr/local/mydir";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "/usr/local/mydir/myfile.com.extension") {
+        String path1 = "/usr/local/myDir";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "/usr/local/myDir/myFile.com.extension") {
             return false;
         }
     }
     {
-        String path1 = "/usr/local/mydir/";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "/usr/local/mydir/myfile.com.extension") {
+        String path1 = "/usr/local/myDir/";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "/usr/local/myDir/myFile.com.extension") {
             return false;
         }
     }
     {
-        String path1 = "mydir";
-        String path2 = "myfile.com.extension";
-        if (Path::combine(path1, path2) != "mydir/myfile.com.extension") {
-            return false;
-        }
-    }
-
-    {
-        String path1 = "/usr/local/mydir";
-        String path2 = "mydir2";
-        String path3 = "myfile.com.extension";
-        if (Path::combine(path1, path2, path3) != "/usr/local/mydir/mydir2/myfile.com.extension") {
+        String path1 = "myDir";
+        String path2 = "myFile.com.extension";
+        if (Path::combine(path1, path2) != "myDir/myFile.com.extension") {
             return false;
         }
     }
 
     {
-        String path1 = "/usr/local/mydir";
-        String path2 = "mydir2";
-        String path3 = "mydir3";
-        String path4 = "myfile.com.extension";
-        if (Path::combine(path1, path2, path3, path4) != "/usr/local/mydir/mydir2/mydir3/myfile.com.extension") {
+        String path1 = "/usr/local/myDir";
+        String path2 = "myDir2";
+        String path3 = "myFile.com.extension";
+        if (Path::combine(path1, path2, path3) != "/usr/local/myDir/myDir2/myFile.com.extension") {
             return false;
         }
     }
 
     {
-        StringArray paths = {"/usr/local/mydir", "mydir2", "mydir3", "myfile.com.extension"};
-        if (Path::combine(paths) != "/usr/local/mydir/mydir2/mydir3/myfile.com.extension") {
+        String path1 = "/usr/local/myDir";
+        String path2 = "myDir2";
+        String path3 = "myDir3";
+        String path4 = "myFile.com.extension";
+        if (Path::combine(path1, path2, path3, path4) != "/usr/local/myDir/myDir2/myDir3/myFile.com.extension") {
+            return false;
+        }
+    }
+
+    {
+        StringArray paths = {"/usr/local/myDir", "myDir2", "myDir3", "myFile.com.extension"};
+        if (Path::combine(paths) != "/usr/local/myDir/myDir2/myDir3/myFile.com.extension") {
             return false;
         }
     }
@@ -164,7 +165,7 @@ bool testCombine() {
 bool testEndsInDirectorySeparator() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\";
+        String path = "C:\\myDir\\";
         if (!Path::endsInDirectorySeparator(path)) {
             return false;
         }
@@ -176,14 +177,14 @@ bool testEndsInDirectorySeparator() {
         }
     }
     {
-        String path = "C:\\mydir";
+        String path = "C:\\myDir";
         if (Path::endsInDirectorySeparator(path)) {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir/";
+        String path = "/usr/local/myDir/";
         if (!Path::endsInDirectorySeparator(path)) {
             return false;
         }
@@ -195,7 +196,7 @@ bool testEndsInDirectorySeparator() {
         }
     }
     {
-        String path = "/usr/local/mydir";
+        String path = "/usr/local/myDir";
         if (Path::endsInDirectorySeparator(path)) {
             return false;
         }
@@ -209,28 +210,28 @@ bool testEndsInDirectorySeparator() {
 bool testGetDirectoryName() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\mydir2\\";
-        if (Path::getDirectoryName(path) != "C:\\mydir") {
+        String path = "C:\\myDir\\myDir2\\";
+        if (Path::getDirectoryName(path) != "C:\\myDir") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\mydir2";
-        if (Path::getDirectoryName(path) != "C:\\mydir") {
+        String path = "C:\\myDir\\myDir2";
+        if (Path::getDirectoryName(path) != "C:\\myDir") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir";
+        String path = "C:\\myDir";
         if (Path::getDirectoryName(path) != "C:") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\";
+        String path = "C:\\myDir\\";
         if (Path::getDirectoryName(path) != "C:") {
             return false;
         }
@@ -258,14 +259,14 @@ bool testGetDirectoryName() {
     }
 #else
     {
-        String path = "/usr/local/mydir/";
+        String path = "/usr/local/myDir/";
         if (Path::getDirectoryName(path) != "/usr/local") {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir";
+        String path = "/usr/local/myDir";
         if (Path::getDirectoryName(path) != "/usr/local") {
             return false;
         }
@@ -306,28 +307,28 @@ bool testGetDirectoryName() {
 bool testGetExtension() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\myfile.com.extension";
+        String path = "C:\\myDir\\myFile.com.extension";
         if (Path::getExtension(path) != ".extension") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\mydir\\";
+        String path = "C:\\myDir\\myDir\\";
         if (Path::getExtension(path) != "") {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir/myfile.com.extension";
+        String path = "/usr/local/myDir/myFile.com.extension";
         if (Path::getExtension(path) != ".extension") {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir/";
+        String path = "/usr/local/myDir/";
         if (Path::getExtension(path) != "") {
             return false;
         }
@@ -340,33 +341,40 @@ bool testGetExtension() {
 bool testGetFileName() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\myfile.com.extension";
-        if (Path::getFileName(path) != "myfile.com.extension") {
+        String path = "C:\\myDir\\myFile.com.extension";
+        if (Path::getFileName(path) != "myFile.com.extension") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\mydir\\";
+        String path = "C:\\myDir\\myDir\\";
         if (Path::getFileName(path) != "") {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir/myfile.com.extension";
-        if (Path::getFileName(path) != "myfile.com.extension") {
+        String path = "/usr/local/myDir/myFile.com.extension";
+        if (Path::getFileName(path) != "myFile.com.extension") {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir/";
+        String path = "/usr/local/myDir/";
         if (Path::getFileName(path) != "") {
             return false;
         }
     }
 #endif
+
+    {
+        String path = "myFile.com.extension";
+        if (Path::getFileName(path) != path) {
+            return false;
+        }
+    }
 
     return true;
 }
@@ -374,28 +382,28 @@ bool testGetFileName() {
 bool testGetFileNameWithoutExtension() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\myfile.com.extension";
-        if (Path::getFileNameWithoutExtension(path) != "myfile.com") {
+        String path = "C:\\myDir\\myFile.com.extension";
+        if (Path::getFileNameWithoutExtension(path) != "myFile.com") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\mydir\\";
+        String path = "C:\\myDir\\myDir\\";
         if (Path::getFileNameWithoutExtension(path) != "") {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir/myfile.com.extension";
-        if (Path::getFileNameWithoutExtension(path) != "myfile.com") {
+        String path = "/usr/local/myDir/myFile.com.extension";
+        if (Path::getFileNameWithoutExtension(path) != "myFile.com") {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir/";
+        String path = "/usr/local/myDir/";
         if (Path::getFileNameWithoutExtension(path) != "") {
             return false;
         }
@@ -407,7 +415,7 @@ bool testGetFileNameWithoutExtension() {
 
 bool testGetFullPath() {
     {
-        String path = "mydir";
+        String path = "myDir";
         String fullPath = Path::getFullPath(path);
         String current = Environment::getCurrentDirectory();
         if (fullPath != Path::combine(current, path)) {
@@ -416,8 +424,8 @@ bool testGetFullPath() {
     }
 
     {
-        String path = "mydir";
-        String basePath = "/usr/local/mydir";
+        String path = "myDir";
+        String basePath = "/usr/local/myDir";
         String fullPath = Path::getFullPath(path, basePath);
         if (fullPath != Path::combine(basePath, path)) {
             return false;
@@ -448,43 +456,43 @@ bool testChars() {
 bool testGetPathRoot() {
 #ifdef WIN32
     {
-        String path = "\\mydir\\";
+        String path = "\\myDir\\";
         if (Path::getPathRoot(path) != "") {
             return false;
         }
     }
 
     {
-        String path = "myfile.ext";
+        String path = "myFile.ext";
         if (Path::getPathRoot(path) != "") {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\myfile.ext";
+        String path = "C:\\myDir\\myFile.ext";
         if (Path::getPathRoot(path) != "C:\\") {
             return false;
         }
     }
 
     {
-        String path = "\\\\myPC\\mydir\\myfile.ext";
+        String path = "\\\\myPC\\myDir\\myFile.ext";
         if (Path::getPathRoot(path) != "\\\\myPC\\") {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir";
-        if(Path::getPathRoot(path) != "/") {
+        String path = "/usr/local/myDir";
+        if (Path::getPathRoot(path) != "/") {
             return false;
         }
     }
 
     {
-        String path = "myfile.ext";
-        if(Path::getPathRoot(path) != "") {
+        String path = "myFile.ext";
+        if (Path::getPathRoot(path) != "") {
             return false;
         }
     }
@@ -519,69 +527,102 @@ bool testGetTempFileName() {
     return true;
 }
 
-bool testGetTempPath() {
+bool testGetPath() {
+    {
+        String appPath = Path::getAppPath();
+        String startupPath = Application::startupPath();
+        if (startupPath.find(appPath) < 0) {
+            return false;
+        }
+    }
+
+    {
+        String homePath = Path::getHomePath();
+        if (homePath.isNullOrEmpty()) {
+            return false;
+        }
+    }
+
+    {
+        String docPath = Path::getDocumentPath();
+        if (docPath.isNullOrEmpty()) {
+            return false;
+        }
+    }
+
+    {
+        String docPath2 = Path::getDocumentPath("test");
+        if (docPath2.isNullOrEmpty()) {
+            return false;
+        }
+        if (docPath2.find("test") <= 0) {
+            return false;
+        }
+    }
+
     {
         String tempPath = Path::getTempPath();
         if (tempPath.isNullOrEmpty()) {
             return false;
         }
     }
+
     return true;
 }
 
 bool testHasExtension() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir\\myfile.ext";
+        String path = "C:\\myDir\\myFile.ext";
         if (!Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\myfile.ext\\";
+        String path = "C:\\myDir\\myFile.ext\\";
         if (Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "C:\\mydir\\myfile";
+        String path = "C:\\myDir\\myFile";
         if (Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "mydir\\myfile";
+        String path = "myDir\\myFile";
         if (Path::hasExtension(path)) {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir/myfile.ext";
+        String path = "/usr/local/myDir/myFile.ext";
         if (!Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir/myfile.ext/";
+        String path = "/usr/local/myDir/myFile.ext/";
         if (Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "/usr/local/mydir/myfile";
+        String path = "/usr/local/myDir/myFile";
         if (Path::hasExtension(path)) {
             return false;
         }
     }
 
     {
-        String path = "mydir/myfile";
+        String path = "myDir/myFile";
         if (Path::hasExtension(path)) {
             return false;
         }
@@ -594,35 +635,35 @@ bool testHasExtension() {
 bool testIsPathRooted() {
 #ifdef WIN32
     {
-        String path = "C:\\mydir";
+        String path = "C:\\myDir";
         if (!Path::isPathRooted(path)) {
             return false;
         }
     }
 
     {
-        String path = "\\myPC\\mydir";
+        String path = "\\myPC\\myDir";
         if (!Path::isPathRooted(path)) {
             return false;
         }
     }
 
     {
-        String path = "mydir";
+        String path = "myDir";
         if (Path::isPathRooted(path)) {
             return false;
         }
     }
 #else
     {
-        String path = "/usr/local/mydir";
+        String path = "/usr/local/myDir";
         if (!Path::isPathRooted(path)) {
             return false;
         }
     }
 
     {
-        String path = "mydir";
+        String path = "myDir";
         if (Path::isPathRooted(path)) {
             return false;
         }
@@ -669,7 +710,7 @@ int main() {
     if (!testGetTempFileName()) {
         return 12;
     }
-    if (!testGetTempPath()) {
+    if (!testGetPath()) {
         return 13;
     }
     if (!testHasExtension()) {

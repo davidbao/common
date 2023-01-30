@@ -9,7 +9,7 @@
 #ifndef NacosService_h
 #define NacosService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "http/HttpContent.h"
 #include "microservice/ServiceGovernance.h"
 

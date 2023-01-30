@@ -2,7 +2,7 @@
 #define DEVICE_H
 
 #include "data/StreamVector.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "thread/Locker.h"
 #include "system/Delegate.h"
 #include "driver/instructions/Instruction.h"

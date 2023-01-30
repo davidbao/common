@@ -10,6 +10,8 @@
 #include "IO/File.h"
 #include "system/Math.h"
 #include "exception/Exception.h"
+#include "diag/Trace.h"
+
 #if WIN32
 #include <Windows.h>
 #else
@@ -317,7 +319,7 @@ namespace IO {
         return 0;
     }
 
-    bool MappingStream::seek(off_t offset, SeekOrigin origin) {
+    off_t MappingStream::seek(off_t offset, SeekOrigin origin) {
         if ((origin < SeekOrigin::SeekBegin) || (origin > SeekOrigin::SeekEnd)) {
             throw ArgumentException("Invalid seek origin.");
         }
@@ -342,7 +344,7 @@ namespace IO {
         }
 
         _position = offset;
-        return true;
+        return _position;
     }
 
     bool MappingStream::canWrite() const {

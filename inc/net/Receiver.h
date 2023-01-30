@@ -9,7 +9,7 @@
 #ifndef Receiver_h
 #define Receiver_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/TimeSpan.h"
 #include "EscapeOption.h"
 
@@ -30,13 +30,13 @@ namespace Net {
 
         virtual ssize_t receive(uint8_t *buffer, off_t offset, size_t count) = 0;
 
-        virtual ssize_t receive(uint8_t *buffer, off_t offset, size_t count, uint32_t timeout) = 0;
+        virtual ssize_t receive(uint8_t *buffer, off_t offset, size_t count, uint32_t timeout);
 
-        virtual ssize_t receive(ByteArray *buffer, size_t count, uint32_t timeout) = 0;
-
-        ssize_t receive(size_t count, ByteArray &buffer);
+        virtual ssize_t receive(ByteArray *buffer, size_t count, uint32_t timeout);
 
         virtual void clearReceiveBuffer();
+
+        ssize_t receive(size_t count, ByteArray &buffer);
 
         ssize_t
         receiveByEndBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *endBuffer, size_t ebLength, int suffix,

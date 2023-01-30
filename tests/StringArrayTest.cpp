@@ -6,6 +6,7 @@
 //  Copyright © 2022 com. All rights reserved.
 //
 
+#include "data/ValueType.h"
 #include "data/StringArray.h"
 #include "thread/Thread.h"
 
@@ -50,9 +51,11 @@ void printValues(const StringArray &v) {
 }
 
 bool testConstructor() {
-    StringArray test(DefaultCapacity);
-    if (!(test.count() == 0 && test.capacity() == DefaultCapacity)) {
-        return false;
+    {
+        StringArray test(DefaultCapacity);
+        if (!(test.count() == 0 && test.capacity() == DefaultCapacity)) {
+            return false;
+        }
     }
 
     StringArray test2(DefaultCapacity);

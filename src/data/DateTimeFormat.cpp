@@ -7,9 +7,9 @@
 //
 
 #include "DateTimeFormat.h"
-#include "data/StringArray.h"
 #include "data/TimeZone.h"
 #include "system/Math.h"
+#include <assert.h>
 
 using namespace System;
 

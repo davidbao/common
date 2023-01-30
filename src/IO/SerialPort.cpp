@@ -1,24 +1,27 @@
-#include "IO/SerialPort.h"
-#include "diag/Stopwatch.h"
+//
+//  SerialPort.cpp
+//  common
+//
+//  Created by baowei on 2018/12/10.
+//  Copyright (c) 2018 com. All rights reserved.
+//
 
-#if WIN32
+#include "IO/SerialPort.h"
+
+#ifdef WIN32
 #include <Windows.h>
+#else
+
+#include <termios.h>
+#include <sys/ioctl.h>
+
 #endif
 
 namespace IO {
-    SerialPort::SerialPort(const String &name) : IOPort(name) {
-        _baudRate = 9600;
-        _dataBits = SerialInfo::DATA_8;
-        _stopBits = SerialInfo::STOP_1;
-        _handshake = SerialInfo::FLOW_OFF;
-        _parity = SerialInfo::PAR_NONE;
-        _rtsEnable = false;
-        _dtrEnable = false;
-        _useSignal = false;
+    SerialPort::SerialPort(const String &name) : IOPort(), _serial(name) {
     }
 
-    SerialPort::~SerialPort() {
-    }
+    SerialPort::~SerialPort() = default;
 
     bool SerialPort::open() {
         if (!IOPort::open())
@@ -31,97 +34,114 @@ namespace IO {
         return true;
     }
 
+    const String &SerialPort::name() const {
+        return _serial.portName;
+    }
+
+    const SerialInfo &SerialPort::serial() const {
+        return _serial;
+    }
+
+    void SerialPort::setSerialInfo(const SerialInfo &serial) {
+        if (!serial.isEmpty()) {
+            if (isOpen()) {
+                setCommConfig(serial.baudRate, serial.parity, serial.dataBits, serial.stopBits, serial.handshake);
+            }
+            _serial = serial;
+        }
+    }
+
     void SerialPort::setBaudRate(int baudRate) {
         if (baudRate > 0) {
             if (isOpen()) {
                 setCommConfig(baudRate, parity(), dataBits(), stopBits(), handshake());
             }
-            _baudRate = baudRate;
+            _serial.baudRate = baudRate;
         }
     }
 
     int SerialPort::baudRate() const {
-        return _baudRate;
+        return _serial.baudRate;
     }
 
     void SerialPort::setDataBits(SerialInfo::DataBitsType dataBits) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity(), dataBits, stopBits(), handshake());
         }
-        _dataBits = dataBits;
+        _serial.dataBits = dataBits;
     }
 
     SerialInfo::DataBitsType SerialPort::dataBits() const {
-        return _dataBits;
+        return _serial.dataBits;
     }
 
     void SerialPort::setParity(SerialInfo::ParityType parity) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity, dataBits(), stopBits(), handshake());
         }
-        _parity = parity;
+        _serial.parity = parity;
     }
 
     SerialInfo::ParityType SerialPort::parity() const {
-        return _parity;
+        return _serial.parity;
     }
 
     void SerialPort::setStopBits(SerialInfo::StopBitsType stopBits) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity(), dataBits(), stopBits, handshake());
         }
-        _stopBits = stopBits;
+        _serial.stopBits = stopBits;
     }
 
     SerialInfo::StopBitsType SerialPort::stopBits() const {
-        return _stopBits;
+        return _serial.stopBits;
     }
 
     void SerialPort::setHandshake(SerialInfo::HandshakeType handshake) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity(), dataBits(), stopBits(), handshake);
         }
-        _handshake = handshake;
+        _serial.handshake = handshake;
     }
 
     SerialInfo::HandshakeType SerialPort::handshake() const {
-        return _handshake;
+        return _serial.handshake;
     }
 
     bool SerialPort::rtsEnable() const {
-        return _rtsEnable;
+        return _serial.rtsEnable;
     }
 
     void SerialPort::setRtsEnable(bool enabled) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity(), dataBits(), stopBits(), handshake());
         }
-        _rtsEnable = enabled;
+        _serial.rtsEnable = enabled;
     }
 
     bool SerialPort::dtrEnable() const {
-        return _dtrEnable;
+        return _serial.dtrEnable;
     }
 
     void SerialPort::setDtrEnable(bool enabled) {
         if (isOpen()) {
             setCommConfig(baudRate(), parity(), dataBits(), stopBits(), handshake());
         }
-        _dtrEnable = enabled;
+        _serial.dtrEnable = enabled;
     }
 
     bool SerialPort::useSignal() const {
-        return _useSignal;
+        return _serial.useSignal;
     }
 
     void SerialPort::setUseSignal(bool useSignal) {
-        _useSignal = useSignal;
+        _serial.useSignal = useSignal;
     }
 
     bool SerialPort::setCommConfig(int baudRate, SerialInfo::ParityType parity, SerialInfo::DataBitsType dataBits,
                                    SerialInfo::StopBitsType stopBits, SerialInfo::HandshakeType handshake) {
         if (isOpen()) {
-#if WIN32
+#ifdef WIN32
             DWORD size = 0;
             COMMCONFIG newcc;
             memset(&newcc, 0, sizeof(COMMCONFIG));
@@ -221,7 +241,7 @@ namespace IO {
             }
 
             newcc.dcb.Parity=(unsigned char)parity;
-            switch(_parity)
+            switch(_serial.parity)
             {
                 /*space parity*/
             default:
@@ -282,7 +302,7 @@ namespace IO {
             SetCommConfig(_handle, &newcc, sizeof(COMMCONFIG));
             return true;
 #else
-            struct termios newtio;
+            struct termios newtio{};
 
             if (tcgetattr(_handle, &newtio) == -1)
                 return false;

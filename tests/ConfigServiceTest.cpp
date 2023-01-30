@@ -18,7 +18,7 @@ using namespace Data;
 using namespace Net;
 using namespace Config;
 
-static String _rootPath = Path::combine(Directory::getTempPath(), "common.ConfigServiceTest");
+static String _rootPath = Path::combine(Path::getTempPath(), "common.ConfigServiceTest");
 
 void cleanUp() {
     if(Directory::exists(_rootPath)) {
@@ -130,7 +130,7 @@ bool testSystemVariables() {
     const StringMap &vars = cs.systemVariables();
     StringArray keys;
     vars.keys(keys);
-    for (int i = 0; i < keys.count(); i++) {
+    for (size_t i = 0; i < keys.count(); i++) {
         const String &key = keys[i];
         const String &value = vars[key];
         if (key == "${summer.application.name}") {

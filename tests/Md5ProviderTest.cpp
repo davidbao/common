@@ -30,7 +30,7 @@ bool testMd5() {
 
 bool testMd5_file() {
     Md5Provider sm3;
-    String fileName = Path::combine(Directory::getTempPath(), "test_md5_file.txt");
+    String fileName = Path::combine(Path::getTempPath(), "test_md5_file.txt");
     FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     for (int i = 0; i < 100; ++i) {
         fs.writeText(_plainText);

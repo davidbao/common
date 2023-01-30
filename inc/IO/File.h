@@ -11,55 +11,64 @@
 
 #ifndef WIN32
 
-#include <stdio.h>
+#include <cstdio>
 #include <sys/stat.h>
 #include <utime.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 
 #endif
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/DateTime.h"
+#include "data/StringArray.h"
 
 namespace IO {
     class File {
     public:
-        static bool exists(const String &path);
+        static void appendBytes(const String &path, const ByteArray &content);
 
-        static bool deleteFile(const String &path);
+        static void appendLines(const String &path, const StringArray &contents);
 
-        static bool move(const String &sourceFileName, const String &destFileName);
+        static void appendText(const String &path, const String &content);
 
         static bool copy(const String &sourceFileName, const String &destFileName, bool overwrite = true);
 
-        static bool rename(const String &oldFile, const String &newFile);
+        static bool deleteFile(const String &path);
 
-        static const String getTempFileName(const String &prefix = String::Empty);
-
-        static bool getSize(const String &path, int64_t &fileSize);
-
-        static bool getModifyTime(const String &path, DateTime &time);
-
-        static bool setModifyTime(const String &path, const DateTime &time);
+        static bool exists(const String &path);
 
         static bool getCreationTime(const String &path, DateTime &time);
 
-        static bool setCreationTime(const String &path, const DateTime &time);
-
         static bool getLastAccessTime(const String &path, DateTime &time);
 
-        static bool setLastAccessTime(const String &path, const DateTime &time);
+        static bool getLength(const String &path, int64_t &fileLength);
 
-        static String readAllText(const String &path);
+        static int64_t getLength(const String &path);
+
+        static bool getModifyTime(const String &path, DateTime &time);
+
+        static bool move(const String &sourceFileName, const String &destFileName);
 
         static ByteArray readAllBytes(const String &path);
 
-#if !WIN32
+        static StringArray readAllLines(const String &path);
 
-        static bool chmod(const String &fileName, int mode = 0x500);
+        static String readAllText(const String &path);
+
+        static bool rename(const String &oldFile, const String &newFile);
+
+        static bool setCreationTime(const String &path, const DateTime &time);
+
+        static bool setLastAccessTime(const String &path, const DateTime &time);
+
+        static bool setModifyTime(const String &path, const DateTime &time);
+
+#ifndef WIN32
+
+        static bool chmod(const String &fileName, int mode = 0x777);
 
 #endif
 

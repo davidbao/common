@@ -14,7 +14,7 @@
 
 using namespace Xml;
 
-static const String xmlPath = Path::combine(Directory::getTempPath(), "XmlTextReaderTest");
+static const String xmlPath = Path::combine(Path::getTempPath(), "XmlTextReaderTest");
 static const char *xmlFileName = "book.xml";
 static const String xmlFullFileName = Path::combine(xmlPath, xmlFileName);
 static const String zipFullFileName = Path::combine(xmlPath, "book.zip");

@@ -10,7 +10,7 @@
 #include "exception/Exception.h"
 #include "data/Convert.h"
 #include "IO/Path.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "diag/Trace.h"
 
 using namespace Diag;

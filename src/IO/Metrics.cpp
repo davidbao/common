@@ -1,27 +1,31 @@
+//
+//  Metrics.cpp
+//  common
+//
+//  Created by baowei on 2020/4/28.
+//  Copyright © 2020 com. All rights reserved.
+//
+
 #include "IO/Metrics.h"
+#include "data/ValueType.h"
 #include "diag/Trace.h"
 #include "thread/Process.h"
-#include "IO/Directory.h"
 #include "system/Environment.h"
 #include "thread/ThreadPool.h"
 #include "system/Application.h"
-#include <locale.h>
-#include <assert.h>
-#include <inttypes.h>
+#include <cassert>
+#include <cinttypes>
 
 #if MAC_OS
 
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/sysctl.h>
-#include <sys/types.h>
 #include <mach/mach.h>
 #include <mach/processor_info.h>
 #include <mach/mach_host.h>
 #include <unistd.h>
 #include <malloc/malloc.h>
-#include <dirent.h>
-#include <sys/stat.h>
 
 #elif WIN_OS
 
@@ -42,6 +46,7 @@
 #include <sys/vfs.h>
 #include <unistd.h>
 #include <limits.h>
+
 #endif
 
 #ifdef WIN_OS
@@ -59,18 +64,8 @@ static __int64 file_time_2_utc(const FILETIME *ftime) {
 
 namespace IO {
     bool DiskStat::isDiskFull(const String &path, int maxBytes) {
-#if WIN32
-        ULARGE_INTEGER available, total, free;
-        if (GetDiskFreeSpaceEx(path.c_str(), &available, &total, &free)) {
-            return (available.QuadPart < maxBytes);
-        }
-#else
-        struct statfs ds;
-        if (statfs(path.c_str(), &ds) >= 0) {
-            return (ds.f_bfree < (uint64_t) maxBytes / 1024L);    // unit: k
-        }
-#endif
-        return 0;
+        uint64_t freeSize = getFree(path);
+        return freeSize < maxBytes;
     }
 
     uint64_t DiskStat::getTotal(const String &path) {
@@ -80,7 +75,7 @@ namespace IO {
             return total.QuadPart;
         }
 #else
-        struct statfs ds;
+        struct statfs ds{};
         if (statfs(path.c_str(), &ds) >= 0) {
             return ds.f_bsize * ds.f_blocks;
         }
@@ -95,7 +90,7 @@ namespace IO {
             return free.QuadPart;
         }
 #else
-        struct statfs ds;
+        struct statfs ds{};
         if (statfs(path.c_str(), &ds) >= 0) {
             return ds.f_bfree * ds.f_bsize;
         }
@@ -110,7 +105,7 @@ namespace IO {
             return available.QuadPart;
         }
 #else
-        struct statfs ds;
+        struct statfs ds{};
         if (statfs(path.c_str(), &ds) >= 0) {
             return ds.f_bavail * ds.f_bsize;
         }
@@ -171,7 +166,7 @@ namespace IO {
         char buf[1024];
         char line[256];
         FILE *f = popen(String::format("du -sk %s", path.c_str()), "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             uint64_t size = 0;
             sscanf(line, "%" PRId64 "\t%s", &size, buf);
             pclose(f);
@@ -183,7 +178,7 @@ namespace IO {
         char buf[1024];
         char line[256];
         FILE *f = popen(String::format("du -s --block-size=1 %s", path.c_str()), "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             uint64_t size = 0;
             sscanf(line, "%" PRId64 "\t%s", &size, buf);
             pclose(f);
@@ -204,7 +199,7 @@ namespace IO {
         int numCPUs;
         int mib[2U] = {CTL_HW, HW_NCPU};
         size_t sizeOfNumCPUs = sizeof(numCPUs);
-        int status = sysctl(mib, 2U, &numCPUs, &sizeOfNumCPUs, NULL, 0U);
+        int status = sysctl(mib, 2U, &numCPUs, &sizeOfNumCPUs, nullptr, 0U);
         if (status)
             numCPUs = 1;
         return numCPUs;
@@ -213,7 +208,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen("cat /proc/cpuinfo |grep processor|wc -l", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -242,12 +237,12 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen(String::format("ps -wweo args,pcpu |grep %s", Application::instance()->name().c_str()), "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
             String lineStr = String(line).trim('\t', '\n');
-            int index = lineStr.findLastOf(' ');
+            ssize_t index = lineStr.findLastOf(' ');
             if (index > 0) {
                 String str = lineStr.substr(index, lineStr.length() - index).trim();
                 double usage;
@@ -266,7 +261,7 @@ namespace IO {
         String file = String::format("top -n 1 |grep %d | awk '{printf \"%%s\", $7}'",
                                      Process::getCurrentProcessId());
         FILE *f = popen(file, "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -298,7 +293,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen("ps -A -o %cpu | awk '{cpu += $1} END {print cpu}'", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -316,7 +311,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen("top -n 1 |grep idle | awk '{printf \"%s\", $8}'", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -398,30 +393,30 @@ namespace IO {
             return 0;
         }
 
-        task_basic_info_t basic_info;
+//        task_basic_info_t basic_info;
         thread_array_t thread_list;
         mach_msg_type_number_t thread_count;
 
-        thread_info_data_t thinfo;
-        mach_msg_type_number_t thread_info_count;
+//        thread_info_data_t thinfo;
+//        mach_msg_type_number_t thread_info_count;
 
-        thread_basic_info_t basic_info_th;
-        uint32_t stat_thread = 0; // Mach threads
+//        thread_basic_info_t basic_info_th;
+//        uint32_t stat_thread = 0; // Mach threads
 
-        basic_info = (task_basic_info_t) tinfo;
+//        basic_info = (task_basic_info_t) tinfo;
 
         // get threads in the task
         kr = task_threads(port, &thread_list, &thread_count);
         if (kr != KERN_SUCCESS) {
             return 0;
         }
-        return thread_count;
+        return (int) thread_count;
 #elif LINUX_OS
         char buf[1024];
         unsigned buflen = 0;
         char line[256];
         FILE* f = popen(String::format("ps hH p %d | wc -l", Process::getCurrentProcessId()), "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -441,7 +436,7 @@ namespace IO {
         char line[256];
         String file = String::format("cat /proc/%d/status | grep Threads | awk '{printf \"%%d\", $2}'", Process::getCurrentProcessId());
         FILE* f = popen(file, "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -503,8 +498,8 @@ namespace IO {
 #endif
         int64_t size = 0;               /* 64-bit */
         size_t len = sizeof(size);
-        if (sysctl(mib, 2, &size, &len, NULL, 0) == 0)
-            return (size_t) size;
+        if (sysctl(mib, 2, &size, &len, nullptr, 0) == 0)
+            return (int64_t) size;
         return 0L;            /* Failed? */
 
 #elif defined(_SC_AIX_REALMEM)
@@ -532,7 +527,7 @@ namespace IO {
 #endif
         unsigned int size = 0;        /* 32-bit */
         size_t len = sizeof( size );
-        if ( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
+        if ( sysctl( mib, 2, &size, &len, nullptr, 0 ) == 0 )
             return (size_t)size;
         return 0L;            /* Failed? */
 #endif /* sysctl and sysconf variants */
@@ -569,7 +564,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen("free -b |grep Mem: | awk '{printf \"%s\", $3}'", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -599,7 +594,7 @@ namespace IO {
                                      Process::getCurrentProcessId(),
                                      name);
         FILE *f = popen(file, "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -624,7 +619,7 @@ namespace IO {
                                      Process::getCurrentProcessId(),
                                      statm + 1);
         FILE *f = popen(file, "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -677,7 +672,7 @@ namespace IO {
     int64_t MemoryStat::usedHeap() {
 #if MAC_OS
         struct mstats ms = mstats();
-        return ms.bytes_used;
+        return (int64_t) ms.bytes_used;
 #elif LINUX_OS
         struct mallinfo mi = mallinfo();
         return mi.uordblks;
@@ -698,7 +693,7 @@ namespace IO {
     int64_t MemoryStat::committedHeap() {
 #if MAC_OS
         struct mstats ms = mstats();
-        return ms.bytes_total;
+        return (int64_t) ms.bytes_total;
 #elif LINUX_OS
         struct mallinfo mi = mallinfo();
         return mi.arena;
@@ -793,6 +788,8 @@ namespace IO {
         return "Linux";
 #elif WIN_OS
         return "Windows";
+#elif BROWSER_OS
+        return "WebAssembly";
 #else
         return "Not supported";
 #endif
@@ -804,7 +801,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE *f = popen("sw_vers | grep ProductVersion: | awk '{printf \"%s\", $2}'", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));
@@ -818,7 +815,7 @@ namespace IO {
         unsigned buflen = 0;
         char line[256];
         FILE* f = popen("cat /proc/version", "r");
-        while (fgets(line, sizeof(line), f) != NULL) {
+        while (fgets(line, sizeof(line), f) != nullptr) {
             int l = snprintf(buf + buflen, sizeof(buf) - buflen, "%s", line);
             buflen += l;
             assert(buflen < sizeof(buf));

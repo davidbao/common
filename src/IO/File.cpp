@@ -9,10 +9,11 @@
 #include "IO/File.h"
 #include "IO/Directory.h"
 #include "data/TimeZone.h"
-#include "IO/Path.h"
 #include "IO/FileStream.h"
+#include "diag/Trace.h"
 
-#if WIN32
+#ifdef WIN32
+
 #include <Windows.h>
 #include <memory.h>
 #include <fcntl.h>
@@ -20,13 +21,13 @@
 #include <direct.h>
 #include <sys/stat.h>
 #include "Shlwapi.h"
+
 #elif __APPLE__
-#include <sys/param.h>
+
 #include <sys/mount.h>
-#include <libgen.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #elif __ANDROID__
 #include <malloc.h>
 #else
@@ -40,24 +41,69 @@
 #endif
 
 #ifndef S_ISDIR
-#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)	/* directory */
+#define    S_ISDIR(m)    (((m) & S_IFMT) == S_IFDIR)    /* directory */
 #endif
 
 using namespace Diag;
 
 namespace IO {
+    void File::appendBytes(const String &path, const ByteArray &content) {
+        FileStream fs(path, FileMode::FileAppend, FileAccess::FileWrite);
+        fs.writeBytes(content);
+    }
+
+    void File::appendLines(const String &path, const StringArray &contents) {
+        FileStream fs(path, FileMode::FileAppend, FileAccess::FileWrite);
+        for (size_t i = 0; i < contents.count(); ++i) {
+            const String &content = contents[i];
+            fs.writeFixedLengthStr(content, (int) content.length());
+            if (i != contents.count() - 1) {
+                fs.writeByte('\n');
+            }
+        }
+    }
+
+    void File::appendText(const String &path, const String &content) {
+        FileStream fs(path, FileMode::FileAppend, FileAccess::FileWrite);
+        fs.writeFixedLengthStr(content, (int) content.length());
+    }
+
+    bool File::copy(const String &sourceFileName, const String &destFileName, bool overwrite) {
+        if (sourceFileName.isNullOrEmpty())
+            return false;
+        if (destFileName.isNullOrEmpty())
+            return false;
+
+        if (exists(sourceFileName)) {
+#ifdef WIN32
+            return CopyFile(sourceFileName, destFileName, overwrite ? FALSE : TRUE) ? true : false;
+#else
+            return copy_file(sourceFileName, destFileName, !overwrite);
+#endif
+        }
+        return false;
+    }
+
+    bool File::deleteFile(const String &path) {
+        if (path.isNullOrEmpty())
+            return false;
+
+        if (!exists(path))
+            return false;
+
+        return remove(path) == 0;
+    }
+
     bool File::exists(const String &path) {
         if (path.isNullOrEmpty())
             return false;
 
-#if WIN32
-        if (PathFileExists(path) == TRUE)
-        {
-            WIN32_FIND_DATA  wfd;
+#ifdef WIN32
+        if (PathFileExists(path) == TRUE) {
+            WIN32_FIND_DATA wfd;
             bool rValue = false;
             HANDLE hFind = FindFirstFile(path, &wfd);
-            if ((hFind != INVALID_HANDLE_VALUE) && !(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            {
+            if ((hFind != INVALID_HANDLE_VALUE) && !(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
                 rValue = true;
             }
             FindClose(hFind);
@@ -68,7 +114,7 @@ namespace IO {
         if (str.find("file://") >= 0)
             str.replace("file://", String::Empty);
 
-        struct stat s;
+        struct stat s{};
         int err = stat(str.c_str(), &s);
         if (-1 == err) {
             if (ENOENT == errno) {
@@ -87,14 +133,94 @@ namespace IO {
         return false;
     }
 
-    bool File::deleteFile(const String &path) {
-        if (path.isNullOrEmpty())
-            return false;
+    bool File::getCreationTime(const String &path, DateTime &time) {
+        if (File::exists(path)) {
+            String str = path;
+            if (str.find("file://") >= 0)
+                str.replace("file://", String::Empty);
 
-        if (!exists(path))
-            return false;
+            struct stat s{};
+            int err = stat(str.c_str(), &s);
+            if (-1 == err) {
+                if (ENOENT == errno) {
+                    /* does not exist */
+                } else {
+                }
+            } else {
+                time = DateTime::fromLocalTime(s.st_ctime);
+                return true;
+            }
+        }
+        return false;
+    }
 
-        return remove(path) == 0 ? true : false;
+    bool File::getLastAccessTime(const String &path, DateTime &time) {
+        if (File::exists(path)) {
+            String str = path;
+            if (str.find("file://") >= 0)
+                str.replace("file://", String::Empty);
+
+            struct stat s{};
+            int err = stat(str.c_str(), &s);
+            if (-1 == err) {
+                if (ENOENT == errno) {
+                    /* does not exist */
+                } else {
+                }
+            } else {
+                time = DateTime::fromLocalTime(s.st_atime);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool File::getLength(const String &path, int64_t &fileLength) {
+        if (File::exists(path)) {
+            String str = path;
+            if (str.find("file://") >= 0)
+                str.replace("file://", String::Empty);
+
+            struct stat s{};
+            int err = stat(str.c_str(), &s);
+            if (-1 == err) {
+                if (ENOENT == errno) {
+                    /* does not exist */
+                } else {
+                }
+            } else {
+                fileLength = s.st_size;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int64_t File::getLength(const String &path) {
+        int64_t fileLength;
+        getLength(path, fileLength);
+        return fileLength;
+    }
+
+    bool File::getModifyTime(const String &path, DateTime &time) {
+        if (File::exists(path)) {
+            String str = path;
+            if (str.find("file://") >= 0)
+                str.replace("file://", String::Empty);
+
+            struct stat s{};
+            int err = stat(str.c_str(), &s);
+            if (-1 == err) {
+                if (ENOENT == errno) {
+                    /* does not exist */
+                } else {
+                }
+            } else {
+                time = DateTime::fromLocalTime(s.st_mtime);
+                return true;
+            }
+        }
+        return false;
     }
 
     bool File::move(const String &sourceFileName, const String &destFileName) {
@@ -107,7 +233,7 @@ namespace IO {
             if (exists(destFileName)) {
                 deleteFile(destFileName);
             }
-#if WIN32
+#ifdef WIN32
             return MoveFile(sourceFileName, destFileName) ? true : false;
 #else
             return move_file(sourceFileName, destFileName);
@@ -116,23 +242,42 @@ namespace IO {
         return false;
     }
 
-    bool File::copy(const String &sourceFileName, const String &destFileName, bool overwrite) {
-        if (sourceFileName.isNullOrEmpty())
-            return false;
-        if (destFileName.isNullOrEmpty())
-            return false;
-
-        if (exists(sourceFileName)) {
-#if WIN32
-            return CopyFile(sourceFileName, destFileName, overwrite ? FALSE : TRUE) ? true : false;
-#else
-            return copy_file(sourceFileName, destFileName, overwrite ? false : true);
-#endif
+    ByteArray File::readAllBytes(const String &path) {
+        if (File::exists(path)) {
+            FileStream fs(path, FileMode::FileOpen, FileAccess::FileRead);
+            ByteArray array;
+            if (fs.readToEnd(array))
+                return array;
         }
-        return false;
+        return ByteArray::Empty;
     }
 
-#if !WIN32
+    StringArray File::readAllLines(const String &path) {
+        StringArray lines;
+        if (File::exists(path)) {
+            FileStream fs(path, FileMode::FileOpen, FileAccess::FileRead);
+            String line;
+            do {
+                line = fs.readLine();
+                if (!line.isNullOrEmpty()) {
+                    lines.add(line);
+                }
+            } while (!line.isNullOrEmpty());
+        }
+        return lines;
+    }
+
+    String File::readAllText(const String &path) {
+        if (File::exists(path)) {
+            FileStream fs(path, FileMode::FileOpen, FileAccess::FileRead);
+            String text;
+            if (fs.readToEnd(text))
+                return text;
+        }
+        return String::Empty;
+    }
+
+#ifndef WIN32
 
     bool File::chmod(const String &fileName, int mode) {
         // chmod
@@ -142,18 +287,12 @@ namespace IO {
 #ifndef S_IEXEC
 #define S_IEXEC S_IXUSR
 #endif
-        if (File::exists(fileName)) {
-            int result = ::chmod(fileName.c_str(), mode);
-            if (result != 0) {
-                Debug::writeFormatLine("Can not chmod the file, file: %s", fileName.c_str());
-                return false;
-            }
-            return true;
-        } else {
-            Debug::writeFormatLine("Can not find the file, file: %s", fileName.c_str());
+        int result = ::chmod(fileName.c_str(), mode);
+        if (result != 0) {
+            Debug::writeFormatLine("Can not chmod the file, file: %s", fileName.c_str());
             return false;
         }
-        return false;
+        return true;
     }
 
     bool File::write_file(int src_fd, int dest_fd, struct stat *st_src) {
@@ -210,8 +349,8 @@ namespace IO {
      */
     bool File::copy_file(const char *name, const char *dest_name, bool fail_if_exists) {
         int src_fd, dest_fd;
-        struct stat st, dest_st;
-        struct utimbuf dest_time;
+        struct stat st{}, dest_st{};
+        struct utimbuf dest_time{};
         bool ret = true;
         int ret_utime;
 
@@ -283,7 +422,7 @@ namespace IO {
 
     bool File::move_file(const char *name, const char *dest_name) {
         int result, errno_copy;
-        struct stat stat_src, stat_dest;
+        struct stat stat_src{}, stat_dest{};
         bool ret = false;
 
         if (name == nullptr) {
@@ -315,26 +454,26 @@ namespace IO {
         result = ::rename(name, dest_name);
         errno_copy = errno;
 
-        if (result == -1) {
-            switch (errno_copy) {
-                case EEXIST:
-                    break;
-
-                case EXDEV:
-                    /* Ignore here, it is dealt with below */
-                    break;
-
-                default:
-                    break;
-            }
-        }
+//        if (result == -1) {
+//            switch (errno_copy) {
+//                case EEXIST:
+//                    break;
+//
+//                case EXDEV:
+//                    /* Ignore here, it is dealt with below */
+//                    break;
+//
+//                default:
+//                    break;
+//            }
+//        }
 
         if (result != 0 && errno_copy == EXDEV) {
             if (S_ISDIR (stat_src.st_mode)) {
                 return false;
             }
             /* Try a copy to the new location, and delete the source */
-            if (copy(name, dest_name, true) == false) {
+            if (!copy(name, dest_name, true)) {
                 /* CopyFile will set the error */
                 return (false);
             }
@@ -364,166 +503,6 @@ namespace IO {
         return false;
     }
 
-    const String File::getTempFileName(const String &prefix) {
-        String pfx = !prefix.isNullOrEmpty() ? prefix.c_str() : "common";
-        String path = Directory::getTempPath();
-
-        String fileName = String::format("%s-%s", pfx.c_str(), Uuid::generate().toString().c_str());
-        return Path::combine(path, fileName);
-
-//#ifdef WIN32
-//        char szTempFileName[MAX_PATH];
-//        memset(szTempFileName, 0, sizeof(szTempFileName));
-//        if(GetTempFileName(path, pfx, 0, szTempFileName) > 0)
-//            return (String)szTempFileName;
-//        return String::Empty;
-//#else
-////        String pfxTemplate = String::format("%s-XXXXXX", pfx.c_str());
-////        char* str = new char[strlen(pfxTemplate) + 1];
-////        memset(str, 0, strlen(pfxTemplate) + 1);
-////        strcpy(str, pfxTemplate);
-////        mkstemp(str);
-////        String fileName = str;
-////        delete[] str;
-////        return Path::combine(path, fileName);
-//
-////        char* str = tempnam(path, pfx);
-////        String result = str;
-////        free(str);
-//        String fileName = String::format("%s-%s", pfx.c_str(), Uuid::generate().toString().c_str());
-//        return Path::combine(path, fileName);
-//#endif
-    }
-
-    bool File::getSize(const String &path, int64_t &fileSize) {
-        if (File::exists(path)) {
-            String str = path;
-            if (str.find("file://") >= 0)
-                str.replace("file://", String::Empty);
-
-            struct stat s;
-            int err = stat(str.c_str(), &s);
-            if (-1 == err) {
-                if (ENOENT == errno) {
-                    /* does not exist */
-                } else {
-                }
-            } else {
-                fileSize = s.st_size;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool File::getModifyTime(const String &path, DateTime &time) {
-        if (File::exists(path)) {
-            String str = path;
-            if (str.find("file://") >= 0)
-                str.replace("file://", String::Empty);
-
-            struct stat s;
-            int err = stat(str.c_str(), &s);
-            if (-1 == err) {
-                if (ENOENT == errno) {
-                    /* does not exist */
-                } else {
-                }
-            } else {
-                time = DateTime::fromLocalTime(s.st_mtime);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool File::setModifyTime(const String &path, const DateTime &time) {
-        if (File::exists(path)) {
-            String str = path;
-            if (str.find("file://") >= 0)
-                str.replace("file://", String::Empty);
-
-#ifdef WIN32
-            HANDLE handle = CreateFileA(str,
-                                        FILE_GENERIC_READ | FILE_WRITE_ATTRIBUTES,
-                                        FILE_SHARE_READ,
-                                        nullptr,
-                                        OPEN_EXISTING,
-                                        0,
-                                        nullptr);
-            if (handle == INVALID_HANDLE_VALUE)
-                return false;
-            bool result = false;
-            FILETIME creationTime, lastAccessTime, lastWriteTime;
-            if(GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
-                SYSTEMTIME stime;
-                DateTime utime = TimeZone::Local.toUtcTime(time);
-                stime.wYear = utime.year();
-                stime.wMonth = utime.month();
-                stime.wDay = utime.day();
-                stime.wHour = utime.hour();
-                stime.wMinute = utime.minute();
-                stime.wSecond = utime.second();
-                stime.wMilliseconds = utime.millisecond();
-                SystemTimeToFileTime(&stime, &lastWriteTime);
-                result = SetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime);
-            }
-            CloseHandle(handle);
-            return result;
-#elif __EMSCRIPTEN__ || __ANDROID__
-            DateTime lastAccessTime;
-            if(!getLastAccessTime(path, lastAccessTime))
-            {
-                lastAccessTime = time;
-            }
-
-            struct utimbuf timebuf = {0};
-            time_t actime = DateTime::toLocalTime(lastAccessTime);
-            time_t modtime = DateTime::toLocalTime(time);
-            timebuf.actime = actime;
-            timebuf.modtime = modtime;
-            return utime(str, &timebuf) == 0;
-#else
-            DateTime lastAccessTime;
-            if (!getLastAccessTime(path, lastAccessTime)) {
-                lastAccessTime = time;
-            }
-
-            uint64_t atime = (uint64_t) lastAccessTime.total1970Milliseconds();
-            uint64_t mtime = (uint64_t) time.total1970Milliseconds();
-            struct timeval tv[2] = {0};
-            // times[0] specifies the new access time, and times[1] specifies the new modification time.
-            tv[0].tv_sec = atime / 1000;
-            tv[0].tv_usec = 1000 * (atime % 1000);
-            tv[1].tv_sec = mtime / 1000;
-            tv[1].tv_usec = 1000 * (mtime % 1000);
-            return lutimes(str.c_str(), tv) == 0;
-#endif
-        }
-        return false;
-    }
-
-    bool File::getCreationTime(const String &path, DateTime &time) {
-        if (File::exists(path)) {
-            String str = path;
-            if (str.find("file://") >= 0)
-                str.replace("file://", String::Empty);
-
-            struct stat s;
-            int err = stat(str.c_str(), &s);
-            if (-1 == err) {
-                if (ENOENT == errno) {
-                    /* does not exist */
-                } else {
-                }
-            } else {
-                time = DateTime::fromLocalTime(s.st_ctime);
-                return true;
-            }
-        }
-        return false;
-    }
-
     bool File::setCreationTime(const String &path, const DateTime &time) {
         if (File::exists(path)) {
             String str = path;
@@ -542,7 +521,7 @@ namespace IO {
                 return false;
             bool result = false;
             FILETIME creationTime, lastAccessTime, lastWriteTime;
-            if(GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
+            if (GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
                 SYSTEMTIME stime;
                 DateTime utime = TimeZone::Local.toUtcTime(time);
                 stime.wYear = utime.year();
@@ -558,27 +537,6 @@ namespace IO {
             CloseHandle(handle);
             return result;
 #endif
-        }
-        return false;
-    }
-
-    bool File::getLastAccessTime(const String &path, DateTime &time) {
-        if (File::exists(path)) {
-            String str = path;
-            if (str.find("file://") >= 0)
-                str.replace("file://", String::Empty);
-
-            struct stat s;
-            int err = stat(str.c_str(), &s);
-            if (-1 == err) {
-                if (ENOENT == errno) {
-                    /* does not exist */
-                } else {
-                }
-            } else {
-                time = DateTime::fromLocalTime(s.st_atime);
-                return true;
-            }
         }
         return false;
     }
@@ -601,7 +559,7 @@ namespace IO {
                 return false;
             bool result = false;
             FILETIME creationTime, lastAccessTime, lastWriteTime;
-            if(GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
+            if (GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
                 SYSTEMTIME stime;
                 DateTime utime = TimeZone::Local.toUtcTime(time);
                 stime.wYear = utime.year();
@@ -635,37 +593,83 @@ namespace IO {
                 modifyTime = time;
             }
 
-            uint64_t atime = (uint64_t) time.total1970Milliseconds();
-            uint64_t mtime = (uint64_t) modifyTime.total1970Milliseconds();
+            auto atime = (uint64_t) time.total1970Milliseconds();
+            auto mtime = (uint64_t) modifyTime.total1970Milliseconds();
             struct timeval tv[2] = {0};
             // times[0] specifies the new access time, and times[1] specifies the new modification time.
-            tv[0].tv_sec = atime / 1000;
-            tv[0].tv_usec = 1000 * (atime % 1000);
-            tv[1].tv_sec = mtime / 1000;
-            tv[1].tv_usec = 1000 * (mtime % 1000);
+            tv[0].tv_sec = (time_t) (atime / 1000);
+            tv[0].tv_usec = (suseconds_t) (1000 * (atime % 1000));
+            tv[1].tv_sec = (time_t) (mtime / 1000);
+            tv[1].tv_usec = (suseconds_t) (1000 * (mtime % 1000));
             return lutimes(str.c_str(), tv) == 0;
 #endif
         }
         return false;
     }
 
-    String File::readAllText(const String &path) {
+    bool File::setModifyTime(const String &path, const DateTime &time) {
         if (File::exists(path)) {
-            FileStream fs(path, FileMode::FileOpen, FileAccess::FileRead);
-            String text;
-            if (fs.readToEnd(text))
-                return text;
-        }
-        return String::Empty;
-    }
+            String str = path;
+            if (str.find("file://") >= 0)
+                str.replace("file://", String::Empty);
 
-    ByteArray File::readAllBytes(const String &path) {
-        if (File::exists(path)) {
-            FileStream fs(path, FileMode::FileOpen, FileAccess::FileRead);
-            ByteArray array;
-            if (fs.readToEnd(array))
-                return array;
+#ifdef WIN32
+            HANDLE handle = CreateFileA(str,
+                                        FILE_GENERIC_READ | FILE_WRITE_ATTRIBUTES,
+                                        FILE_SHARE_READ,
+                                        nullptr,
+                                        OPEN_EXISTING,
+                                        0,
+                                        nullptr);
+            if (handle == INVALID_HANDLE_VALUE)
+                return false;
+            bool result = false;
+            FILETIME creationTime, lastAccessTime, lastWriteTime;
+            if (GetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime)) {
+                SYSTEMTIME stime;
+                DateTime utime = TimeZone::Local.toUtcTime(time);
+                stime.wYear = utime.year();
+                stime.wMonth = utime.month();
+                stime.wDay = utime.day();
+                stime.wHour = utime.hour();
+                stime.wMinute = utime.minute();
+                stime.wSecond = utime.second();
+                stime.wMilliseconds = utime.millisecond();
+                SystemTimeToFileTime(&stime, &lastWriteTime);
+                result = SetFileTime(handle, &creationTime, &lastAccessTime, &lastWriteTime);
+            }
+            CloseHandle(handle);
+            return result;
+#elif __EMSCRIPTEN__ || __ANDROID__
+            DateTime lastAccessTime;
+            if(!getLastAccessTime(path, lastAccessTime))
+            {
+                lastAccessTime = time;
+            }
+
+            struct utimbuf timebuf = {0};
+            time_t actime = DateTime::toLocalTime(lastAccessTime);
+            time_t modtime = DateTime::toLocalTime(time);
+            timebuf.actime = actime;
+            timebuf.modtime = modtime;
+            return utime(str, &timebuf) == 0;
+#else
+            DateTime lastAccessTime;
+            if (!getLastAccessTime(path, lastAccessTime)) {
+                lastAccessTime = time;
+            }
+
+            auto atime = (uint64_t) lastAccessTime.total1970Milliseconds();
+            auto mtime = (uint64_t) time.total1970Milliseconds();
+            struct timeval tv[2] = {0};
+            // times[0] specifies the new access time, and times[1] specifies the new modification time.
+            tv[0].tv_sec = (time_t) (atime / 1000);
+            tv[0].tv_usec = (suseconds_t) (1000 * (atime % 1000));
+            tv[1].tv_sec = (time_t) (mtime / 1000);
+            tv[1].tv_usec = (suseconds_t) (1000 * (mtime % 1000));
+            return lutimes(str.c_str(), tv) == 0;
+#endif
         }
-        return ByteArray::Empty;
+        return false;
     }
 }

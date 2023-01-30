@@ -9,7 +9,7 @@
 #ifndef SqlSelectFilter_h
 #define SqlSelectFilter_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/StringMap.h"
 
 using namespace Data;

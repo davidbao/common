@@ -10,7 +10,7 @@
 #define TcpServer_h
 
 #include "data/StringArray.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/TimeSpan.h"
 #include "TcpClient.h"
 

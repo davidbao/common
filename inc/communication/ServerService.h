@@ -9,7 +9,7 @@
 #ifndef ServerService_h
 #define ServerService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Map.h"
 #include "thread/Locker.h"
 #include "thread/Thread.h"

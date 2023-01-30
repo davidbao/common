@@ -69,7 +69,7 @@ namespace Drivers {
 #endif
         ssize_t len = 0;
         if (connected()) {
-            len = _port->write((const char *) (buffer + offset), count);
+            len = _port->send(buffer, offset, count);
         }
         return len;
     }
@@ -80,7 +80,7 @@ namespace Drivers {
 #endif
         ssize_t len = 0;
         if (connected()) {
-            len = _port->read((char *) (buffer + offset), count);
+            len = _port->receive(buffer, offset, count);
         }
         return len;
     }
@@ -91,7 +91,7 @@ namespace Drivers {
 #endif
         ssize_t len = 0;
         if (connected()) {
-            len = _port->read((char *) (buffer + offset), count, timeout);
+            len = _port->receive(buffer, offset, count, timeout);
         }
         return len;
     }

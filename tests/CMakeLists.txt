@@ -52,7 +52,7 @@ if (COMMON_ENABLE_TEST)
     endif ()
 
     if (MAC_OS)
-        set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv)
+        set(EXTERNALS_LIB ${EXTERNALS_LIB} iconv lzma)
     elseif (LINUX_OS)
         set(EXTERNALS_LIB ${EXTERNALS_LIB} uuid pthread dl rt)
     elseif (ARM_OS)
@@ -107,7 +107,7 @@ if (COMMON_ENABLE_TEST)
             # diag
             FileTraceListenerTest
             # IO
-            FileTest DirectoryTest MappingStreamTest PathTest
+            FileStreamTest FileTest DirectoryTest MappingStreamTest MemoryStreamTest MetricsTest PathTest ZipTest
             # json
             JsonNodeTest
             # net
@@ -139,6 +139,10 @@ if (COMMON_ENABLE_TEST)
         if (COMMON_BUILD_KINGBASE)
             set(TEST_SRC ${TEST_SRC} KingbaseClientTest)
         endif ()
+    endif ()
+
+    if (COMMON_BUILD_IOPORT)
+        set(TEST_SRC ${TEST_SRC} SerialInfoTest)
     endif ()
 
     if (MAC_OS)

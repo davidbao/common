@@ -7,7 +7,7 @@
 //
 
 #include "data/Enum.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace Data {
 }

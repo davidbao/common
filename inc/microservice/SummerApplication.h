@@ -9,7 +9,7 @@
 #ifndef SummerApplication_h
 #define SummerApplication_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Dictionary.h"
 #include "system/Application.h"
 

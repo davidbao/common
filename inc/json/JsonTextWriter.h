@@ -9,11 +9,12 @@
 #ifndef JsonTextWriter_h
 #define JsonTextWriter_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
+#include "data/PList.h"
+#include "data/IAttribute.h"
 #include "net/NetType.h"
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
-#include "data/IAttribute.h"
 
 namespace Json {
     class JsonTextWriter : public IAttributeSetter {

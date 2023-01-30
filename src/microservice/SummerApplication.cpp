@@ -31,9 +31,9 @@ namespace Microservice {
                 appName = appFileName;
 
 #if __linux__
-            const String homePath = Directory::getAppPath();
+            const String homePath = Path::getAppPath();
 #else
-            const String homePath = Directory::getDocumentPath(
+            const String homePath = Path::getDocumentPath(
                     String::format("Documents/%s/%s", __Summer_default_ProdName, appName.c_str()));
 #endif
             __Summer_homePath = homePath;

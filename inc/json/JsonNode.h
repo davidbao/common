@@ -9,7 +9,7 @@
 #ifndef JsonNode_h
 #define JsonNode_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Vector.h"
 #include "data/List.h"
 #include "data/StringArray.h"
@@ -32,7 +32,8 @@ namespace Json {
               public IEvaluation<JsonNode>,
               public IIndexGetter<JsonNode>,
               public IPositionGetter<JsonNode, const String &>,
-              public IAttributeGetter {
+              public IAttributeGetter,
+              public IAttributeSetter {
     public:
         using IAttributeGetter::getAttribute;
         using IIndexGetter<JsonNode>::operator[];
@@ -118,6 +119,8 @@ namespace Json {
         JsonNode at(const String &name) const override;
 
         bool getAttribute(const String &name, String &value) const override;
+
+        bool setAttribute(const String &name, const String &value) override;
 
         bool at(size_t pos, JsonNode &node) const;
 

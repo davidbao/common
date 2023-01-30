@@ -9,7 +9,7 @@
 #ifndef XmlTextWriter_h
 #define XmlTextWriter_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/ByteArray.h"
 #include "net/NetType.h"
 #include "data/IAttribute.h"

@@ -10,7 +10,7 @@
 #include "data/Point.h"
 #include "system/Math.h"
 #include "data/Convert.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Size.h"
 
 using namespace System;

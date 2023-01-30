@@ -6,6 +6,7 @@
 //  Copyright © 2022 com. All rights reserved.
 //
 
+#include "data/ValueType.h"
 #include "data/StringMap.h"
 
 using namespace Data;

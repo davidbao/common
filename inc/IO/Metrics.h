@@ -1,7 +1,15 @@
-#ifndef METRICS_H
-#define METRICS_H
+//
+//  Metrics.h
+//  common
+//
+//  Created by baowei on 2020/4/28.
+//  Copyright © 2020 com. All rights reserved.
+//
 
-#include "data/ValueType.h"
+#ifndef Metrics_h
+#define Metrics_h
+
+#include "data/String.h"
 
 #if WIN32
 #undef min
@@ -119,4 +127,4 @@ namespace IO {
     };
 }
 
-#endif // METRICS_H
+#endif // Metrics_h

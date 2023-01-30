@@ -36,7 +36,7 @@ namespace System {
         return _innerException;
     }
 
-    void Exception::showExceptionInfo() {
+    void Exception::showExceptionInfo() const {
         showExceptionInfo(this);
     }
 
@@ -69,11 +69,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    MessageException::MessageException(const MessageException &e) : Exception(e) {
-    }
+    MessageException::MessageException(const MessageException &e) = default;
 
-    MessageException::~MessageException() {
-    }
+    MessageException::~MessageException() = default;
 
     void MessageException::showMessage() const {
         Trace::writeFormatLine("throw a message exception, message: %s", message().c_str());
@@ -85,11 +83,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    BindingException::BindingException(const BindingException &e) : Exception(e) {
-    }
+    BindingException::BindingException(const BindingException &e) = default;
 
-    BindingException::~BindingException() {
-    }
+    BindingException::~BindingException() = default;
 
     void BindingException::showMessage() const {
         Trace::writeFormatLine("throw a binding exception, message: %s", message().c_str());
@@ -101,11 +97,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    OverflowException::OverflowException(const OverflowException &e) : Exception(e) {
-    }
+    OverflowException::OverflowException(const OverflowException &e) = default;
 
-    OverflowException::~OverflowException() {
-    }
+    OverflowException::~OverflowException() = default;
 
     void OverflowException::showMessage() const {
         Trace::writeFormatLine("throw an overflow exception, message: %s", message().c_str());
@@ -117,11 +111,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    StreamException::StreamException(const StreamException &e) : Exception(e) {
-    }
+    StreamException::StreamException(const StreamException &e) = default;
 
-    StreamException::~StreamException() {
-    }
+    StreamException::~StreamException() = default;
 
     void StreamException::showMessage() const {
         Trace::writeFormatLine("throw a stream exception, message: %s", message().c_str());
@@ -133,11 +125,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    IOException::IOException(const IOException &e) : Exception(e) {
-    }
+    IOException::IOException(const IOException &e) = default;
 
-    IOException::~IOException() {
-    }
+    IOException::~IOException() = default;
 
     void IOException::showMessage() const {
         Trace::writeFormatLine("throw an IO exception, message: %s", message().c_str());
@@ -159,8 +149,7 @@ namespace System {
         _paramName = e._paramName;
     }
 
-    ArgumentException::~ArgumentException() {
-    }
+    ArgumentException::~ArgumentException() = default;
 
     const String &ArgumentException::paramName() const {
         return _paramName;
@@ -179,11 +168,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    ArgumentNullException::ArgumentNullException(const ArgumentNullException &e) : ArgumentException(e) {
-    }
+    ArgumentNullException::ArgumentNullException(const ArgumentNullException &e) = default;
 
-    ArgumentNullException::~ArgumentNullException() {
-    }
+    ArgumentNullException::~ArgumentNullException() = default;
 
     void ArgumentNullException::showMessage() const {
         Trace::writeFormatLine("throw an argument null exception, message: %s, paramName: %s",
@@ -191,18 +178,20 @@ namespace System {
         print_stacktrace();
     }
 
-    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const String &paramName, const String &message,
-                                                             const Exception *innerException) : ArgumentException(
-            paramName, message, innerException) {
+    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const String &message, const Exception *innerException)
+            : ArgumentException(message, innerException) {
         showExceptionInfo();
     }
 
-    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e) : ArgumentException(
-            e) {
+    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const String &message, const String &paramName,
+                                                             const Exception *innerException) : ArgumentException(
+            message, paramName, innerException) {
+        showExceptionInfo();
     }
 
-    ArgumentOutOfRangeException::~ArgumentOutOfRangeException() {
-    }
+    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e) = default;
+
+    ArgumentOutOfRangeException::~ArgumentOutOfRangeException() = default;
 
     void ArgumentOutOfRangeException::showMessage() const {
         Trace::writeFormatLine("throw an argument out of range exception, message: %s, paramName: %s",
@@ -215,11 +204,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    TimeoutException::TimeoutException(const TimeoutException &e) : Exception(e) {
-    }
+    TimeoutException::TimeoutException(const TimeoutException &e) = default;
 
-    TimeoutException::~TimeoutException() {
-    }
+    TimeoutException::~TimeoutException() = default;
 
     void TimeoutException::showMessage() const {
         Trace::writeFormatLine("throw a timeout exception, message: %s", message().c_str());
@@ -231,11 +218,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    NotImplementedException::NotImplementedException(const NotImplementedException &e) : Exception(e) {
-    }
+    NotImplementedException::NotImplementedException(const NotImplementedException &e) = default;
 
-    NotImplementedException::~NotImplementedException() {
-    }
+    NotImplementedException::~NotImplementedException() = default;
 
     void NotImplementedException::showMessage() const {
         Trace::writeFormatLine("throw a not implemented exception, message: %s", message().c_str());
@@ -247,11 +232,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    NotSupportedException::NotSupportedException(const NotSupportedException &e) : Exception(e) {
-    }
+    NotSupportedException::NotSupportedException(const NotSupportedException &e) = default;
 
-    NotSupportedException::~NotSupportedException() {
-    }
+    NotSupportedException::~NotSupportedException() = default;
 
     void NotSupportedException::showMessage() const {
         Trace::writeFormatLine("throw a not supported exception, message: %s", message().c_str());
@@ -263,11 +246,9 @@ namespace System {
         showExceptionInfo();
     }
 
-    FileNotFoundException::~FileNotFoundException() {
-    }
+    FileNotFoundException::~FileNotFoundException() = default;
 
-    FileNotFoundException::FileNotFoundException(const FileNotFoundException &e) : Exception(e) {
-    }
+    FileNotFoundException::FileNotFoundException(const FileNotFoundException &e) = default;
 
     const String &FileNotFoundException::fileName() const {
         return message();
@@ -275,6 +256,24 @@ namespace System {
 
     void FileNotFoundException::showMessage() const {
         Trace::writeFormatLine("throw a file not found exception, file name: %s", fileName().c_str());
+        print_stacktrace();
+    }
+
+    PathNotFoundException::PathNotFoundException(const String &path, const Exception *innerException) : Exception(
+            path, innerException) {
+        showExceptionInfo();
+    }
+
+    PathNotFoundException::~PathNotFoundException() = default;
+
+    PathNotFoundException::PathNotFoundException(const PathNotFoundException &e) = default;
+
+    const String &PathNotFoundException::path() const {
+        return message();
+    }
+
+    void PathNotFoundException::showMessage() const {
+        Trace::writeFormatLine("throw a path not found exception, file name: %s", path().c_str());
         print_stacktrace();
     }
 }

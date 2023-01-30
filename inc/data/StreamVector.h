@@ -13,6 +13,7 @@
 #include "IO/Stream.h"
 #include "data/Vector.h"
 #include "data/PList.h"
+#include <assert.h>
 
 using namespace System;
 

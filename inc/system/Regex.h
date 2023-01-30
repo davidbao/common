@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <regex>
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/StringArray.h"
 #include "data/StringMap.h"
 #include "data/Dictionary.h"

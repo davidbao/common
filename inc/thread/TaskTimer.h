@@ -2,15 +2,15 @@
 //  TaskTimer.h
 //  common
 //
-//  Created by baowei on 03/04/2017.
+//  Created by baowei on 2017/4/3.
 //  Copyright © 2017 com. All rights reserved.
 //
 
 #ifndef TaskTimer_h
 #define TaskTimer_h
 
-#include "Timer.h"
-#include "Mutex.h"
+#include "thread/Timer.h"
+#include "thread/Mutex.h"
 
 namespace Threading {
     class TaskTimer {
@@ -30,12 +30,12 @@ namespace Threading {
 
             ~Group();
 
-            bool isTimeup();
+            bool isTimeUp();
         };
 
         typedef PList<Group> Groups;
 
-        TaskTimer(const String &name, void *owner = nullptr);
+        explicit TaskTimer(const String &name, void *owner = nullptr);
 
         ~TaskTimer();
 
@@ -48,7 +48,7 @@ namespace Threading {
             if (contains(name))
                 return false;
 
-            Group *group = new Group(name, callback.clone(), interval);
+            auto *group = new Group(name, callback.clone(), interval);
             Locker locker(&_groupsMutex);
             _groups.add(group);
             return true;

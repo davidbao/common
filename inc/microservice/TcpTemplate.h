@@ -13,7 +13,7 @@
 #include "IO/Stream.h"
 #include "data/TimeSpan.h"
 #include "data/PList.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "rpc/RpcClient.h"
 
 using namespace Data;

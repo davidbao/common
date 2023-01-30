@@ -2,7 +2,7 @@
 //  TaskTimer.cpp
 //  common
 //
-//  Created by baowei on 03/04/2017.
+//  Created by baowei on 2017/4/3.
 //  Copyright © 2017 com. All rights reserved.
 //
 
@@ -38,7 +38,7 @@ namespace Threading {
         }
     }
 
-    bool TaskTimer::Group::isTimeup() {
+    bool TaskTimer::Group::isTimeUp() {
         if (start == 0) {
             start = TickTimeout::getCurrentTickCount();
             return true;
@@ -68,7 +68,7 @@ namespace Threading {
         if (contains(name))
             return false;
 
-        Group *group = new Group(name, callback, interval, owner);
+        auto *group = new Group(name, callback, interval, owner);
         Locker locker(&_groupsMutex);
         _groups.add(group);
         return true;
@@ -197,7 +197,7 @@ namespace Threading {
     }
 
     void TaskTimer::taskTimeUp(void *state) {
-        TaskTimer *tt = static_cast<TaskTimer *>(state);
+        auto *tt = static_cast<TaskTimer *>(state);
         assert(tt);
         tt->taskTimeUpInner();
     }
@@ -209,7 +209,7 @@ namespace Threading {
 
         for (uint32_t i = 0; i < _groups.count(); i++) {
             Group *group = _groups[i];
-            if (group->isTimeup()) {
+            if (group->isTimeUp()) {
                 if (group->callback != nullptr)
                     group->callback(group->owner != nullptr ? group->owner : _owner);
                 else if (group->execution != nullptr)

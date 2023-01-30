@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <assert.h>
 #include "thread/Thread.h"
 #include "data/TimeSpan.h"
 #include "data/PList.h"

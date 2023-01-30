@@ -1,6 +1,5 @@
 #include "thread/Process.h"
 #include "IO/Path.h"
-#include "IO/Directory.h"
 #include "data/Convert.h"
 #include "data/StringArray.h"
 #include "data/TimeSpan.h"
@@ -51,8 +50,7 @@ namespace Threading {
 #endif
     }
 
-    Process::~Process() {
-    }
+    Process::~Process() = default;
 
 #if WIN32
 
@@ -93,7 +91,7 @@ namespace Threading {
             tv_timeout.tv_sec = timeout / 1000;
             tv_timeout.tv_usec = 1000 * (timeout % 1000);
 
-            while (1) {
+            while (true) {
                 FD_ZERO (&readfds);
                 FD_SET (handle, &readfds);
 

@@ -9,7 +9,7 @@
 #include <cstdarg>
 #include "data/StringArray.h"
 #include "data/Convert.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "IO/Stream.h"
 
 namespace Data {

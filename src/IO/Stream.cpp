@@ -8,17 +8,17 @@
 
 #include "IO/Stream.h"
 #include "system/BCDUtilities.h"
-#include "data/ByteArray.h"
 #include "system/Math.h"
+#include <cassert>
 
 using namespace System;
 
 namespace IO {
-    Stream::Stream() {
-    }
+    Stream::Stream() = default;
 
-    Stream::~Stream() {
-    }
+    Stream::Stream(const Stream &stream) = default;
+
+    Stream::~Stream() = default;
 
     bool Stream::isEnd() const {
         return position() >= (off_t) length();
@@ -33,8 +33,8 @@ namespace IO {
             assert(false);
         }
 
-#endif //DEBUG
-        size_t len = 0;
+#endif // DEBUG
+        size_t len;
         if (lengthCount == String::StreamLength2) {
             len = str.length();
             writeUInt16((uint16_t) len);
@@ -52,7 +52,7 @@ namespace IO {
     }
 
     String Stream::readStr(String::StreamLength lengthCount) {
-        uint32_t len = 0;
+        uint32_t len;
         if (lengthCount == String::StreamLength2) {
             len = readUInt16();
         } else if (lengthCount == String::StreamLength1) {
@@ -63,7 +63,7 @@ namespace IO {
             assert(false);
         }
 
-        return readFixedLengthStr(len);
+        return readFixedLengthStr((int) len);
     }
 
     void Stream::writeFixedLengthStr(const String &str, int length) {
@@ -71,7 +71,7 @@ namespace IO {
         if (len < length) {
             write((uint8_t *) str.c_str(), 0, len);
             int count = length - len;
-            uint8_t *buffer = new uint8_t[count];
+            auto *buffer = new uint8_t[count];
             memset(buffer, 0, count);
             write(buffer, 0, count);
             delete[] buffer;
@@ -256,7 +256,7 @@ namespace IO {
     }
 
     void Stream::writeUInt16(uint16_t value, bool bigEndian) {
-        writeInt16(value, bigEndian);
+        writeInt16((int16_t) value, bigEndian);
     }
 
     void Stream::writeByte(uint8_t value) {
@@ -281,9 +281,9 @@ namespace IO {
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, sizeof(buffer));
         if (bigEndian) {
-            for (size_t i = 0; i < sizeof(buffer); i++) {
+            for (unsigned char i: buffer) {
                 value <<= 8;
-                value |= buffer[i];
+                value |= i;
             }
 
         } else {
@@ -301,9 +301,9 @@ namespace IO {
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, sizeof(buffer));
         if (bigEndian) {
-            for (size_t i = 0; i < sizeof(buffer); i++) {
+            for (unsigned char i: buffer) {
                 value <<= 8;
-                value |= buffer[i];
+                value |= i;
             }
 
         } else {
@@ -329,9 +329,9 @@ namespace IO {
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, sizeof(buffer));
         if (bigEndian) {
-            for (size_t i = 0; i < sizeof(buffer); i++) {
+            for (unsigned char i: buffer) {
                 value <<= 8;
-                value |= buffer[i];
+                value |= i;
             }
 
         } else {
@@ -349,9 +349,9 @@ namespace IO {
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, sizeof(buffer));
         if (bigEndian) {
-            for (size_t i = 0; i < sizeof(buffer); i++) {
+            for (unsigned char i: buffer) {
                 value <<= 8;
-                value |= buffer[i];
+                value |= i;
             }
 
         } else {
@@ -366,8 +366,9 @@ namespace IO {
     int16_t Stream::readInt16(bool bigEndian) {
         uint8_t buffer[2];
         read(buffer, 0, sizeof(buffer));
-        int16_t value = 0;
-        value = bigEndian ? ((buffer[0] << 8) & 0xFF00) + buffer[1] : ((buffer[1] << 8) & 0xFF00) + buffer[0];
+        int16_t value = bigEndian ?
+                        (int16_t) (((buffer[0] << 8) & 0xFF00) + buffer[1]) :
+                        (int16_t) (((buffer[1] << 8) & 0xFF00) + buffer[0]);
         return value;
     }
 
@@ -388,7 +389,7 @@ namespace IO {
     int8_t Stream::readInt8() {
         uint8_t buffer[1];
         read(buffer, 0, sizeof(buffer));
-        return buffer[0];
+        return (int8_t) buffer[0];
     }
 
     void Stream::writeBCDInt32(int value) {
@@ -454,11 +455,15 @@ namespace IO {
         write(buffer, 0, length);
     }
 
-    uint32_t Stream::readBCDValue(int length) {
+    int64_t Stream::readBCDValue(int length) {
         uint8_t buffer[8];
         memset(buffer, 0, sizeof(buffer));
         read(buffer, 0, length);
-        return (uint32_t) BCDUtilities::BCDToInt64(buffer, 0, length);
+        return BCDUtilities::BCDToInt64(buffer, 0, length);
+    }
+
+    off_t Stream::seek(off_t offset) {
+        return seek(offset, SeekOrigin::SeekBegin);
     }
 
     bool Stream::canWrite() const {
@@ -485,14 +490,48 @@ namespace IO {
         return &_mutex;
     }
 
+    bool Stream::writeBytes(const ByteArray &array) {
+        return write(array.data(), 0, array.count()) == array.count();
+    }
+
+    ByteArray Stream::readBytes(int count, int cacheCount) {
+        ByteArray result;
+        if (cacheCount > 0) {
+            auto *buffer = new uint8_t[cacheCount];
+            memset(buffer, 0, cacheCount);
+            size_t size = (count / cacheCount) + 1;
+            for (size_t i = 0; i < size; i++) {
+                size_t len = read((uint8_t *) buffer, 0, i < size - 1 ? cacheCount : (count % cacheCount));
+                result.addRange(buffer, len);
+            }
+            delete[] buffer;
+        }
+        return result;
+    }
+
     bool Stream::writeText(const String &text) {
         const size_t length = text.length();
         return write((const uint8_t *) text.c_str(), 0, length) == length;
     }
 
+    String Stream::readText(int count, int cacheCount) {
+        String result;
+        if (cacheCount > 0) {
+            auto *buffer = new char[cacheCount];
+            memset(buffer, 0, cacheCount);
+            size_t size = (count / cacheCount) + 1;
+            for (size_t i = 0; i < size; i++) {
+                size_t len = read((uint8_t *) buffer, 0, i < size - 1 ? cacheCount : (count % cacheCount));
+                result.append(buffer, len);
+            }
+            delete[] buffer;
+        }
+        return result;
+    }
+
     bool Stream::readText(String &text, int maxLength) {
         int cacheCount = Math::min(maxLength + 4, 1024);
-        uint8_t *buffer = new uint8_t[cacheCount];
+        auto *buffer = new uint8_t[cacheCount];
         int64_t count = read(buffer, 0, cacheCount);
         if (count > 0) {
             off_t offset = 0;
@@ -506,13 +545,13 @@ namespace IO {
         return true;
     }
 
-    bool Stream::readToEnd(ByteArray &array, uint32_t cacheCount) {
-        uint8_t *buffer = new uint8_t[cacheCount];
-        int64_t count = 0;
+    bool Stream::readToEnd(ByteArray &array, int cacheCount) {
+        auto *buffer = new uint8_t[cacheCount];
+        ssize_t count;
         do {
             count = read(buffer, 0, cacheCount);
             if (count > 0) {
-                array.addRange(buffer, (uint32_t) count);
+                array.addRange(buffer, (size_t) count);
             }
         } while (count > 0);
         delete[] buffer;
@@ -520,14 +559,14 @@ namespace IO {
         return true;
     }
 
-    bool Stream::readToEnd(String &str, uint32_t cacheCount) {
+    bool Stream::readToEnd(String &str, int cacheCount) {
         str.empty();
-        uint8_t *buffer = new uint8_t[cacheCount];
-        int64_t count = 0;
+        auto *buffer = new uint8_t[cacheCount];
+        ssize_t count;
         do {
             count = read(buffer, 0, cacheCount);
             if (count > 0) {
-                str.append((const char *) buffer, (uint32_t) count);
+                str.append((const char *) buffer, (size_t) count);
             }
         } while (count > 0);
         delete[] buffer;
@@ -535,19 +574,19 @@ namespace IO {
         return true;
     }
 
-    String Stream::readLine(uint32_t cacheCount) {
+    String Stream::readLine(int cacheCount) {
         String str;
-        uint8_t *buffer = new uint8_t[cacheCount];
-        int64_t count = 0;
+        auto *buffer = new uint8_t[cacheCount];
+        ssize_t count;
         do {
-            int64_t pos = position();
+            off_t pos = position();
             count = read(buffer, 0, cacheCount);
             if (count > 0) {
                 off_t offset = 0;
                 if (count > 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF) // UTF8 BOM
                     offset = 3;
                 String temp = String((const char *) buffer + offset, (uint32_t) (count - offset));
-                int index = temp.find('\n');
+                ssize_t index = temp.find('\n');
                 if (index >= 0) {
                     str.append(temp.substr(0, index));
                     str = str.trim('\r', '\n');
@@ -565,5 +604,14 @@ namespace IO {
     void Stream::writeLine(const String &str) {
         write((uint8_t *) str.c_str(), 0, str.length());
         writeByte('\n');
+    }
+
+    bool Stream::isLittleEndian() {
+        int x = 1;
+        return *(char *) &x == '\1';
+    }
+
+    bool Stream::isBigEndian() {
+        return !isLittleEndian();
     }
 }

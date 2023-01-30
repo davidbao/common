@@ -90,7 +90,7 @@ bool testSm3() {
 
 bool testSm3_file() {
     Sm3Provider sm3;
-    String fileName = Path::combine(Directory::getTempPath(), "test_sm3_file.txt");
+    String fileName = Path::combine(Path::getTempPath(), "test_sm3_file.txt");
     FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     for (int i = 0; i < 100; ++i) {
         fs.writeText(_plainText);

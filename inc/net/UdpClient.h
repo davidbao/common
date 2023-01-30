@@ -9,7 +9,7 @@
 #ifndef UdpClient_h
 #define UdpClient_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PList.h"
 
 using namespace Data;

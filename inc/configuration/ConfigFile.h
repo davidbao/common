@@ -9,7 +9,7 @@
 #ifndef ConfigFile_h
 #define ConfigFile_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "IO/Path.h"
 #include "IO/File.h"
 #include "IO/Zip.h"

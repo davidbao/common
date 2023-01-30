@@ -9,7 +9,7 @@
 #ifndef EthernetInfo_h
 #define EthernetInfo_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "xml/XmlTextReader.h"
 #include "xml/XmlTextWriter.h"
 #include "json/JsonTextReader.h"

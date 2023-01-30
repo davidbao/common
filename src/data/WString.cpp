@@ -10,6 +10,7 @@
 #include <cstdarg>
 #include <cinttypes>
 #include <clocale>
+#include <assert.h>
 #include "data/WString.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"

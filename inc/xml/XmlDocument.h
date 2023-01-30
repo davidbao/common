@@ -9,7 +9,7 @@
 #ifndef XmlDocument_h
 #define XmlDocument_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "XmlNode.h"
 
 namespace Xml {

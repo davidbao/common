@@ -9,7 +9,7 @@
 #ifndef Property_hpp
 #define Property_hpp
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/TimeSpan.h"
 #include "data/DateTime.h"
 #include "system/ServiceFactory.h"

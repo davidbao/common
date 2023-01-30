@@ -1,8 +1,16 @@
-#ifndef FILEINFO_H
-#define FILEINFO_H
+//
+//  FileInfo.h
+//  common
+//
+//  Created by baowei on 2015/7/21.
+//  Copyright (c) 2015 com. All rights reserved.
+//
 
-#include <stdint.h>
-#include "data/ValueType.h"
+#ifndef FileInfo_h
+#define FileInfo_h
+
+#include <cstdint>
+#include "data/String.h"
 #include "IO/File.h"
 #include "data/DateTime.h"
 
@@ -10,18 +18,14 @@ namespace IO {
     class FileInfo {
     public:
         enum FileAttributes {
-            Unkown = 0x0,
+            Unknown = 0x0,
             Read = 0x0100,
             Write = 0x0080,
             Execute = 0x0040,
             Regular = 0x8000,
         };
 
-        FileInfo();
-
         FileInfo(const String &name);
-
-        FileInfo(const char *name);
 
         FileAttributes attributes() const;
 
@@ -47,4 +51,4 @@ namespace IO {
     };
 }
 
-#endif // FILEINFO_H
+#endif // FileInfo_h

@@ -9,7 +9,7 @@
 #ifndef RpcContext_h
 #define RpcContext_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Dictionary.h"
 #include "net/NetType.h"
 

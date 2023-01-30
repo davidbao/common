@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <stdlib.h>
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PrimitiveInterface.h"
 #include "data/Dictionary.h"
 #include "data/DateTime.h"

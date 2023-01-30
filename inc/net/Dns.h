@@ -3,7 +3,7 @@
 
 #include "data/Vector.h"
 #include "data/StringMap.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Dictionary.h"
 
 #ifdef WIN32

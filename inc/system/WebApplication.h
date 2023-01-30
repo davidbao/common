@@ -11,7 +11,7 @@
 
 #ifdef __EMSCRIPTEN__
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/NetType.h"
 #include "data/Dictionary.h"
 #include "system/Application.h"
@@ -45,7 +45,7 @@ namespace System {
 
         void exit(int code = 0) override;
 
-        const String name() const override;
+        String name() const override;
 
         Delegates *exitDelegates();
 

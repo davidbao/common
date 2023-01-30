@@ -9,7 +9,7 @@
 #ifndef Culture_h
 #define Culture_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace Data {
     enum DigitShapes {

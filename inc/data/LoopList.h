@@ -177,7 +177,7 @@ namespace Data {
                 if (_rear > _front) {
                     deleteItem(_front, count());
                 } else {
-                    int n = 0;
+                    size_t n = 0;
                     if (_front < _size) {
                         n = _size - _front;
                         deleteItem(_front, n);
@@ -187,8 +187,8 @@ namespace Data {
             }
         }
 
-        inline void deleteItem(int start, int end) {
-            for (int i = start; i < end; i++) {
+        inline void deleteItem(size_t start, size_t end) {
+            for (size_t i = start; i < end; i++) {
                 delete _array[i];
                 _array[i] = nullptr;
             }

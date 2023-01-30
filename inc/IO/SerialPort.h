@@ -1,17 +1,31 @@
-#ifndef SERIALPORT_H
-#define SERIALPORT_H
+//
+//  SerialPort.h
+//  common
+//
+//  Created by baowei on 2018/12/10.
+//  Copyright (c) 2018 com. All rights reserved.
+//
+
+#ifndef SerialPort_h
+#define SerialPort_h
 
 #include "IOPort.h"
 #include "SerialInfo.h"
 
 namespace IO {
-    class SerialPort : public IOPort {
+    class SerialPort final : public IOPort {
     public:
-        SerialPort(const String &name);
+        explicit SerialPort(const String &name);
 
         ~SerialPort() override;
 
         bool open() override;
+
+        const String &name() const override;
+
+        const SerialInfo &serial() const;
+
+        void setSerialInfo(const SerialInfo &serial);
 
         void setBaudRate(int baudRate);
 
@@ -50,14 +64,7 @@ namespace IO {
                            SerialInfo::StopBitsType stopBits, SerialInfo::HandshakeType handshake);
 
     private:
-        int _baudRate;
-        SerialInfo::DataBitsType _dataBits;
-        SerialInfo::StopBitsType _stopBits;
-        SerialInfo::HandshakeType _handshake;
-        SerialInfo::ParityType _parity;
-        bool _rtsEnable;
-        bool _dtrEnable;
-        bool _useSignal;
+        SerialInfo _serial;
     };
 }
-#endif  //SERIALPORT_H
+#endif  // SerialPort_h

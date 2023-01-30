@@ -2,23 +2,22 @@
 //  SerialInfo.h
 //  common
 //
-//  Created by baowei on 15/7/31.
+//  Created by baowei on 2015/7/31.
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
-#ifndef __common__SerialInfo__
-#define __common__SerialInfo__
+#ifndef SerialInfo_h
+#define SerialInfo_h
 
-#include "data/ValueType.h"
-#include "xml/XmlTextReader.h"
-#include "xml/XmlTextWriter.h"
-#include "json/JsonTextWriter.h"
-#include "json/JsonTextReader.h"
+#include "data/String.h"
+#include "data/IAttribute.h"
+#include "json/JsonNode.h"
 
-using namespace Xml;
+using namespace Data;
+using namespace Json;
 
 namespace IO {
-    struct SerialInfo {
+    struct SerialInfo : public IEquatable<SerialInfo>, public IEvaluation<SerialInfo> {
     public:
         enum DataBitsType : uint8_t {
             DATA_5 = 5,
@@ -57,17 +56,19 @@ namespace IO {
         bool dtrEnable;
         bool useSignal;
 
-        SerialInfo(const String &portName = String::Empty);
+        explicit SerialInfo(const String &portName = String::Empty);
 
-        void read(XmlTextReader &reader);
+        SerialInfo(const String &portName, int baudRate, DataBitsType dataBits, StopBitsType stopBits, ParityType parity);
 
-        void write(XmlTextWriter &writer) const;
+        SerialInfo(const SerialInfo &other);
 
-        void read(JsonTextReader &reader);
+        bool equals(const SerialInfo &other) const override;
 
-        void write(JsonTextWriter &writer) const;
+        void evaluates(const SerialInfo &other) override;
 
-        void write(JsonNode &node) const;
+        void read(IAttributeGetter &getter);
+
+        void write(IAttributeSetter &setter) const;
 
         void read(Stream *stream);
 
@@ -81,16 +82,13 @@ namespace IO {
 
         String handshakeStr() const;
 
-        void operator=(const SerialInfo &value);
+        SerialInfo &operator=(const SerialInfo &value);
 
-        bool operator==(const SerialInfo &value) const;
-
-        bool operator!=(const SerialInfo &value) const;
-
-        const String toString() const;
+        String toString() const;
 
         bool isEmpty() const;
 
+    public:
         static DataBitsType parseDataBits(const String &str);
 
         static String convertDataBitsStr(DataBitsType dataBits);
@@ -109,4 +107,4 @@ namespace IO {
     };
 }
 
-#endif /* defined(__common__SerialInfo__) */
+#endif // SerialInfo_h

@@ -9,7 +9,7 @@
 #ifndef SummerStarter_h
 #define SummerStarter_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "thread/Thread.h"
 #include "diag/Trace.h"
 #include "microservice/SummerApplication.h"

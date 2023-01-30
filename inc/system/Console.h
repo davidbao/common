@@ -9,7 +9,7 @@
 #ifndef common_Console_h
 #define common_Console_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/StringArray.h"
 #include "thread/ProcessMutex.h"
 #include "data/Culture.h"

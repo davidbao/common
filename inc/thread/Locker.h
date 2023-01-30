@@ -12,11 +12,9 @@
 namespace Threading {
     class IMutex;
 
-    class ISyncRoot;
-
     class Locker {
     public:
-        Locker(IMutex *mutexp);
+        Locker(IMutex *m);
 
         ~Locker();
 

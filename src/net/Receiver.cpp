@@ -12,6 +12,7 @@
 #include "system/Math.h"
 #include "diag/Trace.h"
 #include "diag/Stopwatch.h"
+#include "exception/Exception.h"
 
 using namespace Diag;
 using namespace System;
@@ -20,6 +21,28 @@ namespace Net {
     Receiver::Receiver() = default;
 
     Receiver::~Receiver() = default;
+
+    ssize_t Receiver::receive(uint8_t *buffer, off_t offset, size_t count, uint32_t timeout) {
+        if (timeout == 0) {
+            return receive(buffer, offset, count);
+        }
+        // use it if useReceiveTimeout() return true;
+        throw NotImplementedException("Can not implement this method.");
+    }
+
+    ssize_t Receiver::receive(ByteArray *buffer, size_t count, uint32_t timeout) {
+        if (timeout == 0) {
+            uint8_t *temp = new uint8_t[count];
+            int readCount = receive(temp, 0, count);
+            if (readCount > 0) {
+                buffer->addRange(temp, readCount);
+            }
+            delete[] temp;
+            return readCount;
+        }
+        // use it if useReceiveTimeout() return true;
+        throw NotImplementedException("Can not implement this method.");
+    }
 
     ssize_t Receiver::receive(size_t count, ByteArray &buffer) {
 #ifdef DEBUG
@@ -54,7 +77,7 @@ namespace Net {
         if (offset < 0) {
             return 0;
         }
-        if (offset >= count) {
+        if ((size_t) offset >= count) {
             return 0;
         }
 
@@ -226,9 +249,9 @@ namespace Net {
                 memcpy(buffer + startCount, buffer2, count);
                 delete[] buffer2;
 
-                return count + startCount;
+                return (ssize_t) (count + startCount);
             }
-            return bufferLength;
+            return (ssize_t) bufferLength;
         }
         return 0;
     }
@@ -258,7 +281,7 @@ namespace Net {
                     //                Debug::writeFormatLine("tempBuffer, count: %d, buffer: %s", tempBuffer.count(), tempBuffer.toString().c_str());
                     received = tempBuffer.find(endBuffer);
                     if (received > 0) {
-                        received += endBuffer.count();
+                        received += (ssize_t) endBuffer.count();
                         break;
                     }
                 }
@@ -339,7 +362,7 @@ namespace Net {
                                 buffer[received - escape->toEscapeLength + i + offset] = escape->escapeBuffer[i];
                             }
                         }
-                        received += adjustCount;
+                        received += (ssize_t) adjustCount;
 
                         startByte = 0;
                     }
@@ -376,7 +399,7 @@ namespace Net {
                                 buffer[received - escape->toEscapeLength + i + offset] = escape->escapeBuffer[i];
                             }
                         }
-                        received += adjustCount;
+                        received += (ssize_t) adjustCount;
 
                         startByte = 0;
                     }
@@ -456,7 +479,7 @@ namespace Net {
 
                 Thread::msleep(1);
             } while (readCount >= 0 && totalCount < count);
-            return totalCount == count ? totalCount : 0;
+            return totalCount == count ? (ssize_t) totalCount : 0;
         } else {
             return this->receive(buffer, count, timeout);
         }

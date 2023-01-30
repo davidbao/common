@@ -9,6 +9,7 @@
 #include "net/EthernetInfo.h"
 #include "data/StringArray.h"
 #include "data/Convert.h"
+#include <assert.h>
 
 namespace Net
 {

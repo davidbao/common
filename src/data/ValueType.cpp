@@ -10,6 +10,7 @@
 #include <cinttypes>
 #include <clocale>
 #include <cfloat>
+#include <assert.h>
 #include "data/ValueType.h"
 #include "data/WString.h"
 #include "data/StringArray.h"

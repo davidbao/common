@@ -10,7 +10,7 @@
 #define Instruction_h
 
 #include "data/ByteArray.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PrimitiveInterface.h"
 #include "data/Convert.h"
 #include "xml/XmlTextReader.h"

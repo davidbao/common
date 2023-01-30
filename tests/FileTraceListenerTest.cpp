@@ -22,7 +22,7 @@ bool testLog1() {
     Trace::removeTraceListener(listener);
     delete listener;
 
-    String logPath = Path::combine(Directory::getAppPath(), logStr);
+    String logPath = Path::combine(Path::getAppPath(), logStr);
     DateTime now = DateTime::now();
     String fileName = Path::combine(logPath, String::format("%s%s", now.toString("d").c_str(), logExtName.c_str()));
     if(File::exists(fileName)) {

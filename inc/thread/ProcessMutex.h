@@ -2,7 +2,7 @@
 //  ProcessMutex.h
 //  common
 //
-//  Created by baowei on 16/4/29.
+//  Created by baowei on 2016/4/29.
 //  Copyright © 2016 com. All rights reserved.
 //
 
@@ -22,7 +22,7 @@ using namespace Data;
 namespace Threading {
     class ProcessMutex {
     public:
-        ProcessMutex(const String &name = String::Empty);
+        explicit ProcessMutex(const String &name = String::Empty);
 
         ~ProcessMutex();
 
@@ -34,7 +34,7 @@ namespace Threading {
         static bool exists(const String &name);
 
     private:
-#if WIN32
+#ifdef WIN32
         void* _mutex;
 #else
         sem_t *_mutex;

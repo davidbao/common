@@ -6,8 +6,8 @@
 //  Copyright © 2015 com. All rights reserved.
 //
 
-#ifndef PATH_H
-#define PATH_H
+#ifndef Path_h
+#define Path_h
 
 #include "data/String.h"
 #include "data/Array.h"
@@ -31,7 +31,11 @@ namespace IO {
 
         static bool endsInDirectorySeparator(const String &path);
 
+        static String getAppPath();
+
         static String getDirectoryName(const String &path);
+
+        static String getDocumentPath(const String &subDocPath = String::Empty);
 
         static String getExtension(const String &path);
 
@@ -42,6 +46,8 @@ namespace IO {
         static String getFullPath(const String &path);
 
         static String getFullPath(const String &path, const String &basePath);
+
+        static String getHomePath();
 
         static const Array<char, 41> &getInvalidFileNameChars();
 
@@ -95,4 +101,4 @@ namespace IO {
     };
 }
 
-#endif // PATH_H
+#endif // Path_h

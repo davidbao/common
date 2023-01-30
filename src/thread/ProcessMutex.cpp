@@ -2,7 +2,7 @@
 //  ProcessMutex.cpp
 //  common
 //
-//  Created by baowei on 16/4/29.
+//  Created by baowei on 2016/4/29.
 //  Copyright © 2016 com. All rights reserved.
 //
 
@@ -13,13 +13,13 @@
 #include <Windows.h>
 #else
 
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include <semaphore.h>
-#include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
-#include <signal.h>
-#include <string.h>
+#include <csignal>
+#include <cstring>
 #include <memory.h>
 
 #endif
@@ -94,7 +94,7 @@ namespace Threading {
         }
         return false;
 #else
-        struct flock fl;
+        struct flock fl{};
 
         fl.l_type = F_WRLCK;
         fl.l_whence = SEEK_SET;
@@ -104,7 +104,7 @@ namespace Threading {
         int fdlock;
         String fileName = String::convert("/tmp/oneproc_%s.lock", name.c_str());
         if ((fdlock = open(fileName.c_str(), O_WRONLY | O_CREAT, 0666)) == -1)
-            return 0;
+            return false;
 
         if (fcntl(fdlock, F_SETLK, &fl) == -1) {
             Debug::writeLine("Process already running!");

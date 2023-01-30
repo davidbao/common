@@ -7,6 +7,7 @@
 //
 
 #include "net/RedisClient.h"
+#include "data/ValueType.h"
 #include "thread/Timer.h"
 #include "diag/Trace.h"
 #include "system/Delegate.h"

@@ -4,6 +4,7 @@
 #include "IO/FileStream.h"
 #include "crypto/Md5Provider.h"
 #include "communication/BaseCommContext.h"
+#include <assert.h>
 
 using namespace Crypto;
 
@@ -155,7 +156,7 @@ namespace Communication {
         fileLength = 0;
         memset(filemd5, 0, MD5_COUNT);
         packetCount = 0;
-        path = Directory::getTempPath();
+        path = Path::getTempPath();
     }
 
     FileHeader::~FileHeader() {

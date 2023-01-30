@@ -9,6 +9,9 @@
 #include "microservice/HttpService.h"
 #include "configuration/ConfigService.h"
 #include "IO/Directory.h"
+#include "diag/Trace.h"
+
+using namespace Diag;
 
 namespace Microservice {
     IHttpAction::IHttpAction() {

@@ -7,6 +7,7 @@
 //
 
 #include "json/JsonTextWriter.h"
+#include <assert.h>
 
 namespace Json {
     JsonTextWriter::JsonTextWriter(const String &fileName) : _indent(true), _rootNode(nullptr) {

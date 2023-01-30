@@ -9,7 +9,7 @@
 #ifndef Variant_h
 #define Variant_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "exception/Exception.h"
 #include "IO/Stream.h"
 #include "data/DateTime.h"

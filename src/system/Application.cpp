@@ -6,7 +6,8 @@
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
-#include <assert.h>
+#include <cassert>
+#include <clocale>
 #include "system/Application.h"
 #include "diag/Trace.h"
 #include "IO/Path.h"
@@ -15,7 +16,6 @@
 #include "thread/Timer.h"
 #include "diag/FileTraceListener.h"
 #include "diag/MemoryTraceListener.h"
-#include <locale.h>
 
 #if WIN32
 #include <Windows.h>
@@ -76,7 +76,7 @@ namespace System {
 
         _instance = this;
         _startTime = TickTimeout::getCurrentTickCount();
-        _rootPath = rootPath.isNullOrEmpty() ? Directory::getAppPath() : rootPath;
+        _rootPath = rootPath.isNullOrEmpty() ? Path::getAppPath() : rootPath;
         _fullFileName = Application::startupPath();
 
         initLog(contexts);
@@ -144,9 +144,9 @@ namespace System {
         }
     }
 
-    const String Application::logPath() const {
-        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
-            FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+    String Application::logPath() const {
+        for (size_t i = 0; i < _traceListeners.count(); i++) {
+            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->config().path;
             }
@@ -154,9 +154,9 @@ namespace System {
         return String::Empty;
     }
 
-    const String Application::logFileFilter() const {
-        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
-            FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+    String Application::logFileFilter() const {
+        for (size_t i = 0; i < _traceListeners.count(); i++) {
+            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return String::convert("*%s", listener->config().extName.c_str());
             }
@@ -165,8 +165,8 @@ namespace System {
     }
 
     bool Application::parseLogFileName(const String &logFileName, DateTime &date) const {
-        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
-            FileTraceListener *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+        for (size_t i = 0; i < _traceListeners.count(); i++) {
+            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->parseLogFileName(logFileName, date);
             }
@@ -175,8 +175,8 @@ namespace System {
     }
 
     Delegates *Application::logUpdatedDelegates() {
-        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
-            MemoryTraceListener *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
+        for (size_t i = 0; i < _traceListeners.count(); i++) {
+            auto *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->updatedDelegates();
             }
@@ -186,7 +186,7 @@ namespace System {
 
     void Application::getAllMessages(StringArray &messages) {
         for (uint32_t i = 0; i < _traceListeners.count(); i++) {
-            MemoryTraceListener *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
+            auto *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->getAllMessages(messages);
             }
@@ -195,7 +195,7 @@ namespace System {
 
     void Application::initLog(const TraceListenerContexts &contexts) {
         if (contexts.count() > 0) {
-            for (uint32_t i = 0; i < contexts.count(); i++) {
+            for (size_t i = 0; i < contexts.count(); i++) {
                 TraceListenerContext *context = contexts[i];
                 TraceListener *listener = TraceListener::create(context);
                 _traceListeners.add(listener);
@@ -215,21 +215,21 @@ namespace System {
         }
     }
 
-    const String Application::fullFileName() const {
+    String Application::fullFileName() const {
         return _fullFileName;
     }
 
-    const String Application::fileName() const {
+    String Application::fileName() const {
         return Path::getFileName(fullFileName());
     }
 
-    const String Application::name() const {
-        String fname = fileName();
-        int pos = fname.find('.');
+    String Application::name() const {
+        String fName = fileName();
+        ssize_t pos = fName.find('.');
         if (pos > 0)
-            return fname.substr(0, pos);
+            return fName.substr(0, pos);
         else
-            return fname;
+            return fName;
     }
 
     void Application::runLoop() {
@@ -243,11 +243,10 @@ namespace System {
 
     void Application::loopProc() {
 #ifdef __arm_linux__
-        static const int sleepms = 100;
+        static const int time = 100;
 #else
-        static const int sleepms = 1;
+        static const int time = 1;
 #endif
-        int time = sleepms > 0 && sleepms < 1000 ? sleepms : 10;
 
         Application *app = Application::instance();
         assert(app);
@@ -266,9 +265,13 @@ namespace System {
         _exitCode = code;
         _loop = false;
 
-        static Timer *forceExitTimer = new Timer("forceExitTimer", Application_forceExitProc, nullptr,
-                                                 TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30));
+        static auto *forceExitTimer = new Timer("forceExitTimer", Application_forceExitProc, nullptr,
+                                                TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30));
         forceExitTimer->start();
+    }
+
+    void Application::exit() {
+        exit(0);
     }
 
     int Application::exitCode() const {
@@ -313,14 +316,14 @@ namespace System {
 
 #endif
 
-    const TimeSpan Application::elapsedTime() const {
+    TimeSpan Application::elapsedTime() const {
         uint32_t start = _startTime;
         uint32_t end = TickTimeout::getCurrentTickCount();
         uint32_t elapsed = TickTimeout::elapsed(start, end);
         return TimeSpan::fromMilliseconds(elapsed);
     }
 
-    const DateTime Application::startTime() const {
+    DateTime Application::startTime() const {
         return DateTime::now() - elapsedTime();
     }
 
@@ -340,11 +343,11 @@ namespace System {
 //                {
 //                    _arguments.add(str[1], "true");
 //                }
-                int start = str.find("--");
+                ssize_t start = str.find("--");
                 if (start >= 0)  // has a long argument.
                 {
                     str = String::replace(str, "--", String::Empty);
-                    int end = str.find('=');
+                    ssize_t end = str.find('=');
                     if (end > 0) {
                         String key = str.substr(0, end);
                         String value = str.substr(end + 1, str.length() - end);
@@ -357,7 +360,7 @@ namespace System {
                     if (start >= 0)  // has a short argument.
                     {
                         str = String::replace(str, "-", String::Empty);
-                        int end = str.find('=');
+                        ssize_t end = str.find('=');
                         if (end > 0) {
                             String key = str.substr(0, end);
                             String value = str.substr(end + 1, str.length() - end);

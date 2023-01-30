@@ -7,8 +7,10 @@
 //
 
 #include "TimeSpanFormat.h"
+#include "data/ValueType.h"
 #include "data/StringArray.h"
 #include "system/Math.h"
+#include <assert.h>
 
 using namespace System;
 

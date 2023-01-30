@@ -170,7 +170,7 @@ namespace Diag {
     }
 
     const String FileTraceListener::getLogPath() const {
-        return Directory::getAppPath();
+        return Path::getAppPath();
     }
 
     bool FileTraceListener::isRealPath(const char *path) const {

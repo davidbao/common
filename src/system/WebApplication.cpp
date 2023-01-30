@@ -81,7 +81,7 @@ namespace System {
         emscripten_set_main_loop(callback, 0, 0);
     }
 
-    const String WebApplication::name() const {
+    String WebApplication::name() const {
         return _name;
     }
 

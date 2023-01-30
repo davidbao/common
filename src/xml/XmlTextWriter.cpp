@@ -7,7 +7,7 @@
 //
 
 #include "xml/XmlTextWriter.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "libxml/xmlwriter.h"
 
 #ifdef __arm_linux__

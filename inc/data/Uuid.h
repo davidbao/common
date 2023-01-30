@@ -26,7 +26,7 @@ typedef GUID UUID;
 #endif
 
 #include "data/Vector.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace Data {
 #ifndef uuid_t

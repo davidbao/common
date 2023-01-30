@@ -13,7 +13,7 @@
 
 using namespace System;
 
-static const String _path = Path::combine(Directory::getTempPath(), "directory_test");
+static const String _path = Path::combine(Path::getTempPath(), "directory_test");
 
 void cleanUp() {
     if (Directory::exists(_path)) {
@@ -127,7 +127,7 @@ bool testGetFiles() {
     if (files1_2.count() != 3) {
         return false;
     }
-    for (int i = 0; i < files1_2.count(); ++i) {
+    for (size_t i = 0; i < files1_2.count(); ++i) {
         String temp = Path::getFileName(files1_2[i]);
         bool contains = false;
         for (int j = 1; j <= 3; ++j) {
@@ -151,7 +151,7 @@ bool testGetFiles() {
     if (files2_2.count() != 2) {
         return false;
     }
-    for (int i = 0; i < files2_2.count(); ++i) {
+    for (size_t i = 0; i < files2_2.count(); ++i) {
         String temp = Path::getFileName(files2_2[i]);
         bool contains = false;
         for (int j = 2; j <= 3; ++j) {
@@ -194,7 +194,7 @@ bool testGetDirectories() {
     if (directories1_2.count() != 3) {
         return false;
     }
-    for (int i = 0; i < directories1_2.count(); ++i) {
+    for (size_t i = 0; i < directories1_2.count(); ++i) {
         String temp = Path::getFileName(directories1_2[i]);
         bool contains = false;
         for (int j = 1; j <= 3; ++j) {
@@ -218,7 +218,7 @@ bool testGetDirectories() {
     if (directories2_2.count() != 2) {
         return false;
     }
-    for (int i = 0; i < directories2_2.count(); ++i) {
+    for (size_t i = 0; i < directories2_2.count(); ++i) {
         String temp = Path::getFileName(directories2_2[i]);
         bool contains = false;
         for (int j = 2; j <= 3; ++j) {
@@ -265,38 +265,6 @@ bool testRename() {
     return true;
 }
 
-bool testGetPath() {
-    String appPath = Directory::getAppPath();
-    String startupPath = Application::startupPath();
-    if (startupPath.find(appPath) < 0) {
-        return false;
-    }
-
-    String homePath = Directory::getHomePath();
-    if (homePath.isNullOrEmpty()) {
-        return false;
-    }
-
-    String docPath = Directory::getDocumentPath();
-    if (docPath.isNullOrEmpty()) {
-        return false;
-    }
-    String docPath2 = Directory::getDocumentPath("test");
-    if (docPath2.isNullOrEmpty()) {
-        return false;
-    }
-    if (docPath2.find("test") <= 0) {
-        return false;
-    }
-
-    String tempPath = Directory::getTempPath();
-    if (tempPath.isNullOrEmpty()) {
-        return false;
-    }
-
-    return true;
-}
-
 bool testCurrentDirectory() {
     String path = Directory::getCurrentDirectory();
     if (path.isNullOrEmpty()) {
@@ -322,8 +290,8 @@ bool testSetFileModifyTime() {
     DateTime time = DateTime::now();
     String path = Path::combine(_path, "time_directory");
     Directory::createDirectory(path);
-    if(Directory::exists(path)) {
-        if(!Directory::setModifyTime(path, time)) {
+    if (Directory::exists(path)) {
+        if (!Directory::setModifyTime(path, time)) {
             return false;
         }
         DateTime time2;
@@ -341,8 +309,8 @@ bool testSetLastAccessTime() {
     DateTime time = DateTime::now();
     String path = Path::combine(_path, "time_directory");
     Directory::createDirectory(path);
-    if(Directory::exists(path)) {
-        if(!Directory::setLastAccessTime(path, time)) {
+    if (Directory::exists(path)) {
+        if (!Directory::setLastAccessTime(path, time)) {
             return false;
         }
         DateTime time2;
@@ -358,8 +326,8 @@ bool testSetCreationTime() {
     DateTime time = DateTime::now();
     String path = Path::combine(_path, "time_directory");
     Directory::createDirectory(path);
-    if(Directory::exists(path)) {
-        if(!Directory::setCreationTime(path, time)) {
+    if (Directory::exists(path)) {
+        if (!Directory::setCreationTime(path, time)) {
             return false;
         }
         DateTime time2;
@@ -403,26 +371,22 @@ int main() {
         result = 7;
     }
 
-    if (!testGetPath()) {
+    if (!testCurrentDirectory()) {
         result = 8;
     }
 
-    if (!testCurrentDirectory()) {
+    if (!testSetFileModifyTime())
         result = 9;
-    }
-
-    if(!testSetFileModifyTime())
+    if (!testSetLastAccessTime())
         result = 10;
-    if(!testSetLastAccessTime())
-        result = 11;
 #ifdef WIN32
     if(!testSetCreationTime())
-        result = 12;
+        result = 11;
 #endif
 
     cleanUp();
 
-    if(result) {
+    if (result) {
         Debug::writeFormatLine("result: %d", result);
     }
 

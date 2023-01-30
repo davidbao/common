@@ -10,7 +10,7 @@
 #define DbClient_h
 
 #include "thread/Mutex.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "DataTable.h"
 
 using namespace Data;
@@ -50,6 +50,11 @@ namespace Database {
         bool executeSqlReplace(const DataTable &table);
 
         bool retrieveCount(const String &sql, int &count);
+
+    public:
+        static uint64_t generateSnowFlakeId(int dataCenterId, int workerId);
+        static uint64_t generateSnowFlakeId(int workerId);
+        static uint64_t generateSnowFlakeId();
 
     protected:
         virtual ValueTypes getColumnType(int type) = 0;

@@ -6,12 +6,12 @@
 //  Copyright © 2016 com. All rights reserved.
 //
 
-#ifndef common_ThreadPool_h
-#define common_ThreadPool_h
+#ifndef ThreadPool_h
+#define ThreadPool_h
 
 #include "data/PList.h"
-#include "Thread.h"
-#include "Mutex.h"
+#include "thread/Thread.h"
+#include "thread/Mutex.h"
 
 namespace Threading {
     class ThreadPool {
@@ -84,4 +84,4 @@ namespace Threading {
     };
 }
 
-#endif /* common_ThreadPool_hpp */
+#endif // ThreadPool_h

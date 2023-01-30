@@ -10,9 +10,9 @@
 #include "thread/Mutex.h"
 
 namespace Threading {
-    Locker::Locker(IMutex *mutexp) : _mutex(nullptr) {
-        if (mutexp != nullptr) {
-            _mutex = mutexp;
+    Locker::Locker(IMutex *m) : _mutex(nullptr) {
+        if (m != nullptr) {
+            _mutex = m;
             _mutex->lock();
         }
     }

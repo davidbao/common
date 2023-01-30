@@ -14,7 +14,7 @@
 using namespace Http;
 
 int _serverPort = 8059;
-String _downloadFileName = Path::combine(Directory::getTempPath(), "download_source_test.txt");
+String _downloadFileName = Path::combine(Path::getTempPath(), "download_source_test.txt");
 
 void cleanUp() {
     if(File::exists(_downloadFileName)) {
@@ -245,7 +245,7 @@ bool testDownload() {
     HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
     HttpClient client;
 
-    String fileName = Path::combine(Directory::getTempPath(), "download_target_test.txt");;
+    String fileName = Path::combine(Path::getTempPath(), "download_target_test.txt");;
     if(!client.download(Url(baseUrl, "download/test"), textHeaders, fileName)) {
         return false;
     }
@@ -270,7 +270,7 @@ bool testUpload() {
     HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
     HttpClient client;
 
-    String fileName = Path::combine(Directory::getTempPath(), "upload_source_test.txt");;
+    String fileName = Path::combine(Path::getTempPath(), "upload_source_test.txt");;
     String response;
     FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     fs.writeText("123abc");

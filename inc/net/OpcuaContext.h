@@ -9,7 +9,7 @@
 #ifndef OpcuaContext_h
 #define OpcuaContext_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/ByteArray.h"
 #include "data/Dictionary.h"
 #include "data/TimeSpan.h"

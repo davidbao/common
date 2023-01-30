@@ -9,7 +9,7 @@
 #ifndef RpcServer_h
 #define RpcServer_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "communication/ServerService.h"
 #include "rpc/RpcContext.h"
 #include "rpc/RpcInvoker.h"

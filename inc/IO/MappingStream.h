@@ -16,6 +16,8 @@
 namespace IO {
     class MappingStream : public Stream {
     public:
+        using Stream::seek;
+
 #if WIN32
         typedef void* ViewMapping;
 #else
@@ -71,7 +73,11 @@ namespace IO {
 
         size_t length() const override;
 
-        bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) override;
+        off_t seek(off_t offset, SeekOrigin origin) override;
+
+        void flush() override;
+
+        void close() override;
 
         bool canWrite() const override;
 
@@ -80,10 +86,6 @@ namespace IO {
         bool canSeek() const override;
 
         bool isOpen() const;
-
-        void close();
-
-        void flush();
 
     private:
         size_t viewSize() const;

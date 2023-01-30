@@ -9,13 +9,15 @@
 #include "thread/Mutex.h"
 
 namespace Threading {
-    IMutex::IMutex() {
-    }
+    IMutex::IMutex() = default;
 
-    IMutex::~IMutex() {
-    }
+    IMutex::~IMutex() = default;
 
     Mutex::Mutex() {
+        _mutex = new mutex();
+    }
+
+    Mutex::Mutex(const Mutex &m) {
         _mutex = new mutex();
     }
 
@@ -36,6 +38,10 @@ namespace Threading {
     }
 
     RecursiveMutex::RecursiveMutex() {
+        _mutex = new recursive_mutex();
+    }
+
+    RecursiveMutex::RecursiveMutex(const RecursiveMutex &rm) {
         _mutex = new recursive_mutex();
     }
 

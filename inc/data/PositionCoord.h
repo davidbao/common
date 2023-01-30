@@ -9,6 +9,7 @@
 #ifndef PositionCoord_h
 #define PositionCoord_h
 
+#include "data/String.h"
 #include "data/ValueType.h"
 
 namespace IO {

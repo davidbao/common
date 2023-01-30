@@ -11,7 +11,7 @@
 
 #include "data/Vector.h"
 #include "net/NetType.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace Data {
     class StringArray;

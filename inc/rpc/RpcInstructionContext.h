@@ -12,7 +12,7 @@
 #include "data/DateTime.h"
 #include "data/TimeZone.h"
 #include "data/Map.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"
 #include "communication/BaseCommContext.h"

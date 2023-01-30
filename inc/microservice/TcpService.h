@@ -9,7 +9,7 @@
 #ifndef TcpService_h
 #define TcpService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/TcpServer.h"
 #include "system/ServiceFactory.h"
 #include "rpc/RpcServer.h"

@@ -9,7 +9,7 @@
 #ifndef SsoService_h
 #define SsoService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "microservice/HttpService.h"
 
 using namespace Data;

@@ -10,7 +10,7 @@
 #define TimeSpan_h
 
 #include <climits>
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "IO/Stream.h"
 #include "data/Culture.h"
 

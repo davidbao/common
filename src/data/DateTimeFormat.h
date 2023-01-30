@@ -10,6 +10,7 @@
 #define DateTimeFormat_h
 
 #include "data/String.h"
+#include "data/ValueType.h"
 #include "data/TimeSpan.h"
 #include "data/DateTime.h"
 #include "data/Culture.h"

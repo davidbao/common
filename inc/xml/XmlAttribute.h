@@ -9,7 +9,7 @@
 #ifndef XmlAttribute_h
 #define XmlAttribute_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PList.h"
 
 using namespace Data;

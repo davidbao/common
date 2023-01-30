@@ -15,7 +15,7 @@
 #include "diag/TraceListener.h"
 #include "diag/Trace.h"
 #include "thread/Mutex.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/StringMap.h"
 #include "thread/ProcessMutex.h"
 #include "thread/Thread.h"
@@ -50,15 +50,15 @@ namespace System {
 
         void setCulture(const Culture &culture);
 
-        const String fullFileName() const;
+        String fullFileName() const;
 
-        const String fileName() const;
+        String fileName() const;
 
-        virtual const String name() const;
+        virtual String name() const;
 
-        const String logPath() const;
+        String logPath() const;
 
-        const String logFileFilter() const;
+        String logFileFilter() const;
 
         bool parseLogFileName(const String &logFileName, DateTime &date) const;
 
@@ -69,13 +69,15 @@ namespace System {
 
         virtual void runLoop(loop_callback callback);
 
-        virtual void exit(int code = 0);
+        virtual void exit(int code);
+
+        void exit();
 
         int exitCode() const;
 
-        const TimeSpan elapsedTime() const;
+        TimeSpan elapsedTime() const;
 
-        const DateTime startTime() const;
+        DateTime startTime() const;
 
         const StringArray &argv() const;
 

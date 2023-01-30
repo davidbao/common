@@ -9,10 +9,8 @@
 #ifndef Stream_h
 #define Stream_h
 
-#include <time.h>
-#include <stdint.h>
-#include <assert.h>
-#include "data/ValueType.h"
+#include "data/String.h"
+#include "data/ByteArray.h"
 #include "data/Version.h"
 #include "thread/Mutex.h"
 
@@ -28,8 +26,6 @@ namespace IO {
 
     class Stream {
     public:
-        Stream();
-
         virtual ~Stream();
 
         virtual ssize_t write(const uint8_t *array, off_t offset, size_t count) = 0;
@@ -40,7 +36,13 @@ namespace IO {
 
         virtual size_t length() const = 0;
 
-        virtual bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) = 0;
+        virtual off_t seek(off_t offset, SeekOrigin origin) = 0;
+
+        virtual void flush() = 0;
+
+        virtual void close() = 0;
+
+        off_t seek(off_t offset);
 
         virtual bool canWrite() const;
 
@@ -144,7 +146,7 @@ namespace IO {
 
         void writeBCDValue(int64_t value, int length);
 
-        uint32_t readBCDValue(int length);
+        int64_t readBCDValue(int length);
 
         const Version &version() const;
 
@@ -152,27 +154,33 @@ namespace IO {
 
         Mutex *mutex();
 
+        bool writeBytes(const ByteArray &array);
+
+        ByteArray readBytes(int count, int cacheCount = 1024);
+
         bool writeText(const String &text);
+
+        String readText(int count, int cacheCount = 1024);
 
         bool readText(String &text, int maxLength = 64);
 
-        bool readToEnd(ByteArray &array, uint32_t cacheCount = 1024);
+        bool readToEnd(ByteArray &array, int cacheCount = 1024);
 
-        bool readToEnd(String &str, uint32_t cacheCount = 1024);
+        bool readToEnd(String &str, int cacheCount = 1024);
 
-        String readLine(uint32_t cacheCount = 64);
+        String readLine(int cacheCount = 64);
 
         void writeLine(const String &str);
 
     public:
-        static bool isLittleEndian() {
-            int x = 1;
-            return *(char *) &x == '\1';
-        }
+        static bool isLittleEndian();
 
-        static bool isBigEndian() {
-            return !isLittleEndian();
-        }
+        static bool isBigEndian();
+
+    protected:
+        Stream();
+
+        Stream(const Stream &stream);
 
     private:
         Version _version;

@@ -7,6 +7,7 @@
 //
 
 #include "xml/XmlNode.h"
+#include "data/ValueType.h"
 #include "exception/Exception.h"
 #include "xml/XmlDocument.h"
 #include <libxml/xmlmemory.h>

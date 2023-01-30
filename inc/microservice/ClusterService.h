@@ -9,7 +9,7 @@
 #ifndef ClusterService_h
 #define ClusterService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "rpc/RpcClient.h"
 #include "rpc/RpcServer.h"
 #include "system/ServiceFactory.h"

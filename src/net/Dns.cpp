@@ -194,7 +194,7 @@ namespace Net {
         Process process;
         process.setRedirectStdout(true);
         process.setWaitingTimeout(1000);    // 1s.
-        String fileName = Path::combine(Directory::getAppPath(), "gethostbyname");
+        String fileName = Path::combine(Path::getAppPath(), "gethostbyname");
 //        Trace::writeFormatLine("getHostByName_app, fileName: %s, host: %s", fileName.c_str(), host);
         if (File::exists(fileName)) {
             Process::start(fileName, String(host), &process);

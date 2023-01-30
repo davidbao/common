@@ -7,7 +7,7 @@
 //
 
 #include "data/PList.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "thread/Thread.h"
 
 using namespace Data;

@@ -359,7 +359,7 @@ bool testParse() {
                          "    k1: 1\n"
                          "    k2: 2";
         String fileName = "test.yml";
-        String path = Path::combine(Directory::getTempPath(), "YmlNodeTest");
+        String path = Path::combine(Path::getTempPath(), "YmlNodeTest");
         String fullFileName = Path::combine(path, fileName);
         if (!Directory::exists(path))
             Directory::createDirectory(path);
@@ -399,7 +399,7 @@ bool testUpdateFile() {
 //                         "    k1: 1\n"
 //                         "    k2: 2";
 //        String fileName = "test.yml";
-//        String path = Path::combine(Directory::getTempPath(), "YmlNodeTest");
+//        String path = Path::combine(Path::getTempPath(), "YmlNodeTest");
 //        String fullFileName = Path::combine(path, fileName);
 //        if (!Directory::exists(path))
 //            Directory::createDirectory(path);
@@ -443,7 +443,7 @@ bool testUpdateFile() {
 
     {
         String fileName = "test.yml";
-        String path = Path::combine(Directory::getTempPath(), "YmlNodeTest");
+        String path = Path::combine(Path::getTempPath(), "YmlNodeTest");
         String fullFileName = Path::combine(path, fileName);
         YmlNode::Properties properties;
         properties["key1"] = "value1";

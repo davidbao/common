@@ -1,63 +1,58 @@
-#ifndef IOPORT_H
-#define IOPORT_H
+//
+//  IOPort.h
+//  common
+//
+//  Created by baowei on 2018/12/10.
+//  Copyright (c) 2018 com. All rights reserved.
+//
 
-#if !WIN32
+#ifndef IOPort_h
+#define IOPort_h
 
-#include <stdio.h>
-#include <termios.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <fcntl.h>
-#include <sys/poll.h>
-
-#endif
-
-#include "data/ValueType.h"
+#include "data/String.h"
+#include "net/Sender.h"
+#include "net/Receiver.h"
 
 using namespace Data;
+using namespace Net;
 
 namespace IO {
-#ifdef WIN32
-    typedef void* handle;
-    const handle invalidHandle = ((handle)-1);
-#else
-    typedef int handle;
-    const handle invalidHandle = -1;
-#endif
-
-    class IOPort {
+    class IOPort : public Sender, public Receiver {
     public:
-        IOPort(const String &name);
+        using Sender::send;
+        using Receiver::receive;
 
-        virtual ~IOPort();
+        explicit IOPort();
+
+        ~IOPort() override;
+
+        bool connected() override;
+
+        size_t available() override;
+
+        bool useReceiveTimeout() const override;
+
+        ssize_t send(const uint8_t *buffer, off_t offset, size_t count) override;
+
+        ssize_t receive(uint8_t *buffer, off_t offset, size_t count) override;
 
         virtual bool open();
+
+        virtual const String &name() const = 0;
 
         void close();
 
         bool isOpen() const;
 
-        const String &portName() const;
-
-        size_t available();
-
-        ssize_t write(const char *data, size_t count);
-
-        ssize_t read(char *data, size_t count);
-
-        ssize_t read(char *data, size_t count, uint32_t timeout);
-
-        ssize_t readLine(char *data, size_t count, uint32_t timeout, const char *newLine = "\n");
-
-        ssize_t readEndBytes(char *buffer, size_t bufferLength, const char *endBuffer, size_t ebLength, int suffix,
-                             uint32_t timeout);
-
     protected:
-        handle _handle;
-        String _portName;
+#ifdef WIN32
+        typedef void* Handle;
+        static constexpr Handle invalidHandle = ((Handle)-1);
+#else
+        typedef int Handle;
+        static const Handle invalidHandle = -1;
+#endif
+        Handle _handle;
     };
 }
-#endif  //IOPORT_H
+#endif // IOPort_h

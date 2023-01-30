@@ -445,7 +445,7 @@ namespace Http {
 //            multiData = true;
 //        }
 
-        fileName = File::getTempFileName("http_server");
+        fileName = Path::getTempFileName("http_server");
         FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
 
         v = (struct evbuffer_iovec *) malloc(sizeof(struct evbuffer_iovec) * n);

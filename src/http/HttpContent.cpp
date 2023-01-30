@@ -8,6 +8,7 @@
 
 #include "http/HttpContent.h"
 #include "thread/TickTimeout.h"
+#include "diag/Trace.h"
 #include <stdarg.h>
 #include "curl/curl.h"
 

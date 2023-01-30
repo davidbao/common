@@ -9,7 +9,7 @@
 #ifndef LoadBalancerClient_h
 #define LoadBalancerClient_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Map.h"
 #include "system/ServiceFactory.h"
 #include "microservice/ServiceInstance.h"

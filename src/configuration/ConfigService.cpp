@@ -28,6 +28,21 @@ namespace Config {
         return properties().contains(key);
     }
 
+    void IConfigService::printProperties() const {
+        const YmlNode::Properties &props = properties();
+        for (auto it = props.begin(); it != props.end(); ++it) {
+            const String &key = it.key();
+            const String &value = it.value();
+            Trace::info(String::format("%s=%s", key.c_str(), value.c_str()));
+        }
+    }
+
+    String IConfigService::getProperty(const String &key) const {
+        String value;
+        getProperty(key, value);
+        return value;
+    }
+
     bool IConfigService::getProperty(const String &key, String &value) const {
         return properties().at(key, value);
     }
@@ -226,15 +241,7 @@ namespace Config {
         // show all properties.
         String show;
         if (getProperty("debug", show) && show == "config.show") {
-            StringArray keys;
-            _properties.keys(keys);
-            for (size_t i = 0; i < keys.count(); i++) {
-                const String &key = keys[i];
-                String value;
-                if (_properties.at(key, value)) {
-                    Trace::info(String::format("%s=%s", key.c_str(), value.c_str()));
-                }
-            }
+            printProperties();
         }
 
         return true;
@@ -303,7 +310,7 @@ namespace Config {
         static const char *Application_yml = "application.yml";
 
         String ymlFileName;
-        const String appPath = Directory::getAppPath();
+        const String appPath = Path::getAppPath();
         ymlFileName = Path::combine(appPath, Application_yml);
         if (File::exists(ymlFileName)) {
             return ymlFileName;

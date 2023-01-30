@@ -7,7 +7,7 @@
 //
 
 #include "data/Dictionary.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 using namespace Data;
 

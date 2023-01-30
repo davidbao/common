@@ -1,37 +1,37 @@
+//
+//  Zip.cpp
+//  common
+//
+//  Created by baowei on 2016/3/28.
+//  Copyright © 2016 com. All rights reserved.
+//
+
 #include "IO/Zip.h"
 #include "exception/Exception.h"
-#include "data/Convert.h"
-#include "diag/Trace.h"
 #include "IO/Directory.h"
 #include "IO/File.h"
 #include "IO/Path.h"
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <zip.h>
 
-#if WIN32
+#ifdef WIN32
+
 #include <Windows.h>
 #include <memory.h>
 #include <fcntl.h>
 #include <io.h>
 #include <direct.h>
+
 #elif __APPLE__
 
-#include <sys/param.h>
-#include <sys/mount.h>
-#include <libgen.h>
-#include <dirent.h>
 #include <unistd.h>
 
 #else
-#include <sys/vfs.h>
-#include <libgen.h>
-#include <limits.h>
+
 #include <unistd.h>
 #include <dirent.h>
-#endif
 
-using namespace Diag;
+#endif
 
 namespace IO {
     class ZipInner {
@@ -46,7 +46,7 @@ namespace IO {
     public:
         zip_file *file;
 
-        ZipFileInner(zip_file *zf) : file(zf) {
+        explicit ZipFileInner(zip_file *zf) : file(zf) {
         }
     };
 
@@ -68,11 +68,15 @@ namespace IO {
 
         //Open the ZIP archive
         int err = 0;
-        _zip->zip = zip_open(fileName.c_str(), 0, &err);
-        if (isValid())
-            _fileName = fileName;
-        else {
-            Debug::writeFormatLine("Can not open zip file'%s', error: %d", fileName.c_str(), err);
+        zip_t *zip = zip_open(fileName.c_str(), 0, &err);
+        if (zip != nullptr) {
+            struct zip_stat sb{};
+            if (zip_stat_index(zip, 0, 0, &sb) == 0) {
+                _zip->zip = zip;
+                _fileName = fileName;
+            } else {
+                zip_close(zip);
+            }
         }
     }
 
@@ -85,23 +89,21 @@ namespace IO {
         zip_error_init(&err);
         zip_source_t *zs = zip_source_buffer_create(buffer.data(), buffer.count(), 0, &err);
         if (zs != nullptr) {
-            _zip->zip = zip_open_from_source(zs, 0, &err);
-            if (isValid()) {
-            } else {
-                Debug::writeFormatLine("Can not open zip buffer, zip_err: %d, sys_err: %d, err_str: '%s'",
-                                       err.zip_err, err.sys_err, err.str != nullptr ? err.str : "");
+            zip_t *zip = zip_open_from_source(zs, 0, &err);
+            if (zip != nullptr) {
+                struct zip_stat sb{};
+                if (zip_stat_index(zip, 0, 0, &sb) == 0) {
+                    _zip->zip = zip;
+                } else {
+                    zip_close(zip);
+                }
             }
-
-            zip_source_free(zs);
         }
     }
 
     Zip::~Zip() {
         //And close the archive
-        if (isValid()) {
-            zip_close(_zip->zip);
-            _zip->zip = nullptr;
-        }
+        close();
 
         delete _zip;
     }
@@ -114,9 +116,15 @@ namespace IO {
         return _zip->zip != nullptr;
     }
 
-    ZipFile *Zip::open(const String &fileName) const {
+    void Zip::close() {
         if (isValid()) {
-//            zip_file* zf = zip_fopen(_zip->zip, fileName, 0);
+            zip_close(_zip->zip);
+            _zip->zip = nullptr;
+        }
+    }
+
+    ZipFile *Zip::openFile(const String &fileName) const {
+        if (isValid()) {
             int64_t pos = getPosition(fileName);
             if (pos >= 0) {
                 zip_file *zf = zip_fopen_index(_zip->zip, pos, 0);
@@ -128,20 +136,22 @@ namespace IO {
         return nullptr;
     }
 
-    void Zip::close(ZipFile *file) {
-        if (file != nullptr) {
-            zip_fclose(file->_handle->file);
-            delete file;
+    void Zip::closeFile(ZipFile *file) {
+        if (isValid()) {
+            if (file != nullptr) {
+                zip_fclose(file->_handle->file);
+                delete file;
+            }
         }
     }
 
     bool Zip::read(const String &fileName, ByteArray &buffer) {
-        ZipFile *zf = open(fileName);
+        ZipFile *zf = openFile(fileName);
         if (zf) {
             const int count = 1024;
             uint8_t temp[count];
             memset(temp, 0, sizeof(temp));
-            zip_int64_t len = 0;
+            zip_int64_t len;
             do {
                 len = zip_fread(zf->_handle->file, temp, count);
                 if (len > 0) {
@@ -149,19 +159,19 @@ namespace IO {
                 }
             } while (len > 0);
 
-            close(zf);
+            closeFile(zf);
             return true;
         }
         return false;
     }
 
     bool Zip::read(const String &fileName, String &text) {
-        ZipFile *zf = open(fileName);
+        ZipFile *zf = openFile(fileName);
         if (zf) {
             const int count = 1024;
             char temp[count + 1];
             memset(temp, 0, sizeof(temp));
-            zip_int64_t len = 0;
+            zip_int64_t len;
             do {
                 len = zip_fread(zf->_handle->file, temp, count);
                 if (len > 0) {
@@ -169,7 +179,7 @@ namespace IO {
                 }
             } while (len > 0);
 
-            close(zf);
+            closeFile(zf);
             return true;
         }
         return false;
@@ -188,13 +198,14 @@ namespace IO {
 #else
             const String temp = fileName;
 #endif
-            pos = zip_name_locate(_zip->zip, temp, 0);
+//            const char *tempName = zip_get_name(_zip->zip, 0, ZIP_FL_ENC_RAW);
+            pos = zip_name_locate(_zip->zip, temp, ZIP_FL_ENC_UTF_8);
             if (pos < 0) {
                 zip_error_t *error = zip_get_error(_zip->zip);
                 if (error != nullptr) {
                     if (error->zip_err == ZIP_ER_NOENT) {
                         for (zip_int64_t i = 0; i < zip_get_num_entries(_zip->zip, 0); i++) {
-                            struct zip_stat sb;
+                            struct zip_stat sb{};
                             if (zip_stat_index(_zip->zip, i, 0, &sb) == 0) {
                                 String name;
                                 const char *tempName = zip_get_name(_zip->zip, i, ZIP_FL_ENC_RAW);
@@ -217,7 +228,7 @@ namespace IO {
         return pos;
     }
 
-    bool Zip::extract(const String &zipfile, const String &path) {
+    bool Zip::extract(const String &zipfile, const String &path, const String &password) {
         if (!Directory::exists(path)) {
             Directory::createDirectory(path);
         }
@@ -229,7 +240,7 @@ namespace IO {
             return false;
 
         for (zip_int64_t i = 0; i < zip_get_num_entries(za, 0); i++) {
-            struct zip_stat sb;
+            struct zip_stat sb{};
             if (zip_stat_index(za, i, 0, &sb) == 0) {
                 String name;
                 const char *tempName = zip_get_name(za, i, ZIP_FL_ENC_RAW);
@@ -247,9 +258,16 @@ namespace IO {
 
                 zip_int64_t len;
                 String fullFileName = Path::combine(path, name);
-                struct zip_file *zf = zip_fopen_index(za, i, 0);
-                if (!zf)
-                    continue;
+                struct zip_file *zf;
+                if (password.isNullOrEmpty()) {
+                    zf = zip_fopen_index(za, i, 0);
+                    if (!zf)
+                        continue;
+                } else {
+                    zf = zip_fopen_index_encrypted(za, i, 0, password);
+                    if (!zf)
+                        continue;
+                }
 
                 int fd = ::open(fullFileName.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0644);
                 if (fd < 0)
@@ -281,7 +299,7 @@ namespace IO {
         return true;
     }
 
-    bool Zip::compress(const String &path, const String &zipfile) {
+    bool Zip::compress(const String &path, const String &zipfile, const String &password) {
         if (!Directory::exists(path))
             return false;
 
@@ -289,16 +307,17 @@ namespace IO {
         if (!Directory::getFiles(path, "*", SearchOption::AllDirectories, files))
             return false;
 
-        return compressFile(path, files, zipfile);
+        return compressFile(path, files, zipfile, password);
     }
 
-    bool Zip::compressFile(const String &fileName, const String &zipfile) {
+    bool Zip::compressFile(const String &fileName, const String &zipfile, const String &password) {
         StringArray files(fileName, nullptr);
         String path = Path::getDirectoryName(fileName);
-        return compressFile(path, files, zipfile);
+        return compressFile(path, files, zipfile, password);
     }
 
-    bool Zip::compressFile(const String &cpath, const StringArray &filenames, const String &zipfile) {
+    bool Zip::compressFile(const String &path, const StringArray &fileNames, const String &zipfile,
+                           const String &password) {
         //Create the ZIP archive
         if (File::exists(zipfile))
             File::deleteFile(zipfile);
@@ -308,23 +327,30 @@ namespace IO {
         if (za == nullptr)
             return false;
 
-        for (uint32_t i = 0; i < filenames.count(); i++) {
-            const String &fileName = filenames[i];
+        for (size_t i = 0; i < fileNames.count(); i++) {
+            const String &fileName = fileNames[i];
             if (File::exists(fileName)) {
                 zip_source *zs = zip_source_file(za, fileName.c_str(), 0, 0);
                 if (zs != nullptr) {
-                    String cfilename = String::replace(fileName, cpath, String::Empty);
-                    if (cfilename.length() > 0 &&
-                        cfilename[0] == Path::DirectorySeparatorChar) {
-                        cfilename = cfilename.substr(1, cfilename.length());
+                    String cFileName = path.isNullOrEmpty() ?
+                                       Path::getFileName(fileName) :
+                                       String::replace(fileName, path, String::Empty);
+                    if (cFileName.length() > 0 &&
+                        cFileName[0] == Path::DirectorySeparatorChar) {
+                        cFileName = cFileName.substr(1, cFileName.length());
                     }
 #ifdef WIN32
-                    cfilename = cfilename.replace("\\", "/");
-                    cfilename = String::GBKtoUTF8(cfilename);
+                    cFileName = cFileName.replace("\\", "/");
+                    cFileName = String::GBKtoUTF8(cFileName);
 #endif
-                    if (zip_add(za, cfilename.c_str(), zs) < 0) {
+                    zip_int64_t index = zip_file_add(za, cFileName.c_str(), zs, 0);
+                    if (index < 0) {
                         zip_close(za);
                         return false;
+                    }
+
+                    if (!password.isNullOrEmpty()) {
+                        zip_file_set_encryption(za, index, ZIP_EM_AES_256, password);
                     }
                 }
             }
@@ -333,67 +359,19 @@ namespace IO {
         //And close the archive
         zip_close(za);
 #ifdef __EMSCRIPTEN__
-        int result = ::chmod(zipfile.c_str(), 777);
-        if(result != 0)
-        {
-            Debug::writeFormatLine("Can not chmod the file, file: %s", zipfile.c_str());
-        }
+        ::chmod(zipfile.c_str(), 777);
 #endif
         return true;
     }
 
-    bool Zip::compressFile(const StringArray &filenames, const String &zipfile) {
-        //Create the ZIP archive
-        if (File::exists(zipfile))
-            File::deleteFile(zipfile);
-
-        int err = 0;
-        struct zip *za = zip_open(zipfile.c_str(), ZIP_CREATE, &err);
-        if (za == nullptr)
-            return false;
-
-        for (uint32_t i = 0; i < filenames.count(); i++) {
-            const String &fileName = filenames[i];
-            if (File::exists(fileName)) {
-                zip_source *zs = zip_source_file(za, fileName.c_str(), 0, 0);
-                if (zs != nullptr) {
-                    String cfilename = Path::getFileName(fileName);
-#ifdef WIN32
-                    cfilename = cfilename.replace("\\", "/");
-                    cfilename = String::GBKtoUTF8(cfilename);
-#endif
-                    if (zip_add(za, cfilename.c_str(), zs) < 0) {
-                        zip_close(za);
-                        return false;
-                    }
-                }
-            }
-        }
-
-        //And close the archive
-        zip_close(za);
-#ifdef __EMSCRIPTEN__
-        int result = ::chmod(zipfile.c_str(), 777);
-        if(result != 0)
-        {
-            Debug::writeFormatLine("Can not chmod the file, file: %s", zipfile.c_str());
-        }
-#endif
-        return true;
+    bool Zip::compressFile(const StringArray &fileNames, const String &zipfile, const String &password) {
+        return compressFile(String::Empty, fileNames, zipfile, password);
     }
 
     int Zip::zipRead(void *context, char *buffer, int len) {
-        zip_file *zf = static_cast<zip_file *>(context);
+        auto *zf = static_cast<zip_file *>(context);
         if (zf != nullptr) {
             return (int) zip_fread(zf, buffer, len);
-        }
-        return 0;
-    }
-
-    int Zip::zipClose(void *context) {
-        zip_file *zf = static_cast<zip_file *>(context);
-        if (zf != nullptr) {
-            zip_fclose(zf);
         }
         return 0;
     }

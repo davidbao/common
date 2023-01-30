@@ -9,7 +9,7 @@
 #ifndef DataSourceService_h
 #define DataSourceService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/NetType.h"
 #include "database/DbClient.h"
 #include "system/ServiceFactory.h"

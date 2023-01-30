@@ -9,7 +9,7 @@
 #ifndef EthernetContext_h
 #define EthernetContext_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/NetType.h"
 
 using namespace Data;

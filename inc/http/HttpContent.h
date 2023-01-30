@@ -9,7 +9,7 @@
 #ifndef HttpContent_h
 #define HttpContent_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PrimitiveInterface.h"
 #include "data/StringArray.h"
 #include "data/PList.h"

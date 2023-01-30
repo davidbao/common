@@ -9,7 +9,7 @@
 #ifndef ConsulService_h
 #define ConsulService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "http/HttpContent.h"
 #include "microservice/ServiceGovernance.h"
 

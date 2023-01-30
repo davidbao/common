@@ -7,30 +7,36 @@
 //
 
 #include "IO/Path.h"
-#include "data/Convert.h"
 #include "exception/Exception.h"
 #include "diag/Trace.h"
 #include "system/Random.h"
 #include "system/Environment.h"
+#include "system/Application.h"
 
-#if WIN32
+#ifdef WIN32
 
 #include <Windows.h>
 #include <memory.h>
 #include <io.h>
 #include <direct.h>
 #include <Shlwapi.h>
+#include <shlobj_core.h>
 
 #elif __APPLE__
+
 #include <unistd.h>
-#else
-#include <unistd.h>
-#include <sys/vfs.h>
+
+#elif __arm_linux__
+
 #include <libgen.h>
-#include <limits.h>
+#include <pwd.h>
+
+#else
+
 #include <unistd.h>
 #include <dirent.h>
-#include <stdlib.h>
+#include <cstdlib>
+
 #endif
 
 using namespace Diag;
@@ -189,6 +195,10 @@ namespace IO {
         return path[path.length() - 1] == DirectorySeparatorChar;
     }
 
+    String Path::getAppPath() {
+        return Path::getDirectoryName(Application::startupPath());
+    }
+
     String Path::getDirectoryName(const String &path) {
         if (!checkInvalidPathChars(path)) {
             return String::Empty;
@@ -216,6 +226,23 @@ namespace IO {
         }
     }
 
+    String Path::getDocumentPath(const String &subDocPath) {
+        String docPath = Path::getHomePath();
+        assert(!docPath.isNullOrEmpty());
+        if (subDocPath.isNullOrEmpty()) {
+            docPath = Path::getAppPath();
+        } else {
+            String tempPath = subDocPath;
+#ifdef WIN32
+            if (subDocPath.find('/') >= 0) {
+                tempPath = subDocPath.replace(subDocPath, "/", "\\");
+            }
+#endif
+            docPath = Path::combine(docPath, tempPath);
+        }
+        return docPath;
+    }
+
     String Path::getExtension(const String &path) {
         if (!checkInvalidPathChars(path)) {
             return String::Empty;
@@ -235,12 +262,12 @@ namespace IO {
     String Path::getFileName(const String &path) {
         if (!path.isNullOrEmpty()) {
             checkInvalidPathChars(path, false);
-            size_t length = path.length();
-            size_t position = length;
+            int length = (int) path.length();
+            int position = length;
             while (--position >= 0) {
                 char ch = path[position];
                 if (isDirectorySeparatorChar(ch)) {
-                    return path.substr((off_t) position + 1, (length - position) - 1);
+                    return path.substr((off_t) position + 1, (size_t) ((length - position) - 1));
                 }
             }
             return path;
@@ -273,6 +300,30 @@ namespace IO {
         }
 
         return combine(basePath, path);
+    }
+
+    String Path::getHomePath() {
+#ifdef WIN32
+        char path[MAX_PATH];
+        if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PROFILE, nullptr, 0, path))) {
+            return path;
+        }
+        const char *homeDir = getenv("HOMEPATH");
+        return homeDir != nullptr ? (String) homeDir : String::Empty;
+#elif __EMSCRIPTEN__
+        return Path::combine(getAppPath(), "home");
+#elif __arm_linux__
+        const char *homeDir = getenv("HOME");
+        if (!homeDir) {
+            struct passwd *pwd = getpwuid(getuid());
+            if (pwd)
+                homeDir = pwd->pw_dir;
+        }
+        return homeDir != nullptr ? (String) homeDir : String::Empty;
+#else
+        const char *homeDir = getenv("HOME");
+        return homeDir != nullptr ? (String) homeDir : String::Empty;
+#endif
     }
 
     const Array<char, 41> &Path::getInvalidFileNameChars() {
@@ -360,20 +411,20 @@ namespace IO {
 #else
         //        On POSIX systems, the path may be the one specified in the environment variables TMPDIR, TMP, TEMP, TEMPDIR,
         //        and, if none of them are specified, the path "/tmp" is returned.
-                String temp;
-                if (Environment::getVariable("TMPDIR", temp)) {
-                    return temp;
-                }
-                if (Environment::getVariable("TMP", temp)) {
-                    return temp;
-                }
-                if (Environment::getVariable("TEMP", temp)) {
-                    return temp;
-                }
-                if (Environment::getVariable("TEMPDIR", temp)) {
-                    return temp;
-                }
-                return "/tmp";
+        String temp;
+        if (Environment::getVariable("TMPDIR", temp)) {
+            return temp;
+        }
+        if (Environment::getVariable("TMP", temp)) {
+            return temp;
+        }
+        if (Environment::getVariable("TEMP", temp)) {
+            return temp;
+        }
+        if (Environment::getVariable("TEMPDIR", temp)) {
+            return temp;
+        }
+        return "/tmp";
 #endif
     }
 

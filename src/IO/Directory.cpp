@@ -12,7 +12,6 @@
 #include "IO/Path.h"
 #include "IO/File.h"
 #include "data/TimeZone.h"
-#include "system/Application.h"
 #include <sys/stat.h>
 #include <cstdlib>
 
@@ -25,11 +24,13 @@
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #elif __APPLE__
+
 #include <sys/param.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
 #include <sys/time.h>
+
 #else
 #include <sys/vfs.h>
 #include <libgen.h>
@@ -40,6 +41,7 @@
 #include <sys/time.h>
 #endif
 
+using namespace Diag;
 using namespace System;
 
 namespace IO {
@@ -139,12 +141,12 @@ namespace IO {
                 buf = (char *) malloc(len);
 
                 if (buf) {
-                    struct stat statbuf;
+                    struct stat st{};
 
                     snprintf(buf, len, "%s/%s", path, p->d_name);
 
-                    if (!stat(buf, &statbuf)) {
-                        if (S_ISDIR(statbuf.st_mode)) {
+                    if (!stat(buf, &st)) {
+                        if (S_ISDIR(st.st_mode)) {
                             r2 = remove_directory(buf);
                         } else {
                             r2 = unlink(buf);
@@ -179,7 +181,7 @@ namespace IO {
         }
         return result;
 #else
-        bool result = remove_directory(path) == 0 ? true : false;
+        bool result = remove_directory(path) == 0;
         if (!result) {
             Debug::writeFormatLine("remove directory failed with error: %s", strerror(errno));
         }
@@ -211,7 +213,7 @@ namespace IO {
             return rValue;
         }
 #else
-        struct stat s;
+        struct stat s{};
         int err = stat(path, &s);
         if (-1 == err) {
             if (ENOENT == errno) {
@@ -265,7 +267,7 @@ namespace IO {
         if (exists(path)) {
             DIR *dir;
             struct dirent *ent;
-            struct stat st;
+            struct stat st{};
 
             dir = opendir(path);
             while ((ent = readdir(dir)) != nullptr) {
@@ -285,10 +287,9 @@ namespace IO {
                         getFiles(full_file_name, filter, searchOption, files);
                     }
                 } else {
-                    int index;
                     if (filter == "*.*" || filter == "*")
                         files.add(full_file_name);
-                    else if ((index = filter.find("*")) >= 0) {
+                    else if (filter.find("*") >= 0) {
                         String str = String::replace(filter, "*", String::Empty);
                         if (full_file_name.find(str) > 0)
                             files.add(full_file_name);
@@ -338,7 +339,7 @@ namespace IO {
         if (exists(path)) {
             DIR *dir;
             struct dirent *ent;
-            struct stat st;
+            struct stat st{};
 
             dir = opendir(path);
             while ((ent = readdir(dir)) != nullptr) {
@@ -413,7 +414,7 @@ namespace IO {
 #else
             DIR *dir;
             struct dirent *ent;
-            struct stat st;
+            struct stat st{};
 
             dir = opendir(sourcePath);
             while ((ent = readdir(dir)) != nullptr) {
@@ -454,65 +455,6 @@ namespace IO {
             return true;
         }
         return false;
-    }
-
-    String Directory::getAppPath() {
-        return Path::getDirectoryName(Application::startupPath());
-    }
-
-    String Directory::getHomePath() {
-#ifdef WIN32
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PROFILE, nullptr, 0, path))) {
-            return path;
-        }
-        const char *homeDir = getenv("HOMEPATH");
-        return homeDir != nullptr ? (String) homeDir : String::Empty;
-#elif __EMSCRIPTEN__
-        return Path::combine(getAppPath(), "home");
-#elif __arm_linux__
-        const char *homeDir = getenv("HOME");
-        if (!homeDir) {
-            struct passwd *pwd = getpwuid(getuid());
-            if (pwd)
-                homeDir = pwd->pw_dir;
-        }
-        return homeDir != nullptr ? (String) homeDir : String::Empty;
-#else
-        const char *homeDir = getenv("HOME");
-        return homeDir != nullptr ? (String) homeDir : String::Empty;
-#endif
-    }
-
-    String Directory::getDocumentPath(const String &subDocPath) {
-        String docPath = Directory::getHomePath();
-        assert(!docPath.isNullOrEmpty());
-        if (subDocPath.isNullOrEmpty()) {
-            docPath = Directory::getAppPath();
-        } else {
-            String tempPath = subDocPath;
-#ifdef WIN32
-            if (subDocPath.find('/') >= 0) {
-                tempPath = subDocPath.replace(subDocPath, "/", "\\");
-            }
-#endif
-            docPath = Path::combine(docPath, tempPath);
-        }
-        return docPath;
-    }
-
-    String Directory::getTempPath() {
-#ifdef WIN32
-        char path[MAX_PATH];
-        memset(path, 0, sizeof(path));
-        if (GetTempPath(sizeof(path), path) > 0)
-            return (String) path;
-        return String::Empty;
-#elif __EMSCRIPTEN__
-        return Path::combine(getAppPath(), "tmp");
-#else
-        return "/tmp";
-#endif
     }
 
     String Directory::getCurrentDirectory() {
@@ -558,7 +500,7 @@ namespace IO {
     bool Directory::getModifyTime(const String &path, DateTime &time) {
         if (Directory::exists(path)) {
 
-            struct stat s;
+            struct stat s{};
             int err = stat(path.c_str(), &s);
             if (-1 == err) {
                 if (ENOENT == errno) {
@@ -622,14 +564,14 @@ namespace IO {
                 lastAccessTime = time;
             }
 
-            uint64_t atime = (uint64_t) lastAccessTime.total1970Milliseconds();
-            uint64_t mtime = (uint64_t) time.total1970Milliseconds();
+            auto atime = (uint64_t) lastAccessTime.total1970Milliseconds();
+            auto mtime = (uint64_t) time.total1970Milliseconds();
             struct timeval tv[2] = {0};
             // times[0] specifies the new access time, and times[1] specifies the new modification time.
-            tv[0].tv_sec = atime / 1000;
-            tv[0].tv_usec = 1000 * (atime % 1000);
-            tv[1].tv_sec = mtime / 1000;
-            tv[1].tv_usec = 1000 * (mtime % 1000);
+            tv[0].tv_sec = (time_t) (atime / 1000);
+            tv[0].tv_usec = (suseconds_t) (1000 * (atime % 1000));
+            tv[1].tv_sec = (time_t) (mtime / 1000);
+            tv[1].tv_usec = (suseconds_t) (1000 * (mtime % 1000));
             return lutimes(path.c_str(), tv) == 0;
 #endif
         }
@@ -638,7 +580,7 @@ namespace IO {
 
     bool Directory::getCreationTime(const String &path, DateTime &time) {
         if (Directory::exists(path)) {
-            struct stat s;
+            struct stat s{};
             int err = stat(path.c_str(), &s);
             if (-1 == err) {
                 if (ENOENT == errno) {
@@ -691,7 +633,7 @@ namespace IO {
     bool Directory::getLastAccessTime(const String &path, DateTime &time) {
         if (Directory::exists(path)) {
 
-            struct stat s;
+            struct stat s{};
             int err = stat(path.c_str(), &s);
             if (-1 == err) {
                 if (ENOENT == errno) {
@@ -755,14 +697,14 @@ namespace IO {
                 modifyTime = time;
             }
 
-            uint64_t atime = (uint64_t) time.total1970Milliseconds();
-            uint64_t mtime = (uint64_t) modifyTime.total1970Milliseconds();
+            auto atime = (uint64_t) time.total1970Milliseconds();
+            auto mtime = (uint64_t) modifyTime.total1970Milliseconds();
             struct timeval tv[2] = {0};
             // times[0] specifies the new access time, and times[1] specifies the new modification time.
-            tv[0].tv_sec = atime / 1000;
-            tv[0].tv_usec = 1000 * (atime % 1000);
-            tv[1].tv_sec = mtime / 1000;
-            tv[1].tv_usec = 1000 * (mtime % 1000);
+            tv[0].tv_sec = (time_t) (atime / 1000);
+            tv[0].tv_usec = (suseconds_t) (1000 * (atime % 1000));
+            tv[1].tv_sec = (time_t) (mtime / 1000);
+            tv[1].tv_usec = (suseconds_t) (1000 * (mtime % 1000));
             return lutimes(path.c_str(), tv) == 0;
 #endif
         }

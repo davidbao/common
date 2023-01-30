@@ -11,9 +11,9 @@
 
 #endif
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/DateTime.h"
-#include "Stream.h"
+#include "IO/Stream.h"
 
 namespace IO {
     enum PipeMode {
@@ -24,6 +24,8 @@ namespace IO {
 
     class NamedPipeStream : public Stream {
     public:
+        using Stream::seek;
+
         NamedPipeStream(const String &pipeName, PipeMode mode);
 
         ~NamedPipeStream() override;
@@ -36,11 +38,13 @@ namespace IO {
 
         size_t length() const override;
 
-        bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) override;
+        off_t seek(off_t offset, SeekOrigin origin) override;
+
+        void flush() override;
+
+        void close() override;
 
         bool isOpen() const;
-
-        void close();
 
 #ifdef WIN32
         bool connect() const;

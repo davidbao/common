@@ -12,7 +12,7 @@
 #include <chrono>
 #include "TimeSpan.h"
 #include "IO/Stream.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Culture.h"
 
 using namespace std;

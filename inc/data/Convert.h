@@ -10,6 +10,7 @@
 #define Convert_h
 
 #include "data/StringArray.h"
+#include "data/String.h"
 #include "data/ValueType.h"
 #include "data/PList.h"
 

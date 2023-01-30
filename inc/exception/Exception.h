@@ -1,14 +1,14 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include "data/ValueType.h"
+#include "data/String.h"
 
 using namespace Data;
 
 namespace System {
     class Exception : public std::exception {
     public:
-        Exception(const String &message, const Exception *innerException = nullptr);
+        explicit Exception(const String &message, const Exception *innerException = nullptr);
 
         Exception(const Exception &e);
 
@@ -20,7 +20,7 @@ namespace System {
 
         const Exception *innerException() const;
 
-        void showExceptionInfo();
+        void showExceptionInfo() const;
 
     protected:
         virtual void showMessage() const = 0;
@@ -37,7 +37,7 @@ namespace System {
 
     class MessageException : public Exception {
     public:
-        MessageException(const String &message, const Exception *innerException = nullptr);
+        explicit MessageException(const String &message, const Exception *innerException = nullptr);
 
         MessageException(const MessageException &e);
 
@@ -49,7 +49,7 @@ namespace System {
 
     class BindingException : public Exception {
     public:
-        BindingException(const String &message, const Exception *innerException = nullptr);
+        explicit BindingException(const String &message, const Exception *innerException = nullptr);
 
         BindingException(const BindingException &e);
 
@@ -61,7 +61,7 @@ namespace System {
 
     class OverflowException : public Exception {
     public:
-        OverflowException(const String &message, const Exception *innerException = nullptr);
+        explicit OverflowException(const String &message, const Exception *innerException = nullptr);
 
         OverflowException(const OverflowException &e);
 
@@ -73,7 +73,7 @@ namespace System {
 
     class StreamException : public Exception {
     public:
-        StreamException(const String &message, const Exception *innerException = nullptr);
+        explicit StreamException(const String &message, const Exception *innerException = nullptr);
 
         StreamException(const StreamException &e);
 
@@ -85,7 +85,7 @@ namespace System {
 
     class IOException : public Exception {
     public:
-        IOException(const String &message, const Exception *innerException = nullptr);
+        explicit IOException(const String &message, const Exception *innerException = nullptr);
 
         IOException(const IOException &e);
 
@@ -97,7 +97,7 @@ namespace System {
 
     class ArgumentException : public Exception {
     public:
-        ArgumentException(const String &message, const Exception *innerException = nullptr);
+        explicit ArgumentException(const String &message, const Exception *innerException = nullptr);
 
         ArgumentException(const String &message, const String &paramName, const Exception *innerException = nullptr);
 
@@ -116,7 +116,7 @@ namespace System {
 
     class ArgumentNullException : public ArgumentException {
     public:
-        ArgumentNullException(const String &paramName);
+        explicit ArgumentNullException(const String &paramName);
 
         ArgumentNullException(const ArgumentNullException &e);
 
@@ -131,8 +131,9 @@ namespace System {
 
     class ArgumentOutOfRangeException : public ArgumentException {
     public:
-        ArgumentOutOfRangeException(const String &paramName, const String &message = String::Empty,
-                                    const Exception *innerException = nullptr);
+        explicit ArgumentOutOfRangeException(const String &message = String::Empty, const Exception *innerException = nullptr);
+
+        ArgumentOutOfRangeException(const String &message, const String &paramName, const Exception *innerException = nullptr);
 
         ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e);
 
@@ -144,7 +145,7 @@ namespace System {
 
     class TimeoutException : public Exception {
     public :
-        TimeoutException(const String &message, const Exception *innerException = nullptr);
+        explicit TimeoutException(const String &message, const Exception *innerException = nullptr);
 
         TimeoutException(const TimeoutException &e);
 
@@ -156,7 +157,7 @@ namespace System {
 
     class NotImplementedException : public Exception {
     public :
-        NotImplementedException(const String &message, const Exception *innerException = nullptr);
+        explicit NotImplementedException(const String &message, const Exception *innerException = nullptr);
 
         NotImplementedException(const NotImplementedException &e);
 
@@ -168,7 +169,7 @@ namespace System {
 
     class NotSupportedException : public Exception {
     public :
-        NotSupportedException(const String &message, const Exception *innerException = nullptr);
+        explicit NotSupportedException(const String &message, const Exception *innerException = nullptr);
 
         NotSupportedException(const NotSupportedException &e);
 
@@ -180,13 +181,27 @@ namespace System {
 
     class FileNotFoundException : public Exception {
     public :
-        FileNotFoundException(const String &fileName, const Exception *innerException = nullptr);
+        explicit FileNotFoundException(const String &fileName, const Exception *innerException = nullptr);
 
         FileNotFoundException(const FileNotFoundException &e);
 
         ~FileNotFoundException() override;
 
         const String &fileName() const;
+
+    protected:
+        void showMessage() const override;
+    };
+
+    class PathNotFoundException : public Exception {
+    public :
+        explicit PathNotFoundException(const String &path, const Exception *innerException = nullptr);
+
+        PathNotFoundException(const PathNotFoundException &e);
+
+        ~PathNotFoundException() override;
+
+        const String &path() const;
 
     protected:
         void showMessage() const override;

@@ -13,7 +13,7 @@
 #include "system/Singleton.h"
 #include "thread/Thread.h"
 #include "xml/XmlTextReader.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/DateTime.h"
 #include "diag/TraceListener.h"
 #include "IO/FileStream.h"

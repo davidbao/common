@@ -1,7 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PList.h"
 #include "data/TimeSpan.h"
 #include "system/Delegate.h"
@@ -15,12 +15,11 @@ namespace Threading {
 
     class ProcessOutputEventArgs : public EventArgs {
     public:
-        ProcessOutputEventArgs(const String &message) {
+        explicit ProcessOutputEventArgs(const String &message) {
             this->message = message;
         }
 
-        ~ProcessOutputEventArgs() override {
-        }
+        ~ProcessOutputEventArgs() override = default;
 
         String message;
     };
@@ -29,7 +28,7 @@ namespace Threading {
     public:
         Process();
 
-        Process(int processId);
+        explicit Process(int processId);
 
         ~Process();
 

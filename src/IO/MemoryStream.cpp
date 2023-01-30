@@ -7,27 +7,27 @@
 //
 
 #include "IO/MemoryStream.h"
-#include "data/ByteArray.h"
+#include "system/Math.h"
+
+using namespace System;
 
 namespace IO {
-    MemoryStream::MemoryStream(size_t capacity) : _buffer(nullptr), _copyBuffer(true), _position(0) {
+    MemoryStream::MemoryStream(size_t capacity) : _copyBuffer(true), _position(0) {
         _buffer = new ByteArray(capacity);
     }
 
-    MemoryStream::MemoryStream(const ByteArray *buffer, bool copyBuffer) : _buffer(nullptr), _copyBuffer(copyBuffer),
-                                                                           _position(0) {
+    MemoryStream::MemoryStream(const ByteArray *buffer, bool copyBuffer) : _copyBuffer(copyBuffer), _position(0) {
         if (_copyBuffer)
             _buffer = new ByteArray(*buffer);
         else
             _buffer = (ByteArray *) buffer;
     }
 
-    MemoryStream::MemoryStream(const uint8_t *buffer, size_t count, size_t capacity) : _buffer(nullptr),
-                                                                                       _copyBuffer(true), _position(0) {
+    MemoryStream::MemoryStream(const uint8_t *buffer, size_t count, size_t capacity) : _copyBuffer(true), _position(0) {
         _buffer = new ByteArray(buffer, count, capacity);
     }
 
-    MemoryStream::MemoryStream(const MemoryStream &stream) {
+    MemoryStream::MemoryStream(const MemoryStream &stream) : Stream(stream) {
         _copyBuffer = stream._copyBuffer;
         _position = stream._position;
         if (_copyBuffer)
@@ -50,24 +50,31 @@ namespace IO {
         return _buffer->count();
     }
 
-    bool MemoryStream::seek(off_t offset, SeekOrigin origin) {
-        if (origin == SEEK_SET) {
+    off_t MemoryStream::seek(off_t offset, SeekOrigin origin) {
+        if (origin == SeekOrigin::SeekBegin) {
             if (offset >= 0 && offset <= (off_t) _buffer->count()) {
                 _position = offset;
-                return true;
+                return _position;
             }
-        } else if (origin == SEEK_CUR) {
+        } else if (origin == SeekOrigin::SeekCurrent) {
             if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
                 _position += offset;
-                return true;
+                return _position;
             }
-        } else if (origin == SEEK_END) {
+        } else if (origin == SeekOrigin::SeekEnd) {
             if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
                 _position = (off_t) _buffer->count() - offset;
-                return true;
+                return _position;
             }
         }
-        return false;
+        return -1;
+    }
+
+    void MemoryStream::flush() {
+    }
+
+    void MemoryStream::close() {
+        clear();
     }
 
     void MemoryStream::clear() {
@@ -84,39 +91,29 @@ namespace IO {
             _buffer->addRange((array + offset), count);
         } else if (_position < (off_t) _buffer->count()) {
             _buffer->setRange((uint32_t) _position, (array + offset), count);
-        } else    // _position > _buffer->count()
-        {
+        } else {
             size_t c = _position - _buffer->count();
-            uint8_t *zero = new uint8_t[c];
+            auto *zero = new uint8_t[c];
             memset(zero, 0, c);
             _buffer->addRange(zero, c);
             _buffer->addRange((array + offset), count);
             delete[] zero;
         }
         _position += (off_t) count;
-        return count;
-    }
-
-    size_t MemoryStream::minInteger(size_t a, size_t b) {
-        return a < b ? a : b;
+        return (ssize_t) count;
     }
 
     ssize_t MemoryStream::read(uint8_t *array, off_t offset, size_t count) {
-        if (_position >= 0 && _position < (int) length() &&
+        if (_position >= 0 && _position < (off_t) length() &&
             count > 0) {
             uint8_t *temp = _buffer->data();
             size_t bufferCount = _buffer->count();
-            size_t readCount = minInteger(count, bufferCount - _position);
-            memcpy(array + offset, temp + (int) _position, readCount);
+            size_t readCount = Math::min(count, bufferCount - (size_t) _position);
+            memcpy(array + offset, temp + _position, readCount);
             _position += (off_t) readCount;
-            return readCount;
+            return (ssize_t) readCount;
         }
         return 0;
-    }
-
-    void MemoryStream::copyTo(uint8_t *buffer) const {
-        uint8_t *temp = _buffer->data();
-        memcpy(buffer, temp, (size_t) length());
     }
 
     void MemoryStream::copyTo(ByteArray &buffer) const {

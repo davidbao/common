@@ -701,7 +701,7 @@ namespace Microservice {
                         {"@appId", app->name()},
                         {"file.encoding", "UTF-8"},
                         {"file.separator", String(Path::DirectorySeparatorChar)},
-                        {"io.tmpdir", Directory::getTempPath()},
+                        {"io.tmpdir", Path::getTempPath()},
 //                    {"line.separator", String::NewLine},
                         {"PID", ((Int32) Process::getCurrentProcessId()).toString()},
                         nullptr
@@ -756,7 +756,7 @@ namespace Microservice {
                 JsonNode propertiesNode("properties");
 
                 String ymlFileName;
-                const String appPath = Directory::getAppPath();
+                const String appPath = Path::getAppPath();
                 ymlFileName = Path::combine(appPath, fileName);
                 if (!File::exists(ymlFileName)) {
                     ymlFileName = Path::combine(app->rootPath(), fileName);
@@ -793,7 +793,7 @@ namespace Microservice {
                 JsonNode propertiesNode("properties");
 
                 String ymlFileName;
-                const String appPath = Directory::getAppPath();
+                const String appPath = Path::getAppPath();
                 ymlFileName = Path::combine(appPath, fileName);
                 if (!File::exists(ymlFileName)) {
                     ymlFileName = Path::combine(app->rootPath(), fileName);

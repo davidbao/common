@@ -13,6 +13,7 @@
 
 set(IO_SRC
         Directory.cpp
+        DirectoryInfo.cpp
         File.cpp
         FileInfo.cpp
         FileStream.cpp
@@ -25,7 +26,7 @@ set(IO_SRC
         Zip.cpp
         )
 
-if (NOT WEB_OS)
+if (COMMON_BUILD_IOPORT)
     SET(IO_SRC
             ${IO_SRC}
             IOPort.cpp

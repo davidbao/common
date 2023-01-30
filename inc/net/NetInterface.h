@@ -9,7 +9,7 @@
 #ifndef NetInterface_h
 #define NetInterface_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/NetType.h"
 #include "data/TimeSpan.h"
 #include "data/StringArray.h"

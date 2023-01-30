@@ -10,7 +10,8 @@
 #define Trace_h
 
 #include "data/String.h"
-#include "TraceListener.h"
+#include "diag/TraceListener.h"
+#include <assert.h>
 
 namespace Diag {
     class Trace {

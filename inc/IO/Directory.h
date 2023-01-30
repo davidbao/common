@@ -10,7 +10,7 @@
 #define Directory_h
 
 #include "data/StringArray.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace IO {
     enum SearchOption {
@@ -35,14 +35,6 @@ namespace IO {
         static bool copy(const String &sourcePath, const String &destPath, const StringArray *excludedItems = nullptr);
 
         static bool rename(const String &oldPath, const String &newPath);
-
-        static String getAppPath();
-
-        static String getHomePath();
-
-        static String getDocumentPath(const String &subDocPath = String::Empty);
-
-        static String getTempPath();
 
         static String getCurrentDirectory();
 

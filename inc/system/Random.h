@@ -1,6 +1,7 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
+#include "data/String.h"
 #include "data/ByteArray.h"
 
 using namespace Data;

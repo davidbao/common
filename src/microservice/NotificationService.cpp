@@ -9,6 +9,7 @@
 #include "microservice/NotificationService.h"
 #include "system/ServiceFactory.h"
 #include "configuration/ConfigService.h"
+#include "diag/Trace.h"
 
 using namespace Data;
 using namespace Diag;

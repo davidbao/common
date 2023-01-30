@@ -31,6 +31,8 @@ namespace Threading {
     public:
         Mutex();
 
+        Mutex(const Mutex &m);
+
         ~Mutex() override;
 
         void lock() override;
@@ -46,6 +48,8 @@ namespace Threading {
     class RecursiveMutex : public IMutex {
     public:
         RecursiveMutex();
+
+        RecursiveMutex(const RecursiveMutex &rm);
 
         ~RecursiveMutex() override;
 

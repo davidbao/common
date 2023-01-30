@@ -1,22 +1,15 @@
-#ifndef FILESTREAM_H
-#define FILESTREAM_H
+//
+//  FileStream.h
+//  common
+//
+//  Created by baowei on 2017/1/4.
+//  Copyright © 2017 com. All rights reserved.
+//
 
-#if WIN32
-#include <io.h>
-#else
+#ifndef FileStream_h
+#define FileStream_h
 
-#include <fcntl.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <unistd.h>
-
-#endif
-
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "Stream.h"
-#include "diag/Trace.h"
-#include "data/ByteArray.h"
+#include "IO/Stream.h"
 
 namespace IO {
     enum FileMode {
@@ -63,7 +56,7 @@ namespace IO {
 
     class FileStream : public Stream {
     public:
-        FileStream(const char *filename, FileMode mode, FileAccess access = FileReadWrite);
+        using Stream::seek;
 
         FileStream(const String &filename, FileMode mode, FileAccess access = FileReadWrite);
 
@@ -77,15 +70,19 @@ namespace IO {
 
         size_t length() const override;
 
-        bool seek(off_t offset, SeekOrigin origin = SeekOrigin::SeekBegin) override;
+        off_t seek(off_t offset, SeekOrigin origin) override;
+
+        bool canWrite() const override;
+
+        bool canRead() const override;
+
+        void flush() override;
+
+        void close() override;
 
         bool isOpen() const;
 
-        void close();
-
         void setLength(size_t length);
-
-        void flush();
 
         int fd() const;
 
@@ -94,23 +91,21 @@ namespace IO {
     private:
         void open(const char *filename, int openFlag, int mode);
 
+    private:
         static int openFlag(const char *filename, FileMode mode, FileAccess access);
 
-#ifndef mode_t
-#define mode_t int
-#endif
-
-        static mode_t openMode(FileAccess access);
+        static int openMode(FileAccess access);
 
     private:
         friend MappingStream;
 
         int _fd;
         String _fileName;
+        FileAccess _access;
 
     private:
         static const int InvalidHandle = -1;
     };
 }
 
-#endif // FILESTREAM_H
+#endif // FileStream_h

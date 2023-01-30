@@ -19,7 +19,7 @@
 #include "IO/MemoryStream.h"
 #include "IO/MappingStream.h"
 #include "IO/FileStream.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "diag/Stopwatch.h"
 #include "driver/instructions/Instruction.h"
 #include "system/Math.h"

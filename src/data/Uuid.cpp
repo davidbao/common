@@ -8,6 +8,7 @@
 
 #include "data/Uuid.h"
 #include "IO/Stream.h"
+#include <assert.h>
 
 #if WIN32
 #include <Rpc.h>

@@ -7,6 +7,7 @@
 //
 
 #include "data/List.h"
+#include "data/ValueType.h"
 #include "thread/Thread.h"
 
 using namespace Data;

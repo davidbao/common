@@ -6,7 +6,7 @@
 //  Copyright © 2016 com. All rights reserved.
 //
 
-#if WIN32
+#ifdef WIN32
 
 #include <winsock2.h>
 #include <WS2tcpip.h>
@@ -50,6 +50,7 @@
 #include "system/Math.h"
 #include "data/DateTime.h"
 #include "data/ByteArray.h"
+#include "data/ValueType.h"
 #include "thread/TickTimeout.h"
 #include "exception/Exception.h"
 #include "net/Dns.h"

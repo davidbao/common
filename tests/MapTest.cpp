@@ -7,7 +7,7 @@
 //
 
 #include "data/Map.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 
 using namespace Data;
 
@@ -220,9 +220,9 @@ bool testConstructor() {
 
     {
         const ValueMap test({{Key(1), new Value(1)},
-                        {Key(2), new Value(2)},
-                        {Key(3), new Value(3)},
-                        {Key(4), new Value(4)}}, true);
+                             {Key(2), new Value(2)},
+                             {Key(3), new Value(3)},
+                             {Key(4), new Value(4)}}, true);
         if (test.count() != 4) {
             return false;
         }
@@ -382,7 +382,7 @@ bool testKeys() {
         return false;
     }
     for (size_t i = 0; i < keys.count(); ++i) {
-        if (keys[i] != i + 1) {
+        if (keys[i] != (int) (i + 1)) {
             return false;
         }
     }
@@ -400,7 +400,7 @@ bool testValues() {
         return false;
     }
     for (size_t i = 0; i < values.count(); ++i) {
-        if (!values[i]->equals(i + 1)) {
+        if (!values[i]->equals((int) (i + 1))) {
             return false;
         }
     }

@@ -9,7 +9,7 @@
 #ifndef ConfigService_h
 #define ConfigService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "yml/YmlNode.h"
 #include "system/ServiceFactory.h"
 
@@ -26,6 +26,10 @@ namespace Config {
         virtual bool setProperty(const String &key, const String &value) = 0;
 
         bool contains(const String &key) const;
+
+        void printProperties() const;
+
+        String getProperty(const String &key) const;
 
         bool getProperty(const String &key, String &value) const;
 
@@ -123,7 +127,7 @@ namespace Config {
 
         void setCulture();
 
-        bool getVariable(const String& name, String& value);
+        bool getVariable(const String &name, String &value);
 
     public:
         static String computeCypherText(const String &plainText);

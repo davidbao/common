@@ -9,7 +9,7 @@
 #ifndef JsonTextReader_h
 #define JsonTextReader_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "IO/Zip.h"
 #include "configuration/ConfigFile.h"
 #include "json/JsonNode.h"

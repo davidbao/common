@@ -9,7 +9,7 @@
 #ifndef YmlNode_h
 #define YmlNode_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/Vector.h"
 #include "data/List.h"
 #include "data/Dictionary.h"

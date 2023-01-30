@@ -9,13 +9,12 @@
 #ifndef HttpService_h
 #define HttpService_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "database/SqlSelectFilter.h"
 #include "system/ServiceFactory.h"
 #include "http/HttpServer.h"
 
 using namespace Data;
-using namespace Diag;
 using namespace Http;
 using namespace System;
 using namespace Database;
@@ -199,19 +198,6 @@ namespace Microservice {
                                                 table.totalCount() % filter.pageSize() == 0 ? 0 : 1)) : 0;
                         pagination.add(JsonNode("pageCount", pageCount));
                         pagination.add(JsonNode("totalCount", table.totalCount()));
-//                        pagination.add(JsonNode("dataTotal", ((Int32) totalCount).toString()));
-//#if DEBUG
-//                        if (filter.pageSize() <= 0)
-//                            Debug::writeFormatLine("url: '%s', request: '%s'", request.url.toString().c_str(),
-//                                                   request.text().c_str());
-//#endif
-//                        pagination.add(JsonNode("maxPageNum",
-//                                                filter.pageSize() > 0 ? ((Int32) (totalCount / filter.pageSize() +
-//                                                                                  1)).toString() : "0"));
-//                        pagination.add(JsonNode("pageSize", ((Int32) filter.pageSize()).toString()));
-//                        pagination.add(JsonNode("pageNum", ((Int32) filter.page()).toString()));
-//                        pagination.add(
-//                                JsonNode("pageStart", ((Int32) ((filter.page() - 1) * filter.pageSize())).toString()));
                         JsonNode list;
                         table.toJsonNode(list);
                         pagination.add(JsonNode("list", list));

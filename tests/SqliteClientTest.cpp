@@ -13,7 +13,7 @@
 
 using namespace Database;
 
-static String _path = Path::combine(Directory::getTempPath(), "SqliteClientTest");
+static String _path = Path::combine(Path::getTempPath(), "SqliteClientTest");
 static String _fileName = Path::combine(_path, "test.db");
 
 void setUp() {
@@ -350,9 +350,68 @@ bool testTransaction() {
     return true;
 }
 
-bool testExecuteSql() {
+bool testGenerateSnowFlakeId() {
     {
+        uint64_t id = DbClient::generateSnowFlakeId();
+        if (id == 0) {
+            return false;
+        }
+    }
+    {
+        uint64_t id, prevId = 0;
+        for (int i = 0; i < 1000; ++i) {
+            id = DbClient::generateSnowFlakeId();
+//            printf("id = %lld\n", id);
+            if (id == prevId) {
+                return false;
+            }
+            prevId = id;
+        }
+    }
+    {
+        uint64_t id, prevId = 0;
+        for (int i = 0; i < 5000; ++i) {
+            id = DbClient::generateSnowFlakeId();
+            if (id == prevId) {
+                return false;
+            }
+            prevId = id;
+        }
+    }
+    {
+        uint64_t id, prevId = 0;
+        for (int i = 0; i < 1000 * 1000; ++i) {
+            id = DbClient::generateSnowFlakeId();
+            if (id == prevId) {
+                return false;
+            }
+            prevId = id;
+        }
+    }
 
+    {
+        uint64_t id = DbClient::generateSnowFlakeId(1, 2);
+        if (id == 0) {
+            return false;
+        }
+    }
+    {
+        uint64_t id = DbClient::generateSnowFlakeId(1, 2);
+        if (id == 0) {
+            return false;
+        }
+    }
+    {
+        uint64_t id = DbClient::generateSnowFlakeId(33, 2);
+        if (id != 0) {
+            return false;
+        }
+    }
+    {
+        uint64_t id = DbClient::generateSnowFlakeId(1, 33);
+        if (id != 0) {
+            return false;
+        }
     }
 
     return true;
@@ -383,7 +442,7 @@ int main() {
     if (!testTransaction()) {
         result = 7;
     }
-    if(!testExecuteSql()) {
+    if(!testGenerateSnowFlakeId()) {
         result = 8;
     }
 

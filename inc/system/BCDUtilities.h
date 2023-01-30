@@ -9,7 +9,7 @@
 #ifndef BCDUtilities_h
 #define BCDUtilities_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 
 namespace System {
     class BCDUtilities {

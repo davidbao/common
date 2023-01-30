@@ -6,6 +6,7 @@
 #include "driver/channels/TcpInteractive.h"
 #include "driver/channels/ChannelDescription.h"
 #include "driver/DriverManager.h"
+#include <assert.h>
 
 #if __APPLE__
 #define HAS_KEVENT 1
@@ -16,6 +17,8 @@
 #define HAS_EPOLL 1
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#elif WIN32
+#include <io.h>
 #else
 #define HAS_ONLY_ASYNC 1
 #endif

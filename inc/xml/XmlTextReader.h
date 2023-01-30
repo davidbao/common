@@ -9,7 +9,7 @@
 #ifndef XmlTextReader_h
 #define XmlTextReader_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "IO/Zip.h"
 #include "configuration/ConfigFile.h"
 #include "xml/XmlNode.h"
@@ -64,6 +64,8 @@ namespace Xml {
         int attributeCount() const;
 
         bool isValid() const;
+
+        bool close();
 
         bool read();
 

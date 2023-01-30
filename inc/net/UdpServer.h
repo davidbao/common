@@ -10,7 +10,7 @@
 #define UdpServer_h
 
 #include "data/StringArray.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "net/NetType.h"
 
 namespace Net

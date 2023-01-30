@@ -10,7 +10,7 @@
 #define StringArray_h
 
 #include "data/Vector.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/DateTime.h"
 #include "data/TimeSpan.h"
 #include "data/Version.h"

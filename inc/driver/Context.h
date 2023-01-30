@@ -1,7 +1,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "data/PList.h"
 
 using namespace Data;

@@ -9,7 +9,7 @@
 #ifndef RpcInvoker_h
 #define RpcInvoker_h
 
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "rpc/RpcContext.h"
 #include "rpc/RpcInstructionContext.h"
 

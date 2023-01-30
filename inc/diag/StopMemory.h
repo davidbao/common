@@ -11,7 +11,7 @@
 
 #include "thread/TickTimeout.h"
 #include "data/DateTime.h"
-#include "data/ValueType.h"
+#include "data/String.h"
 #include "diag/Trace.h"
 #include "Trace.h"
 

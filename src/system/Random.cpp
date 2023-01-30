@@ -61,7 +61,7 @@ namespace System {
     void Random::srand() {
         static time_t curtime = 0;
         if (curtime == 0) {
-            curtime = time(NULL);
+            curtime = time(nullptr);
             ::srand((unsigned) curtime);
         }
     }
