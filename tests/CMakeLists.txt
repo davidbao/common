@@ -109,7 +109,7 @@ if (COMMON_ENABLE_TEST)
             # IO
             FileStreamTest FileTest DirectoryTest MappingStreamTest MemoryStreamTest MetricsTest PathTest ZipTest
             # json
-            JsonNodeTest
+            JsonNodeTest JsonTextReaderTest JsonTextWriterTest
             # net
             NetTypeTest TcpClientTest
             # system

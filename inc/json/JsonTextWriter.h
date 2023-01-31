@@ -12,7 +12,6 @@
 #include "data/String.h"
 #include "data/PList.h"
 #include "data/IAttribute.h"
-#include "net/NetType.h"
 #include "json/JsonNode.h"
 #include "IO/FileStream.h"
 
@@ -38,6 +37,8 @@ namespace Json {
         void writeStartElement(const String &name, JsonNode::Type type = JsonNode::Type::TypeNode);
 
         void writeEndElement();
+
+        void writeString(const String &text);
 
     private:
         JsonNode *currentNode() const;

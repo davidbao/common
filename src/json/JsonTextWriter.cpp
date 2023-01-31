@@ -7,7 +7,6 @@
 //
 
 #include "json/JsonTextWriter.h"
-#include <assert.h>
 
 namespace Json {
     JsonTextWriter::JsonTextWriter(const String &fileName) : _indent(true), _rootNode(nullptr) {
@@ -27,6 +26,9 @@ namespace Json {
 
     bool JsonTextWriter::close() {
         if (isValid()) {
+            if (_rootNode != nullptr) {
+                writeEndDocument();
+            }
             _stream->close();
             return true;
         }
@@ -48,8 +50,9 @@ namespace Json {
     }
 
     void JsonTextWriter::writeStartDocument() {
-        assert(_rootNode == nullptr);
-        _rootNode = new JsonNode(JsonNode::TypeNode);
+        if (_rootNode == nullptr) {
+            _rootNode = new JsonNode(JsonNode::TypeNode);
+        }
     }
 
     void JsonTextWriter::writeEndDocument() {
@@ -73,14 +76,20 @@ namespace Json {
 
     void JsonTextWriter::writeEndElement() {
         if (isValid() && _rootNode != nullptr) {
-            JsonNode *cnode = currentNode();
-            JsonNode *pnode = parentNode();
-            if (cnode != pnode) {
-                pnode->add(*cnode);
+            JsonNode *cNode = currentNode();
+            JsonNode *pNode = parentNode();
+            if (cNode != pNode) {
+                pNode->add(*cNode);
             }
             if (_nodes.count() > 0) {
                 _nodes.removeAt(_nodes.count() - 1);
             }
+        }
+    }
+
+    void JsonTextWriter::writeString(const String &text) {
+        if (isValid() && _rootNode != nullptr) {
+            currentNode()->setValue(text);
         }
     }
 

@@ -44,10 +44,12 @@ bool testDiskStat() {
         return false;
     }
 
+#ifndef __EMSCRIPTEN__
     if (DiskStat::getPathUsed(Path::getAppPath()) == 0) {
         printf("failed DiskStat::getPathUsed\n");
         return false;
     }
+#endif
 
     return true;
 }
@@ -74,6 +76,7 @@ bool testCPUStat() {
 
 bool testThreadStat() {
     {
+#ifndef __EMSCRIPTEN__
         if (ThreadStat::live() <= 0) {
             return false;
         }
@@ -85,6 +88,7 @@ bool testThreadStat() {
         if (ThreadStat::daemon() != 0) {
             return false;
         }
+#endif
     }
 
     return true;
@@ -92,6 +96,7 @@ bool testThreadStat() {
 
 bool testMemoryStat() {
     {
+#ifndef __EMSCRIPTEN__
         if (MemoryStat::systemMax() <= 0) {
             return false;
         }
@@ -99,6 +104,7 @@ bool testMemoryStat() {
         if (MemoryStat::systemUsed() <= 0) {
             return false;
         }
+#endif
 
 #ifdef LINUX_OS
         if (MemoryStat::max() <= 0) {
@@ -106,6 +112,7 @@ bool testMemoryStat() {
         }
 #endif
 
+#ifndef __EMSCRIPTEN__
         if (MemoryStat::maxHeap() <= 0) {
             return false;
         }
@@ -139,6 +146,7 @@ bool testMemoryStat() {
         }
 
         MemoryStat::logUsed();
+#endif
     }
 
     return true;

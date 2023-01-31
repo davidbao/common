@@ -121,6 +121,8 @@ namespace Xml {
 
         bool moveToAttribute(const String &name, const String &ns = String::Empty);
 
+    private:
+        XmlTextReader();
 
     private:
         XmlTextReaderInner *_reader;

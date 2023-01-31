@@ -10,7 +10,6 @@
 #include "IO/FileStream.h"
 #include "IO/Path.h"
 #include "IO/File.h"
-#include "IO/Directory.h"
 
 using namespace Crypto;
 

@@ -16,7 +16,7 @@ using namespace Xml;
 static const String xmlPath = Path::combine(Path::getTempPath(), "XmlTextWriterTest");
 static const char *xmlFileName = "book.xml";
 static const String xmlFullFileName = Path::combine(xmlPath, xmlFileName);
-static const String zipFullFileName = Path::combine(xmlPath, "book.zip");
+//static const String zipFullFileName = Path::combine(xmlPath, "book.zip");
 
 void setUp() {
     if (!Directory::exists(xmlPath)) {

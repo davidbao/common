@@ -25,7 +25,10 @@ namespace Xml {
         }
     };
 
-    XmlTextReader::XmlTextReader(const String &fileName) : _deleteZip(false), _zipFile(nullptr) {
+    XmlTextReader::XmlTextReader() : _deleteZip(false), _zipFile(nullptr) {
+    }
+
+    XmlTextReader::XmlTextReader(const String &fileName) : XmlTextReader() {
         _reader = new XmlTextReaderInner();
 
         /*
@@ -45,7 +48,7 @@ namespace Xml {
         }
     }
 
-    XmlTextReader::XmlTextReader(const String &text, size_t length) : _deleteZip(false), _zipFile(nullptr) {
+    XmlTextReader::XmlTextReader(const String &text, size_t length) : XmlTextReader() {
         _reader = new XmlTextReaderInner();
 
         /*
@@ -63,7 +66,7 @@ namespace Xml {
         _configFile.text = String(text, length);
     }
 
-    XmlTextReader::XmlTextReader(Zip *zip, const String &fileName) : _deleteZip(false), _zipFile(nullptr) {
+    XmlTextReader::XmlTextReader(Zip *zip, const String &fileName) : XmlTextReader() {
         if (zip == nullptr) {
             throw ArgumentException("zip");
         }
@@ -89,8 +92,7 @@ namespace Xml {
             _reader->reader = xmlReaderForIO(Zip::zipRead, nullptr, _zipFile->context(), nullptr, nullptr, 0);
     }
 
-    XmlTextReader::XmlTextReader(const String &zipFileName, const String &fileName) : _deleteZip(false),
-                                                                                      _zipFile(nullptr) {
+    XmlTextReader::XmlTextReader(const String &zipFileName, const String &fileName) : XmlTextReader() {
         _reader = new XmlTextReaderInner();
 
         /*

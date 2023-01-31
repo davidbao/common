@@ -8,7 +8,6 @@
 
 #include "json/JsonTextReader.h"
 #include "exception/Exception.h"
-#include "data/Convert.h"
 #include "IO/Path.h"
 #include "data/String.h"
 #include "diag/Trace.h"
@@ -17,7 +16,64 @@ using namespace Diag;
 using namespace System;
 
 namespace Json {
-    JsonTextReader::JsonTextReader() : _iterator(-1) {
+    JsonTextReader::Node::Node() : parent(nullptr), iterator(-1), type(JsonNodeType::NodeNone) {
+    }
+
+    JsonTextReader::Node::Node(const JsonNode &node, JsonNodeType type) : Node(nullptr, node, type) {
+    }
+
+    JsonTextReader::Node::Node(Node *parent, const JsonNode &node, JsonNodeType type) : parent(parent), node(node),
+                                                                                        iterator(-1),
+                                                                                        type(type) {
+    }
+
+    bool JsonTextReader::Node::isValid() const {
+        return !node.isEmpty();
+    }
+
+    String JsonTextReader::Node::name() const {
+        return node.name();
+    }
+
+    String JsonTextReader::Node::value() const {
+        return node.value();
+    }
+
+    String JsonTextReader::Node::typeStr() const {
+        switch (type) {
+            case JsonNodeType::NodeNone:
+                return "None";
+            case JsonNodeType::TypeNode:
+                return "Node";
+            case JsonNodeType::TypeEndNode:
+                return "EndNode";
+            case JsonNodeType::Document:
+                return "Document";
+            case JsonNodeType::TypeArray:
+                return "Array";
+            case JsonNodeType::TypeEndArray:
+                return "EndArray";
+        }
+    }
+
+    JsonTextReader::Node *JsonTextReader::Node::read() {
+        if (isValid()) {
+            Node *pNode;
+            JsonNode n;
+            if (node.at(++iterator, n)) {
+                pNode = new Node(this, n, n.type() == JsonNode::TypeArray ? JsonNodeType::TypeArray
+                                                                          : JsonNodeType::TypeNode);
+            } else {
+                pNode = new Node(parent, node, node.type() == JsonNode::TypeArray ? JsonNodeType::TypeEndArray
+                                                                                  : JsonNodeType::TypeEndNode);
+            }
+            // Attention: need to delete it.
+            return pNode;
+        }
+        return nullptr;
+    }
+
+    JsonTextReader::JsonTextReader() : _currentNode(nullptr), _deleteZip(false) {
     }
 
     JsonTextReader::JsonTextReader(const String &fileName) : JsonTextReader() {
@@ -27,8 +83,9 @@ namespace Json {
             _configFile.fileName = Path::getFileName(fileName);
 
             String str;
-            fs.readToEnd(str);
-            JsonNode::parse(str, _currentNode);
+            if (fs.readToEnd(str)) {
+                initRootNode(str);
+            }
         }
 
 #ifdef DEBUG
@@ -37,22 +94,10 @@ namespace Json {
 #endif
     }
 
-//    JsonTextReader::JsonTextReader(const String& text, uint32_t length)
-//    {
-//        _reader = new JsonTextReaderInner();
-//
-//        clear();
-//        /*
-//         * this initialize the library and check potential ABI mismatches
-//         * between the version it was compiled for and the actual shared
-//         * library used.
-//         */
-//        LIBXML_TEST_VERSION
-//
-//        _reader->reader = xmlReaderForMemory(text.c_str(), (int)length, nullptr, nullptr, 0);
-//
-//        _zipFile = nullptr;
-//    }
+    JsonTextReader::JsonTextReader(const String &text, size_t length) : JsonTextReader() {
+        initRootNode(text.substr(0, length));
+    }
+
     JsonTextReader::JsonTextReader(Zip *zip, const String &fileName) : JsonTextReader() {
         if (zip == nullptr)
             throw ArgumentException("zip");
@@ -66,185 +111,114 @@ namespace Json {
 
         String str;
         if (zip->read(_configFile.fileName, str))
-            JsonNode::parse(str, _currentNode);
+            initRootNode(str);
 
 #ifdef DEBUG
         if (!isValid())
             Debug::writeFormatLine("Failed to construct JsonTextReader! file name: %s", fileName.c_str());
 #endif
     }
-//    JsonTextReader::JsonTextReader(const String& zipFileName, const String& fileName)
-//    {
-//        _reader = new JsonTextReaderInner();
-//
-//        clear();
-//        /*
-//         * this initialize the library and check potential ABI mismatches
-//         * between the version it was compiled for and the actual shared
-//         * library used.
-//         */
-//        LIBXML_TEST_VERSION
-//
-//        Zip* zip = new Zip(zipFileName);
-//        if(zip->isValid())
-//        {
-//            _deleteZip = true;
-//            _configFile.zip = zip;
-//#ifdef WIN32
-//            // fixbug: '/' must be used instead of '\' in windows.
-//            _configFile.fileName = String::replace(fileName, "\\", "/");
-//#else
-//            _configFile.fileName = fileName;
-//#endif
-//            _zipFile = zip->open(_configFile.fileName);
-//            _reader->reader = xmlReaderForIO(Zip::zipRead, nullptr, _zipFile->context(), nullptr, nullptr, 0);
-//        }
-//        else
-//        {
-//            delete zip;
-//        }
-//    }
+
+    JsonTextReader::JsonTextReader(const String &zipFileName, const String &fileName) : JsonTextReader() {
+        Zip *zip = new Zip(zipFileName);
+        if (zip->isValid()) {
+            _deleteZip = true;
+            _configFile.zip = zip;
+#ifdef WIN32
+            // fixbug: '/' must be used instead of '\' in windows.
+            _configFile.fileName = String::replace(fileName, "\\", "/");
+#else
+            _configFile.fileName = fileName;
+#endif
+            String str;
+            if (zip->read(_configFile.fileName, str)) {
+                initRootNode(str);
+                initRootNode(str);
+            }
+        } else {
+            delete zip;
+        }
+    }
 
     JsonTextReader::~JsonTextReader() {
         close();
 
-//        if(_configFile.isZip() && _zipFile != nullptr)
-//        {
-//            _configFile.zip->close(_zipFile);
-//            if(_deleteZip)
-//            {
-//                delete _configFile.zip;
-//            }
-//            _configFile.zip = nullptr;
-//            _zipFile = nullptr;
-//        }
+        if (_configFile.isZip()) {
+            if (_deleteZip) {
+                delete _configFile.zip;
+            }
+            _configFile.zip = nullptr;
+        }
+    }
+
+    void JsonTextReader::initRootNode(const String &str) {
+        JsonNode node;
+        if (JsonNode::parse(str, node)) {
+            Node *pNode = new Node(node);
+            _nodes.add(pNode);
+            _currentNode = pNode;
+        }
     }
 
     bool JsonTextReader::isValid() const {
-        return !_currentNode.isEmpty();
+        return _currentNode != nullptr && _currentNode->isValid();
     }
 
     bool JsonTextReader::close() {
         if (isValid()) {
+            _currentNode = nullptr;
+            _nodes.clear();
             return true;
         }
         return false;
     }
 
-    bool JsonTextReader::read(const String &name, JsonTextReader &reader) const {
+    bool JsonTextReader::read() {
         if (isValid()) {
-            JsonNode *currentNode = this->currentNode();
-            JsonNode node;
-            if (currentNode->at(name, node)) {
-                reader._currentNode = node;
-
+            Node *curNode = currentNode();
+            if (curNode->type == JsonNodeType::TypeEndNode ||
+                curNode->type == JsonNodeType::TypeEndArray) {
+                curNode = curNode->parent;
+            }
+            if (curNode != nullptr && curNode->isValid()) {
+                Node *subNode = curNode->read();
+                if (subNode != nullptr) {
+                    _nodes.add(subNode);
+                    _currentNode = subNode;
+//                    Trace::info(String::format("current node name: '%s', value: '%s', type: '%s'",
+//                                               subNode->name().c_str(),
+//                                               subNode->value().c_str(),
+//                                               subNode->typeStr().c_str()));
+                }
                 return true;
             }
         }
         return false;
     }
 
-    bool JsonTextReader::read(JsonTextReader &reader) {
-        if (isValid()) {
-            JsonNode *currentNode = this->currentNode();
-            JsonNode node;
-            if (currentNode->at(++_iterator, node)) {
-                reader._currentNode = node;
-
-                return true;
-            } else {
-                _iterator = -1;
-            }
-        }
-        return false;
-    }
-
-    JsonNode::Type JsonTextReader::nodeType() const {
-        return this->currentNode()->type();
+    JsonNodeType JsonTextReader::nodeType() const {
+        return isValid() ? currentNode()->type : JsonNodeType::NodeNone;
     }
 
     String JsonTextReader::name() const {
-        return currentNode()->name();
+        return currentNode()->node.name();
     }
 
-    JsonNode *JsonTextReader::currentNode() const {
-        return (JsonNode *) &_currentNode;
+    String JsonTextReader::value() const {
+        return currentNode()->node.value();
     }
 
-    String JsonTextReader::getAttribute(const String &name) {
+    JsonTextReader::Node *JsonTextReader::currentNode() const {
+        return _currentNode;
+    }
+
+    bool JsonTextReader::getAttribute(const String &name, String &value) const {
         if (isValid()) {
-            String value;
-            if (currentNode()->getAttribute(name, value))
-                return value;
-        }
-        return String::Empty;
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, bool &value) {
-        return Boolean::parse(getAttribute(name), value);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, char &value, char minValue, char maxValue) {
-        return Char::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, int8_t &value, int8_t minValue, int8_t maxValue) {
-        return Int8::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, uint8_t &value, uint8_t minValue, uint8_t maxValue) {
-        return UInt8::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, int16_t &value, int16_t minValue, int16_t maxValue) {
-        return Int16::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, uint16_t &value, uint16_t minValue, uint16_t maxValue) {
-        return UInt16::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, int32_t &value, int32_t minValue, int32_t maxValue) {
-        return Int32::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, uint32_t &value, uint32_t minValue, uint32_t maxValue) {
-        return UInt32::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, int64_t &value, int64_t minValue, int64_t maxValue) {
-        return Int64::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, uint64_t &value, uint64_t minValue, uint64_t maxValue) {
-        return UInt64::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, float &value, float minValue, float maxValue) {
-        return Float::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, double &value, double minValue, double maxValue) {
-        return Double::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, String &value) {
-        value = getAttribute(name);
-        return true;
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, DateTime &value, const DateTime &minValue,
-                                      const DateTime &maxValue) {
-        return DateTime::parse(getAttribute(name), value) && (value >= minValue && value <= maxValue);
-    }
-
-    bool JsonTextReader::getAttribute(const String &name, TimeSpan &value, const TimeSpan &minValue,
-                                      const TimeSpan &maxValue) {
-        TimeSpan ts;
-        if (TimeSpan::parse(getAttribute(name), ts) &&
-            ts >= minValue && ts <= maxValue) {
-            value = ts;
-            return true;
+            String str;
+            if (currentNode()->node.getAttribute(name, str)) {
+                value = str;
+                return true;
+            }
         }
         return false;
     }
