@@ -244,7 +244,7 @@ namespace Database {
                         from.empty();
                         to.empty();
 
-                        if (name == "page") {
+                        if (name == "page" || name == "pageNo") {
                             Int32::parse(value, filter._page);
                             if (filter._page <= 0)
                                 filter._page = 1;

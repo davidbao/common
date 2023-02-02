@@ -137,7 +137,11 @@ namespace Yml {
 
         static bool parseFile(const String &fileName, YmlNode &node);
 
+        static bool loadFile(const String &fileName, Properties &properties);
+
         static bool updateFile(const String &fileName, const Properties &properties);
+
+        static bool saveFile(const String &fileName, const Properties &properties);
 
     private:
         YmlNodeInner *_node;

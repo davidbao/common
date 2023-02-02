@@ -183,26 +183,34 @@ namespace Microservice {
         }
 
         HttpStatus execute(const HttpRequest &request, HttpResponse &response) override {
+            String str;
             if (request.method == HttpMethod::Post) {
+                str = request.text();
+                if (str.isNullOrEmpty()) {
+                    str = request.toPropsStr();
+                }
+            } else if (request.method == HttpMethod::Get) {
+                str = request.toPropsStr();
+            }
+            if (!str.isNullOrEmpty()) {
                 JsonNode node;
                 SqlSelectFilter filter;
-                if (SqlSelectFilter::parse(request.text(), filter)) {
+                if (SqlSelectFilter::parse(str, filter)) {
                     DataTable table;
                     if (_callback(request, filter, table)) {
-                        JsonNode pagination;
-                        pagination.add(JsonNode("page", filter.page()));
-                        pagination.add(JsonNode("pageSize", filter.pageSize()));
-//                        iNode.add(JsonNode("pageOffset", Int32(filter.offset()).toString()));
+                        JsonNode data;
+                        data.add(JsonNode("pageNo", filter.page()));
+                        data.add(JsonNode("pageSize", filter.pageSize()));
                         int pageCount = filter.pageSize() > 0 ?
                                         (table.totalCount() / filter.pageSize() + (
                                                 table.totalCount() % filter.pageSize() == 0 ? 0 : 1)) : 0;
-                        pagination.add(JsonNode("pageCount", pageCount));
-                        pagination.add(JsonNode("totalCount", table.totalCount()));
+                        data.add(JsonNode("pageCount", pageCount));
+                        data.add(JsonNode("totalCount", table.totalCount()));
                         JsonNode list;
                         table.toJsonNode(list);
-                        pagination.add(JsonNode("list", list));
-                        node.add(JsonNode("code", "200"));
-                        node.add(JsonNode("pagination", pagination));
+                        data.add(JsonNode("list", list));
+                        node.add(JsonNode("code", 0));
+                        node.add(JsonNode("data", data));
                     } else {
                         node.add(JsonNode("code", "601"));
                         node.add(JsonNode("msg", "Failed to query."));
@@ -213,23 +221,9 @@ namespace Microservice {
                 }
                 response.setContent(node);
                 return HttpStatus::HttpOk;
-            } else if (request.method == HttpMethod::Get) {
-                JsonNode node;
-                SqlSelectFilter filter(1, 1000);
-                DataTable table;
-                if (_callback(request, filter, table)) {
-                    JsonNode dataNode;
-                    table.toJsonNode(dataNode);
-                    node.add(JsonNode("code", "200"));
-                    node.add(JsonNode("data", dataNode));
-                } else {
-                    node.add(JsonNode("code", "601"));
-                    node.add(JsonNode("msg", "Failed to query."));
-                }
-                response.setContent(node);
-                return HttpStatus::HttpOk;
+            } else {
+                return HttpStatus::HttpNotFound;
             }
-            return HttpStatus::HttpNotFound;
         }
 
         T *instance() const {
@@ -353,7 +347,8 @@ namespace Microservice {
 
         void registerHomePage(const StringArray &homePages) override;
 
-        String addSession(const String &name, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false) override;
+        String
+        addSession(const String &name, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false) override;
 
         bool removeSession(const HttpRequest &request) override;
 
@@ -368,7 +363,8 @@ namespace Microservice {
 
         HttpStatus onWebServerProcess(const HttpRequest &request, HttpResponse &response);
 
-        HttpStatus onWebServerProcess(const String &relativeUrl, const String &webPath, const HttpRequest &request, HttpResponse &response);
+        HttpStatus onWebServerProcess(const String &relativeUrl, const String &webPath, const HttpRequest &request,
+                                      HttpResponse &response);
 
         HttpStatus onWebServerProcess(const String &webPath, const HttpRequest &request, HttpResponse &response);
 

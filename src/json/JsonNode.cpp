@@ -188,7 +188,8 @@ namespace Json {
     }
 
     bool JsonNode::getAttribute(const String &name, StringArray &value) const {
-        const JSONNode &node = _inner->at(name.c_str());
+        JsonNode subNode = at(name);
+        const JSONNode &node = *subNode._inner;
         if (node.type() == JSON_ARRAY) {
             StringArray texts;
             JSONNode::const_iterator iter = node.begin();
@@ -265,7 +266,8 @@ namespace Json {
     }
 
     bool JsonNode::getAttribute(const String &name, String &value) const {
-        const JSONNode &node = _inner->at(name.c_str());
+        JsonNode subNode = at(name);
+        const JSONNode &node = *subNode._inner;
         if (node.type() == JSON_NULL) {
             return false;
         } else if (node.type() == JSON_NODE)
@@ -416,7 +418,7 @@ namespace Json {
             for (; iter != _inner->end(); ++iter) {
                 const JSONNode &n = *iter;
                 const String name = n.name();
-                JSONNode &jsonNode = _inner->at(name.c_str());
+                JSONNode &jsonNode = *at(name)._inner;
                 if (jsonNode.type() == JSON_NODE) {
                     JsonNode subNode(&jsonNode);
                     YmlNode ymlNode;

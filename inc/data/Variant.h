@@ -74,63 +74,62 @@ namespace Data {
             int64_t timeValue;     // 100-nanosecond ticks
             uint8_t *blobValue;
 
-            Value() {
-                lValue = 0;
+            Value() : lValue(0) {
             }
 
-            Value(bool value) {
+            explicit Value(bool value) {
                 bValue = value;
             }
 
-            Value(int8_t value) {
+            explicit Value(int8_t value) {
                 cValue = value;
             }
 
-            Value(uint8_t value) {
+            explicit Value(uint8_t value) {
                 ucValue = value;
             }
 
-            Value(int16_t value) {
+            explicit Value(int16_t value) {
                 sValue = value;
             }
 
-            Value(uint16_t value) {
+            explicit Value(uint16_t value) {
                 usValue = value;
             }
 
-            Value(int32_t value) {
+            explicit Value(int32_t value) {
                 nValue = value;
             }
 
-            Value(uint32_t value) {
+            explicit Value(uint32_t value) {
                 unValue = value;
             }
 
-            Value(int64_t value) {
+            explicit Value(int64_t value) {
                 lValue = value;
             }
 
-            Value(uint64_t value) {
+            explicit Value(uint64_t value) {
                 ulValue = value;
             }
 
-            Value(float value) {
+            explicit Value(float value) {
                 fValue = value;
             }
 
-            Value(double value) {
+            explicit Value(double value) {
                 dValue = value;
             }
 
-            Value(char* value) {
+            explicit Value(char* value) {
                 strValue = value;
             }
 
-            Value(const DateTime &value) {
-                timeValue = value.ticks();
+            explicit Value(const DateTime &value) {
+                dateValue = value.ticks();
             }
 
-            Value(const TimeSpan &value) {
+            explicit Value(const TimeSpan &value) {
                 timeValue = value.ticks();
             }
         };

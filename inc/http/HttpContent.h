@@ -483,7 +483,10 @@ namespace Http {
     };
 
     class HttpProperties
-            : public IEquatable<HttpProperties>, public IEvaluation<HttpProperties>, public IEvaluation<StringMap> {
+            : public IEquatable<HttpProperties>,
+              public IEvaluation<HttpProperties>,
+              public IEvaluation<StringMap>,
+              public PairIterator<String, String> {
     public:
         HttpProperties();
 
@@ -519,6 +522,38 @@ namespace Http {
         String toString() const;
 
         size_t count() const;
+
+        PairIterator<String, String>::const_iterator begin() const override {
+            return PairIterator<String, String>::const_iterator(_values.begin());
+        }
+
+        PairIterator<String, String>::const_iterator end() const override {
+            return PairIterator<String, String>::const_iterator(_values.end());
+        }
+
+        PairIterator<String, String>::iterator begin() override {
+            return PairIterator<String, String>::iterator(_values.begin());
+        }
+
+        PairIterator<String, String>::iterator end() override {
+            return PairIterator<String, String>::iterator(_values.end());
+        }
+
+        PairIterator<String, String>::const_reverse_iterator rbegin() const override {
+            return PairIterator<String, String>::const_reverse_iterator(_values.rbegin());
+        }
+
+        PairIterator<String, String>::const_reverse_iterator rend() const override {
+            return PairIterator<String, String>::const_reverse_iterator(_values.rend());
+        }
+
+        PairIterator<String, String>::reverse_iterator rbegin() override {
+            return PairIterator<String, String>::reverse_iterator(_values.rbegin());
+        }
+
+        PairIterator<String, String>::reverse_iterator rend() override {
+            return PairIterator<String, String>::reverse_iterator(_values.rend());
+        }
 
     public:
         static bool parse(const String &value, HttpProperties &properties);
@@ -558,6 +593,8 @@ namespace Http {
         String getPathSegment(int segment) const;
 
         bool findHeader(const String &name, const String &value) const;
+
+        String toPropsStr() const;
 
     private:
         static bool parseVarName(const String &value, String &varName);

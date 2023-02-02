@@ -229,7 +229,9 @@ namespace Http {
 
         evhttp_set_timeout(http, (int) context.timeout.totalSeconds()); // seconds
 
-        evhttp_set_allowed_methods(http, EVHTTP_REQ_GET | EVHTTP_REQ_POST | EVHTTP_REQ_PUT | EVHTTP_REQ_OPTIONS);
+        evhttp_set_allowed_methods(http, EVHTTP_REQ_GET | EVHTTP_REQ_POST |
+                                         EVHTTP_REQ_PUT | EVHTTP_REQ_OPTIONS |
+                                         EVHTTP_REQ_DELETE | EVHTTP_REQ_PATCH);
 
         if (entry->actions.action != nullptr)
             evhttp_set_gencb(http, entry->actions.action, parameter);
@@ -421,7 +423,7 @@ namespace Http {
         post_size = evbuffer_get_length(req->input_buffer);
         //        Debug::writeFormatLine("====line:%d,post len:%ld",__LINE__,post_size);
         if (post_size <= 0) {
-            Debug::writeFormatLine("====line:%d,post msg is empty!", __LINE__);
+//            Debug::writeFormatLine("====line:%d,post msg is empty!", __LINE__);
             return false;
         } else {
             buffer = String((const char *) evbuffer_pullup(req->input_buffer, -1), post_size);
@@ -596,7 +598,11 @@ namespace Http {
                     HttpRequest request(url, method, inputHeaders, parameters);
                     code = entry->actions.processAction(entry->actions.owner, request, response);
                 }
-            } else if (type == EVHTTP_REQ_POST || type == EVHTTP_REQ_PUT) {
+            } else if (type == EVHTTP_REQ_POST ||
+                       type == EVHTTP_REQ_PUT ||
+                       type == EVHTTP_REQ_DELETE ||
+                       type == EVHTTP_REQ_TRACE ||
+                       type == EVHTTP_REQ_PATCH) {
                 if (entry->actions.processAction != nullptr) {
                     if (inputHeaders.isTextContent()) {
                         String body;

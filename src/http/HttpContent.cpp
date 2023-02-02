@@ -779,7 +779,7 @@ namespace Http {
         String result;
         StringArray keys;
         _values.keys(keys);
-        for (uint32_t i = 0; i < keys.count(); i++) {
+        for (size_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             String value;
             if (_values.at(key, value)) {
@@ -811,6 +811,7 @@ namespace Http {
     }
 
     const char HttpRequest::PathSplitSymbol = '/';
+
     HttpRequest::HttpRequest(const Url &url, const HttpMethod &method) : url(url), method(method), content(nullptr),
                                                                          version("1.1"), verb(false) {
         headers.add("Accept", "*/*");
@@ -913,7 +914,7 @@ namespace Http {
     String HttpRequest::getPathSegment(int segment) const {
         StringArray inputs;
         if (StringArray::parse(url.relativeUrl(), inputs, PathSplitSymbol)) {
-            return (uint32_t) segment < inputs.count() ? inputs[segment] : String::Empty;
+            return (size_t) segment < inputs.count() ? inputs[segment] : String::Empty;
         }
         return String::Empty;
     }
@@ -941,6 +942,22 @@ namespace Http {
         if (headers.getValue(name, v))
             return v == value;
         return false;
+    }
+
+    String HttpRequest::toPropsStr() const {
+        JsonNode node;
+        for (auto it = properties.begin(); it != properties.end(); ++it) {
+            const String &value = it.value();
+            if (value.find(';') >= 0) {
+                // This is an array node.
+                StringArray texts;
+                StringArray::parse(value, texts, ';');
+                node.add(JsonNode(it.key(), texts));
+            } else {
+                node.add(JsonNode(it.key(), value));
+            }
+        }
+        return node.toString();
     }
 
     HttpResponse::HttpResponse(HttpContent *content) : request(nullptr), content(content), status(HttpNotImplemented),

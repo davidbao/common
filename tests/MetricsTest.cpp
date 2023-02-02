@@ -44,7 +44,13 @@ bool testDiskStat() {
         return false;
     }
 
-#ifndef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
+#elif LINUX_OS
+    if (DiskStat::getPathUsed("/etc/init.d") == 0) {
+        printf("failed DiskStat::getPathUsed\n");
+        return false;
+    }
+#else
     if (DiskStat::getPathUsed(Path::getAppPath()) == 0) {
         printf("failed DiskStat::getPathUsed\n");
         return false;

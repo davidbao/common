@@ -1062,7 +1062,7 @@ namespace Data {
             case Timestamp: {
                 TimeSpan time;
                 if (TimeSpan::parse(v, time)) {
-                    value.dateValue = time.ticks();
+                    value.timeValue = time.ticks();
                     changed = true;
                 }
                 break;

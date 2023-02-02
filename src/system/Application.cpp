@@ -79,8 +79,6 @@ namespace System {
         _rootPath = rootPath.isNullOrEmpty() ? Path::getAppPath() : rootPath;
         _fullFileName = Application::startupPath();
 
-        initLog(contexts);
-
         if (argc > 0 && argv != nullptr) {
             for (int i = 0; i < argc; i++) {
                 _argv.add(argv[i]);
@@ -88,6 +86,8 @@ namespace System {
         }
 
         parseArguments(argc, argv);
+
+        initLog(contexts);
     }
 
     Application::Application(const String &rootPath,
@@ -338,6 +338,8 @@ namespace System {
             String str = String(argv[i]);
             if (str == "-q" || str == "--quit") {
                 _withQuit = true;
+            }else if (str == "-d" || str == "--daemonize") {
+                daemonize();
             } else {
 //                if(str.length() == 2 && str[0] == '-' && Char::isLower(str[1]))
 //                {

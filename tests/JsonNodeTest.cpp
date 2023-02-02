@@ -404,6 +404,10 @@ bool testAt() {
         if (!test.at("test4").isEmpty()) {
             return false;
         }
+        String value;
+        if (test.getAttribute("test4", value)) {
+            return false;
+        }
     }
 
     {

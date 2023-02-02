@@ -27,7 +27,7 @@ namespace Yml {
         }
 
         explicit YmlNodeInner(const YAML::Node *node) {
-            this->node = (YAML::Node *)node;
+            this->node = (YAML::Node *) node;
         }
     };
 
@@ -430,12 +430,30 @@ namespace Yml {
         return false;
     }
 
+    bool YmlNode::loadFile(const String &fileName, Properties &properties) {
+        if (File::exists(fileName)) {
+            YmlNode node;
+            if (parseFile(fileName, node)) {
+                return node.getProperties(properties);
+            }
+        }
+        return false;
+    }
+
     bool YmlNode::updateFile(const String &fileName, const Properties &properties) {
+        Properties all;
+        if (loadFile(fileName, all)) {
+            all.addRange(properties);   // replace if contained.
+            return saveFile(fileName, all);
+        } else {
+            return saveFile(fileName, properties);
+        }
+        return false;
+    }
+
+    bool YmlNode::saveFile(const String &fileName, const Properties &properties) {
         try {
             YAML::Node node;
-            if (File::exists(fileName))
-                node = YAML::LoadFile(fileName.c_str()); // gets the root node
-
             StringArray keys;
             properties.keys(keys);
             for (size_t i = 0; i < keys.count(); i++) {
