@@ -128,6 +128,8 @@ namespace Json {
 
         void add(const JsonNode &node);
 
+        void addRange(const StringMap &value);
+
         String toString(bool format = false) const;
 
         void getAttributeNames(StringArray &names) const;

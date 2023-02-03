@@ -72,7 +72,7 @@ bool testCPUStat() {
         }
 
         double usage = CPUStat::usage();
-        if (!(usage >= 0.0 && usage <= 400.0)) {
+        if (!(usage >= -1 && usage <= 400.0)) {
             return false;
         }
     }

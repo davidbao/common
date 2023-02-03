@@ -60,7 +60,7 @@ namespace Microservice {
         hs->registerMapping(HttpMethod::Post, BasePath "/login", HttpCallback<SsoService>(this, &SsoService::onLogin));
         hs->registerMapping(HttpMethod::Post, BasePath "/logout",
                             HttpCallback<SsoService>(this, &SsoService::onLogout));
-        hs->registerMapping(HttpMethod::Post, BasePath "/modifyPassword",
+        hs->registerMapping(HttpMethod::Post, BasePath "/password",
                             HttpCallback<SsoService>(this, &SsoService::onModifyPassword));
 
         // session.

@@ -18,6 +18,7 @@
 #include "diag/MemoryTraceListener.h"
 
 #if WIN32
+
 #include <Windows.h>
 #include <memory.h>
 #include <fcntl.h>
@@ -25,6 +26,7 @@
 #include <direct.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
+
 #elif __APPLE__
 
 #include <sys/param.h>
@@ -338,8 +340,10 @@ namespace System {
             String str = String(argv[i]);
             if (str == "-q" || str == "--quit") {
                 _withQuit = true;
-            }else if (str == "-d" || str == "--daemonize") {
+            } else if (str == "-d" || str == "--daemonize") {
+#ifndef WIN32
                 daemonize();
+#endif
             } else {
 //                if(str.length() == 2 && str[0] == '-' && Char::isLower(str[1]))
 //                {

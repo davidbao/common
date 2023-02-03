@@ -222,6 +222,12 @@ namespace Json {
         _inner->push_back(*node._inner);
     }
 
+    void JsonNode::addRange(const StringMap &value) {
+        for (auto it = value.begin(); it != value.end(); ++it) {
+            add(JsonNode(it.key(), it.value()));
+        }
+    }
+
     String JsonNode::toString(bool format) const {
         return format ? _inner->write_formatted() : _inner->write();
     }
@@ -418,7 +424,8 @@ namespace Json {
             for (; iter != _inner->end(); ++iter) {
                 const JSONNode &n = *iter;
                 const String name = n.name();
-                JSONNode &jsonNode = *at(name)._inner;
+                JsonNode tempNode = at(name);
+                JSONNode &jsonNode = *tempNode._inner;
                 if (jsonNode.type() == JSON_NODE) {
                     JsonNode subNode(&jsonNode);
                     YmlNode ymlNode;

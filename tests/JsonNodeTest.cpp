@@ -539,6 +539,17 @@ bool testProperty() {
         }
     }
 
+    {
+        StringMap value{{"test1", "1"},
+                       {"test2", "2"},
+                       {"test3", "3"}};
+        JsonNode test;
+        test.addRange(value);
+        if (test.toString() != R"({"test1":"1","test2":"2","test3":"3"})") {
+            return false;
+        }
+    }
+
     return true;
 }
 

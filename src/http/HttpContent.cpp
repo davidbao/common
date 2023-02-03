@@ -945,6 +945,10 @@ namespace Http {
     }
 
     String HttpRequest::toPropsStr() const {
+        if (properties.count() == 0) {
+            return String::Empty;
+        }
+
         JsonNode node;
         for (auto it = properties.begin(); it != properties.end(); ++it) {
             const String &value = it.value();
