@@ -244,10 +244,16 @@ namespace Microservice {
 
         virtual void registerWebPath(const String &relativeUrl, const String &webPath) = 0;
 
+        virtual void unregisterWebPath(const String &relativeUrl, const String &webPath) = 0;
+
         virtual void registerHomePage(const StringArray &homePages) = 0;
 
         void registerWebPath(const String &webPath) {
             registerWebPath(String::Empty, webPath);
+        }
+
+        void unregisterWebPath(const String &webPath) {
+            unregisterWebPath(String::Empty, webPath);
         }
 
         template<class T>
@@ -344,6 +350,8 @@ namespace Microservice {
         void deregisterAction(IHttpAction *action) override;
 
         void registerWebPath(const String &relativeUrl, const String &webPath) override;
+
+        void unregisterWebPath(const String &relativeUrl, const String &webPath) override;
 
         void registerHomePage(const StringArray &homePages) override;
 

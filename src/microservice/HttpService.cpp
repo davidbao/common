@@ -197,8 +197,14 @@ namespace Microservice {
     }
 
     void HttpService::registerWebPath(const String &relativeUrl, const String &webPath) {
-        if (Directory::exists(webPath) && !_webPath.contains(webPath)) {
+        if (Directory::exists(webPath) && !_webPath.contains(relativeUrl)) {
             _webPath.add(relativeUrl, webPath);
+        }
+    }
+
+    void HttpService::unregisterWebPath(const String &relativeUrl, const String &webPath) {
+        if (_webPath.contains(relativeUrl)) {
+            _webPath.remove(relativeUrl);
         }
     }
 
@@ -288,7 +294,8 @@ namespace Microservice {
         for (auto it = _webPath.begin(); it != _webPath.end(); ++it) {
             const String &relativeUrl = it.key();
             const String &webPath = it.value();
-            if (!relativeUrl.isNullOrEmpty() && request.url.relativeUrl().find(relativeUrl) >= 0) {
+            if (relativeUrl.isNullOrEmpty() ||
+                (!relativeUrl.isNullOrEmpty() && request.url.relativeUrl().find(relativeUrl) >= 0)) {
                 status = onWebServerProcess(relativeUrl, webPath, request, response);
                 if (status == HttpStatus::HttpOk)
                     break;
@@ -475,6 +482,15 @@ namespace Microservice {
             value = "text/css";
         } else if (String::equals(extName, ".js", true)) {
             value = "text/javascript";
+        } else if (String::equals(extName, ".map", true)) {
+            int typeIndex = name.findLastOf('.');
+            if (typeIndex > 0) {
+                String type = name.substr(typeIndex, name.length() - typeIndex);
+                if (String::equals(extName, ".js.map", true) ||
+                    String::equals(extName, ".cs.map", true)) {
+                    value = "application/json";
+                }
+            }
         } else if (String::equals(extName, ".xml", true) || String::equals(extName, ".xsl", true)) {
             value = "text/xml";
         } else if (String::equals(extName, ".xhtm", true) || String::equals(extName, ".xhtml", true) ||
@@ -507,6 +523,8 @@ namespace Microservice {
             value = "image/pnetvue";
         } else if (String::equals(extName, ".rp", true)) {
             value = "image/vnd.rn-realpix";
+        } else if (String::equals(extName, ".svg", true)) {
+            value = "image/svg+xml";
 
             /* Audio & Video */
         } else if (String::equals(extName, ".wav", true)) {

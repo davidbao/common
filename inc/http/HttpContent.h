@@ -638,6 +638,50 @@ namespace Http {
         Version version;
         HttpCookie cookie;
     };
+
+    class HttpCode {
+    public:
+        enum Code {
+            Success = 0,
+            Ok = Success,
+            JsonParseError = 1,         // Json string parse error.
+            DbError = 2,                // Error occurred while trying to connect to the database.
+            ParameterIncorrect = 3,     // The request parameters is incorrect.
+            Unknown = 9
+        };
+
+        class Item {
+        public:
+            int code;
+            String msg;
+
+            Item();
+
+            Item(int code, const String &msg);
+
+            Item(const Item &item);
+        };
+
+        ~HttpCode() = default;
+
+        static void registerCode(int code, const String &msg);
+
+        static void registerCode(std::initializer_list<Item> list);
+
+        static String getMessage(int code);
+
+        static StringMap at(int code);
+
+        static StringMap okCode();
+
+    private:
+        HttpCode();
+
+    private:
+        static Dictionary<int, String> _codes;
+
+        static HttpCode _staticInstance;
+    };
 }
 
 #endif  // HttpContent_h

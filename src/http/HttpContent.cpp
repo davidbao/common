@@ -1005,4 +1005,54 @@ namespace Http {
         }
         this->content = new HttpStreamContent(stream);
     }
+
+    HttpCode::Item::Item() : code(Unknown) {
+    }
+
+    HttpCode::Item::Item(int code, const String &msg) : code(code), msg(msg) {
+    }
+
+    HttpCode::Item::Item(const Item &item) : code(item.code), msg(item.msg) {
+    }
+
+    Dictionary<int, String> HttpCode::_codes;
+
+    HttpCode HttpCode::_staticInstance;
+
+    HttpCode::HttpCode() {
+        registerCode({
+                             {Success,            String::Empty},
+                             {JsonParseError,     "Json string parse error."},
+                             {DbError,            "Error occurred while trying to connect to the database."},
+                             {ParameterIncorrect, "The request parameters is incorrect."},
+                             {Unknown,            "Unknown"}
+                     });
+    }
+
+    void HttpCode::registerCode(int code, const String &msg) {
+        _codes[code] = msg;
+    }
+
+    void HttpCode::registerCode(std::initializer_list<Item> list) {
+        for (const Item *code = list.begin(); code < list.end(); ++code) {
+            _codes[code->code] = code->msg;
+        }
+    }
+
+    String HttpCode::getMessage(int code) {
+        return _codes[code];
+    }
+
+    StringMap HttpCode::at(int code) {
+        StringMap result;
+        if (_codes.contains(code)) {
+            result["code"] = Int32(code).toString();
+            result["msg"] = _codes[code];
+        }
+        return result;
+    }
+
+    StringMap HttpCode::okCode() {
+        return at(Ok);
+    }
 }
