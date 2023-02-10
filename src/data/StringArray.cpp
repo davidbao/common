@@ -115,7 +115,7 @@ namespace Data {
             default:
                 break;
         }
-        for (uint32_t i = 0; i < c; i++) {
+        for (size_t i = 0; i < c; i++) {
             String value = stream->readStr(streamLength);
             add(value);
         }
@@ -123,7 +123,7 @@ namespace Data {
 
     String StringArray::toString(const char &symbol) const {
         String str;
-        for (uint32_t i = 0; i < count(); i++) {
+        for (size_t i = 0; i < count(); i++) {
             if (str.length() > 0)
                 str.append(symbol);
             str.append(at(i));

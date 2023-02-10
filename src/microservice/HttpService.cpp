@@ -14,11 +14,9 @@
 using namespace Diag;
 
 namespace Microservice {
-    IHttpAction::IHttpAction() {
-    }
+    IHttpAction::IHttpAction() = default;
 
-    IHttpAction::~IHttpAction() {
-    }
+    IHttpAction::~IHttpAction() = default;
 
     HttpStatus IHttpAction::onAction(const HttpRequest &request, HttpResponse &response) {
         if (request.method == HttpMethod::Post && hasPostAction(request)) {
@@ -56,8 +54,7 @@ namespace Microservice {
     BaseHttpMapping::BaseHttpMapping(const HttpMethod &method, const String &path) : _method(method), _path(path) {
     }
 
-    BaseHttpMapping::~BaseHttpMapping() {
-    }
+    BaseHttpMapping::~BaseHttpMapping() = default;
 
     bool BaseHttpMapping::match(const HttpRequest &request) const {
         return request.method == method() && request.match(_path);
@@ -69,6 +66,14 @@ namespace Microservice {
 
     void IHttpSession::registerTokenId(const String &tokenId) {
         _tokenId = tokenId;
+    }
+
+    String IHttpSession::addSession(const String &name, const TimeSpan &expiredTime) {
+        return addSession(name, expiredTime, false);
+    }
+
+    String IHttpSession::addSession(const String &name) {
+        return addSession(name, TimeSpan::Zero);
     }
 
     void IHttpInterceptor::addWhitelist(const StringArray &list) {
@@ -104,7 +109,7 @@ namespace Microservice {
     bool HttpService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto *cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool enable = true;
@@ -215,7 +220,7 @@ namespace Microservice {
     }
 
     HttpStatus HttpService::onAction(void *parameter, const HttpRequest &request, HttpResponse &response) {
-        HttpService *service = (HttpService *) parameter;
+        auto *service = (HttpService *) parameter;
         assert(service);
         return service->onAction(request, response);
     }
@@ -225,7 +230,7 @@ namespace Microservice {
 
         if (!isInWhitelist(request)) {
             if (!isAuthorized(request, _tokenId)) {
-                response.setContent(String::format("{\"msg\":\"Request method '%s' not authorized!\",\"code\":\"401\"}",
+                response.setContent(String::format(R"({"msg":"Request method '%s' not authorized!","code":"401"})",
                                                    request.method.method.c_str()));
                 return HttpStatus::HttpUnauthorized;
             }
@@ -248,7 +253,7 @@ namespace Microservice {
         if (status != HttpStatus::HttpNotFound)
             return status;
 
-        response.setContent(String::format("{\"msg\":\"Request method '%s' not found!\",\"code\":\"404\"}",
+        response.setContent(String::format(R"({"msg":"Request method '%s' not found!","code":"404"})",
                                            request.method.method.c_str()));
         return HttpStatus::HttpNotFound;
     }
@@ -282,26 +287,23 @@ namespace Microservice {
     }
 
     HttpStatus HttpService::onWebServerProcess(const HttpRequest &request, HttpResponse &response) {
-        // process web server.
-        HttpStatus status = HttpStatus::HttpNotFound;
-
-        // process default web path.
-        status = onWebServerProcess(defaultWebPath(), request, response);
-        if (status == HttpStatus::HttpOk)
-            return status;
-
-        // process the others.
+        // process web path without default.
         for (auto it = _webPath.begin(); it != _webPath.end(); ++it) {
-            const String &relativeUrl = it.key();
-            const String &webPath = it.value();
-            if (relativeUrl.isNullOrEmpty() ||
-                (!relativeUrl.isNullOrEmpty() && request.url.relativeUrl().find(relativeUrl) >= 0)) {
-                status = onWebServerProcess(relativeUrl, webPath, request, response);
-                if (status == HttpStatus::HttpOk)
-                    break;
+            String relativeUrl = it.key();
+            // start with relativeUrl.
+            if (!relativeUrl.isNullOrEmpty()) {
+                if (relativeUrl[relativeUrl.length() - 1] != '/') {
+                    relativeUrl.append('/');
+                }
+                if (request.url.relativeUrl().find(relativeUrl) == 0) {
+                    const String &webPath = it.value();
+                    return onWebServerProcess(relativeUrl, webPath, request, response);
+                }
             }
         }
-        return status;
+
+        // process default web path.
+        return onWebServerProcess(defaultWebPath(), request, response);
     }
 
     HttpStatus
@@ -324,6 +326,9 @@ namespace Microservice {
                     return HttpStatus::HttpNotFound;
                 }
             }
+#ifdef WIN32
+            name = name.UTF8toGBK();
+#endif
             String fileName = Path::combine(webPath, name);
             if (File::exists(fileName)) {
                 String type;
@@ -332,10 +337,11 @@ namespace Microservice {
 
                     type = String::format("%s; charset=UTF-8", type.c_str());
                     response.headers.add("Content-Type", type);
+                    return HttpStatus::HttpOk;
                 } else {
                     Trace::error(String::format("Can not find file'%s' mime type!", fileName.c_str()));
+                    return HttpStatus::HttpForbidden;
                 }
-                return HttpStatus::HttpOk;
             } else {
                 Trace::error(String::format("Can not find file'%s', request url: '%s'!", fileName.c_str(),
                                             request.url.toString().c_str()));
@@ -371,7 +377,7 @@ namespace Microservice {
     String HttpService::addSession(const String &name, const TimeSpan &expiredTime, bool kickout) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto *cs = factory->getService<IConfigService>();
         assert(cs);
 
         TimeSpan timeout = expiredTime;
@@ -380,7 +386,7 @@ namespace Microservice {
         cs->getProperty("server.http.session.kickout", kickout);
 
         String token = Uuid::generate().toString().replace("-", "").toLower();
-        HttpSession *session = new HttpSession(token, name, timeout, kickout);
+        auto *session = new HttpSession(token, name, timeout, kickout);
         Locker locker(&_sessionsMutex);
         _sessions.add(token, session);
         return token;
@@ -469,7 +475,7 @@ namespace Microservice {
      *
      */
     bool HttpService::getMimeType(const String &name, String &value) {
-        int index = name.findLastOf('.');
+        ssize_t index = name.findLastOf('.');
         if (index <= 0)
             return false;
 
@@ -483,7 +489,7 @@ namespace Microservice {
         } else if (String::equals(extName, ".js", true)) {
             value = "text/javascript";
         } else if (String::equals(extName, ".map", true)) {
-            int typeIndex = name.findLastOf('.');
+            ssize_t typeIndex = name.findLastOf('.');
             if (typeIndex > 0) {
                 String type = name.substr(typeIndex, name.length() - typeIndex);
                 if (String::equals(extName, ".js.map", true) ||

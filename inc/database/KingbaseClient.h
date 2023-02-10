@@ -31,7 +31,7 @@ namespace Database {
 
         bool open(const Url &url, const String &username, const String &password);
 
-        bool open(const String &host, int port, const String &database, const String &username, const String &password);
+        bool open(const StringMap &values);
 
         bool open(const String &connectionStr) override;
 

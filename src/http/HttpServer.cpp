@@ -52,10 +52,11 @@ namespace Http {
         return this->processAction == nullptr;
     }
 
-    void HttpServer::Actions::operator=(const Actions &value) {
+    HttpServer::Actions &HttpServer::Actions::operator=(const Actions &value) {
         this->owner = value.owner;
         this->processAction = value.processAction;
         this->action = value.action;
+        return *this;
     }
 
     bool HttpServer::Actions::operator==(const Actions &value) const {
@@ -68,7 +69,7 @@ namespace Http {
         return !operator==(value);
     }
 
-    HttpServer::Context::Context(const Endpoint &endpoint, const Secure &secure, TimeSpan timeout) {
+    HttpServer::Context::Context(const Endpoint &endpoint, const Secure &secure, const TimeSpan &timeout) {
         this->endpoint = endpoint;
         this->secure = secure;
         static const TimeSpan MinTimeout = TimeSpan::fromSeconds(3);
@@ -83,10 +84,11 @@ namespace Http {
         return this->endpoint.isEmpty();
     }
 
-    void HttpServer::Context::operator=(const Context &value) {
+    HttpServer::Context &HttpServer::Context::operator=(const Context &value) {
         this->endpoint = value.endpoint;
         this->secure = value.secure;
         this->timeout = value.timeout;
+        return *this;
     }
 
     bool HttpServer::Context::operator==(const Context &value) const {
@@ -117,7 +119,7 @@ namespace Http {
         _httpsThread = nullptr;
     }
 
-    bool HttpServer::startHttpServer(const Context &context, Actions actions) {
+    bool HttpServer::startHttpServer(const Context &context, const Actions &actions) {
         _httpContext.actions = actions;
         return startHttpServer(context);
     }
@@ -131,7 +133,7 @@ namespace Http {
         return false;
     }
 
-    bool HttpServer::startHttpsServer(const Context &context, Actions actions) {
+    bool HttpServer::startHttpsServer(const Context &context, const Actions &actions) {
         _httpsContext.actions = actions;
         return startHttpsServer(context);
     }
@@ -167,7 +169,7 @@ namespace Http {
     }
 
     void HttpServer::httpServerStart(void *parameter) {
-        ContextEntry *entry = static_cast<ContextEntry *>(parameter);
+        auto *entry = static_cast<ContextEntry *>(parameter);
         assert(entry);
 
         const Context &context = entry->context;
@@ -308,20 +310,20 @@ namespace Http {
     }
 
     char *HttpServer::find_http_header(struct evhttp_request *req, struct evkeyvalq *params, const char *query_char) {
-        if (req == NULL || params == NULL || query_char == NULL) {
+        if (req == nullptr || params == nullptr || query_char == nullptr) {
             Debug::writeFormatLine("====line:%d,%s", __LINE__, "input params is null.");
-            return NULL;
+            return nullptr;
         }
 
-        struct evhttp_uri *decoded = NULL;
-        char *query = NULL;
-        char *query_result = NULL;
+        struct evhttp_uri *decoded = nullptr;
+        char *query = nullptr;
+        char *query_result = nullptr;
         const char *path;
         const char *uri = evhttp_request_get_uri(req);
 
-        if (uri == NULL) {
+        if (uri == nullptr) {
             Debug::writeFormatLine("====line:%d,evhttp_request_get_uri return null", __LINE__);
-            return NULL;
+            return nullptr;
         } else {
             //            Debug::writeFormatLine("====line:%d,Got a GET request for <%s>",__LINE__,uri);
         }
@@ -329,21 +331,21 @@ namespace Http {
         decoded = evhttp_uri_parse(uri);
         if (!decoded) {
             Debug::writeFormatLine("====line:%d,It's not a good URI. Sending BADREQUEST", __LINE__);
-            evhttp_send_error(req, HTTP_BADREQUEST, 0);
+            evhttp_send_error(req, HTTP_BADREQUEST, nullptr);
             return nullptr;
         }
 
         path = evhttp_uri_get_path(decoded);
-        if (path == NULL) {
+        if (path == nullptr) {
             path = "/";
         } else {
             //            Debug::writeFormatLine("====line:%d,path is:%s",__LINE__,path);
         }
 
         query = (char *) evhttp_uri_get_query(decoded);
-        if (query == NULL) {
+        if (query == nullptr) {
             Debug::writeFormatLine("====line:%d,evhttp_uri_get_query return null", __LINE__);
-            return NULL;
+            return nullptr;
         }
 
         evhttp_parse_query_str(query, params);
@@ -407,7 +409,7 @@ namespace Http {
      */
     struct bufferevent *HttpServer::bevcb(struct event_base *base, void *arg) {
         struct bufferevent *r;
-        SSL_CTX *ctx = (SSL_CTX *) arg;
+        auto *ctx = (SSL_CTX *) arg;
 
         r = bufferevent_openssl_socket_new(base,
                                            -1,
@@ -418,9 +420,7 @@ namespace Http {
     }
 
     bool HttpServer::getMessage(struct evhttp_request *req, String &buffer) {
-        size_t post_size = 0;
-
-        post_size = evbuffer_get_length(req->input_buffer);
+        size_t post_size = evbuffer_get_length(req->input_buffer);
         //        Debug::writeFormatLine("====line:%d,post len:%ld",__LINE__,post_size);
         if (post_size <= 0) {
 //            Debug::writeFormatLine("====line:%d,post msg is empty!", __LINE__);
@@ -497,23 +497,23 @@ namespace Http {
     }
 
     void HttpServer::send_document_cb(struct evhttp_request *req, void *arg) {
-        struct evbuffer *evb = NULL;
+        struct evbuffer *evb = nullptr;
         const char *uri = evhttp_request_get_uri(req);
-        struct evhttp_uri *decoded = NULL;
-        const char *uri_path = NULL;
-        char *decoded_path = NULL;
+        struct evhttp_uri *decoded = nullptr;
+        const char *uri_path = nullptr;
+        char *decoded_path = nullptr;
         int code = HTTP_NOTFOUND;
 
         evhttp_cmd_type type = evhttp_request_get_command(req);
 
-        ContextEntry *entry = static_cast<ContextEntry *>(arg);
+        auto *entry = static_cast<ContextEntry *>(arg);
         assert(entry);
 
         /* Decode the URI */
         decoded = evhttp_uri_parse(uri);
         if (!decoded) {
             Debug::writeLine("It's not a good URI. Sending BADREQUEST");
-            evhttp_send_error(req, HTTP_BADREQUEST, 0);
+            evhttp_send_error(req, HTTP_BADREQUEST, nullptr);
             return;
         }
         /* Let's see what path the user asked for. */
@@ -521,7 +521,7 @@ namespace Http {
         if (!uri_path) uri_path = "/";
 
         /* We need to decode it, to see what path the user really wanted. */
-        decoded_path = evhttp_uridecode(uri_path, 0, NULL);
+        decoded_path = evhttp_uridecode(uri_path, 0, nullptr);
         if (decoded_path == nullptr) {
             evhttp_send_error(req, HTTP_NOTFOUND, "Document was not found");
         } else {
@@ -537,7 +537,7 @@ namespace Http {
             }
 
             StringMap parameters;
-            struct evkeyvalq params;
+            struct evkeyvalq params{};
             struct evkeyval *param;
             if (evhttp_parse_query(uri, &params) == 0) {
                 TAILQ_FOREACH(param, &params, next) {
@@ -590,7 +590,7 @@ namespace Http {
                 default:
                     method = HttpMethod::Get;
                     break;
-            };
+            }
 
             HttpResponse response;
             if (type == EVHTTP_REQ_GET) {
@@ -638,11 +638,11 @@ namespace Http {
             }
 
             bool hasContentType = false;
-            for (uint32_t i = 0; i < response.headers.count(); i++) {
-                const HttpHeader *header = response.headers[i];
-                if (header->name == "Content-Type")
+            for (size_t i = 0; i < response.headers.count(); i++) {
+                const HttpHeader *h = response.headers[i];
+                if (h->name == "Content-Type")
                     hasContentType = true;
-                evhttp_add_header(req->output_headers, header->name, header->value);
+                evhttp_add_header(req->output_headers, h->name, h->value);
             }
 
             if (!hasContentType) {
@@ -673,18 +673,17 @@ namespace Http {
             }
 
             evb = evbuffer_new();
-            HttpStreamContent *streamContent = dynamic_cast<HttpStreamContent *>(response.content);
+            auto *streamContent = dynamic_cast<HttpStreamContent *>(response.content);
             if (streamContent == nullptr) {
-                HttpStringContent *stringContent = dynamic_cast<HttpStringContent *>(response.content);
+                auto *stringContent = dynamic_cast<HttpStringContent *>(response.content);
                 const String &body = stringContent != nullptr ? stringContent->value() : String::Empty;
-//                Debug::writeLine(body);
                 evbuffer_add(evb, body.c_str(), body.length());
                 evhttp_send_reply(req, code, reason, evb);
             } else {
-                FileStream *fs = dynamic_cast<FileStream *>(streamContent->stream());
-                if (fs != nullptr) {
+                auto *fs = dynamic_cast<FileStream *>(streamContent->stream());
+                if (fs != nullptr && fs->isOpen()) {
                     int fd = fs->fd();
-                    struct stat st;
+                    struct stat st{};
                     if (fstat(fd, &st) < 0) {
                         evhttp_send_error(req, HttpStatus::HttpNotFound, "Document was not found");
                     } else {

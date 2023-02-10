@@ -249,7 +249,7 @@ bool testToSql() {
         if (!SqlSelectFilter::parse(str, test)) {
             return false;
         }
-        String qSql = test.toQuerySql("t1");
+        String qSql = test.toSelectSql("t1");
         if(qSql.isNullOrEmpty()) {
             return false;
         }

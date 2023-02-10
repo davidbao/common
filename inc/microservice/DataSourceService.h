@@ -45,7 +45,11 @@ namespace Microservice {
     private:
         bool openMysql(const Url &url, const String &userName, const String &password);
 
-        bool openSqlite(const String &fullFileName);
+        bool openSqlite(const String &urlStr);
+
+#ifdef HAS_DB_KINGBASE
+        bool openKingbase(const Url &url, const String &userName, const String &password);
+#endif
 
     private:
         DbClient *_dbClient;

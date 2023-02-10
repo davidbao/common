@@ -44,6 +44,11 @@ namespace Microservice {
 
     SummerApplication::SummerApplication(int argc, const char *argv[]) : Application(argc, argv, __Summer_homePath,
                                                                                      __Summer_traceContexts) {
+#ifdef WIN32
+        Trace::enableConsoleOutput();
+        Trace::enableFlushConsoleOutput();
+#endif
+
         if (_traceListeners.count() > 0) {
             Trace::writeLine(String::format("%s is starting.", name().c_str()), Trace::Info);
         }

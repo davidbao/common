@@ -288,11 +288,11 @@ namespace Microservice {
             HttpMappings removed(false);
             for (ssize_t i = _mappings.count() - 1; i >= 0; i--) {
                 BaseHttpMapping *mapping = _mappings[i];
-                HttpMapping<T> *mapping1 = dynamic_cast<HttpMapping<T> *>(mapping);
+                auto *mapping1 = dynamic_cast<HttpMapping<T> *>(mapping);
                 if (mapping1 != nullptr && mapping1->instance() == instance) {
                     removed.add(mapping);
                 }
-                HttpQueryMapping<T> *mapping2 = dynamic_cast<HttpQueryMapping<T> *>(mapping);
+                auto *mapping2 = dynamic_cast<HttpQueryMapping<T> *>(mapping);
                 if (mapping2 != nullptr && mapping2->instance() == instance) {
                     removed.add(mapping);
                 }
@@ -314,14 +314,17 @@ namespace Microservice {
 
     class IHttpSession : public IService {
     public:
-        virtual String
-        addSession(const String &name, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false) = 0;
+        virtual String addSession(const String &name, const TimeSpan &expiredTime, bool kickout) = 0;
 
         virtual bool removeSession(const HttpRequest &request) = 0;
 
         virtual bool removeSession(const String &token) = 0;
 
         void registerTokenId(const String &tokenId);
+
+        String addSession(const String &name, const TimeSpan &expiredTime);
+
+        String addSession(const String &name);
 
     protected:
         String _tokenId;
@@ -355,8 +358,7 @@ namespace Microservice {
 
         void registerHomePage(const StringArray &homePages) override;
 
-        String
-        addSession(const String &name, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false) override;
+        String addSession(const String &name, const TimeSpan &expiredTime, bool kickout) override;
 
         bool removeSession(const HttpRequest &request) override;
 

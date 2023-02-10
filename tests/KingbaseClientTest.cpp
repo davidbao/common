@@ -8,12 +8,11 @@
 
 #include "database/KingbaseClient.h"
 #include "diag/Trace.h"
-#include "IO/Path.h"
 
 using namespace Diag;
 using namespace Database;
 
-static const String _baseUrl("kingbase://127.0.0.1:54321");
+static const String _baseUrl("kingbase://192.166.1.19:54321");
 static const String _url = _baseUrl + "/KINGBASECLIENTTEST_DB";
 static const String _username = "SYSTEM";
 static const String _password = "MANAGER";

@@ -15,9 +15,9 @@
 #include "IO/FileStream.h"
 #include "database/MysqlClient.h"
 #include "database/SqliteClient.h"
+#include "database/KingbaseClient.h"
 #include "configuration/ConfigService.h"
 #include "microservice/SummerApplication.h"
-
 
 using namespace Config;
 
@@ -57,20 +57,41 @@ namespace Microservice {
             return false;
         }
         Url url;
-        if (!cs->getProperty("summer.datasource.url", url)) {
-            Trace::warn("database url is incorrect.");
-            return false;
-        }
-        if (url.scheme() == "mysql" || url.scheme() == "mysqls") {
-            bool result = openMysql(url, userName, password);
-            if (result) {
-                return true;
+        String urlStr = cs->getProperty("summer.datasource.url");
+        if (Url::parse(urlStr, url)) {
+            if (url.scheme() == "mysql" || url.scheme() == "mysqls") {
+                bool result = openMysql(url, userName, password);
+                if (result) {
+                    return true;
+                } else {
+                    Application::instance()->exit(-2);
+                    return false;
+                }
+            } else if (url.scheme() == "kingbase") {
+#ifdef HAS_DB_KINGBASE
+                bool result = openKingbase(url, userName, password);
+                if (result) {
+                    return true;
+                } else {
+                    Application::instance()->exit(-2);
+                    return false;
+                }
+#endif
+            }
+        } else {
+            if (urlStr.find("sqlite") >= 0) {
+                bool result = openSqlite(urlStr);
+                if (result) {
+                    return true;
+                } else {
+                    Application::instance()->exit(-2);
+                    return false;
+                }
             } else {
-                Application::instance()->exit(-2);
+                Trace::warn("database url is incorrect.");
                 return false;
             }
         }
-
         return false;
     }
 
@@ -87,7 +108,7 @@ namespace Microservice {
         String host = url.address();
         int port = url.port();
         String database = url.relativeUrl();
-        MysqlClient *client = new MysqlClient();
+        auto *client = new MysqlClient();
         if (client->open(host, port, database, userName, password)) {
             Trace::debug(String::format("Open mysql successfully. host: %s, port: %d, database: %s, user name: %s",
                                         host.c_str(), port, database.c_str(), userName.c_str()));
@@ -127,21 +148,35 @@ namespace Microservice {
         }
     }
 
-    bool DataSourceService::openSqlite(const String &fullFileName) {
+    bool DataSourceService::openSqlite(const String &urlStr) {
 #if DEBUG
         Stopwatch sw("Create or open database file");
 #endif
+        if (urlStr.find("sqlite") < 0) {
+            return false;
+        }
+
+        String fullFileName;
+        String name = String::replace(urlStr, "sqlite:", String::Empty);
+        if (Path::isPathRooted(name)) {
+            fullFileName = name;
+        } else {
+            fullFileName = Path::combine(Application::instance()->rootPath(), name);
+        }
         String filename = Path::getFileName(fullFileName);
 
         bool error = false;
         String errorStr;
         FileInfo fi(fullFileName);
         if (!fi.exists() || fi.isWritable()) {
-            _dbClient = new SqliteClient();
-            bool result = _dbClient->open(fullFileName);
+            auto *client = new SqliteClient();
+            bool result = client->open(fullFileName);
             if (!result) {
                 error = true;
-                errorStr = _dbClient->getErrorMsg();
+                errorStr = client->getErrorMsg();
+                delete client;
+            } else {
+                _dbClient = client;
             }
         } else {
             error = true;
@@ -156,6 +191,29 @@ namespace Microservice {
 
         return true;
     }
+
+#ifdef HAS_DB_KINGBASE
+    bool DataSourceService::openKingbase(const Url &url, const String &userName, const String &password) {
+        String host = url.address();
+        int port = url.port();
+        String database = url.relativeUrl();
+        auto *client = new KingbaseClient();
+        if (client->open(url, userName, password)) {
+            Trace::debug(String::format("Open kingbase successfully. host: %s, port: %d, database: %s, user name: %s",
+                                        host.c_str(), port, database.c_str(), userName.c_str()));
+
+            _dbClient = client;
+            return true;
+        } else {
+            Trace::debug(String::format(
+                    "Failed to open kingbase. host: %s, port: %d, database: %s, user name: %s, reason: '%s'",
+                    host.c_str(), port, database.c_str(), userName.c_str(),
+                    client->getErrorMsg().c_str()));
+            delete client;
+            return false;
+        }
+    }
+#endif
 
     void DataSourceService::createSqlFile(const String &fileName, const String &sql) {
         Application *app = Application::instance();

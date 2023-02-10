@@ -53,6 +53,8 @@ namespace Json {
                 return "Array";
             case JsonNodeType::TypeEndArray:
                 return "EndArray";
+            default:
+                return "None";
         }
     }
 

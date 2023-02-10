@@ -53,9 +53,13 @@ namespace Database {
 
         void setOrderBy(const String &orderBy);
 
-        String toQuerySql(const String &tableName) const;
+        String toSelectSql(const String &tableName, const String &columnStr) const;
+
+        String toSelectSql(const String &tableName) const;
 
         String toCountSql(const String &tableName) const;
+
+        const StringMap &values() const;
 
     public:
         static bool parse(const String &str, SqlSelectFilter &filter);
@@ -64,8 +68,6 @@ namespace Database {
         String toEqualStr(const String &key, const String &keyAlias, bool hasQuotes) const;
 
         String toRangeStr(const String &key, const String &keyAlias, bool hasQuotes) const;
-
-        String toSql(const String &tableName, const String &columnStr) const;
 
     private:
         StringMap _values;

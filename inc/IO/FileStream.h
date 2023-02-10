@@ -89,10 +89,10 @@ namespace IO {
         const String &fileName() const;
 
     private:
-        void open(const char *filename, int openFlag, int mode);
+        void open(const String &fileName, int openFlag, int mode);
 
     private:
-        static int openFlag(const char *filename, FileMode mode, FileAccess access);
+        static int openFlag(const String &fileName, FileMode mode, FileAccess access);
 
         static int openMode(FileAccess access);
 

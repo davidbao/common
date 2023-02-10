@@ -57,7 +57,6 @@ namespace Database {
         }
 
         String errorStr = error.isNullOrEmpty() ? getErrorMsg() : error;
-
         if (sql.length() > 0) {
             Trace::writeFormatLine("Method'%s' error, msg: %s, sql: %s", methodName.c_str(), errorStr.c_str(), sqlStr);
         } else {

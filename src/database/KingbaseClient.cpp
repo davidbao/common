@@ -44,23 +44,30 @@ namespace Database {
             const String &host = url.address();
             int port = url.port();
             const String &database = url.relativeUrl();
-            return open(host, port, database, username, password);
+            StringMap values{
+                    {"host",            host},
+                    {"port",            Int32(port).toString()},
+                    {"dbname",          database},
+                    {"user",            username},
+                    {"password",        password},
+                    {"connect_timeout", Int32(10).toString()}
+            };
+            return open(values);
         }
         return false;
     }
 
-    bool KingbaseClient::open(const String &host, int port, const String &database, const String &username,
-                              const String &password) {
+    bool KingbaseClient::open(const StringMap &values) {
         Locker locker(&_dbMutex);
 
         String connStr;
         static const char *fmt = "%s='%s' ";
-        connStr.appendFormat(fmt, "host", host.c_str());
-        connStr.appendFormat(fmt, "port", Int32(port).toString().c_str());
-        connStr.appendFormat(fmt, "dbname", database.c_str());
-        connStr.appendFormat(fmt, "user", username.c_str());
-        connStr.appendFormat(fmt, "password", password.c_str());
-        connStr.appendFormat(fmt, "connect_timeout", Int32(10).toString().c_str()); // 10 S
+        connStr.appendFormat(fmt, "host", values["host"].c_str());
+        connStr.appendFormat(fmt, "port", values["port"].c_str());
+        connStr.appendFormat(fmt, "dbname", values["dbname"].c_str());
+        connStr.appendFormat(fmt, "user", values["user"].c_str());
+        connStr.appendFormat(fmt, "password", values["password"].c_str());
+        connStr.appendFormat(fmt, "connect_timeout", values["connect_timeout"].c_str());
         KCIConnection *conn = KCIConnectionCreate(connStr);
         if (KCIConnectionGetStatus(conn) == CONNECTION_OK) {
             _kingbaseDb->kingbaseDb = conn;
@@ -78,9 +85,15 @@ namespace Database {
         StringArray texts;
         Convert::splitStr(kingbaseDbStr, ';', texts);
         if (texts.count() == 5) {
-            int port = 3306;
-            Int32::parse(texts[1], port);
-            return open(texts[0], port, texts[2], texts[3], texts[4]);
+            StringMap values{
+                    {"host",            texts[0]},
+                    {"port",            texts[1]},
+                    {"dbname",          texts[2]},
+                    {"user",            texts[3]},
+                    {"password",        texts[4]},
+                    {"connect_timeout", Int32(10).toString()}
+            };
+            return open(values);
         }
         return false;
     }
@@ -396,7 +409,7 @@ namespace Database {
                         name = temp;
                     }
 
-                    table.addColumn(DataColumn(name, getColumnType((int)KCIResultGetColumnType(res, i))));
+                    table.addColumn(DataColumn(name, getColumnType((int) KCIResultGetColumnType(res, i))));
                 }
             }
 
@@ -406,7 +419,11 @@ namespace Database {
                     const DataColumn &column = table.columns().at(j);
                     ValueTypes type = column.type();
                     const char *str = (const char *) KCIResultGetColumnValue(res, i, j);
+#ifdef WIN32
+                    row.addCell(DataCell(column, DbValue(type, String::GBKtoUTF8(str))));
+#else
                     row.addCell(DataCell(column, DbValue(type, str)));
+#endif
                 }
                 table.addRow(row);
             }

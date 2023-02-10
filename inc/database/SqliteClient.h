@@ -9,7 +9,7 @@
 #ifndef SqliteClient_h
 #define SqliteClient_h
 
-#include "DbClient.h"
+#include "database/DbClient.h"
 
 namespace Database {
     class SqliteInner;

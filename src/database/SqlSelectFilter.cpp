@@ -124,16 +124,18 @@ namespace Database {
         _orderBy = orderBy;
     }
 
-    String SqlSelectFilter::toQuerySql(const String &tableName) const {
-        return toSql(tableName, "*");
+    String SqlSelectFilter::toSelectSql(const String &tableName) const {
+        return toSelectSql(tableName, "*");
     }
 
     String SqlSelectFilter::toCountSql(const String &tableName) const {
-        return toSql(tableName, "COUNT(1)");
+        return toSelectSql(tableName, "COUNT(1)");
     }
 
-    String SqlSelectFilter::toSql(const String &tableName, const String &columnStr) const {
-        String result = String::format("SELECT %s FROM %s", columnStr.c_str(), tableName.c_str());
+    String SqlSelectFilter::toSelectSql(const String &tableName, const String &columnStr) const {
+        String result = String::format("SELECT %s FROM %s",
+                                       columnStr.isNullOrEmpty() ? "*" : columnStr.c_str(),
+                                       tableName.c_str());
 
         // where
         if (_values.count() > 0) {
@@ -173,7 +175,7 @@ namespace Database {
                         double value;
                         bool hasQuotes = !Double::parse(fromValue, value);
                         whereStr.appendFormat(hasQuotes ? "(%s>='%s' AND %s<='%s')" : "(%s>=%s AND %s<=%s)",
-                                      keyStr.c_str(), fromValue.c_str(), keyStr.c_str(), toValue.c_str());
+                                              keyStr.c_str(), fromValue.c_str(), keyStr.c_str(), toValue.c_str());
                     } else {
                         // equals.
                         if (!whereStr.isNullOrEmpty()) {
@@ -201,7 +203,7 @@ namespace Database {
             result.append(whereStr);
         }
 
-        if(columnStr.find("COUNT") < 0) {
+        if (columnStr.find("COUNT") < 0) {
             // order by
             String orderBy = this->orderBy();
             if (!orderBy.isNullOrEmpty()) {
@@ -266,5 +268,9 @@ namespace Database {
             return true;
         }
         return false;
+    }
+
+    const StringMap &SqlSelectFilter::values() const {
+        return _values;
     }
 }

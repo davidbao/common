@@ -53,7 +53,9 @@ namespace Database {
 
     public:
         static uint64_t generateSnowFlakeId(int dataCenterId, int workerId);
+
         static uint64_t generateSnowFlakeId(int workerId);
+
         static uint64_t generateSnowFlakeId();
 
     protected:

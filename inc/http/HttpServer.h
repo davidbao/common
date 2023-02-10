@@ -48,7 +48,7 @@ namespace Http {
 
             action_send_document_cb action;
 
-            Actions(void *owner = nullptr, action_process_action processAction = nullptr);
+            explicit Actions(void *owner = nullptr, action_process_action processAction = nullptr);
 
             Actions(void *owner, action_send_document_cb action);
 
@@ -56,7 +56,7 @@ namespace Http {
 
             bool isEmpty() const;
 
-            void operator=(const Actions &value);
+            Actions &operator=(const Actions &value);
 
             bool operator==(const Actions &value) const;
 
@@ -69,14 +69,14 @@ namespace Http {
             Secure secure;
             TimeSpan timeout;
 
-            Context(const Endpoint &endpoint = Endpoint::Empty, const Secure &secure = Secure::None,
-                    TimeSpan timeout = TimeSpan::fromSeconds(30));
+            explicit Context(const Endpoint &endpoint = Endpoint::Empty, const Secure &secure = Secure::None,
+                    const TimeSpan &timeout = TimeSpan::fromSeconds(30));
 
             Context(const Context &context);
 
             bool isEmpty() const;
 
-            void operator=(const Context &value);
+            Context &operator=(const Context &value);
 
             bool operator==(const Context &value) const;
 
@@ -87,9 +87,9 @@ namespace Http {
 
         ~HttpServer();
 
-        bool startHttpServer(const Context &context, Actions actions);
+        bool startHttpServer(const Context &context, const Actions &actions);
 
-        bool startHttpsServer(const Context &context, Actions actions);
+        bool startHttpsServer(const Context &context, const Actions &actions);
 
         void stop();
 
@@ -102,8 +102,8 @@ namespace Http {
 
         static bool getFileName(struct evhttp_request *req, String &fileName);
 
-        static Uuid
-        addSession(const String &userName, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false);
+//        static Uuid
+//        addSession(const String &userName, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false);
 
     private:
         bool startHttpServer(const Context &context);

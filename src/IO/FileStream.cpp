@@ -75,11 +75,15 @@ namespace IO {
         FileStream::close();
     }
 
-    void FileStream::open(const char *filename, int openFlag, int mode) {
-        _fileName = filename;
-        _fd = ::open(filename, openFlag, mode);
+    void FileStream::open(const String &fileName, int openFlag, int mode) {
+#ifdef WIN32
+        _fileName = fileName.GBKtoUTF8();
+#else
+        _fileName = fileName;
+#endif
+        _fd = ::open(_fileName, openFlag, mode);
         if (_fd == InvalidHandle) {
-            Debug::writeFormatLine("can't open file: name: %s, error: %s", filename, strerror(errno));
+            Debug::writeFormatLine("can't open file: name: %s, error: %s", _fileName.c_str(), strerror(errno));
         }
     }
 
@@ -94,7 +98,7 @@ namespace IO {
         return _fd != InvalidHandle;
     }
 
-    int FileStream::openFlag(const char *filename, FileMode mode, FileAccess access) {
+    int FileStream::openFlag(const String &fileName, FileMode mode, FileAccess access) {
         int result;
         switch (access) {
             case FileAccess::FileRead:
@@ -119,7 +123,7 @@ namespace IO {
             case FileOpen:
                 return result | O_BINARY;
             case FileOpenOrCreate:
-                return File::exists(filename) ? result | O_BINARY : O_CREAT | O_TRUNC | result | O_BINARY;
+                return File::exists(fileName) ? result | O_BINARY : O_CREAT | O_TRUNC | result | O_BINARY;
             case FileTruncate:
                 return O_CREAT | O_TRUNC | O_RDWR | O_BINARY;
             case FileAppend:
