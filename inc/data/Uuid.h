@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/10/27.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef Uuid_h

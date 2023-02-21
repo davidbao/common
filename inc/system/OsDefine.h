@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2022/09/26.
-//  Copyright © 2022 com. All rights reserved.
+//  Copyright (c) 2022 com. All rights reserved.
 //
 
 #ifndef OsDefine_h

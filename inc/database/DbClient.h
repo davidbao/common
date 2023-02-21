@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/2/27.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #ifndef DbClient_h

@@ -72,8 +72,8 @@ namespace Net {
     }
 
     bool MacAddress::isEmpty() const {
-        for (uint8_t addr: this->address) {
-            if (addr != 0)
+        for (int i = 0; i < Count; i++) {
+            if (address[i] != 0)
                 return false;
         }
         return true;
@@ -109,7 +109,9 @@ namespace Net {
     }
 
     MacAddress &MacAddress::operator=(const MacAddress &other) {
-        evaluates(other);
+        if (this != &other) {
+            MacAddress::evaluates(other);
+        }
         return *this;
     }
 
@@ -319,7 +321,9 @@ namespace Net {
     }
 
     IPAddress &IPAddress::operator=(const IPAddress &value) {
-        evaluates(value);
+        if (this != &value) {
+            IPAddress::evaluates(value);
+        }
         return *this;
     }
 
@@ -328,7 +332,7 @@ namespace Net {
     }
 
     bool IPAddress::isEmpty() const {
-        for (size_t i = 0; i < Count; i++) {
+        for (int i = 0; i < Count; i++) {
             if (this->address[i] != 0)
                 return false;
         }

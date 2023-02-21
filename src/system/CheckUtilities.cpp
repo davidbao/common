@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2021/1/13.
-//  Copyright © 2021 com. All rights reserved.
+//  Copyright (c) 2021 com. All rights reserved.
 //
 
 #include "system/CheckUtilities.h"

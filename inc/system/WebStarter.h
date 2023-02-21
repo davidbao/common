@@ -3,7 +3,7 @@
 //  Common
 //
 //  Created by baowei on 2021/1/20.
-//  Copyright © 2021 com. All rights reserved.
+//  Copyright (c) 2021 com. All rights reserved.
 //
 
 #ifndef WebStarter_h

@@ -3,14 +3,14 @@
 //  common
 //
 //  Created by baowei on 2015/10/27.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #include <cctype>
 #include <cinttypes>
 #include <clocale>
 #include <cfloat>
-#include <assert.h>
+#include <cassert>
 #include "data/ValueType.h"
 #include "data/WString.h"
 #include "data/StringArray.h"
@@ -31,8 +31,7 @@ namespace Data {
     Boolean::Boolean(const Boolean &value) : _value(value._value) {
     }
 
-    Boolean::~Boolean() {
-    }
+    Boolean::~Boolean() = default;
 
     bool Boolean::equals(const Boolean &other) const {
         return _value == other._value;
@@ -98,11 +97,9 @@ namespace Data {
         return false;
     }
 
-    BaseValueType::BaseValueType() {
-    }
+    BaseValueType::BaseValueType() = default;
 
-    BaseValueType::~BaseValueType() {
-    }
+    BaseValueType::~BaseValueType() = default;
 
     template<typename type>
     String BaseValueType::toValueString(const type &value, const String &format,
@@ -116,7 +113,7 @@ namespace Data {
             const NumberFormatInfo *info = NumberFormatInfo::getInstance(provider);
 
             struct lconv *lc = localeconv();
-            struct lconv old;
+            struct lconv old{};
             memcpy(&old, lc, sizeof(lconv));
             lc->mon_decimal_point = (char *) info->currencyDecimalSeparator.c_str();
             lc->mon_thousands_sep = (char *) info->currencyGroupSeparator.c_str();
@@ -529,11 +526,9 @@ namespace Data {
     Char::Char(const char &value) : ValueType<char>(value) {
     }
 
-    Char::Char(const Char &value) : ValueType<char>(value) {
-    }
+    Char::Char(const Char &value) = default;
 
-    Char::~Char() {
-    }
+    Char::~Char() = default;
 
     Char &Char::operator=(const Char &value) {
         _value = value._value;
@@ -957,11 +952,9 @@ namespace Data {
     WChar::WChar(const wchar_t &value) : ValueType<wchar_t>(value) {
     }
 
-    WChar::WChar(const WChar &value) : ValueType<wchar_t>(value) {
-    }
+    WChar::WChar(const WChar &value) = default;
 
-    WChar::~WChar() {
-    }
+    WChar::~WChar() = default;
 
     WChar &WChar::operator=(const WChar &value) {
         _value = value._value;
@@ -1214,7 +1207,7 @@ namespace Data {
 
     WChar::UnicodeCategory WChar::getLatin1UnicodeCategory(wchar_t ch) {
         assert(isLatin1(ch));
-        return (UnicodeCategory) (categoryForLatin1[(int) ch]);
+        return (UnicodeCategory) (categoryForLatin1[ch]);
     }
 
     bool WChar::checkLetterOrDigit(UnicodeCategory uc) {
@@ -1236,11 +1229,9 @@ namespace Data {
     Int8::Int8(const int8_t &value) : ValueType<int8_t>(value) {
     }
 
-    Int8::Int8(const Int8 &value) : ValueType<int8_t>(value) {
-    }
+    Int8::Int8(const Int8 &value) = default;
 
-    Int8::~Int8() {
-    }
+    Int8::~Int8() = default;
 
     Int8 &Int8::operator=(const Int8 &value) {
         _value = value._value;
@@ -1284,11 +1275,9 @@ namespace Data {
     UInt8::UInt8(const uint8_t &value) : ValueType<uint8_t>(value) {
     }
 
-    UInt8::UInt8(const UInt8 &value) : ValueType<uint8_t>(value) {
-    }
+    UInt8::UInt8(const UInt8 &value) = default;
 
-    UInt8::~UInt8() {
-    }
+    UInt8::~UInt8() = default;
 
     UInt8 &UInt8::operator=(const UInt8 &value) {
         _value = value._value;
@@ -1332,11 +1321,9 @@ namespace Data {
     Int16::Int16(const int16_t &value) : ValueType<int16_t>(value) {
     }
 
-    Int16::Int16(const Int16 &value) : ValueType<int16_t>(value) {
-    }
+    Int16::Int16(const Int16 &value) = default;
 
-    Int16::~Int16() {
-    }
+    Int16::~Int16() = default;
 
     Int16 &Int16::operator=(const Int16 &value) {
         _value = value._value;
@@ -1380,11 +1367,9 @@ namespace Data {
     UInt16::UInt16(const uint16_t &value) : ValueType<uint16_t>(value) {
     }
 
-    UInt16::UInt16(const UInt16 &value) : ValueType<uint16_t>(value) {
-    }
+    UInt16::UInt16(const UInt16 &value) = default;
 
-    UInt16::~UInt16() {
-    }
+    UInt16::~UInt16() = default;
 
     UInt16 &UInt16::operator=(const UInt16 &value) {
         _value = value._value;
@@ -1428,11 +1413,9 @@ namespace Data {
     Int32::Int32(const int32_t &value) : ValueType<int32_t>(value) {
     }
 
-    Int32::Int32(const Int32 &value) : ValueType<int32_t>(value) {
-    }
+    Int32::Int32(const Int32 &value) = default;
 
-    Int32::~Int32() {
-    }
+    Int32::~Int32() = default;
 
     Int32 &Int32::operator=(const Int32 &value) {
         _value = value._value;
@@ -1476,11 +1459,9 @@ namespace Data {
     UInt32::UInt32(const uint32_t &value) : ValueType<uint32_t>(value) {
     }
 
-    UInt32::UInt32(const UInt32 &value) : ValueType<uint32_t>(value) {
-    }
+    UInt32::UInt32(const UInt32 &value) = default;
 
-    UInt32::~UInt32() {
-    }
+    UInt32::~UInt32() = default;
 
     UInt32 &UInt32::operator=(const UInt32 &value) {
         _value = value._value;
@@ -1524,11 +1505,9 @@ namespace Data {
     Int64::Int64(const int64_t &value) : ValueType<int64_t>(value) {
     }
 
-    Int64::Int64(const Int64 &value) : ValueType<int64_t>(value) {
-    }
+    Int64::Int64(const Int64 &value) = default;
 
-    Int64::~Int64() {
-    }
+    Int64::~Int64() = default;
 
     Int64 &Int64::operator=(const Int64 &value) {
         _value = value._value;
@@ -1572,11 +1551,9 @@ namespace Data {
     UInt64::UInt64(const uint64_t &value) : ValueType<uint64_t>(value) {
     }
 
-    UInt64::UInt64(const UInt64 &value) : ValueType<uint64_t>(value) {
-    }
+    UInt64::UInt64(const UInt64 &value) = default;
 
-    UInt64::~UInt64() {
-    }
+    UInt64::~UInt64() = default;
 
     UInt64 &UInt64::operator=(const UInt64 &value) {
         _value = value._value;
@@ -1624,11 +1601,9 @@ namespace Data {
     Float::Float(const float &value) : ValueType<float>(value) {
     }
 
-    Float::Float(const Float &value) : ValueType<float>(value) {
-    }
+    Float::Float(const Float &value) = default;
 
-    Float::~Float() {
-    }
+    Float::~Float() = default;
 
     Float &Float::operator=(const Float &value) {
         _value = value._value;
@@ -1740,11 +1715,9 @@ namespace Data {
     Double::Double(const double &value) : ValueType<double>(value) {
     }
 
-    Double::Double(const Double &value) : ValueType<double>(value) {
-    }
+    Double::Double(const Double &value) = default;
 
-    Double::~Double() {
-    }
+    Double::~Double() = default;
 
     Double &Double::operator=(const Double &value) {
         _value = value._value;

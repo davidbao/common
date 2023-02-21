@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/3/9.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #include "microservice/DataSourceService.h"
@@ -15,7 +15,11 @@
 #include "IO/FileStream.h"
 #include "database/MysqlClient.h"
 #include "database/SqliteClient.h"
+
+#ifdef HAS_DB_KINGBASE
 #include "database/KingbaseClient.h"
+#endif
+
 #include "configuration/ConfigService.h"
 #include "microservice/SummerApplication.h"
 
@@ -37,7 +41,7 @@ namespace Microservice {
     bool DataSourceService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto *cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool enable = true;
@@ -56,43 +60,16 @@ namespace Microservice {
             Trace::warn("database password is incorrect.");
             return false;
         }
-        Url url;
+
         String urlStr = cs->getProperty("summer.datasource.url");
-        if (Url::parse(urlStr, url)) {
-            if (url.scheme() == "mysql" || url.scheme() == "mysqls") {
-                bool result = openMysql(url, userName, password);
-                if (result) {
-                    return true;
-                } else {
-                    Application::instance()->exit(-2);
-                    return false;
-                }
-            } else if (url.scheme() == "kingbase") {
-#ifdef HAS_DB_KINGBASE
-                bool result = openKingbase(url, userName, password);
-                if (result) {
-                    return true;
-                } else {
-                    Application::instance()->exit(-2);
-                    return false;
-                }
-#endif
-            }
+        DbClient *client = open(urlStr, userName, password);
+        if (client != nullptr) {
+            _dbClient = client;
+            return true;
         } else {
-            if (urlStr.find("sqlite") >= 0) {
-                bool result = openSqlite(urlStr);
-                if (result) {
-                    return true;
-                } else {
-                    Application::instance()->exit(-2);
-                    return false;
-                }
-            } else {
-                Trace::warn("database url is incorrect.");
-                return false;
-            }
+//            Application::instance()->exit(-2);
+            return false;
         }
-        return false;
     }
 
     bool DataSourceService::unInitialize() {
@@ -104,19 +81,39 @@ namespace Microservice {
         return true;
     }
 
-    bool DataSourceService::openMysql(const Url &url, const String &userName, const String &password) {
-        String host = url.address();
+    // Need to delete DbClient.
+    DbClient *DataSourceService::open(const String &urlStr, const String &userName, const String &password) {
+        Url url;
+        if (Url::parse(urlStr, url)) {
+            if (url.scheme() == "mysql" || url.scheme() == "mysqls") {
+                return openMysql(url, userName, password);
+            } else if (url.scheme() == "kingbase") {
+#ifdef HAS_DB_KINGBASE
+                return openKingbase(url, userName, password);
+#endif
+            }
+            return nullptr;
+        } else {
+            if (urlStr.find("sqlite") >= 0) {
+                return openSqlite(urlStr);
+            } else {
+                Trace::warn("database url is incorrect.");
+                return nullptr;
+            }
+        }
+    }
+
+    DbClient *DataSourceService::openMysql(const Url &url, const String &userName, const String &password) {
+        const String &host = url.address();
         int port = url.port();
-        String database = url.relativeUrl();
+        const String &database = url.relativeUrl();
         auto *client = new MysqlClient();
         if (client->open(host, port, database, userName, password)) {
             Trace::debug(String::format("Open mysql successfully. host: %s, port: %d, database: %s, user name: %s",
                                         host.c_str(), port, database.c_str(), userName.c_str()));
 
-            _dbClient = client;
-
             DataTable table;
-            if (_dbClient->executeSqlQuery(" select version();", table)) {
+            if (client->executeSqlQuery(" select version();", table)) {
                 if (table.rows().count() > 0) {
                     const DataCells &cells = table.rows().at(0).cells();
                     if (cells.count() > 0) {
@@ -124,36 +121,36 @@ namespace Microservice {
                         if (!cells.at(0).isNullValue() &&
                             Version::parse(cells.at(0).value(), mysqlVersion)) {
                             if (mysqlVersion >= "8.0") {
-                                _dbClient->executeSql(
+                                client->executeSql(
                                         "set @@sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';");
                             } else if (mysqlVersion >= "5.7.2") {
                                 // https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_only_full_group_by
                                 // Reject queries for which the select list, HAVING condition, or ORDER BY list refer to nonaggregated columns that are neither named in the GROUP BYclause nor are functionally dependent on (uniquely determined by) GROUP BY columns.
                                 // As of MySQL 5.7.5, the default SQL mode includes ONLY_FULL_GROUP_BY. (Before 5.7.5, MySQL does not detect functional dependency andONLY_FULL_GROUP_BY is not enabled by default. For a description of pre-5.7.5 behavior, see the MySQL 5.6 Reference Manual.)
-                                _dbClient->executeSql(
+                                client->executeSql(
                                         "set @@sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';");
                             }
                         }
                     }
                 }
             }
-            return true;
+            return client;
         } else {
             Trace::debug(String::format(
                     "Failed to open mysql. host: %s, port: %d, database: %s, user name: %s, reason: '%s'",
                     host.c_str(), port, database.c_str(), userName.c_str(),
                     client->getErrorMsg().c_str()));
             delete client;
-            return false;
+            return nullptr;
         }
     }
 
-    bool DataSourceService::openSqlite(const String &urlStr) {
+    DbClient *DataSourceService::openSqlite(const String &urlStr) {
 #if DEBUG
         Stopwatch sw("Create or open database file");
 #endif
         if (urlStr.find("sqlite") < 0) {
-            return false;
+            return nullptr;
         }
 
         String fullFileName;
@@ -165,18 +162,17 @@ namespace Microservice {
         }
         String filename = Path::getFileName(fullFileName);
 
+        auto *client = new SqliteClient();
         bool error = false;
         String errorStr;
         FileInfo fi(fullFileName);
         if (!fi.exists() || fi.isWritable()) {
-            auto *client = new SqliteClient();
             bool result = client->open(fullFileName);
             if (!result) {
                 error = true;
                 errorStr = client->getErrorMsg();
                 delete client;
-            } else {
-                _dbClient = client;
+                client = nullptr;
             }
         } else {
             error = true;
@@ -186,14 +182,12 @@ namespace Microservice {
         if (error) {
             // can not open the db file, so exit.
             Trace::debug(String::format("Can not open the db file, reason: %s", errorStr.c_str()));
-            return false;
         }
-
-        return true;
+        return client;
     }
 
 #ifdef HAS_DB_KINGBASE
-    bool DataSourceService::openKingbase(const Url &url, const String &userName, const String &password) {
+    DbClient* DataSourceService::openKingbase(const Url &url, const String &userName, const String &password) {
         String host = url.address();
         int port = url.port();
         String database = url.relativeUrl();
@@ -201,16 +195,14 @@ namespace Microservice {
         if (client->open(url, userName, password)) {
             Trace::debug(String::format("Open kingbase successfully. host: %s, port: %d, database: %s, user name: %s",
                                         host.c_str(), port, database.c_str(), userName.c_str()));
-
-            _dbClient = client;
-            return true;
+            return client;
         } else {
             Trace::debug(String::format(
                     "Failed to open kingbase. host: %s, port: %d, database: %s, user name: %s, reason: '%s'",
                     host.c_str(), port, database.c_str(), userName.c_str(),
                     client->getErrorMsg().c_str()));
             delete client;
-            return false;
+            return nullptr;
         }
     }
 #endif

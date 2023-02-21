@@ -1,5 +1,13 @@
-#ifndef DNS_H
-#define DNS_H
+//
+//  Dns.h
+//  common
+//
+//  Created by baowei on 2018/12/10.
+//  Copyright (c) 2018 com. All rights reserved.
+//
+
+#ifndef Dns_h
+#define Dns_h
 
 #include "data/Vector.h"
 #include "data/StringMap.h"
@@ -9,6 +17,7 @@
 #ifdef WIN32
 #include <winsock2.h>
 #else
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -16,34 +25,38 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <signal.h>
+#include <csignal>
 #include <net/if.h>
 #include <netinet/tcp.h>
+
 #endif
 
 using namespace Data;
 
-namespace Net
-{
-	class Dns
-	{
-	public:
-		static String getHostName();
-		static bool getHostNames(StringArray& hostNames);
+namespace Net {
+    class Dns {
+    public:
+        static String getHostName();
 
-        static bool getHostByName(const String& host, struct sockaddr_in& sin, const String& dnsServer = "114.114.114.114");
+        static bool getHostNames(StringArray &hostNames);
 
-	private:
-        Dns();
-        ~Dns();
-        
+        static bool getHostByName(const String &host, struct sockaddr_in &sin,
+                                  const String &dnsServer = "114.114.114.114");
+
     private:
-        static bool getHostByNameByApp(const char* host, String& address);
-        static bool getHostByNameByNslookup(const char* host, String& address, const char* dnsServer = "114.114.114.114");
-        
+        Dns();
+
+        ~Dns();
+
+    private:
+        static bool getHostByNameByApp(const char *host, String &address);
+
+        static bool getHostByNameByNslookup(const char *host, String &address,
+                                            const char *dnsServer = "114.114.114.114");
+
     private:
         static StringMap _hostNames;
-	};
+    };
 }
 
-#endif	// DNS_H
+#endif // Dns_h

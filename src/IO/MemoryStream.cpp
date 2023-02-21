@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/7/15.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #include "IO/MemoryStream.h"

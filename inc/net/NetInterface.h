@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 31/03/2017.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #ifndef NetInterface_h

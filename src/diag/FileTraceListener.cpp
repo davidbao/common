@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/7/14.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 #include "diag/FileTraceListener.h"
 #include "diag/Trace.h"
@@ -25,7 +25,7 @@ namespace Diag {
         this->operator=(context);
     }
 
-    FileTraceListenerContext::FileTraceListenerContext(const String &path, const char *prefix, const char *suffix) {
+    FileTraceListenerContext::FileTraceListenerContext(const String &path, const String &prefix, const String &suffix) {
         this->path = path;
 #ifdef __arm_linux__
         this->reservationDays = 30;        // 30 days
@@ -39,14 +39,38 @@ namespace Diag {
         this->deleteUnusedFilesHour = 1;   // 1 AM
     }
 
-    void FileTraceListenerContext::operator=(const FileTraceListenerContext &context) {
-        this->path = context.path;
-        this->reservationDays = context.reservationDays;
-        this->diskFullSize = context.diskFullSize;
-        this->prefix = context.prefix;
-        this->suffix = context.suffix;
-        this->extName = context.extName;
-        this->deleteUnusedFilesHour = context.deleteUnusedFilesHour;
+    bool FileTraceListenerContext::equals(const TraceListenerContext &other) const {
+        if (!TraceListenerContext::equals(other)) {
+            return false;
+        }
+
+        auto context = dynamic_cast<const FileTraceListenerContext *>(&other);
+
+        return this->path == context->path &&
+               this->reservationDays == context->reservationDays &&
+               this->diskFullSize == context->diskFullSize &&
+               this->prefix == context->prefix &&
+               this->suffix == context->suffix &&
+               this->extName == context->extName &&
+               this->deleteUnusedFilesHour == context->deleteUnusedFilesHour;
+    }
+
+    void FileTraceListenerContext::evaluates(const TraceListenerContext &other) {
+        TraceListenerContext::evaluates(other);
+
+        auto context = dynamic_cast<const FileTraceListenerContext *>(&other);
+        this->path = context->path;
+        this->reservationDays = context->reservationDays;
+        this->diskFullSize = context->diskFullSize;
+        this->prefix = context->prefix;
+        this->suffix = context->suffix;
+        this->extName = context->extName;
+        this->deleteUnusedFilesHour = context->deleteUnusedFilesHour;
+    }
+
+    FileTraceListenerContext &FileTraceListenerContext::operator=(const FileTraceListenerContext &other) {
+        FileTraceListenerContext::evaluates(other);
+        return *this;
     }
 
     void FileTraceListenerContext::read(XmlTextReader &reader, const String &localName) {
@@ -91,13 +115,13 @@ namespace Diag {
     }
 
     void processProc(void *parameter) {
-        FileTraceListener *listener = (FileTraceListener *) parameter;
+        auto listener = (FileTraceListener *) parameter;
         assert(listener);
         listener->processProcInner();
     }
 
     void deleteUnusedFilesAction(void *parameter) {
-        FileTraceListener *listener = (FileTraceListener *) parameter;
+        auto listener = (FileTraceListener *) parameter;
         assert(listener);
         listener->deleteUnusedFiles();
     }
@@ -107,6 +131,7 @@ namespace Diag {
         _diskIsFull = false;
         _fullFileName = String::Empty;
         _currentFileTime = DateTime::now();
+        _file = nullptr;
         _message = String::Empty;
         _processThread = nullptr;
 
@@ -117,7 +142,7 @@ namespace Diag {
 #ifdef WIN32
             const char *fmt = "%s\\%s";
 #else
-            const char* fmt = "%s/%s";
+            const char *fmt = "%s/%s";
 #endif
             _context.path = String::convert(fmt, logPath.c_str(), _context.path.c_str());
         }
@@ -131,12 +156,8 @@ namespace Diag {
         }
     }
 
-    FileTraceListener::FileTraceListener(const char *logPath, const char *prefix, const char *suffix)
-            : FileTraceListener(FileTraceListenerContext(logPath, prefix, suffix)) {
-    }
-
-    FileTraceListener::FileTraceListener(const String &logPath, const char *prefix, const char *suffix)
-            : FileTraceListener(logPath.c_str(), prefix, suffix) {
+    FileTraceListener::FileTraceListener(const String &path, const String &prefix, const String &suffix) :
+            FileTraceListener(FileTraceListenerContext(path, prefix, suffix)) {
     }
 
     FileTraceListener::~FileTraceListener() {
@@ -153,7 +174,7 @@ namespace Diag {
         }
     }
 
-    const FileTraceListenerContext &FileTraceListener::config() const {
+    const FileTraceListenerContext &FileTraceListener::context() const {
         return _context;
     }
 
@@ -169,22 +190,23 @@ namespace Diag {
         return DateTime::parse(name, date);
     }
 
-    const String FileTraceListener::getLogPath() const {
+    String FileTraceListener::getLogPath() {
         return Path::getAppPath();
     }
 
-    bool FileTraceListener::isRealPath(const char *path) const {
+    bool FileTraceListener::isRealPath(const String &path) {
         return Path::isPathRooted(path);
     }
 
-    void FileTraceListener::write(const char *message, const char *category) {
+    void FileTraceListener::write(const String &message, const String &category) {
         if (!_context.enable)
             return;
 
         Locker locker(&_messageMutex);
 
-        if (message == nullptr || strlen(message) == 0)
+        if (message.isNullOrEmpty()) {
             return;
+        }
 
         if (_diskIsFull)
             return;
@@ -194,12 +216,12 @@ namespace Diag {
         updateMessageCount(category);
     }
 
-    void FileTraceListener::updateMessageCount(const char *category) {
+    void FileTraceListener::updateMessageCount(const String &category) {
         _messageCount++;
 
-        if (category != nullptr &&
-            (strcmp(category, Trace::Error) == 0 ||
-             strcmp(category, Trace::Fatal) == 0)) {
+        if (!category.isNullOrEmpty() &&
+            (category.equals(Trace::Error) ||
+             category.equals(Trace::Fatal))) {
             flushInner(false);
         } else {
             if (_messageCount >= MaxMessageCount) {

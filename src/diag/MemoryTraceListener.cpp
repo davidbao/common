@@ -3,14 +3,15 @@
 //  common
 //
 //  Created by baowei on 16/6/2.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "diag/MemoryTraceListener.h"
+#include "diag/Trace.h"
 #include "thread/Locker.h"
 
 namespace Diag {
-    MemoryTraceListenerContext MemoryTraceListenerContext::Default = MemoryTraceListenerContext();
+    const MemoryTraceListenerContext MemoryTraceListenerContext::Default = MemoryTraceListenerContext();
 
     MemoryTraceListenerContext::MemoryTraceListenerContext(int maxMessageCount) {
         if (maxMessageCount >= 1000 && maxMessageCount < 64 * 1024)
@@ -19,38 +20,64 @@ namespace Diag {
             this->maxMessageCount = 10000;
     }
 
-    MemoryTraceListenerContext::MemoryTraceListenerContext(const MemoryTraceListenerContext &context) : maxMessageCount(
-            context.maxMessageCount) {
+    MemoryTraceListenerContext::MemoryTraceListenerContext(const MemoryTraceListenerContext &context)
+            : MemoryTraceListenerContext(context.maxMessageCount) {
     }
 
-    MemoryTraceListenerContext::~MemoryTraceListenerContext() {
+    MemoryTraceListenerContext::~MemoryTraceListenerContext() = default;
+
+    bool MemoryTraceListenerContext::equals(const TraceListenerContext &other) const {
+        if (!TraceListenerContext::equals(other)) {
+            return false;
+        }
+
+        auto context = dynamic_cast<const MemoryTraceListenerContext *>(&other);
+        if (context != nullptr) {
+            return this->maxMessageCount == context->maxMessageCount;
+        }
+        return false;
     }
 
-    MemoryTraceListener::MemoryTraceListener(const MemoryTraceListenerContext &context) : _context(context) {
-        _messages.setMaxLength(context.maxMessageCount);
+    void MemoryTraceListenerContext::evaluates(const TraceListenerContext &other) {
+        TraceListenerContext::evaluates(other);
+
+        auto context = dynamic_cast<const MemoryTraceListenerContext *>(&other);
+        if (context != nullptr) {
+            this->maxMessageCount = context->maxMessageCount;
+        }
     }
 
-    MemoryTraceListener::~MemoryTraceListener() {
+    MemoryTraceListenerContext &MemoryTraceListenerContext::operator=(const MemoryTraceListenerContext &other) {
+        MemoryTraceListenerContext::evaluates(other);
+        return *this;
     }
 
-    void MemoryTraceListener::write(const char *message, const char *category) {
-        if (message == nullptr || strlen(message) == 0)
+    MemoryTraceListener::MemoryTraceListener(const MemoryTraceListenerContext &context) :
+            _messages(context.maxMessageCount), _context(context) {
+    }
+
+    MemoryTraceListener::~MemoryTraceListener() = default;
+
+    void MemoryTraceListener::write(const String &message, const String &category) {
+        if (message.isNullOrEmpty()) {
             return;
+        }
 
-        Locker locker(&_messagesMutex);
+        {
+            Locker locker(&_messages);
+            _messages.enqueue(message);
+        }
 
-        _messages.enqueue(new String(message));
-
-        TraceUpdatedEventArgs args(message, category != nullptr ? (String) category : String::Empty);
+        TraceUpdatedEventArgs args(message, !category.isNullOrEmpty() ? category.c_str() : Trace::Info);
         _updateDelegates.invoke(this, &args);
     }
 
     void MemoryTraceListener::getAllMessages(StringArray &messages) {
-        Locker locker(&_messagesMutex);
+        Locker locker(&_messages);
 
         size_t count = _messages.count();
         if (count > 0) {
-            String **values = new String *[count];
+            auto values = new String*[count];
             _messages.copyTo(values);
             for (uint32_t i = 0; i < count; i++) {
                 messages.add(*values[i]);
@@ -61,5 +88,9 @@ namespace Diag {
 
     Delegates *MemoryTraceListener::updatedDelegates() {
         return &_updateDelegates;
+    }
+
+    const MemoryTraceListenerContext &MemoryTraceListener::context() const {
+        return _context;
     }
 }

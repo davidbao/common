@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/5/1.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #ifndef WebApplication_h

@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2018/9/21.
-//  Copyright © 2019 com. All rights reserved.
+//  Copyright (c) 2019 com. All rights reserved.
 //
 
 #ifndef MqttClient_hpp

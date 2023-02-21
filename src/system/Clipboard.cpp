@@ -2,8 +2,8 @@
 //  Clipboard.cpp
 //  common
 //
-//  Created by baowei on 2018-10-04.
-//  Copyright (c) 2018 com. All rights reserved.
+//  Created by baowei on 2016/12/27.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "system/Clipboard.h"
@@ -52,10 +52,10 @@ namespace System {
         if (_inner) {
             if (_value != nullptr) {
                 if (_type == TextType) {
-                    String *value = (String *) _value;
+                    auto value = (String *) _value;
                     delete value;
                 } else if (_type == ImageType) {
-                    ByteArray *value = (ByteArray *) _value;
+                    auto value = (ByteArray *) _value;
                     delete value;
                 } else {
                     free(_value);
@@ -97,7 +97,7 @@ namespace System {
             clear();
 
             _type = TextType;
-            String *value = new String(data);
+            auto value = new String(data);
             _value = value;
             return true;
         } else {
@@ -160,7 +160,7 @@ namespace System {
             if (!isText())
                 return false;
 
-            String *value = (String *) _value;
+            auto value = (String *) _value;
             data = *value;
             return true;
         } else {
@@ -205,7 +205,7 @@ namespace System {
             //            m_type = wxDF_PRIVATE;
             //            m_id = wxCFStringRef( (CFStringRef) CFRetain((CFStringRef) format )).AsString();
             //        }
-            PasteboardRef pasteboard = (PasteboardRef) _clipboard;
+            auto pasteboard = (PasteboardRef) _clipboard;
 
             ItemCount itemCount = 0;
             // we synchronize here once again, so we don't mind which flags get returned
@@ -214,8 +214,8 @@ namespace System {
             OSStatus err = PasteboardGetItemCount(pasteboard, &itemCount);
             if (err == noErr) {
                 for (uint32_t itemIndex = 1; itemIndex <= itemCount; itemIndex++) {
-                    PasteboardItemID itemID = 0;
-                    CFArrayRef flavorTypeArray = NULL;
+                    PasteboardItemID itemID = nullptr;
+                    CFArrayRef flavorTypeArray = nullptr;
                     CFIndex flavorCount = 0;
 
                     err = PasteboardGetItemIdentifier(pasteboard, itemIndex, &itemID);
@@ -299,7 +299,7 @@ namespace System {
             clear();
 
             _type = ImageType;
-            ByteArray *value = new ByteArray(data);
+            auto value = new ByteArray(data);
             _value = value;
             return true;
         } else {
@@ -337,12 +337,12 @@ namespace System {
             if (!isText())
                 return false;
 
-            ByteArray *value = (ByteArray *) _value;
+            auto value = (ByteArray *) _value;
             data = *value;
             return true;
         } else {
 #ifdef MAC_OS
-            PasteboardRef pasteboard = (PasteboardRef) _clipboard;
+            auto pasteboard = (PasteboardRef) _clipboard;
 
             ItemCount itemCount = 0;
             // we synchronize here once again, so we don't mind which flags get returned
@@ -351,8 +351,8 @@ namespace System {
             OSStatus err = PasteboardGetItemCount(pasteboard, &itemCount);
             if (err == noErr) {
                 for (uint32_t itemIndex = 1; itemIndex <= itemCount; itemIndex++) {
-                    PasteboardItemID itemID = 0;
-                    CFArrayRef flavorTypeArray = NULL;
+                    PasteboardItemID itemID = nullptr;
+                    CFArrayRef flavorTypeArray = nullptr;
                     CFIndex flavorCount = 0;
 
                     err = PasteboardGetItemIdentifier(pasteboard, itemIndex, &itemID);

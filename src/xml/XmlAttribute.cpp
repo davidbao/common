@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/7/30.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #include "xml/XmlAttribute.h"

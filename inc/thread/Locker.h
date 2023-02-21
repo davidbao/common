@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2018/12/8.
-//  Copyright © 2018 com. All rights reserved.
+//  Copyright (c) 2018 com. All rights reserved.
 //
 
 #ifndef Locker_h

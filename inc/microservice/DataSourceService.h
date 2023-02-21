@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/3/9.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #ifndef DataSourceService_h
@@ -42,13 +42,16 @@ namespace Microservice {
 
         void createSqlFile(const String &fileName, const String &sql) override;
 
-    private:
-        bool openMysql(const Url &url, const String &userName, const String &password);
+    public:
+        static DbClient *open(const String &urlStr, const String &userName, const String &password);
 
-        bool openSqlite(const String &urlStr);
+    private:
+        static DbClient *openMysql(const Url &url, const String &userName, const String &password);
+
+        static DbClient *openSqlite(const String &urlStr);
 
 #ifdef HAS_DB_KINGBASE
-        bool openKingbase(const Url &url, const String &userName, const String &password);
+        static DbClient * openKingbase(const Url &url, const String &userName, const String &password);
 #endif
 
     private:

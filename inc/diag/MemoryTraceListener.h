@@ -3,14 +3,14 @@
 //  common
 //
 //  Created by baowei on 2016/6/2.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #ifndef MemoryTraceListener_h
 #define MemoryTraceListener_h
 
 #include "TraceListener.h"
-#include "data/LoopPList.h"
+#include "data/LoopList.h"
 #include "data/StringArray.h"
 #include "thread/Mutex.h"
 #include "system/Delegate.h"
@@ -22,19 +22,25 @@ namespace Diag {
     public:
         int maxMessageCount;
 
-        MemoryTraceListenerContext(int maxMessageCount = 10000);
+        explicit MemoryTraceListenerContext(int maxMessageCount = 10000);
 
         MemoryTraceListenerContext(const MemoryTraceListenerContext &context);
 
         ~MemoryTraceListenerContext() override;
 
+        bool equals(const TraceListenerContext &other) const override;
+
+        void evaluates(const TraceListenerContext &other) override;
+
+        MemoryTraceListenerContext &operator=(const MemoryTraceListenerContext &other);
+
     public:
-        static MemoryTraceListenerContext Default;
+        static const MemoryTraceListenerContext Default;
     };
 
     class MemoryTraceListener : public TraceListener {
     public:
-        MemoryTraceListener(const MemoryTraceListenerContext &context = MemoryTraceListenerContext::Default);
+        explicit MemoryTraceListener(const MemoryTraceListenerContext &context = MemoryTraceListenerContext::Default);
 
         ~MemoryTraceListener() override;
 
@@ -42,30 +48,17 @@ namespace Diag {
 
         Delegates *updatedDelegates();
 
+        const MemoryTraceListenerContext &context() const;
+
     protected:
-        void write(const char *message, const char *category) override;
+        void write(const String &message, const String &category) override;
 
     private:
-        Mutex _messagesMutex;
-        LoopPList<String> _messages;
+        LoopList<String> _messages;
 
         Delegates _updateDelegates;
 
         MemoryTraceListenerContext _context;
-    };
-
-    class TraceUpdatedEventArgs : public EventArgs {
-    public:
-        TraceUpdatedEventArgs(const String &message, const String &category) {
-            this->message = message;
-            this->category = category;
-        }
-
-        ~TraceUpdatedEventArgs() override {
-        }
-
-        String message;
-        String category;
     };
 }
 

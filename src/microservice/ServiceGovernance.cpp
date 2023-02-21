@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/2/27.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #include "microservice/ServiceGovernance.h"

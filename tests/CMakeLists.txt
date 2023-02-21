@@ -103,65 +103,27 @@ if (COMMON_ENABLE_TEST)
     set(COMMON_LIB common ${EXTERNALS_LIB})
     #    message(STATUS "COMMON_LIB: " ${COMMON_LIB})
 
-    # application settings
-    set(TEST_SRC
-            # configuration
-            ConfigServiceTest
-            # crypto
-            SmProviderTest Md5ProviderTest
-            # data
-            ArrayTest ByteArrayTest DateTimeTest DictionaryTest ListTest LoopListTest LoopVectorTest MapTest RectangleTest
-            SizeTest StringTest StringArrayTest StringMapTest PListTest PointTest TypeInfoTest TimeSpanTest
-            TimeZoneTest UuidTest ValueTypeTest VariantTest VectorTest VersionTest WStringTest
-            # diag
-            FileTraceListenerTest
-            # IO
-            FileStreamTest FileTest DirectoryTest MappingStreamTest MemoryStreamTest MetricsTest PathTest ZipTest
-            # json
-            JsonNodeTest JsonTextReaderTest JsonTextWriterTest
-            # net
-            NetTypeTest TcpClientTest
-            # system
-            RandomTest ResourcesTest EnvironmentTest
-            # xml
-            XmlDocumentTest XmlTextReaderTest XmlTextWriterTest
-            # yml
-            YmlNodeTest)
-
-    if (COMMON_BUILD_HTTPCLIENT AND COMMON_BUILD_HTTPSERVER)
-        set(TEST_SRC ${TEST_SRC} HttpClientTest)
-    endif ()
-    if (COMMON_BUILD_MICROSERVICE)
-        set(TEST_SRC ${TEST_SRC} SummerApplicationTest)
-    endif ()
-
-    if (COMMON_BUILD_DATABASE)
-        set(TEST_SRC ${TEST_SRC} DataTableTest SqlSelectFilterTest)
-        if (COMMON_BUILD_SQLITE)
-            set(TEST_SRC ${TEST_SRC} SqliteClientTest)
-        endif ()
-        if (COMMON_BUILD_MYSQL)
-            set(TEST_SRC ${TEST_SRC} MysqlClientTest)
-        endif ()
-        if (COMMON_BUILD_ORACLE)
-        endif ()
-        if (COMMON_BUILD_KINGBASE)
-            set(TEST_SRC ${TEST_SRC} KingbaseClientTest)
-        endif ()
-    endif ()
-
-    if (COMMON_BUILD_IOPORT)
-        set(TEST_SRC ${TEST_SRC} SerialInfoTest)
-    endif ()
-
     if (MAC_OS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation -framework SystemConfiguration")
     endif ()
 
-    #    set(CMAKE_CXX_FLAGS_TEMP ${CMAKE_CXX_FLAGS})
-    foreach (item ${TEST_SRC})
-        add_executable(${item} ${item}.cpp)
-        target_link_libraries(${item} ${COMMON_LIB})
-        add_test(NAME ${item} COMMAND ${item})
+    # application settings
+    set(TEST_BASE_SRC configuration crypto data diag exception http IO json net system thread xml yml)
+    if (COMMON_BUILD_COMMUNICATION)
+        set(TEST_BASE_SRC ${TEST_BASE_SRC} communication)
+    endif ()
+    if (COMMON_BUILD_DATABASE)
+        set(TEST_BASE_SRC ${TEST_BASE_SRC} database)
+    endif ()
+    if (COMMON_BUILD_DRIVER OR COMMON_BUILD_COMMUNICATION)
+        set(TEST_BASE_SRC ${TEST_BASE_SRC} driver)
+    endif ()
+    if (COMMON_BUILD_MICROSERVICE)
+        set(TEST_BASE_SRC ${TEST_BASE_SRC} microservice)
+        set(TEST_BASE_SRC ${TEST_BASE_SRC} rpc)
+    endif ()
+
+    foreach (SRC ${TEST_BASE_SRC})
+        add_subdirectory(${SRC})
     endforeach ()
 endif ()

@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/7/14.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef FileTraceListener_h
@@ -35,29 +35,42 @@ namespace Diag {
 
         FileTraceListenerContext(const FileTraceListenerContext &context);
 
-        FileTraceListenerContext(const String &path, const char *prefix = nullptr, const char *suffix = nullptr);
+        explicit FileTraceListenerContext(const String &path,
+                                          const String &prefix = String::Empty,
+                                          const String &suffix = String::Empty);
 
-        void operator=(const FileTraceListenerContext &context);
+        bool equals(const TraceListenerContext &other) const override;
+
+        void evaluates(const TraceListenerContext &other) override;
+
+        FileTraceListenerContext &operator=(const FileTraceListenerContext &other);
 
         void read(XmlTextReader &reader, const String &localName = "log");
     };
 
     class FileTraceListener : public TraceListener {
     public:
-        FileTraceListener(const FileTraceListenerContext &config);
+        explicit FileTraceListener(const FileTraceListenerContext &config);
 
-        FileTraceListener(const char *logPath = "logs", const char *prefix = nullptr, const char *suffix = nullptr);
-
-        FileTraceListener(const String &logPath, const char *prefix = nullptr, const char *suffix = nullptr);
+        explicit FileTraceListener(const String &path = "logs",
+                                   const String &prefix = String::Empty,
+                                   const String &suffix = String::Empty);
 
         ~FileTraceListener() override;
 
-        const FileTraceListenerContext &config() const;
+        const FileTraceListenerContext &context() const;
 
         bool parseLogFileName(const String &logFileName, DateTime &date) const;
 
     protected:
-        void write(const char *message, const char *category) override;
+        void write(const String &message, const String &category) override;
+
+    protected:
+        friend void processProc(void *parameter);
+
+        void processProcInner();
+
+        friend void deleteUnusedFilesAction(void *parameter);
 
     private:
         bool createFile(const String &logPath);
@@ -72,7 +85,7 @@ namespace Diag {
 
         void deleteFiles(const DateTime &time);
 
-        void updateMessageCount(const char *category = nullptr);
+        void updateMessageCount(const String &category = String::Empty);
 
         void flushInner(bool locked = true);
 
@@ -80,20 +93,14 @@ namespace Diag {
 
         void removeFile(const String &dir, const String &fileName, int days);
 
-        const String getLogPath() const;
-
-        bool isRealPath(const char *path) const;
-
         bool fileOpened() const;
 
         bool isCurrentDate() const;
 
-    protected:
-        friend void processProc(void *parameter);
+    private:
+        static String getLogPath();
 
-        void processProcInner();
-
-        friend void deleteUnusedFilesAction(void *parameter);
+        static bool isRealPath(const String &path);
 
     private:
         String _fullFileName;
@@ -102,7 +109,6 @@ namespace Diag {
         FileStream *_file;
 
         int _messageCount;
-        static const int MaxMessageCount = 10;
 
         String _message;
         Mutex _messageMutex;
@@ -112,6 +118,9 @@ namespace Diag {
         Thread *_processThread;
 
         FileTraceListenerContext _context;
+
+    private:
+        static const int MaxMessageCount = 10;
     };
 }
 

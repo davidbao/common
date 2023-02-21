@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2014/5/15.
-//  Copyright © 2014 com. All rights reserved.
+//  Copyright (c) 2014 com. All rights reserved.
 //
 
 #ifndef UdpServer_h

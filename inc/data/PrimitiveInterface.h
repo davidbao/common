@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2022/8/31.
-//  Copyright © 2022 com. All rights reserved.
+//  Copyright (c) 2022 com. All rights reserved.
 //
 
 #ifndef PrimitiveInterface_h

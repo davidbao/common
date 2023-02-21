@@ -150,7 +150,7 @@ namespace System {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
             auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
-                return listener->config().path;
+                return listener->context().path;
             }
         }
         return String::Empty;
@@ -160,7 +160,7 @@ namespace System {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
             auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
-                return String::convert("*%s", listener->config().extName.c_str());
+                return String::convert("*%s", listener->context().extName.c_str());
             }
         }
         return String::Empty;
@@ -187,7 +187,7 @@ namespace System {
     }
 
     void Application::getAllMessages(StringArray &messages) {
-        for (uint32_t i = 0; i < _traceListeners.count(); i++) {
+        for (size_t i = 0; i < _traceListeners.count(); i++) {
             auto *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->getAllMessages(messages);
@@ -198,7 +198,7 @@ namespace System {
     void Application::initLog(const TraceListenerContexts &contexts) {
         if (contexts.count() > 0) {
             for (size_t i = 0; i < contexts.count(); i++) {
-                TraceListenerContext *context = contexts[i];
+                const TraceListenerContext *context = contexts[i];
                 TraceListener *listener = TraceListener::create(context);
                 _traceListeners.add(listener);
                 Trace::addTraceListener(listener);

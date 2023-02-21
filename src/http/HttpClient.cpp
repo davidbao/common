@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2016/5/14.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "http/HttpClient.h"

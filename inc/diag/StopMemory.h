@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/12/14.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #ifndef StopMemory_h
@@ -18,9 +18,9 @@
 namespace Diag {
     class StopMemory {
     public:
-        StopMemory(int64_t deadMemory = 0);
+        explicit StopMemory(int64_t deadMemory = 0);
 
-        StopMemory(const String &info, int64_t deadMemory = 0);
+        explicit StopMemory(const String &info, int64_t deadMemory = 0);
 
         ~StopMemory();
 
@@ -31,8 +31,6 @@ namespace Diag {
         void stop(bool showInfo = true);
 
         void setInfo(const String &info);
-
-        void setInfo(const char *info);
 
         int64_t used() const;
 

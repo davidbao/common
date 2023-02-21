@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2016/4/29.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "thread/ProcessMutex.h"

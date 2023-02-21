@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2021/5/21.
-//  Copyright © 2021 com. All rights reserved.
+//  Copyright (c) 2021 com. All rights reserved.
 //
 
 #ifndef SHAProvider_h

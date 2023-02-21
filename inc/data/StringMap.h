@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/1/31.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #ifndef StringMap_h

@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/2/18.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #include "microservice/ConsulService.h"

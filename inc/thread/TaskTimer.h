@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/4/3.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #ifndef TaskTimer_h

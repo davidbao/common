@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/7/28.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #define _DCRTIMP

@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 27/12/2016.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "system/Console.h"

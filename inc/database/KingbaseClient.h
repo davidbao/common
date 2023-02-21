@@ -4,7 +4,7 @@
 //
 // for V7 kingbase.
 //  Created by baowei on 2022/12/30.
-//  Copyright © 2022 com. All rights reserved.
+//  Copyright (c) 2022 com. All rights reserved.
 //
 
 #ifndef KingbaseClient_h

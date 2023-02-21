@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/3/4.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #ifndef SummerStarter_h
@@ -60,6 +60,17 @@ namespace Microservice {
             }
             t.unInitialize();
 
+            unInitialize();
+
+            return _app->exitCode();
+        }
+
+        template<class T>
+        int run() {
+            T t;
+            if (t.initialize()) {
+                t.unInitialize();
+            }
             unInitialize();
 
             return _app->exitCode();

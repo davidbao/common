@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2016/9/4.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #ifndef RSAProvider_h

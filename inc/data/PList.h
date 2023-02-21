@@ -3,13 +3,13 @@
 //  common
 //
 //  Created by baowei on 2015/7/20.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef PList_h
 #define PList_h
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <sys/types.h>
 #include "system/OsDefine.h"
 #include "data/IEnumerable.h"
@@ -40,7 +40,7 @@ namespace Data {
             addRange(array);
         }
 
-        PList(PList &&array) : PList(array.autoDelete(), array.capacity()) {
+        PList(PList &&array)  noexcept : PList(array.autoDelete(), array.capacity()) {
             _array = array._array;
             _count = array._count;
             array._array = nullptr;
@@ -445,14 +445,14 @@ namespace Data {
     template<class type>
     class CopyPList : public PList<type> {
     public:
-        CopyPList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
+        explicit CopyPList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
                                                                                                         capacity) {
         }
 
         ~CopyPList() override {
         }
 
-        virtual void copyFrom(const CopyPList *values, bool append = false) {
+        virtual void copyFrom(const CopyPList *values, bool append) {
             if (!append) {
                 this->clear();
             }
@@ -464,6 +464,10 @@ namespace Data {
             }
         }
 
+        void copyFrom(const CopyPList *values) {
+            return copyFrom(values, false);
+        }
+
         virtual void copyContextFrom(const CopyPList *values) {
         }
     };
@@ -471,7 +475,7 @@ namespace Data {
     template<class type>
     class ClonePList : public PList<type> {
     public:
-        ClonePList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
+        explicit ClonePList(bool autoDelete = true, size_t capacity = PList<type>::DefaultCapacity) : PList<type>(autoDelete,
                                                                                                          capacity) {
         }
 
@@ -479,14 +483,14 @@ namespace Data {
         }
 
         ClonePList *clone() const {
-            ClonePList<type> *values = new ClonePList<type>();
+            auto values = new ClonePList<type>();
             for (size_t i = 0; i < this->count(); i++) {
                 values->add(this->at(i)->clone());
             }
             return values;
         }
 
-        virtual void copyFrom(const ClonePList *values, bool append = false) {
+        virtual void copyFrom(const ClonePList *values, bool append) {
             if (!append) {
                 this->clear();
             }
@@ -494,6 +498,10 @@ namespace Data {
             for (size_t i = 0; i < values->count(); i++) {
                 this->add(values->at(i)->clone());
             }
+        }
+
+        void copyFrom(const ClonePList *values) {
+            return copyFrom(values, false);
         }
     };
 }

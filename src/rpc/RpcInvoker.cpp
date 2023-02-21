@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/3/19.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #include "rpc/RpcInvoker.h"

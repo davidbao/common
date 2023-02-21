@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/11/25.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #include "data/Variant.h"
@@ -1730,7 +1730,8 @@ namespace Data {
             return Type::Integer8;
         } else if (String::equals(str, "UInt8", true) ||
                    String::equals(str, "Byte", true) ||
-                   String::equals(str, "UInteger8", true)) {
+                   String::equals(str, "UInteger8", true) ||
+                   String::equals(str, "UChar", true)) {
             return Type::UInteger8;
         } else if (String::equals(str, "Int16", true) ||
                    String::equals(str, "Short", true) ||
@@ -1752,7 +1753,8 @@ namespace Data {
                    String::equals(str, "UInteger", true)) {
             return Type::UInteger32;
         } else if (String::equals(str, "Integer64", true) ||
-                   String::equals(str, "Int64", true)) {
+                   String::equals(str, "Int64", true) ||
+                   String::equals(str, "Long", true)) {
             return Type::Integer64;
         } else if (String::equals(str, "UInteger64", true) ||
                    String::equals(str, "UInt64", true)) {
@@ -1768,6 +1770,7 @@ namespace Data {
         } else if (String::equals(str, "Text", true) ||
                    String::equals(str, "String", true) ||
                    String::equals(str, "varchar", true) ||
+                   String::equals(str, "vstring", true) ||
                    String::equals(str, "nvarchar", true)) {
             return Type::Text;
         } else if (String::equals(str, "Date", true) ||

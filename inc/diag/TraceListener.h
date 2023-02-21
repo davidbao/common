@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2016/6/2.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #ifndef TraceListener_h
@@ -11,38 +11,13 @@
 
 #include "data/String.h"
 #include "data/PList.h"
+#include "system/Delegate.h"
 
 using namespace Data;
+using namespace System;
 
 namespace Diag {
-    enum LogLevel {
-        /// <summary>
-        /// Output error-handling messages.
-        /// </summary>
-        LogError,
-        /// <summary>
-        /// Output informational messages, warnings, and error-handling messages.
-        /// </summary>
-        LogInfo,
-        /// <summary>
-        /// Output no tracing and debugging messages.
-        /// </summary>
-        LogOff,
-        /// <summary>
-        /// Output all debugging and tracing messages.
-        /// </summary>
-        LogVerbose,
-        /// <summary>
-        /// Output warnings and error-handling messages.
-        /// </summary>
-        LogWarning,
-        /// <summary>
-        /// Output system message.
-        /// </summary>
-        LogSystem,
-    };
-
-    class TraceListenerContext {
+    class TraceListenerContext : public IEquatable<TraceListenerContext>, public IEvaluation<TraceListenerContext> {
     public:
         bool enable;
 
@@ -50,24 +25,29 @@ namespace Diag {
 
         TraceListenerContext(const TraceListenerContext &context);
 
-        virtual ~TraceListenerContext();
+        ~TraceListenerContext() override;
+
+        bool equals(const TraceListenerContext &other) const override;
+
+        void evaluates(const TraceListenerContext &other) override;
+
+        TraceListenerContext &operator=(const TraceListenerContext &other);
     };
 
-//    typedef PList<TraceListenerContext> TraceListenerContexts;
     class TraceListenerContexts : public PList<TraceListenerContext> {
     public:
-        TraceListenerContexts(bool autoDelete = true, uint32_t capacity = DefaultCapacity);
+        explicit TraceListenerContexts(bool autoDelete = true, size_t capacity = DefaultCapacity);
 
         TraceListenerContexts(const TraceListenerContexts &contexts);
 
         ~TraceListenerContexts() override;
 
     private:
-        TraceListenerContexts(const TraceListenerContext *context);
+        explicit TraceListenerContexts(const TraceListenerContext *context);
 
     public:
-        static TraceListenerContexts Default;
-        static TraceListenerContexts Empty;
+        static const TraceListenerContexts Default;
+        static const TraceListenerContexts Empty;
     };
 
     class TraceListener {
@@ -76,16 +56,28 @@ namespace Diag {
 
         virtual ~TraceListener();
 
+    public:
         static TraceListener *create(const TraceListenerContext *context);
 
     protected:
-        virtual void write(const char *message, const char *category) = 0;
+        virtual void write(const String &message, const String &category) = 0;
 
     private:
         friend class Trace;
     };
 
-    typedef PList <TraceListener> TraceListeners;
+    typedef PList<TraceListener> TraceListeners;
+
+    class TraceUpdatedEventArgs : public EventArgs {
+    public:
+        String message;
+        String category;
+
+        TraceUpdatedEventArgs(const String &message, const String &category);
+
+        ~TraceUpdatedEventArgs() override {
+        }
+    };
 }
 
 #endif /* TraceListener_h */

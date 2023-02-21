@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/7/20.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #include "diag/Stopwatch.h"
@@ -50,7 +50,7 @@ namespace Diag {
                     {
                         Debug::writeFormatLine("%s, elapsed: %d ms", _info.c_str(), e);
                     } else {
-                        Debug::writeFormatLine("%s, elapsed: %.3f s", _info.c_str(), e / 1000.0f);
+                        Debug::writeFormatLine("%s, elapsed: %.3f s", _info.c_str(), (float) e / 1000.0f);
                     }
                 }
             }
@@ -59,10 +59,6 @@ namespace Diag {
     }
 
     void Stopwatch::setInfo(const String &info) {
-        _info = info;
-    }
-
-    void Stopwatch::setInfo(const char *info) {
         _info = info;
     }
 

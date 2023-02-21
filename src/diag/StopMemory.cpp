@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2020/12/14.
-//  Copyright © 2020 com. All rights reserved.
+//  Copyright (c) 2020 com. All rights reserved.
 //
 
 #include "diag/StopMemory.h"
@@ -38,14 +38,14 @@ namespace Diag {
             if (showInfo && !_info.isNullOrEmpty()) {
                 int64_t used = this->used();
                 if (used >= _deadMemory) {
-                    if (used < 1024)     // < 1K
-                    {
+                    if (used < 1024) {
+                        // < 1K
                         Trace::verb(String::format("%s, used: %ld", _info.c_str(), used));
-                    } else if (used >= 1024 && used < 1024 * 1024) // >= 1K && < 1M
-                    {
+                    } else if (used >= 1024 && used < 1024 * 1024) {
+                        // >= 1K && < 1M
                         Trace::verb(String::format("%s, used: %.1fK", _info.c_str(), (double) used / 1024.0));
-                    } else if (used >= 1024 * 1024 && used < 1024 * 1024 * 1024)   // >= 1M && < 1G
-                    {
+                    } else if (used >= 1024 * 1024 && used < 1024 * 1024 * 1024) {
+                        // >= 1M && < 1G
                         Trace::verb(String::format("%s, used: %.1fM", _info.c_str(), (double) used / 1024.0 / 1024.0));
                     } else {
                         // > 1G
@@ -58,10 +58,6 @@ namespace Diag {
     }
 
     void StopMemory::setInfo(const String &info) {
-        _info = info;
-    }
-
-    void StopMemory::setInfo(const char *info) {
         _info = info;
     }
 

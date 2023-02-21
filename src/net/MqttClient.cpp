@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2018/9/21.
-//  Copyright © 2018 com. All rights reserved.
+//  Copyright (c) 2018 com. All rights reserved.
 //
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)

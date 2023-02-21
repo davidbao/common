@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/9/20.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef MappingStream_h

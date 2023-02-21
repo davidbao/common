@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2019/7/23.
-//  Copyright © 2019 com. All rights reserved.
+//  Copyright (c) 2019 com. All rights reserved.
 //
 
 #include "http/HttpServer.h"

@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/7/20.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef Stopwatch_h
@@ -13,14 +13,13 @@
 #include "data/DateTime.h"
 #include "data/String.h"
 #include "diag/Trace.h"
-#include "Trace.h"
 
 namespace Diag {
     class Stopwatch {
     public:
-        Stopwatch(uint32_t deadTime = 0);
+        explicit Stopwatch(uint32_t deadTime = 0);
 
-        Stopwatch(const String &info, uint32_t deadTime = 0);
+        explicit Stopwatch(const String &info, uint32_t deadTime = 0);
 
         ~Stopwatch();
 
@@ -31,8 +30,6 @@ namespace Diag {
         void stop(bool showInfo = true);
 
         void setInfo(const String &info);
-
-        void setInfo(const char *info);
 
         uint32_t elapsed() const;
 

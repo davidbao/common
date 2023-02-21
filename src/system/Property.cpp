@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 16/8/24.
-//  Copyright © 2016年 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "system/Property.h"

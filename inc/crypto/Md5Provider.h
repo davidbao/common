@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2015/11/12.
-//  Copyright © 2015 com. All rights reserved.
+//  Copyright (c) 2015 com. All rights reserved.
 //
 
 #ifndef MD5Provider_h

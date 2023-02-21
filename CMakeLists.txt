@@ -91,8 +91,9 @@ endif ()
 # Disable some options on android.
 if (ANDROID_OS)
     set(COMMON_BUILD_MICROSERVICE OFF)
-    set(COMMON_BUILD_DATABASE OFF)
-    set(COMMON_BUILD_HTTPSERVER OFF)
+    set(COMMON_BUILD_MYSQL OFF)
+    set(COMMON_BUILD_ORACLE OFF)
+    set(COMMON_BUILD_KINGBASE OFF)
     set(COMMON_BUILD_REDISCLIENT OFF)
 endif ()
 

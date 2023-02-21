@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 16/8/1.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #include "thread/ThreadPool.h"

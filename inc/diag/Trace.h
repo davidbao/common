@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2016/8/3.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
 
 #ifndef Trace_h
@@ -11,7 +11,7 @@
 
 #include "data/String.h"
 #include "diag/TraceListener.h"
-#include <assert.h>
+#include <cassert>
 
 namespace Diag {
     class Trace {
@@ -38,7 +38,7 @@ namespace Diag {
 
         static void disableFlushConsoleOutput();
 
-        static const String getLenBytesStr(long length);
+        static String getLenBytesStr(int64_t length);
 
         static void enableDebugOutput(bool debug = true);
 
@@ -59,17 +59,17 @@ namespace Diag {
         static void fatal(const String &message);
 
     private:
-        static void
-        writeInner(const char *message, bool newLine = false, const char *category = nullptr, bool showTime = true);
+        static void writeInner(const char *message, bool newLine = false,
+                               const char *category = nullptr, bool showTime = true);
 
     public:
-        static const char *Information;        // "Information"
-        static const char *Info;            // "Info"
-        static const char *Error;            // "Error"
-        static const char *Warning;            // "Warning"
-        static const char *Verbose;            // "Verbose"
-        static const char *Debug;            // "Debug"
-        static const char *Fatal;            // "Fatal"
+        static const char *Information;
+        static const char *Info;
+        static const char *Error;
+        static const char *Warning;
+        static const char *Verbose;
+        static const char *Debug;
+        static const char *Fatal;
 
         static const int MaxMessageLength = 1024 * 2;    // 2 K
 

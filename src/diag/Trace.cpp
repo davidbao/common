@@ -3,10 +3,8 @@
 //  common
 //
 //  Created by baowei on 2016/8/3.
-//  Copyright © 2016 com. All rights reserved.
+//  Copyright (c) 2016 com. All rights reserved.
 //
-
-#include "diag/FileTraceListener.h"
 
 #if WIN32
 
@@ -17,7 +15,7 @@
 #else
 #endif
 
-#include <stdarg.h>
+#include <cstdarg>
 #include "data/DateTime.h"
 #include "diag/Trace.h"
 
@@ -41,9 +39,9 @@ namespace Diag {
         char *message = new char[MaxMessageLength];
         memset(message, 0, MaxMessageLength);
         va_list ap;
-                va_start(ap, format);
+        va_start(ap, format);
         vsprintf(message, format, ap);
-                va_end(ap);
+        va_end(ap);
 
         writeInner(message, false);
         delete[] message;
@@ -53,9 +51,9 @@ namespace Diag {
         char *message = new char[MaxMessageLength];
         memset(message, 0, MaxMessageLength);
         va_list ap;
-                va_start(ap, format);
+        va_start(ap, format);
         vsprintf(message, format, ap);
-                va_end(ap);
+        va_end(ap);
 
         writeInner(message, true);
         delete[] message;
@@ -215,14 +213,16 @@ namespace Diag {
         _enableFlushConsoleOutput = false;
     }
 
-    const String Trace::getLenBytesStr(long length) {
+    String Trace::getLenBytesStr(int64_t length) {
         String str;
-        if (length < 1024)
-            str = String::convert("%ld", length);
-        else if (length >= 1024 && length < 1024 * 1024)
-            str.append(String::convert("%ld K", length / 1024));
-        else if (length >= 1024 * 1024)
-            str.append(String::convert("%ld M", length / 1024 / 1024));
+#define Int64Format "%" PRId64
+        if (length < 1024) {
+            str = String::convert(Int64Format, length);
+        } else if (length < 1024 * 1024) {
+            str.append(String::convert(Int64Format "K", length / 1024));
+        } else {
+            str.append(String::convert(Int64Format "M", length / 1024 / 1024));
+        }
         return str;
     }
 
@@ -274,9 +274,9 @@ namespace Diag {
         char *message = new char[Trace::MaxMessageLength];
         memset(message, 0, Trace::MaxMessageLength);
         va_list ap;
-                va_start(ap, format);
+        va_start(ap, format);
         vsprintf(message, format, ap);
-                va_end(ap);
+        va_end(ap);
 
         writeInner(message, false);
         delete[] message;
@@ -288,9 +288,9 @@ namespace Diag {
         char *message = new char[Trace::MaxMessageLength];
         memset(message, 0, Trace::MaxMessageLength);
         va_list ap;
-                va_start(ap, format);
+        va_start(ap, format);
         vsprintf(message, format, ap);
-                va_end(ap);
+        va_end(ap);
 
         writeInner(message, true);
         delete[] message;

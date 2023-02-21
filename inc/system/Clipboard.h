@@ -1,5 +1,13 @@
-#ifndef CLIPBOARD_H
-#define CLIPBOARD_H
+//
+//  Clipboard.h
+//  common
+//
+//  Created by baowei on 2016/12/27.
+//  Copyright (c) 2016 com. All rights reserved.
+//
+
+#ifndef Clipboard_h
+#define Clipboard_h
 
 #include "data/String.h"
 #include "data/ByteArray.h"
@@ -9,7 +17,7 @@ using namespace Data;
 namespace System {
     class Clipboard {
     public:
-        Clipboard(bool inner = true);
+        explicit Clipboard(bool inner = true);
 
         ~Clipboard();
 
@@ -82,4 +90,4 @@ namespace System {
     };
 }
 
-#endif // CLIPBOARD_H
+#endif // Clipboard_h

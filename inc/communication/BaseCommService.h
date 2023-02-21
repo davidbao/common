@@ -3,7 +3,7 @@
 //  common
 //
 //  Created by baowei on 2017/2/17.
-//  Copyright © 2017 com. All rights reserved.
+//  Copyright (c) 2017 com. All rights reserved.
 //
 
 #ifndef BaseCommService_h
