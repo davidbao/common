@@ -36,245 +36,155 @@ namespace System {
             return a < b ? b : a;
         }
 
-        inline static float round(float value) {
-            return ::roundf(value);
-        }
+        static float round(float value);
 
-        inline static double round(double value) {
-            return ::round(value);
-        }
+        static double round(double value);
 
-        inline static long double round(long double value) {
-            return ::roundl(value);
-        }
+        static long double round(long double value);
 
-        inline static float ceiling(float value) {
-            return ::ceilf(value);
-        }
+        static float ceiling(float value);
 
-        inline static double ceiling(double value) {
-            return ::ceil(value);
-        }
+        static double ceiling(double value);
 
-        inline static long double ceiling(long double value) {
-            return ::ceill(value);
-        }
+        static long double ceiling(long double value);
 
-        inline static float sin(float value) {
-            return ::sinf(value);
-        }
+        static float floor(float value);
 
-        inline static double sin(double value) {
-            return ::sin(value);
-        }
+        static double floor(double value);
 
-        inline static long double sin(long double value) {
-            return ::sinl(value);
-        }
+        static long double floor(long double value);
 
-        inline static float cos(float value) {
-            return ::cosf(value);
-        }
+        static float trunc(float value);
 
-        inline static double cos(double value) {
-            return ::cos(value);
-        }
+        static double trunc(double value);
 
-        inline static long double cos(long double value) {
-            return ::cosl(value);
-        }
+        static long double trunc(long double value);
 
-        inline static float tan(float value) {
-            return ::tanf(value);
-        }
+        static float sin(float value);
 
-        inline static double tan(double value) {
-            return ::tan(value);
-        }
+        static double sin(double value);
 
-        inline static long double tan(long double value) {
-            return ::tanl(value);
-        }
+        static long double sin(long double value);
 
-        inline static long double asin(long double value) {
-            return ::asinl(value);
-        }
+        static float cos(float value);
 
-        inline static double asin(double value) {
-            return ::asin(value);
-        }
+        static double cos(double value);
 
-        inline static float acos(float value) {
-            return ::acosf(value);
-        }
+        static long double cos(long double value);
 
-        inline static double acos(double value) {
-            return ::acos(value);
-        }
+        static float tan(float value);
 
-        inline static long double acos(long double value) {
-            return ::acosl(value);
-        }
+        static double tan(double value);
 
-        inline static float atan(float value) {
-            return ::atanf(value);
-        }
+        static long double tan(long double value);
 
-        inline static double atan(double value) {
-            return ::atan(value);
-        }
+        static float asin(float value);
 
-        inline static long double atan(long double value) {
-            return ::atanl(value);
-        }
+        static double asin(double value);
 
-        inline static float atan2(float y, float x) {
-            return ::atan2f(y, x);
-        }
+        static long double asin(long double value);
 
-        inline static double atan2(double y, double x) {
-            return ::atan2(y, x);
-        }
+        static float acos(float value);
 
-        inline static long double atan2(long double y, long double x) {
-            return ::atan2l(y, x);
-        }
+        static double acos(double value);
 
-        inline static float pow(float a, float b) {
-            return ::powf(a, b);
-        }
+        static long double acos(long double value);
 
-        inline static double pow(double a, double b) {
-            return ::pow(a, b);
-        }
+        static float atan(float value);
 
-        inline static long double pow(long double a, long double b) {
-            return ::powl(a, b);
-        }
+        static double atan(double value);
 
-        inline static float sqrt(float value) {
-            return ::sqrtf(value);
-        }
+        static long double atan(long double value);
 
-        inline static double sqrt(double value) {
-            return ::sqrt(value);
-        }
+        static float atan2(float y, float x);
 
-        inline static long double sqrt(long double value) {
-            return ::sqrtl(value);
-        }
+        static double atan2(double y, double x);
 
-        inline static int abs(int value) {
-            return value < 0 ? -value : value;
-        }
+        static long double atan2(long double y, long double x);
 
-        inline static float abs(float value) {
-            return ::fabsf(value);
-        }
+        static float pow(float a, float b);
 
-        inline static double abs(double value) {
-            return ::fabs(value);
-        }
+        static double pow(double a, double b);
 
-        inline static long double abs(long double value) {
-            return ::fabsl(value);
-        }
+        static long double pow(long double a, long double b);
 
-        inline static float exp(float value) {
-            return ::expf(value);
-        }
+        static float sqrt(float value);
 
-        inline static double exp(double value) {
-            return ::exp(value);
-        }
+        static double sqrt(double value);
 
-        inline static long double exp2(long double value) {
-            return ::exp2l(value);
-        }
+        static long double sqrt(long double value);
 
-        inline static float exp2(float value) {
-            return ::exp2f(value);
-        }
+        static float cbrt(float value);
 
-        inline static double exp2(double value) {
-            return ::exp2(value);
-        }
+        static double cbrt(double value);
 
-        inline static long double exp(long double value) {
-            return ::expl(value);
-        }
+        static long double cbrt(long double value);
 
-        inline static float log(float value) {
-            return ::logf(value);
-        }
+        static float hypot(float x, float y);
 
-        inline static double log(double value) {
-            return ::log(value);
-        }
+        static double hypot(double x, double y);
 
-        inline static long double log(long double value) {
-            return ::logl(value);
-        }
+        static long double hypot(long double x, long double y);
 
-        inline static float log2(float value) {
-            return ::log2f(value);
-        }
+        static int abs(int value);
 
-        inline static double log2(double value) {
-            return ::log2(value);
-        }
+        static long abs(long value);
 
-        inline static long double log2(long double value) {
-            return ::log2l(value);
-        }
+        static float abs(float value);
 
-        inline static float log10(float value) {
-            return ::log10f(value);
-        }
+        static double abs(double value);
 
-        inline static double log10(double value) {
-            return ::log10(value);
-        }
+        static long double abs(long double value);
 
-        inline static long double log10(long double value) {
-            return ::log10l(value);
-        }
+        static float exp(float value);
 
-        inline static double toRadian(double angle) {
-            return (double) (angle * RadianFactor);
-        }
+        static double exp(double value);
 
-        inline static double toAngle(double radian) {
-            return (double) (radian * AngleFactor);
-        }
+        static long double exp(long double value);
 
-        template<typename type>
-        inline static type getGreatestCommonDivisor(const type &a, const type &b) {
-            type c;
-            while (b != 0) {
-                c = a % b;
-                a = b;
-                b = c;
-            }
-            return a;
-        }
+        static float exp2(float value);
 
-        template<typename type>
-        inline static type getSmallestCommonMultiple(const type &a, const type &b) {
-            type m, n, c;
-            m = a;
-            n = b;
-            while (b != 0) {
-                c = a % b;
-                a = b;
-                b = c;
-            }
-            return m * n / a;
-        }
+        static double exp2(double value);
 
-        static void calcCoordinate(float angle, float l, float &x, float &y);
+        static long double exp2(long double value);
 
-        static bool calcPolarCoordinate(float x, float y, float &angle, float &l);
+        static float log(float value);
+
+        static double log(double value);
+
+        static long double log(long double value);
+
+        static float log2(float value);
+
+        static double log2(double value);
+
+        static long double log2(long double value);
+
+        static float log10(float value);
+
+        static double log10(double value);
+
+        static long double log10(long double value);
+
+        static float mod(float x, float y);
+
+        static double mod(double x, double y);
+
+        static long double mod(long double x, long double y);
+
+        static double toRadian(double angle);
+
+        static double toAngle(double radian);
+
+        // retrieved 'Greatest Common Divisor'.
+        static bool getGCD(int a, int b, int &v);
+
+        // retrieved 'Smallest Common Multiple'.
+        static bool getSCM(int a, int b, int &v);
+
+        static void calcCoord(float angle, float l, float &x, float &y);
+
+        static void calcPolarCoord(float x, float y, float &angle, float &l);
 
     public:
         static const double PI;

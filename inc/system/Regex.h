@@ -1,7 +1,7 @@
 #ifndef REGEX_H
 #define REGEX_H
 
-#include <stdio.h>
+#include <cstdio>
 #include <regex>
 #include "data/String.h"
 #include "data/StringArray.h"
@@ -15,7 +15,7 @@
 namespace System {
     class Regex {
     public:
-        Regex(const String &pattern);
+        explicit Regex(const String &pattern);
 
         ~Regex();
 

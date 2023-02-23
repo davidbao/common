@@ -118,7 +118,14 @@ bool testMemoryStat() {
         }
 #endif
 
-#ifndef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
+#elif WIN_OS
+        if (MemoryStat::used() <= 0) {
+            return false;
+        }
+
+        MemoryStat::logUsed();
+#else
         if (MemoryStat::maxHeap() <= 0) {
             return false;
         }

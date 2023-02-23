@@ -21,7 +21,7 @@ set(SYSTEM_SRC
 #        DynamicLoader.cpp
         EnvironmentTest.cpp
 #        LocalTime.cpp
-#        Math.cpp
+        MathTest.cpp
 #        NameService.cpp
 #        PoolService.cpp
 #        Property.cpp

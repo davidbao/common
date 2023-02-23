@@ -9,11 +9,10 @@
 #include "IO/Metrics.h"
 #include "data/ValueType.h"
 #include "diag/Trace.h"
-#include "thread/Process.h"
 #include "system/Environment.h"
 #include "thread/ThreadPool.h"
+#include "thread/Process.h"
 #include "system/Application.h"
-#include <cassert>
 #include <cinttypes>
 
 #if MAC_OS
@@ -31,6 +30,9 @@
 
 #include <Windows.h>
 #include <strsafe.h>
+#include <tlhelp32.h>
+#include <tchar.h>
+#include <psapi.h>
 
 #elif LINUX_OS
 #include <sys/vfs.h>
@@ -56,7 +58,7 @@ static __int64 file_time_2_utc(const FILETIME *ftime) {
     LARGE_INTEGER li;
 
     li.LowPart = ftime->dwLowDateTime;
-    li.HighPart = ftime->dwHighDateTime;
+    li.HighPart = (LONG) ftime->dwHighDateTime;
     return li.QuadPart;
 }
 
@@ -121,11 +123,10 @@ namespace IO {
 
     LARGE_INTEGER __GetDirectorySize(const char *szDir) {
         WIN32_FIND_DATA ffd;
-        LARGE_INTEGER diretorySize;
-        diretorySize.QuadPart = 0;
+        LARGE_INTEGER directorySize;
+        directorySize.QuadPart = 0;
 
         HANDLE hFind = INVALID_HANDLE_VALUE;
-        DWORD dwError = 0;
 
         char szDirAll[MAX_PATH];
         StringCchCopy(szDirAll, MAX_PATH, szDir);
@@ -133,7 +134,7 @@ namespace IO {
 
         hFind = FindFirstFile(szDirAll, &ffd);
         if (INVALID_HANDLE_VALUE == hFind) {
-            return diretorySize;
+            return directorySize;
         }
 
         do {
@@ -148,15 +149,15 @@ namespace IO {
                 StringCchCat(szSubDir, MAX_PATH, ffd.cFileName);
 
                 LARGE_INTEGER subDirSize = __GetDirectorySize(szSubDir);
-                diretorySize.QuadPart += subDirSize.QuadPart;
+                directorySize.QuadPart += subDirSize.QuadPart;
             } else {
-                diretorySize.QuadPart += ffd.nFileSizeLow + ffd.nFileSizeHigh;
+                directorySize.QuadPart += ffd.nFileSizeLow + ffd.nFileSizeHigh;
             }
         } while (FindNextFile(hFind, &ffd) != 0);
 
         FindClose(hFind);
 
-        return diretorySize;
+        return directorySize;
     }
 
 #endif
@@ -225,7 +226,7 @@ namespace IO {
 #elif WIN_OS
         SYSTEM_INFO si;
         GetSystemInfo(&si);
-        return si.dwNumberOfProcessors;
+        return (int) si.dwNumberOfProcessors;
 #else
         return 1;
 #endif
@@ -450,6 +451,44 @@ namespace IO {
         }
         pclose(f);
         return 0;
+#elif WIN_OS
+        HANDLE hProcessSnap;
+        PROCESSENTRY32 pe32;
+        int threadCount = 0;
+
+        // Take a snapshot of all processes in the system.
+        hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (hProcessSnap == INVALID_HANDLE_VALUE) {
+            Trace::error("CreateToolhelp32Snapshot (of processes)");
+            return 0;
+        }
+
+        // Set the size of the structure before using it.
+        pe32.dwSize = sizeof(PROCESSENTRY32);
+
+        // Retrieve information about the first process,
+        // and exit if unsuccessful
+        if (!Process32First(hProcessSnap, &pe32)) {
+            Trace::error("Process32First"); // show cause of failure
+            CloseHandle(hProcessSnap);          // clean the snapshot object
+            return 0;
+        }
+
+        DWORD pid = GetCurrentProcessId();
+
+        // Now walk the snapshot of processes, and
+        // display information about each process in turn
+        do {
+            if (pe32.th32ProcessID == pid) {
+                threadCount = (int) pe32.cntThreads;
+                break;
+            }
+
+        } while (Process32Next(hProcessSnap, &pe32));
+
+        CloseHandle(hProcessSnap);
+
+        return threadCount;
 #else
         return 0;
 #endif
@@ -482,7 +521,7 @@ namespace IO {
         MEMORYSTATUSEX status;
         status.dwLength = sizeof(status);
         GlobalMemoryStatusEx(&status);
-        return (size_t) status.ullTotalPhys;
+        return (int64_t) status.ullTotalPhys;
 
 #elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
         /* UNIX variants. ------------------------------------------- */
@@ -578,6 +617,13 @@ namespace IO {
         }
         pclose(f);
         return 0;
+#elif WIN32
+        /* Windows. ------------------------------------------------- */
+        /* Use new 64-bit MEMORYSTATUSEX, not old 32-bit MEMORYSTATUS */
+        MEMORYSTATUSEX status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatusEx(&status);
+        return (int64_t) (status.ullTotalPhys - status.ullAvailPhys);
 #else
         return 0;
 #endif
@@ -641,6 +687,10 @@ namespace IO {
         return 0;
 #elif LINUX_OS
         return getProcStatusValue("VmPeak") * 1024;
+#elif WIN32
+        PROCESS_MEMORY_COUNTERS info;
+        GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
+        return (int64_t) info.PeakWorkingSetSize;
 #else
         return 0;
 #endif
@@ -664,6 +714,10 @@ namespace IO {
         return static_cast<int64_t>(vmInfo.phys_footprint);
 #elif LINUX_OS
         return getProcStatmValue(ProcStatm::Resident) - getProcStatmValue(ProcStatm::Shared);
+#elif WIN32
+        PROCESS_MEMORY_COUNTERS info;
+        GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
+        return (int64_t) info.WorkingSetSize;
 #else
         return 0;
 #endif
@@ -726,12 +780,17 @@ namespace IO {
 
     String UserStat::name() {
         String name;
+#ifdef WIN_OS
+        Environment::getVariable("USERNAME", name);
+#elif LINUX_OS
         Environment::getVariable("USER", name);
-#if LINUX_OS
-        return name.isNullOrEmpty() ? "root" : name;
+        if (name.isNullOrEmpty()) {
+            name = "root";
+        }
 #else
-        return name;
+        Environment::getVariable("USER", name);
 #endif
+        return name;
     }
 
     String UserStat::language() {
@@ -769,7 +828,11 @@ namespace IO {
 
     String UserStat::home() {
         String name;
+#ifdef WIN_OS
+        Environment::getVariable("USERPROFILE", name);
+#else
         Environment::getVariable("HOME", name);
+#endif
         return name;
     }
 
@@ -783,11 +846,11 @@ namespace IO {
 
     String OSStat::name() {
 #if MAC_OS
-        return "Mac OS X";
+        return "macOS";
 #elif LINUX_OS
-        return "Linux";
+        return "linux";
 #elif WIN_OS
-        return "Windows";
+        return "windows";
 #elif BROWSER_OS
         return "WebAssembly";
 #else

@@ -9,17 +9,17 @@
 #include "microservice/SummerApplication.h"
 #include "IO/Directory.h"
 
-using namespace Data;
+using namespace IO;
 using namespace Microservice;
 
 void cleanUp() {
-    String logPath;
+    String rootPath;
     {
         SummerApplication app;
-        logPath = SummerApplication::instance()->logPath();
+        rootPath = SummerApplication::instance()->rootPath();
     }
-    if(Directory::exists(logPath)) {
-        Directory::deleteDirectory(logPath);
+    if(Directory::exists(rootPath)) {
+        Directory::deleteDirectory(rootPath);
     }
 }
 

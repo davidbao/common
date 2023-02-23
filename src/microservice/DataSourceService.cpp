@@ -210,7 +210,7 @@ namespace Microservice {
     void DataSourceService::createSqlFile(const String &fileName, const String &sql) {
         Application *app = Application::instance();
         assert(app);
-        String sqlPath = Path::combine(app->rootPath(), "sql");
+        String sqlPath = Path::combine(app->rootPath(), "infoSql");
         if (!Directory::exists(sqlPath))
             Directory::createDirectory(sqlPath);
         String fullFileName = Path::combine(sqlPath, fileName);

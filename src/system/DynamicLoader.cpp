@@ -18,12 +18,12 @@
 
 namespace System {
     DynamicLoader::DynamicLoader(const char *libName) : _handle(nullptr) {
-        if (libName == NULL || strlen(libName) == 0)
+        if (libName == nullptr || strlen(libName) == 0)
             throw ArgumentException("libName");
 
 #if WIN32
         _handle = LoadLibrary(libName);
-        if(_handle == NULL)
+        if(_handle == nullptr)
         {
             retrieveError();
         }
@@ -33,7 +33,7 @@ namespace System {
         }
 #elif HAVE_DLOPEN
         _handle = dlopen(libName, RTLD_LAZY);
-        if (_handle == NULL) {
+        if (_handle == nullptr) {
             retrieveError();
         } else {
             _error.empty();
@@ -47,39 +47,39 @@ namespace System {
     }
 
     DynamicLoader::~DynamicLoader() {
-        if (_handle != NULL) {
+        if (_handle != nullptr) {
 #if WIN32
             FreeLibrary((HINSTANCE)_handle);
 #elif HAVE_DLOPEN
             dlclose(_handle);
 #endif
-            _handle = NULL;
+            _handle = nullptr;
         }
     }
 
     void *DynamicLoader::getSymbol(const char *symbol) {
-        if (symbol == NULL || strlen(symbol) == 0)
+        if (symbol == nullptr || strlen(symbol) == 0)
             throw ArgumentException("symbol");
 
-        if (_handle != NULL) {
+        if (_handle != nullptr) {
             _error.empty();
 
 #if WIN32
             FARPROC result = GetProcAddress((HINSTANCE)_handle, symbol);
-            if(result == NULL)
+            if(result == nullptr)
             {
                 retrieveError();
             }
             return (void*)result;
 #elif HAVE_DLOPEN
             void *result = dlsym(_handle, symbol);
-            if (result == NULL) {
+            if (result == nullptr) {
                 retrieveError();
             }
             return result;
 #endif
         }
-        return NULL;
+        return nullptr;
     }
 
     void *DynamicLoader::getSymbol(const String &symbol) {
@@ -105,11 +105,11 @@ namespace System {
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
+            nullptr,
             dw,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPTSTR)&lpMsgBuf,
-            0, NULL);
+            0, nullptr);
 
         _error = (LPTSTR)lpMsgBuf;
         LocalFree(lpMsgBuf);

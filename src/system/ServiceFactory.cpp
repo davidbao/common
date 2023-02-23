@@ -1,18 +1,13 @@
 #include "system/ServiceFactory.h"
-#include "diag/Trace.h"
 
 namespace System {
-    IService::IService() {
-    }
+    IService::IService() = default;
 
-    IService::~IService() {
-    }
+    IService::~IService() = default;
 
-    ServiceFactory::ServiceFactory() {
-    }
+    ServiceFactory::ServiceFactory() = default;
 
-    ServiceFactory::~ServiceFactory() {
-    }
+    ServiceFactory::~ServiceFactory() = default;
 
     void ServiceFactory::addServiceInner(const String &name, IService *service) {
         _services.add(name, service);

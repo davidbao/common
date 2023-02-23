@@ -138,7 +138,7 @@ namespace Database {
 #ifdef DEBUG
 
     void DbClient::createSqlFile(const String &fileName, const String &sql) {
-        String sqlPath = Path::combine(Application::instance()->rootPath(), "logsSql");
+        String sqlPath = Path::combine(Application::instance()->rootPath(), "infoSql");
         if (!Directory::exists(sqlPath))
             Directory::createDirectory(sqlPath);
         String fullFileName = Path::combine(sqlPath, fileName);
