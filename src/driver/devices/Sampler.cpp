@@ -98,7 +98,7 @@ namespace Drivers {
         return channel->opened();
     }
 
-    void Sampler::instructionProcInner() {
+    void Sampler::instructionProc() {
         if (!_pause) {
             if (_sampleStart == (uint32_t) -1) {
                 TickTimeout::msdelay(5000, isChannelOpened, _channel);
@@ -106,7 +106,7 @@ namespace Drivers {
 
             addSampleInstruction();
         }
-        InstructionPool::instructionProcInner();
+        InstructionPool::instructionProc();
     }
 
     bool Sampler::reopen() {

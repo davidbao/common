@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include "driver/devices/InstructionPool.h"
 #include "thread/Locker.h"
 #include "thread/TickTimeout.h"
@@ -143,8 +143,9 @@ namespace Drivers {
         if (_instructionThread == nullptr) {
             char name[256];
             sprintf(name, "InstructionProc_%s", _dd->name().c_str());
-            _instructionThread = new Thread(name);
-            _instructionThread->startProc(instructionProc, this, 1);
+            _instructionThread = new Timer(name,
+                                           ObjectTimerCallback<InstructionPool>(this, &InstructionPool::instructionProc),
+                                           1);
         }
 
         resume();
@@ -379,13 +380,13 @@ namespace Drivers {
         return executeInstructionSync(_dd, id);
     }
 
-    void InstructionPool::instructionProcInner() {
+    void InstructionPool::instructionProc() {
         if (!_pause) {
             try {
                 processInstructions();
             }
             catch (const exception &e) {
-                String str = String::convert("InstructionPool::instructionProcInner error'%s'", e.what());
+                String str = String::convert("InstructionPool::instructionProc error'%s'", e.what());
                 Trace::writeLine(str, Trace::Error);
             }
         }
@@ -438,11 +439,6 @@ namespace Drivers {
 
     Device *InstructionPool::device() const {
         return _device;
-    }
-
-    void InstructionPool::instructionProc(void *parameter) {
-        InstructionPool *ip = (InstructionPool *) parameter;
-        ip->instructionProcInner();
     }
 
     bool InstructionPool::isPacketFinished(void *parameter) {

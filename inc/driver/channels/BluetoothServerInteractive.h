@@ -42,11 +42,9 @@ namespace Drivers
 		}
 
 	private:
-		friend void bluetooth_acceptProc(void* parameter);
-		void acceptProcInner();
+		void acceptProc();
 
-		friend void bluetooth_closeProc(void* parameter);
-		void closeProcInner();
+		void closeProc();
 
 		inline BluetoothServerChannelContext* getChannelContext()  
 		{
@@ -62,8 +60,8 @@ namespace Drivers
 		Mutex _mutexClients;
 		BluetoothServerClients _clients;
 
-		Thread* _acceptThread;
-		Thread* _closeThread;
+		Timer* _acceptTimer;
+		Timer* _closeTimer;
 
 		client_accpet_callback _acceptAction;
 		client_close_callback _closeAction;

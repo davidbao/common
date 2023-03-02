@@ -12,10 +12,10 @@
 #include "thread/TickTimeout.h"
 
 namespace Threading {
-    ThreadPool::Item::Item(action_callback3 action, ThreadHolder *holder) {
+    ThreadPool::Item::Item(ThreadHolderAction action, ThreadHolder *holder) {
         static int no = 0;
         no++;
-        thread = new Thread(String::convert("ThreadPool%d", no));
+//        thread = new Thread(String::convert("ThreadPool%d", no));
         this->action = action;
         this->holder = holder;
     }
@@ -31,24 +31,18 @@ namespace Threading {
 
     ThreadPool::~ThreadPool() {
         Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
-            Item *item = _items[i];
-
-            Locker locker(&item->threadMutex);
-            item->thread->stop();
-        }
         _items.clear();
     }
 
-    void ThreadPool::startAsync(action_callback3 action, void *owner) {
+    void ThreadPool::startAsync(ThreadHolderAction action, void *owner) {
         instance()->startAsyncInner(action, owner);
     }
 
-    void ThreadPool::startAsync(action_callback3 action, ThreadHolder *holder) {
+    void ThreadPool::startAsync(ThreadHolderAction action, ThreadHolder *holder) {
         instance()->startAsyncInner2(action, holder);
     }
 
-    bool ThreadPool::isAlive(action_callback3 action) {
+    bool ThreadPool::isAlive(ThreadHolderAction action) {
         return instance()->isAliveInner(action);
     }
 
@@ -56,7 +50,7 @@ namespace Threading {
         return instance()->isAliveInner(holder);
     }
 
-    void ThreadPool::stop(action_callback3 action) {
+    void ThreadPool::stop(ThreadHolderAction action) {
         instance()->stopInner(action);
     }
 
@@ -64,18 +58,18 @@ namespace Threading {
         instance()->stopInner(holder);
     }
 
-    bool ThreadPool::invoke(action_callback3 action, void *owner, const TimeSpan &timeout) {
+    bool ThreadPool::invoke(ThreadHolderAction action, void *owner, const TimeSpan &timeout) {
         startAsync(action, owner);
         return TickTimeout::delay(timeout, isStopped, (void *) action);
     }
 
-    bool ThreadPool::invoke(action_callback3 action, ThreadHolder *holder, const TimeSpan &timeout) {
+    bool ThreadPool::invoke(ThreadHolderAction action, ThreadHolder *holder, const TimeSpan &timeout) {
         startAsync(action, holder);
         return TickTimeout::delay(timeout, isStopped, (void *) action);
     }
 
     bool ThreadPool::isStopped(void *parameter) {
-        action_callback3 action = (action_callback3) parameter;
+        ThreadHolderAction action = (ThreadHolderAction) parameter;
         return !isAlive(action);
     }
 
@@ -86,7 +80,7 @@ namespace Threading {
     int ThreadPool::threadCountInner() {
         int count = 0;
         Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
+        for (size_t i = 0; i < _items.count(); i++) {
             Item *item = _items[i];
             if (item->thread->isAlive())
                 count++;
@@ -101,23 +95,23 @@ namespace Threading {
         return _instance;
     }
 
-    void ThreadPool::startAsyncInner(action_callback3 action, void *owner) {
+    void ThreadPool::startAsyncInner(ThreadHolderAction action, void *owner) {
         startAsyncInner2(action, new ThreadHolder(owner));
     }
 
-    void ThreadPool::startAsyncInner2(action_callback3 action, ThreadHolder *holder) {
+    void ThreadPool::startAsyncInner2(ThreadHolderAction action, ThreadHolder *holder) {
         Item *item = getInvalidItem(action, holder);
         assert(item);
         assert(!item->thread->isAlive());
 
         Locker locker(&item->threadMutex);
 
-        item->thread->start(action, holder);
+//        item->thread->start(action, holder);
     }
 
-    bool ThreadPool::isAliveInner(action_callback3 action) {
+    bool ThreadPool::isAliveInner(ThreadHolderAction action) {
         Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
+        for (size_t i = 0; i < _items.count(); i++) {
             Item *item = _items[i];
             if (item->action == action)
                 return item->thread->isAlive();
@@ -128,7 +122,7 @@ namespace Threading {
 
     bool ThreadPool::isAliveInner(const ThreadHolder *holder) {
         Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
+        for (size_t i = 0; i < _items.count(); i++) {
             Item *item = _items[i];
             if (item->holder == holder)
                 return item->thread->isAlive();
@@ -137,33 +131,33 @@ namespace Threading {
         return false;
     }
 
-    void ThreadPool::stopInner(action_callback3 action) {
-        Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
-            Item *item = _items[i];
-            if (item->action == action &&
-                item->thread->isAlive()) {
-                item->thread->stop();
-                break;
-            }
-        }
+    void ThreadPool::stopInner(ThreadHolderAction action) {
+//        Locker locker(&_itemsMutex);
+//        for (size_t i = 0; i < _items.count(); i++) {
+//            Item *item = _items[i];
+//            if (item->action == action &&
+//                item->thread->isAlive()) {
+//                item->thread->stop();
+//                break;
+//            }
+//        }
     }
 
     void ThreadPool::stopInner(const ThreadHolder *holder) {
-        Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
-            Item *item = _items[i];
-            if (item->holder == holder &&
-                item->thread->isAlive()) {
-                item->thread->stop();
-                break;
-            }
-        }
+//        Locker locker(&_itemsMutex);
+//        for (size_t i = 0; i < _items.count(); i++) {
+//            Item *item = _items[i];
+//            if (item->holder == holder &&
+//                item->thread->isAlive()) {
+//                item->thread->stop();
+//                break;
+//            }
+//        }
     }
 
-    ThreadPool::Item *ThreadPool::getInvalidItem(action_callback3 action, ThreadHolder *holder) {
+    ThreadPool::Item *ThreadPool::getInvalidItem(ThreadHolderAction action, ThreadHolder *holder) {
         Locker locker(&_itemsMutex);
-        for (uint32_t i = 0; i < _items.count(); i++) {
+        for (size_t i = 0; i < _items.count(); i++) {
             Item *item = _items[i];
 
             Locker locker2(&item->threadMutex);

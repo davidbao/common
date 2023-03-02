@@ -12,7 +12,18 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(THREAD_SRC
+        # thread
+#        Locker.cpp
+#        Mutex.cpp
+#        Process.cpp
+#        ProcessMutex.cpp
+#        TaskTimer.cpp
+#        TickTimeout.cpp
+        TimerTest.cpp
         )
+if (NOT WEB_OS)
+    set(THREAD_SRC ${THREAD_SRC} ThreadTest.cpp)
+endif ()
 
 foreach (item ${THREAD_SRC})
     add_executable(${item} ${item})

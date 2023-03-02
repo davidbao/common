@@ -871,7 +871,7 @@ bool testStaticMethod() {
         Variant::Type t1 = Variant::Text;
         Variant::Value v1((char *) "123");
         Variant::Type t2 = Variant::Integer64;
-        Variant::Value v2((int64_t)123);
+        Variant::Value v2((int64_t) 123);
         if (!Variant::equals(t1, v1, t2, v2)) {
             return false;
         }
@@ -939,7 +939,7 @@ bool testStaticMethod() {
         }
     }
     {
-        Variant::Value value((int64_t)4);
+        Variant::Value value((int64_t) 4);
         if (Variant::toAnalogValue(Variant::Integer64, value) != 4) {
             return false;
         }
@@ -1077,6 +1077,256 @@ bool testStream() {
     return true;
 }
 
+template<typename T>
+bool testValueCompareTo() {
+    {
+        Variant v1((T) 1), v2((T) 2);
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1((T) -2), v2((T) -1);
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1((T) 2), v2((T) 1);
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1((T) -1), v2((T) -2);
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1((T) 2), v2((T) 2);
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testCompareTo() {
+    // Bool
+    {
+        Variant v1(false), v2(true);
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(true), v2(false);
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(false), v2(false);
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(true), v2(true);
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+
+    // Integer
+    if (!testValueCompareTo<int8_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<uint8_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<int16_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<uint16_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<int32_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<uint32_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<int64_t>()) {
+        return false;
+    }
+    if (!testValueCompareTo<uint64_t>()) {
+        return false;
+    }
+
+    // Float & Double
+    if (!testValueCompareTo<float>()) {
+        return false;
+    }
+    if (!testValueCompareTo<double>()) {
+        return false;
+    }
+
+    // Text
+    {
+        Variant v1("1"), v2("2");
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("-2"), v2("-1");
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("2"), v2("1");
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("-1"), v2("-2");
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("2"), v2("2");
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("123"), v2("abc");
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("0"), v2("abc");
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1("1"), v2(2);
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(1), v2("2");
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+
+    // Date
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.addDays(1)), v2(now.addDays(2));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.addDays(-2)), v2(now.addDays(-1));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.addDays(2)), v2(now.addDays(1));
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.addDays(-1)), v2(now.addDays(-2));
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.addDays(2)), v2(now.addDays(2));
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+
+    // Timestamp
+    {
+        TimeSpan now = TimeSpan::fromDays(5.346);
+        Variant v1(now.add(1)), v2(now.add(2));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        TimeSpan now = TimeSpan::fromDays(5.346);
+        Variant v1(now.add(-2)), v2(now.add(-1));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        TimeSpan now = TimeSpan::fromDays(5.346);
+        Variant v1(now.add(2)), v2(now.add(1));
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        DateTime now = DateTime::now();
+        Variant v1(now.add(-1)), v2(now.add(-2));
+        if (!(v1 > v2)) {
+            return false;
+        }
+    }
+    {
+        TimeSpan now = TimeSpan::fromDays(5.346);
+        Variant v1(now.add(2)), v2(now.add(2));
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+
+    // Blob
+    {
+        Variant v1(ByteArray({1, 2, 3, 4})), v2(ByteArray({1, 2, 3, 4, 5}));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(ByteArray({1, 2, 3, 4})), v2(ByteArray({1, 2, 3, 5}));
+        if (!(v1 < v2)) {
+            return false;
+        }
+    }
+    {
+        Variant v1(ByteArray({1, 2, 3, 4})), v2(ByteArray({1, 2, 3, 4}));
+        if (!(v1 == v2)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testConstructor()) {
         return 1;
@@ -1104,6 +1354,9 @@ int main() {
     }
     if (!testStream()) {
         return 9;
+    }
+    if (!testCompareTo()) {
+        return 10;
     }
 
     return 0;

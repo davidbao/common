@@ -311,7 +311,7 @@ namespace IO {
     }
 
     bool Zip::compressFile(const String &fileName, const String &zipfile, const String &password) {
-        StringArray files(fileName, nullptr);
+        StringArray files({fileName});
         String path = Path::getDirectoryName(fileName);
         return compressFile(path, files, zipfile, password);
     }

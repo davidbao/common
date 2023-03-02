@@ -98,7 +98,7 @@ namespace Net {
         Timeout temp;
         StringArray texts;
         Convert::splitStr(str, ';', texts);
-        for (uint32_t i = 0; i < texts.count(); i++) {
+        for (size_t i = 0; i < texts.count(); i++) {
             StringArray values;
             Convert::splitItems(texts[i], values, ':');
             if (values.count() == 2) {

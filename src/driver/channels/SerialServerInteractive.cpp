@@ -1,23 +1,13 @@
-#include <assert.h>
+#include <cassert>
 #include "driver/channels/SerialServerInteractive.h"
-#include "driver/devices/Device.h"
 #include "driver/DriverManager.h"
 #include "system/Resources.h"
 #include "diag/Stopwatch.h"
-#include "thread/Locker.h"
-#include "thread/Thread.h"
-#include "diag/Trace.h"
 
 using namespace Data;
 using namespace Diag;
 
 namespace Drivers {
-    void serial_receiveProc(void *parameter) {
-        SerialServerInteractive *ui = (SerialServerInteractive *) parameter;
-        assert(ui);
-        ui->receiveProcInner();
-    }
-
     SerialServerInteractive::SerialServerInteractive(DriverManager *dm, Channel *channel) : Interactive(dm, channel),
                                                                                             _port(nullptr),
                                                                                             _receiveThread(nullptr),
@@ -33,8 +23,10 @@ namespace Drivers {
     }
 
     bool SerialServerInteractive::open() {
-        _receiveThread = new Thread("Serial_receiveProc");
-        _receiveThread->startProc(serial_receiveProc, this, 1);
+        _receiveThread = new Timer(
+                "Serial_receiveProc",
+                ObjectTimerCallback<SerialServerInteractive>(this, &SerialServerInteractive::receiveProcInner),
+                1);
 
         SerialChannelContext *scc = getChannelContext();
 
@@ -73,7 +65,7 @@ namespace Drivers {
     }
 
     bool SerialServerInteractive::connectdInner() const {
-        return _port != nullptr ? _port->isOpen() : false;
+        return _port != nullptr && _port->isOpen();
     }
 
     bool SerialServerInteractive::connected() {

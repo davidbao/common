@@ -20,15 +20,15 @@ bool testConstructor() {
     {
         SqlSelectFilter test(1, 100, {
                 {"name", "Xu"},
-                {"age", "90"}
+                {"age",  "90"}
         });
         if (!(test.page() == 1 && test.pageSize() == 100)) {
             return false;
         }
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
-        if(test.getValue("age") != "90") {
+        if (test.getValue("age") != "90") {
             return false;
         }
     }
@@ -63,27 +63,27 @@ bool testProperty() {
     {
         SqlSelectFilter test(1, 100, {
                 {"name", "Xu"},
-                {"age", "90"}
+                {"age",  "90"}
         });
-        if(test.toLikeStr("name") != "name like '%Xu%'") {
+        if (test.toLikeStr("name") != "name like '%Xu%'") {
             return false;
         }
-        if(test.toLikeStr("name", "fullName") != "fullName like '%Xu%'") {
+        if (test.toLikeStr("name", "fullName") != "fullName like '%Xu%'") {
             return false;
         }
-        if(test.toLikeStr("name2") != "1=1") {
+        if (test.toLikeStr("name2") != "1=1") {
             return false;
         }
-        if(test.toEqualTextStr("name") != "name='Xu'") {
+        if (test.toEqualTextStr("name") != "name='Xu'") {
             return false;
         }
-        if(test.toEqualTextStr("name", "fullName") != "fullName='Xu'") {
+        if (test.toEqualTextStr("name", "fullName") != "fullName='Xu'") {
             return false;
         }
-        if(test.toEqualTextStr("name2") != "1=1") {
+        if (test.toEqualTextStr("name2") != "1=1") {
             return false;
         }
-        if(test.toEqualNumberStr("age") != "age=90") {
+        if (test.toEqualNumberStr("age") != "age=90") {
             return false;
         }
     }
@@ -94,7 +94,7 @@ bool testProperty() {
                 {"age",  "90"}
         });
         test.addRange("time", "2010-01-01", "2010-01-02");
-        if(test.toRangeTextStr("time") != "(time>='2010-01-01' AND time<='2010-01-02')") {
+        if (test.toRangeTextStr("time") != "(time>='2010-01-01' AND time<='2010-01-02')") {
             return false;
         }
     }
@@ -104,7 +104,7 @@ bool testProperty() {
                 {"name", "Xu"}
         });
         test.addRange("age", "1", "18");
-        if(test.toRangeNumberStr("age") != "(age>=1 AND age<=18)") {
+        if (test.toRangeNumberStr("age") != "(age>=1 AND age<=18)") {
             return false;
         }
     }
@@ -116,7 +116,7 @@ bool testKeyValue() {
     {
         SqlSelectFilter test(1, 100);
         test.add("name", "Xu");
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
     }
@@ -124,10 +124,10 @@ bool testKeyValue() {
         SqlSelectFilter test(1, 100);
         test.add("name", "Xu");
         test.addRange("time", "2010-01-01", "2010-01-02");
-        if(test.getValue("time.from") != "2010-01-01") {
+        if (test.getValue("time.from") != "2010-01-01") {
             return false;
         }
-        if(test.getValue("time.to") != "2010-01-02") {
+        if (test.getValue("time.to") != "2010-01-02") {
             return false;
         }
     }
@@ -150,10 +150,10 @@ bool testParse() {
         if (!(test.page() == 1 && test.pageSize() == 100)) {
             return false;
         }
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
-        if(test.getValue("age") != "90") {
+        if (test.getValue("age") != "90") {
             return false;
         }
     }
@@ -172,10 +172,10 @@ bool testParse() {
         if (!(test.page() == 1 && test.pageSize() == 1)) {
             return false;
         }
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
-        if(test.getValue("age") != "90") {
+        if (test.getValue("age") != "90") {
             return false;
         }
     }
@@ -194,10 +194,10 @@ bool testParse() {
         if (!(test.page() == 1 && test.pageSize() == 100)) {
             return false;
         }
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
-        if(test.getValue("age") != "90") {
+        if (test.getValue("age") != "90") {
             return false;
         }
     }
@@ -217,13 +217,29 @@ bool testParse() {
         if (!(test.page() == 1 && test.pageSize() == 100)) {
             return false;
         }
-        if(test.getValue("name") != "Xu") {
+        if (test.getValue("name") != "Xu") {
             return false;
         }
-        if(test.getValue("age.from") != "1") {
+        if (test.getValue("age.from") != "1") {
             return false;
         }
-        if(test.getValue("age.to") != "18") {
+        if (test.getValue("age.to") != "18") {
+            return false;
+        }
+        if (test.getFromValue("age") != "1") {
+            return false;
+        }
+        if (test.getToValue("age") != "18") {
+            return false;
+        }
+        String fromValue, toValue;
+        if (!test.getRangeValue("age", fromValue, toValue)) {
+            return false;
+        }
+        if (fromValue != "1") {
+            return false;
+        }
+        if (toValue != "18") {
             return false;
         }
     }
@@ -250,11 +266,145 @@ bool testToSql() {
             return false;
         }
         String qSql = test.toSelectSql("t1");
-        if(qSql.isNullOrEmpty()) {
+        if (qSql.isNullOrEmpty()) {
             return false;
         }
         String cSql = test.toCountSql("t1");
-        if(cSql.isNullOrEmpty()) {
+        if (cSql.isNullOrEmpty()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testOrderBy() {
+    {
+        SqlSelectFilter filter;
+        filter.setOrderBy("time ASC");
+        if (filter.orderBy() != "time ASC") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testParseOrderBy() {
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score", test)) {
+            return false;
+        }
+        if (test.count() != 1) {
+            return false;
+        }
+        if (!(test[0].name == "score" && test[0].asc)) {
+            return false;
+        }
+    }
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score ASC", test)) {
+            return false;
+        }
+        if (test.count() != 1) {
+            return false;
+        }
+        if (!(test[0].name == "score" && test[0].asc)) {
+            return false;
+        }
+    }
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score DESC", test)) {
+            return false;
+        }
+        if (test.count() != 1) {
+            return false;
+        }
+        if (!(test[0].name == "score" && !test[0].asc)) {
+            return false;
+        }
+    }
+
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score DESC, name ASC", test)) {
+            return false;
+        }
+        if (test.count() != 2) {
+            return false;
+        }
+        if (!(test[0].name == "score" && !test[0].asc)) {
+            return false;
+        }
+        if (!(test[1].name == "name" && test[1].asc)) {
+            return false;
+        }
+    }
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy(" score  DESC,  name  ASC ", test)) {
+            return false;
+        }
+        if (test.count() != 2) {
+            return false;
+        }
+        if (!(test[0].name == "score" && !test[0].asc)) {
+            return false;
+        }
+        if (!(test[1].name == "name" && test[1].asc)) {
+            return false;
+        }
+    }
+
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score, name ASC", test)) {
+            return false;
+        }
+        if (test.count() != 2) {
+            return false;
+        }
+        if (!(test[0].name == "score" && test[0].asc)) {
+            return false;
+        }
+        if (!(test[1].name == "name" && test[1].asc)) {
+            return false;
+        }
+    }
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score, name desc", test)) {
+            return false;
+        }
+        if (test.count() != 2) {
+            return false;
+        }
+        if (!(test[0].name == "score" && test[0].asc)) {
+            return false;
+        }
+        if (!(test[1].name == "name" && !test[1].asc)) {
+            return false;
+        }
+    }
+
+    {
+        OrderByItems test;
+        if (!SqlSelectFilter::parseOrderBy("score, name, id ASC", test)) {
+            return false;
+        }
+        if (test.count() != 3) {
+            return false;
+        }
+        if (!(test[0].name == "score" && test[0].asc)) {
+            return false;
+        }
+        if (!(test[1].name == "name" && test[1].asc)) {
+            return false;
+        }
+        if (!(test[2].name == "id" && test[2].asc)) {
             return false;
         }
     }
@@ -277,6 +427,12 @@ int main() {
     }
     if (!testToSql()) {
         return 5;
+    }
+    if (!testOrderBy()) {
+        return 6;
+    }
+    if (!testParseOrderBy()) {
+        return 7;
     }
 
     return 0;

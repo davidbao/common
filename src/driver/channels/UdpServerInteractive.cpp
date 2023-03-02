@@ -12,15 +12,9 @@ using namespace Data;
 using namespace Diag;
 
 namespace Drivers {
-    void udp_receiveProc(void *parameter) {
-        UdpServerInteractive *ui = (UdpServerInteractive *) parameter;
-        assert(ui);
-        ui->receiveProcInner();
-    }
-
     UdpServerInteractive::UdpServerInteractive(DriverManager *dm, Channel *channel) : Interactive(dm, channel),
                                                                                       _udpServer(nullptr),
-                                                                                      _receiveThread(nullptr),
+                                                                                      _receiveTimer(nullptr),
                                                                                       _retrieved(false) {
         if (channel == nullptr)
             throw ArgumentException("channel");
@@ -35,8 +29,9 @@ namespace Drivers {
     }
 
     bool UdpServerInteractive::open() {
-        _receiveThread = new Thread("Udp_receiveProc");
-        _receiveThread->startProc(udp_receiveProc, this, 1);
+        _receiveTimer = new Timer("Udp_receiveProc.timer",
+                                  ObjectTimerCallback<UdpServerInteractive>(this, &UdpServerInteractive::receiveProc),
+                                  1);
 
         return rebind();
     }
@@ -83,10 +78,10 @@ namespace Drivers {
     }
 
     void UdpServerInteractive::close() {
-        if (_receiveThread != nullptr) {
-            _receiveThread->stop();
-            delete _receiveThread;
-            _receiveThread = nullptr;
+        if (_receiveTimer != nullptr) {
+            _receiveTimer->stop();
+            delete _receiveTimer;
+            _receiveTimer = nullptr;
         }
 
         if (_udpServer != nullptr) {
@@ -147,7 +142,7 @@ namespace Drivers {
         return len;
     }
 
-    void UdpServerInteractive::receiveProcInner() {
+    void UdpServerInteractive::receiveProc() {
 #ifdef DEBUG
         Stopwatch sw("udp server receiveProc", 1000);
 #endif
@@ -171,5 +166,9 @@ namespace Drivers {
                 }
             }
         }
+    }
+
+    UdpServerChannelContext *UdpServerInteractive::getChannelContext() const {
+        return (UdpServerChannelContext *) (_channel->description()->context());
     }
 }

@@ -89,7 +89,7 @@ namespace Communication
         void* _owner;
         
     private:
-        static Thread* _singleThread;
+        static Timer* _singleTimer;
         
         static Mutex _poolsMutex;
         static PList<TcpSingleSampler> _pools;

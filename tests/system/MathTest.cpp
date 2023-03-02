@@ -8,6 +8,7 @@
 
 #include "system/Math.h"
 #include <cfloat>
+#include <math.h>
 
 using namespace System;
 

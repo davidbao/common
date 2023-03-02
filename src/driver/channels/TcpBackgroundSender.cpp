@@ -110,7 +110,7 @@ namespace Drivers {
     SenderMultiPool::~SenderMultiPool() {
     }
 
-    Thread *SenderSinglePool::_singleThread = nullptr;
+    Timer *SenderSinglePool::_singleTimer = nullptr;
     Mutex SenderSinglePool::_poolsMutex;
     PList<SenderSinglePool> SenderSinglePool::_pools(false);
 
@@ -151,17 +151,18 @@ namespace Drivers {
     }
 
     void SenderSinglePool::startSinglePool() {
-        if (_singleThread == nullptr) {
-            _singleThread = new Thread("server.InstructionSingleProc");
-            _singleThread->startProc(instructionSingleProc, nullptr, 1);
+        if (_singleTimer == nullptr) {
+            _singleTimer = new Timer("server.InstructionSingleProc.timer",
+                                      SenderSinglePool::instructionSingleProc,
+                                      1);
         }
     }
 
     void SenderSinglePool::stopSinglePool() {
-        if (_singleThread != nullptr) {
-            _singleThread->stop();
-            delete _singleThread;
-            _singleThread = nullptr;
+        if (_singleTimer != nullptr) {
+            _singleTimer->stop();
+            delete _singleTimer;
+            _singleTimer = nullptr;
         }
     }
 

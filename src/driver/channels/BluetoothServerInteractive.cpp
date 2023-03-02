@@ -12,23 +12,11 @@ using namespace Data;
 using namespace Diag;
 
 namespace Drivers {
-    void bluetooth_acceptProc(void *parameter) {
-        BluetoothServerInteractive *ti = (BluetoothServerInteractive *) parameter;
-        assert(ti);
-        ti->acceptProcInner();
-    }
-
-    void bluetooth_closeProc(void *parameter) {
-        BluetoothServerInteractive *ti = (BluetoothServerInteractive *) parameter;
-        assert(ti);
-        ti->closeProcInner();
-    }
-
     BluetoothServerInteractive::BluetoothServerInteractive(DriverManager *dm, Channel *channel) : Interactive(dm,
                                                                                                               channel),
                                                                                                   _bluetoothServer(
                                                                                                           nullptr),
-                                                                                                  _acceptThread(
+                                                                                                  _acceptTimer(
                                                                                                           nullptr) {
         if (channel == nullptr)
             throw ArgumentNullException("channel");
@@ -37,7 +25,7 @@ namespace Drivers {
 
         _acceptAction = nullptr;
         _closeAction = nullptr;
-        _closeThread = nullptr;
+        _closeTimer = nullptr;
     }
 
     BluetoothServerInteractive::~BluetoothServerInteractive() {
@@ -84,11 +72,15 @@ namespace Drivers {
                     }
                 }
 
-                _acceptThread = new Thread("Bluetooth_acceptProc");
-                _acceptThread->startProc(bluetooth_acceptProc, this, 1);
+                _acceptTimer = new Timer(
+                        "Bluetooth_acceptProc",
+                        ObjectTimerCallback<BluetoothServerInteractive>(this, &BluetoothServerInteractive::acceptProc),
+                        1);
 
-                _closeThread = new Thread("Bluetooth_closeProc");
-                _closeThread->startProc(bluetooth_closeProc, this, 1000);
+                _closeTimer = new Timer(
+                        "Bluetooth_closeProc",
+                        ObjectTimerCallback<BluetoothServerInteractive>(this, &BluetoothServerInteractive::closeProc),
+                        1);
 
                 return true;
             } else {
@@ -127,15 +119,15 @@ namespace Drivers {
         }
         _bluetoothServerMutex.unlock();
 
-        if (_acceptThread != nullptr) {
-            _acceptThread->stop();
-            delete _acceptThread;
-            _acceptThread = nullptr;
+        if (_acceptTimer != nullptr) {
+            _acceptTimer->stop();
+            delete _acceptTimer;
+            _acceptTimer = nullptr;
         }
-        if (_closeThread != nullptr) {
-            _closeThread->stop();
-            delete _closeThread;
-            _closeThread = nullptr;
+        if (_closeTimer != nullptr) {
+            _closeTimer->stop();
+            delete _closeTimer;
+            _closeTimer = nullptr;
         }
     }
 
@@ -174,7 +166,7 @@ namespace Drivers {
         throw NotSupportedException("Cannot support this method, use 'BluetoothServerClient' instead.");
     }
 
-    void BluetoothServerInteractive::acceptProcInner() {
+    void BluetoothServerInteractive::acceptProc() {
         if (_bluetoothServer != nullptr) {
             int socketId = _bluetoothServer->accept();
             //Debug::writeLine(Convert::convertStr("client connected, socketId: %d", socketId), Trace::Info);
@@ -196,7 +188,7 @@ namespace Drivers {
         }
     }
 
-    void BluetoothServerInteractive::closeProcInner() {
+    void BluetoothServerInteractive::closeProc() {
         _mutexClients.lock();
         for (size_t i = 0; i < _clients.count(); i++) {
             BluetoothServerClient *client = _clients.at(i);

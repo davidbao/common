@@ -1476,6 +1476,360 @@ bool testDataTablesAt() {
     return true;
 }
 
+bool testSort() {
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort(OrderByItems{
+                OrderByItem("score", true)
+        });
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort(OrderByItems{
+                OrderByItem("score", true),
+                OrderByItem("name", true)
+        });
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "78" &&
+            test.rows()[0].cells()["name"].valueStr() != "Ai") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "78" &&
+            test.rows()[1].cells()["name"].valueStr() != "Yu") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78" &&
+            test.rows()[2].cells()["name"].valueStr() != "Zh") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort(OrderByItems{
+                OrderByItem("score", false),
+                OrderByItem("name", false)
+        });
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "78" &&
+            test.rows()[4].cells()["name"].valueStr() != "Ai") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "78" &&
+            test.rows()[3].cells()["name"].valueStr() != "Yu") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78" &&
+            test.rows()[2].cells()["name"].valueStr() != "Zh") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort("score ASC");
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort("score, name asc");
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "78" &&
+            test.rows()[0].cells()["name"].valueStr() != "Ai") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "78" &&
+            test.rows()[1].cells()["name"].valueStr() != "Yu") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78" &&
+            test.rows()[2].cells()["name"].valueStr() != "Zh") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        test.sort("score desc, name desc");
+        if (test.rowCount() != 5) {
+            return false;
+        }
+        if (test.rows()[4].cells()["score"].valueStr() != "78" &&
+            test.rows()[4].cells()["name"].valueStr() != "Ai") {
+            return false;
+        }
+        if (test.rows()[3].cells()["score"].valueStr() != "78" &&
+            test.rows()[3].cells()["name"].valueStr() != "Yu") {
+            return false;
+        }
+        if (test.rows()[2].cells()["score"].valueStr() != "78" &&
+            test.rows()[2].cells()["name"].valueStr() != "Zh") {
+            return false;
+        }
+        if (test.rows()[1].cells()["score"].valueStr() != "86") {
+            return false;
+        }
+        if (test.rows()[0].cells()["score"].valueStr() != "91") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testDataColumnConstructor()) {
         return 1;
@@ -1543,6 +1897,10 @@ int main() {
     }
     if (!testDataTablesAt()) {
         return 72;
+    }
+
+    if (!testSort()) {
+        return 80;
     }
 
     return 0;

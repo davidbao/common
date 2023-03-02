@@ -120,18 +120,17 @@ namespace Microservice {
         properties.at("clusterName", clusterName);
         properties.at("ephemeral", ephemeral);
         properties.at("namespaceId", namespaceId);
-        const StringMap::KeyValue kvs[] = {
+        const StringMap kvs{
                 {"serviceName", serviceName},
-                {"groupName", groupName},
-                {"ip", ip},
-                {"port", port},
+                {"groupName",   groupName},
+                {"ip",          ip},
+                {"port",        port},
                 {"clusterName", clusterName},
-                {"ephemeral", ephemeral},
-                {"namespaceId", namespaceId},
-                nullptr
+                {"ephemeral",   ephemeral},
+                {"namespaceId", namespaceId}
         };
         HttpResponse response(new HttpStringContent());
-        return send(url, HttpMethod::Delete, StringMap(kvs), response);
+        return send(url, HttpMethod::Delete, kvs, response);
     }
 
     bool NacosService::getServiceInstances(const String &serviceId, ServiceInstances &instances) {
@@ -139,13 +138,12 @@ namespace Microservice {
             return false;
 
         Url url(_baseUrl, InstanceListUrl);
-        const StringMap::KeyValue kvs[] = {
+        const StringMap kvs{
                 {"serviceName", serviceId},
-                {"healthyOnly", "false"},
-                nullptr
+                {"healthyOnly", "false"}
         };
         HttpResponse response(new HttpJsonContent());
-        if (send(url, HttpMethod::Get, StringMap(kvs), response)) {
+        if (send(url, HttpMethod::Get, kvs, response)) {
             for (uint32_t i = 0; i < instances.count(); i++) {
                 ServiceInstance *instance = instances.at(i);
                 instance->setAlive(false);
@@ -275,14 +273,13 @@ namespace Microservice {
         JsonNode::parse(metadata, metaNode);
         beatNode.add(JsonNode("metadata", metaNode));
 
-        const StringMap::KeyValue kvs[] = {
+        const StringMap kvs{
                 {"serviceName", serviceName},
-                {"groupName", groupName},
-                {"beat", beatNode.toString()},
-                nullptr
+                {"groupName",   groupName},
+                {"beat",        beatNode.toString()}
         };
         HttpResponse response(new HttpStringContent());
-        return send(url, HttpMethod::Put, StringMap(kvs), response);
+        return send(url, HttpMethod::Put, kvs, response);
     }
 
     bool NacosService::getServiceIds(StringArray &serviceIds) {
@@ -429,18 +426,17 @@ namespace Microservice {
         }
         bool hasMeta = metaNode.hasAttribute();
 
-        const StringMap::KeyValue kvs[] = {
-                {"instanceId", instanceId},
+        const StringMap kvs{
+                {"instanceId",  instanceId},
                 {"namespaceId", namespaceId},
                 {"serviceName", serviceName.isNullOrEmpty() ? name.c_str() : serviceName.c_str()},
-                {"groupName", groupName},
+                {"groupName",   groupName},
                 {"clusterName", clusterName},
-                {"ip", serverHost},
-                {"port", UInt16(servicePort.isEmpty() ? (uint16_t) port : (uint16_t) servicePort).toString()},
-                {"enable", Boolean(enabled).toString()},
-                {"healthy", Boolean(healthy).toString()},
-                {"ephemeral", Boolean(ephemeral).toString()},
-                nullptr
+                {"ip",          serverHost},
+                {"port",        UInt16(servicePort.isEmpty() ? (uint16_t) port : (uint16_t) servicePort).toString()},
+                {"enable",      Boolean(enabled).toString()},
+                {"healthy",     Boolean(healthy).toString()},
+                {"ephemeral",   Boolean(ephemeral).toString()}
         };
         properties = StringMap(kvs);
         if (!weight.isNullOrEmpty()) {
@@ -459,13 +455,12 @@ namespace Microservice {
             return false;
 
         Url url(_baseUrl, ServiceListUrl);
-        const StringMap::KeyValue kvs[] = {
-                {"pageNo", Int32(pageNo).toString()},
-                {"pageSize", Int32(pageSize).toString()},
-                nullptr
+        const StringMap kvs{
+                {"pageNo",   Int32(pageNo).toString()},
+                {"pageSize", Int32(pageSize).toString()}
         };
         HttpResponse response(new HttpJsonContent());
-        if (send(url, HttpMethod::Get, StringMap(kvs), response)) {
+        if (send(url, HttpMethod::Get, kvs, response)) {
             const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);
             assert(content);
             return content->node().getAttribute("doms", serviceIds);
@@ -478,13 +473,11 @@ namespace Microservice {
             return false;
 
         Url url(_baseUrl, ClusterNodesUrl);
-        const StringMap::KeyValue kvs[] = {
+        const StringMap properties{
                 {"withInstances", "false"},
-                {"pageNo", "1"},
-                {"pageSize", "10"},
-                nullptr
+                {"pageNo",        "1"},
+                {"pageSize",      "10"}
         };
-        StringMap properties(kvs);
         HttpRequest request(url, HttpMethod::Get, DefaultHeaders, properties);
         HttpResponse response(new HttpJsonContent());
         if (send(url, HttpMethod::Get, response)) {
@@ -524,12 +517,11 @@ namespace Microservice {
             cs->getProperty("summer.cloud.nacos.username", username);
             cs->getProperty("summer.cloud.nacos.password", password);
             if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
-                const StringMap::KeyValue kvs[] = {
+                const StringMap kvs{
                         {"username", username},
-                        {"password", password},
-                        nullptr
+                        {"password", password}
                 };
-                request.properties = StringMap(kvs);
+                request.properties = kvs;
                 HttpResponse response(new HttpJsonContent());
                 if (_httpClient.send(request, response) && response.status == HttpOk) {
                     const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);

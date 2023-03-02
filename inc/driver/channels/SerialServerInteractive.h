@@ -4,7 +4,7 @@
 #include "Interactive.h"
 #include "Channel.h"
 #include "UdpServerChannelContext.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 #include "IO/SerialPort.h"
@@ -44,7 +44,7 @@ namespace Drivers
 	private:
 		SerialPort*	_port;
 
-		Thread* _receiveThread;
+		Timer* _receiveThread;
 
 		Device* _device;
 	};

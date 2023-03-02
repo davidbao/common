@@ -6,12 +6,12 @@
 //  Copyright (c) 2017 com. All rights reserved.
 //
 
-#include <assert.h>
+#include <cassert>
 #include "system/PoolService.h"
 
 namespace System {
-    PoolBaseService::PoolBaseService(TimeSpan interval) {
-        _thread = nullptr;
+    PoolBaseService::PoolBaseService(const TimeSpan &interval) {
+        _timer = nullptr;
         _interval = interval;
     }
 
@@ -20,47 +20,40 @@ namespace System {
     }
 
     void PoolBaseService::start() {
-        if (_thread == nullptr) {
-            _thread = new Thread("PoolService");
-            _thread->startProc(processProc, this, _interval);
+        if (_timer == nullptr) {
+            _timer = new Timer("PoolService.timer",
+                               ObjectTimerCallback<PoolBaseService>(this, &PoolBaseService::processProc),
+                               _interval);
         }
     }
 
     void PoolBaseService::stop() {
         invoke();
 
-        if (_thread != nullptr) {
-            _thread->stop(TimeSpan::fromSeconds(30));
-            delete _thread;
-            _thread = nullptr;
+        if (_timer != nullptr) {
+            _timer->stop(TimeSpan::fromSeconds(30));
+            delete _timer;
+            _timer = nullptr;
         }
     }
 
     bool PoolBaseService::isStarted() const {
-        return _thread != nullptr && _thread->isAlive();
+        return _timer != nullptr && _timer->running();
     }
 
     void PoolBaseService::invoke() {
     }
 
-    void PoolBaseService::processProc(void *parameter) {
-        PoolBaseService *service = (PoolBaseService *) parameter;
-        assert(service);
-        service->processProcInner();
-    }
-
-    void PoolBaseService::processProcInner() {
+    void PoolBaseService::processProc() {
         invoke();
     }
 
-    IPoolEntry::IPoolEntry() {
-    }
+    IPoolEntry::IPoolEntry() = default;
 
-    IPoolEntry::~IPoolEntry() {
-    }
+    IPoolEntry::~IPoolEntry() = default;
 
-    PoolService::PoolService(bool batch, TimeSpan interval, int maxLength) : PoolBaseService(interval),
-                                                                             _values(maxLength), _batch(batch) {
+    PoolService::PoolService(bool batch, const TimeSpan &interval, int maxLength) : PoolBaseService(interval),
+                                                                                    _values(maxLength), _batch(batch) {
     }
 
     PoolService::~PoolService() {
@@ -84,7 +77,7 @@ namespace System {
         _valuesMutex.lock();
         size_t count = _values.count();
         if (count > 0) {
-            IPoolEntry **values = new IPoolEntry *[count];
+            auto values = new IPoolEntry *[count];
             _values.copyTo(values);
             _values.makeNull(false);
             _valuesMutex.unlock();

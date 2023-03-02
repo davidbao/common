@@ -26,8 +26,8 @@ public:
     Value(const String &value) : _iValue(0), _strValue(value) {
     }
 
-    Value(const Value &value) {
-        evaluates(value);
+    Value(const Value &value) : _iValue(0), _strValue(nullptr) {
+        Value::evaluates(value);
     }
 
     ~Value() override = default;
@@ -855,8 +855,8 @@ bool testIntLock() {
     test.add(2);
     test.add(3);
 
-    Thread thread("test lock thread");
-    thread.start(lockIntAction, &test);
+    Thread thread("test lock thread", lockIntAction);
+    thread.start(&test);
     if (test[1] != 2) {
         return false;
     }
@@ -1572,8 +1572,8 @@ bool testLock() {
     test.add(Value(2));
     test.add(Value(3));
 
-    Thread thread("test lock thread");
-    thread.start(lockAction, &test);
+    Thread thread("test lock thread", lockAction);
+    thread.start(&test);
     if (!valueEquals(test[1], 2)) {
         return false;
     }

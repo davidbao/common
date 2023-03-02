@@ -21,9 +21,9 @@ namespace Threading {
             Mutex threadMutex;
             Thread *thread;
             ThreadHolder *holder;
-            action_callback3 action;
+            ThreadHolderAction action;
 
-            Item(action_callback3 action, ThreadHolder *holder);
+            Item(ThreadHolderAction action, ThreadHolder *holder);
 
             ~Item();
         };
@@ -31,22 +31,22 @@ namespace Threading {
         typedef PList<Item> Items;
 
     public:
-        static void startAsync(action_callback3 action, void *owner = nullptr);
+        static void startAsync(ThreadHolderAction action, void *owner = nullptr);
 
-        static void startAsync(action_callback3 action, ThreadHolder *holder);
+        static void startAsync(ThreadHolderAction action, ThreadHolder *holder);
 
-        static bool isAlive(action_callback3 action);
+        static bool isAlive(ThreadHolderAction action);
 
         static bool isAlive(const ThreadHolder *holder);
 
-        static void stop(action_callback3 action);
+        static void stop(ThreadHolderAction action);
 
         static void stop(const ThreadHolder *holder);
 
         static bool
-        invoke(action_callback3 action, void *owner = nullptr, const TimeSpan &timeout = TimeSpan::MaxValue);
+        invoke(ThreadHolderAction action, void *owner = nullptr, const TimeSpan &timeout = TimeSpan::MaxValue);
 
-        static bool invoke(action_callback3 action, ThreadHolder *holder, const TimeSpan &timeout = TimeSpan::MaxValue);
+        static bool invoke(ThreadHolderAction action, ThreadHolder *holder, const TimeSpan &timeout = TimeSpan::MaxValue);
 
         static int threadCount();
 
@@ -55,19 +55,19 @@ namespace Threading {
 
         ~ThreadPool();
 
-        void startAsyncInner(action_callback3 action, void *owner = nullptr);
+        void startAsyncInner(ThreadHolderAction action, void *owner = nullptr);
 
-        void startAsyncInner2(action_callback3 action, ThreadHolder *holder);
+        void startAsyncInner2(ThreadHolderAction action, ThreadHolder *holder);
 
-        bool isAliveInner(action_callback3 action);
+        bool isAliveInner(ThreadHolderAction action);
 
         bool isAliveInner(const ThreadHolder *holder);
 
-        void stopInner(action_callback3 action);
+        void stopInner(ThreadHolderAction action);
 
         void stopInner(const ThreadHolder *holder);
 
-        Item *getInvalidItem(action_callback3 action, ThreadHolder *holder);
+        Item *getInvalidItem(ThreadHolderAction action, ThreadHolder *holder);
 
         int threadCountInner();
 

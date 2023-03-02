@@ -84,7 +84,7 @@ namespace Drivers
         static void instructionSingleProc(void* parameter);
         
     private:
-        static Thread* _singleThread;
+        static Timer* _singleTimer;
         
         static Mutex _poolsMutex;
         static PList<SenderSinglePool> _pools;

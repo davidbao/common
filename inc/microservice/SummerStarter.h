@@ -44,11 +44,13 @@ namespace Microservice {
 
     class SummerStarter {
     public:
+        typedef void (*ProcessAction)();
+
         SummerStarter(int argc = 0, const char *argv[] = nullptr);
 
         virtual ~SummerStarter();
 
-        void add(const String &key, action_callback action);
+        void add(const String &key, ProcessAction action);
 
         int runLoop();
 
@@ -98,7 +100,7 @@ namespace Microservice {
         ClusterService *_cluster;
         NotificationService *_notification;
 
-        Dictionary<String, action_callback> _actions;
+        Dictionary<String, ProcessAction> _actions;
     };
 }
 

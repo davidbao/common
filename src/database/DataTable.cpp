@@ -9,7 +9,7 @@
 #include "database/DataTable.h"
 
 namespace Database {
-    const DataColumn DataColumn::Empty;
+    const DataColumn DataColumn::Empty("", ValueTypes::Null, false);
 
     DataColumn::DataColumn(const String &name, const ValueTypes &type, bool pkey) : _name(name), _type(type),
                                                                                     _primaryKey(pkey) {
@@ -73,7 +73,9 @@ namespace Database {
     }
 
     DataColumn &DataColumn::operator=(const DataColumn &other) {
-        evaluates(other);
+        if (this != &other) {
+            evaluates(other);
+        }
         return *this;
     }
 
@@ -209,7 +211,9 @@ namespace Database {
     }
 
     DataCell &DataCell::operator=(const DataCell &other) {
-        evaluates(other);
+        if (this != &other) {
+            evaluates(other);
+        }
         return *this;
     }
 
@@ -292,11 +296,13 @@ namespace Database {
     }
 
     DataRow &DataRow::operator=(const DataRow &other) {
-        evaluates(other);
+        if (this != &other) {
+            evaluates(other);
+        }
         return *this;
     }
 
-    const DataTable DataTable::Empty;
+    const DataTable DataTable::Empty("");
 
     DataTable::DataTable(const String &name) : _name(name), _totalCount(0) {
     }
@@ -321,6 +327,13 @@ namespace Database {
                _rows == other._rows &&
                _columns == other._columns &&
                _totalCount == other._totalCount;
+    }
+
+    DataTable &DataTable::operator=(const DataTable &other) {
+        if (this != &other) {
+            evaluates(other);
+        }
+        return *this;
     }
 
     bool DataTable::isEmpty() const {
@@ -449,6 +462,97 @@ namespace Database {
         JsonNode node;
         toJsonNode(node);
         return node.toString();
+    }
+
+    void DataTable::sort(const String &orderBy) {
+        OrderByItems items;
+        if (SqlSelectFilter::parseOrderBy(orderBy, items)) {
+            sort(items);
+        }
+    }
+
+    void DataTable::sort(const OrderByItems &items) {
+        OrderByItems existItems;
+        for (size_t i = 0; i < items.count(); ++i) {
+            const OrderByItem &item = items[i];
+            const DataColumn &column = _columns.at(item.name);
+            if (!column.isNull()) {
+                existItems.add(item);
+            }
+        }
+        if (items.count() > 0) {
+            quicksort(_rows.data(), 0, _rows.count() - 1, compare, items);
+        }
+    }
+
+    void DataTable::quicksort(DataRow *array[], int left, int right, Comparison comparison, const OrderByItems &items) {
+        if (items.count() == 0) {
+            return;
+        }
+
+        if (left >= right) {
+            return;
+        }
+        int first = left;
+        int last = right;
+        bool asc = items[0].asc;
+        DataRow *key = array[first];
+
+        while (first < last) {
+            if (asc) {
+                while (first < last && comparison(array[last], key, items) >= 0) {
+                    --last;
+                }
+            } else {
+                while (first < last && comparison(array[last], key, items) <= 0) {
+                    --last;
+                }
+            }
+
+            array[first] = array[last];
+
+            if (asc) {
+                while (first < last && comparison(array[first], key, items) <= 0) {
+                    ++first;
+                }
+            } else {
+                while (first < last && comparison(array[first], key, items) >= 0) {
+                    ++first;
+                }
+            }
+
+            array[last] = array[first];
+        }
+        array[first] = key;
+        quicksort(array, left, first - 1, comparison, items);
+        quicksort(array, first + 1, right, comparison, items);
+    }
+
+    int DataTable::compare(const DataRow *x, const DataRow *y, const OrderByItems &items) {
+        if (items.count() == 0) {
+            return 0;
+        }
+        const OrderByItem &firstItem = items[0];
+        const DataCell &cell1 = x->cells().at(firstItem.name);
+        const DataCell &cell2 = y->cells().at(firstItem.name);
+        if (cell1.value() > cell2.value()) {
+            return 1;
+        } else if (cell1.value() < cell2.value()) {
+            return -1;
+        } else {
+            for (size_t i = 1; i < items.count(); ++i) {
+                const OrderByItem &item = items[i];
+                const DataCell &cellX = x->cells().at(item.name);
+                const DataCell &cellY = y->cells().at(item.name);
+                if (cellX.value() > cellY.value()) {
+                    return 1;
+                } else if (cellX.value() < cellY.value()) {
+                    return -1;
+                } else {
+                }
+            }
+            return 0;
+        }
     }
 
     DataTables::DataTables(size_t capacity) : List<DataTable>(capacity) {

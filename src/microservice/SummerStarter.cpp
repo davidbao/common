@@ -58,7 +58,7 @@ namespace Microservice {
         delete _app;
     }
 
-    void SummerStarter::add(const String &key, action_callback action) {
+    void SummerStarter::add(const String &key, ProcessAction action) {
         _actions.add(key.toLower(), action);
     }
 
@@ -90,7 +90,7 @@ namespace Microservice {
             if (String::equals("q", command, true))
                 quit = true;
             else {
-                action_callback action = nullptr;
+                ProcessAction action = nullptr;
                 if (_actions.at(command.toLower(), action)) {
                     action();
                 }

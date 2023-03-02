@@ -137,7 +137,7 @@ namespace Drivers {
     }
 
     TcpAsyncReceiver::TcpAsyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client) : TcpBackgroundReceiver(
-            dm, channel, client), _receiveThread(nullptr) {
+            dm, channel, client), _receiveTimer(nullptr) {
     }
 
     TcpAsyncReceiver::~TcpAsyncReceiver() {
@@ -145,9 +145,10 @@ namespace Drivers {
     }
 
     void TcpAsyncReceiver::start() {
-        if (_receiveThread == nullptr) {
-            _receiveThread = new Thread("Tcp_receiveProc");
-            _receiveThread->startProc(tcp_receiveProc, this, 1);
+        if (_receiveTimer == nullptr) {
+            _receiveTimer = new Timer("Tcp_receiveProc.timer",
+                                      ObjectTimerCallback<TcpAsyncReceiver>(this, &TcpAsyncReceiver::receiveProc),
+                                      1);
         }
     }
 
@@ -156,15 +157,15 @@ namespace Drivers {
     }
 
     void TcpAsyncReceiver::stopInner() {
-        if (_receiveThread != nullptr) {
+        if (_receiveTimer != nullptr) {
             uint32_t timeout = _dd->receiveDelay();
-            _receiveThread->stop(TimeSpan::fromSeconds(timeout));
-            delete _receiveThread;
-            _receiveThread = nullptr;
+            _receiveTimer->stop(TimeSpan::fromSeconds(timeout));
+            delete _receiveTimer;
+            _receiveTimer = nullptr;
         }
     }
 
-    void TcpAsyncReceiver::receiveProcInner() {
+    void TcpAsyncReceiver::receiveProc() {
 //#ifdef DEBUG
 //        Stopwatch sw(1000);
 //#endif
@@ -174,7 +175,7 @@ namespace Drivers {
             }
         }
         catch (const exception &e) {
-            String str = String::convert("TcpBackgroundReceiver::receiveProcInner error'%s'", e.what());
+            String str = String::convert("TcpBackgroundReceiver::receiveProc error'%s'", e.what());
             Trace::writeLine(str, Trace::Error);
         }
 
@@ -186,12 +187,6 @@ namespace Drivers {
 //            sw.setInfo(info);
 //        }
 //#endif
-    }
-
-    void TcpAsyncReceiver::tcp_receiveProc(void *parameter) {
-        TcpAsyncReceiver *ti = (TcpAsyncReceiver *) parameter;
-        assert(ti);
-        ti->receiveProcInner();
     }
 
     TcpSyncReceiver::TcpSyncReceiver(DriverManager *dm, Channel *channel, TcpClient *client) : TcpBackgroundReceiver(dm,

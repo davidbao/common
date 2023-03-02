@@ -490,8 +490,8 @@ bool testIntLock() {
     test.enqueue(2);
     test.enqueue(3);
 
-    Thread thread("test lock thread");
-    thread.start(lockIntAction, &test);
+    Thread thread("test lock thread", lockIntAction);
+    thread.start(&test);
     if (test[1] != 2) {
         return false;
     }
@@ -899,8 +899,8 @@ bool testValueLock() {
     test.enqueue(Value(2));
     test.enqueue(Value(3));
 
-    Thread thread("test lock thread");
-    thread.start(lockValueAction, &test);
+    Thread thread("test lock thread", lockValueAction);
+    thread.start(&test);
     if (test[1] != 2) {
         return false;
     }

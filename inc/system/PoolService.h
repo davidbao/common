@@ -3,12 +3,12 @@
 
 #include "data/TimeSpan.h"
 #include "data/LoopPList.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 
 namespace System {
     class PoolBaseService {
     public:
-        PoolBaseService(TimeSpan interval = TimeSpan::fromSeconds(1));
+        explicit PoolBaseService(const TimeSpan& interval = TimeSpan::fromSeconds(1));
 
         virtual ~PoolBaseService();
 
@@ -21,12 +21,10 @@ namespace System {
     protected:
         virtual void invoke();
 
-        static void processProc(void *parameter);
-
-        void processProcInner();
+        void processProc();
 
     private:
-        Thread *_thread;
+        Timer *_timer;
         TimeSpan _interval;
     };
 
@@ -39,7 +37,7 @@ namespace System {
 
     class PoolService : public PoolBaseService {
     public:
-        PoolService(bool batch = false, TimeSpan interval = TimeSpan::fromSeconds(1), int maxLength = 1024);
+        explicit PoolService(bool batch = false, const TimeSpan& interval = TimeSpan::fromSeconds(1), int maxLength = 1024);
 
         ~PoolService() override;
 

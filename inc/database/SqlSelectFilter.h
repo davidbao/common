@@ -15,6 +15,28 @@
 using namespace Data;
 
 namespace Database {
+    class OrderByItem : public IEvaluation<OrderByItem>, public IEquatable<OrderByItem> {
+    public:
+        String name;
+        bool asc;
+
+        explicit OrderByItem(const String &name = String::Empty, bool asc = true);
+
+        OrderByItem(const OrderByItem &item);
+
+        ~OrderByItem() override;
+
+        void evaluates(const OrderByItem &other) override;
+
+        bool equals(const OrderByItem &other) const override;
+
+        OrderByItem &operator=(const OrderByItem &other);
+
+        bool isEmpty() const;
+    };
+
+    typedef Vector<OrderByItem> OrderByItems;
+
     class SqlSelectFilter {
     public:
         explicit SqlSelectFilter(int page = 0, int pageSize = 0);
@@ -49,6 +71,12 @@ namespace Database {
 
         String getValue(const String &key) const;
 
+        bool getRangeValue(const String &key, String &fromValue, String &toValue) const;
+
+        String getFromValue(const String &key) const;
+
+        String getToValue(const String &key) const;
+
         String orderBy() const;
 
         void setOrderBy(const String &orderBy);
@@ -64,6 +92,8 @@ namespace Database {
     public:
         static bool parse(const String &str, SqlSelectFilter &filter);
 
+        static bool parseOrderBy(const String &str, OrderByItems &items);
+
     private:
         String toEqualStr(const String &key, const String &keyAlias, bool hasQuotes) const;
 
@@ -75,6 +105,13 @@ namespace Database {
 
         int _page;
         int _pageSize;
+
+    private:
+        static constexpr const char *FromStr = "from";
+        static constexpr const char *ToStr = "to";
+
+        static constexpr const char *AscStr = "asc";
+        static constexpr const char *DescStr = "desc";
     };
 }
 

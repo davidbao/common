@@ -114,18 +114,6 @@ namespace Diag {
         }
     }
 
-    void processProc(void *parameter) {
-        auto listener = (FileTraceListener *) parameter;
-        assert(listener);
-        listener->processProcInner();
-    }
-
-    void deleteUnusedFilesAction(void *parameter) {
-        auto listener = (FileTraceListener *) parameter;
-        assert(listener);
-        listener->deleteUnusedFiles();
-    }
-
     FileTraceListener::FileTraceListener(const FileTraceListenerContext &context) {
         _messageCount = 0;
         _diskIsFull = false;
@@ -133,7 +121,7 @@ namespace Diag {
         _currentFileTime = DateTime::now();
         _file = nullptr;
         _message = String::Empty;
-        _processThread = nullptr;
+        _processTimer = nullptr;
 
         _context = context;
 
@@ -150,9 +138,12 @@ namespace Diag {
         if (_context.enable) {
             createFile(_context.path.c_str());
 
-            _processThread = new Thread("FileTraceListenerProc");
-            uint32_t interval = 60 * 1000;        // 60 seconds.
-            _processThread->startProc(processProc, this, interval, deleteUnusedFilesAction, this);
+            deleteUnusedFiles();
+
+            static const uint32_t interval = 60 * 1000;        // 60 seconds.
+            _processTimer = new Timer("FileTraceListener.timer",
+                                      ObjectTimerCallback<FileTraceListener>(this, &FileTraceListener::processProc),
+                                      interval);
         }
     }
 
@@ -161,10 +152,10 @@ namespace Diag {
     }
 
     FileTraceListener::~FileTraceListener() {
-        if (_processThread != nullptr) {
-            _processThread->stop();
-            delete _processThread;
-            _processThread = nullptr;
+        if (_processTimer != nullptr) {
+            _processTimer->stop();
+            delete _processTimer;
+            _processTimer = nullptr;
         }
 
         if (_file != nullptr) {
@@ -265,7 +256,7 @@ namespace Diag {
         return DiskStat::isDiskFull(_context.path, MaxSize);
     }
 
-    void FileTraceListener::processProcInner() {
+    void FileTraceListener::processProc() {
         flushInner();
 
         DateTime now = DateTime::now();

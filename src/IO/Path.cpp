@@ -30,6 +30,7 @@
 
 #include <libgen.h>
 #include <pwd.h>
+#include <unistd.h>
 
 #else
 

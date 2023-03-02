@@ -11,7 +11,7 @@
 
 #include "thread/Mutex.h"
 #include "system/Singleton.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "xml/XmlTextReader.h"
 #include "data/String.h"
 #include "data/DateTime.h"
@@ -66,11 +66,7 @@ namespace Diag {
         void write(const String &message, const String &category) override;
 
     protected:
-        friend void processProc(void *parameter);
-
-        void processProcInner();
-
-        friend void deleteUnusedFilesAction(void *parameter);
+        void processProc();
 
     private:
         bool createFile(const String &logPath);
@@ -115,7 +111,7 @@ namespace Diag {
 
         bool _diskIsFull;
 
-        Thread *_processThread;
+        Timer *_processTimer;
 
         FileTraceListenerContext _context;
 

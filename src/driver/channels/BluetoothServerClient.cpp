@@ -13,12 +13,6 @@
 using namespace Diag;
 
 namespace Drivers {
-    void bluetooth_receiveProc(void *parameter) {
-        BluetoothServerClient *ti = (BluetoothServerClient *) parameter;
-        assert(ti);
-        ti->receiveProcInner();
-    }
-
     BluetoothServerClient::BluetoothServerClient(DriverManager *dm, BluetoothClient *client, Channel *channel,
                                                  bool autoDelete) {
         if (dm == nullptr)
@@ -41,17 +35,18 @@ namespace Drivers {
             updateDevice(channel);
         }
 
-        _receiveThread = new Thread("Bluetooth_receiveProc");
-        _receiveThread->startProc(bluetooth_receiveProc, this, 1);
+        _receiveTimer = new Timer("Bluetooth_receiveProc",
+                                  ObjectTimerCallback<BluetoothServerClient>(this, &BluetoothServerClient::receiveProcInner),
+                                  1);
 
         _startTime = TickTimeout::getCurrentTickCount();
     }
 
     BluetoothServerClient::~BluetoothServerClient() {
-        if (_receiveThread != nullptr) {
-            _receiveThread->stop();
-            delete _receiveThread;
-            _receiveThread = nullptr;
+        if (_receiveTimer != nullptr) {
+            _receiveTimer->stop();
+            delete _receiveTimer;
+            _receiveTimer = nullptr;
         }
 
         if (_channel != nullptr) {

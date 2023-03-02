@@ -13,7 +13,7 @@
 #include "diag/Trace.h"
 
 namespace Threading {
-    TaskTimer::Group::Group(const String &name, timer_callback callback, const TimeSpan &interval, void *owner) {
+    TaskTimer::Group::Group(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner) {
         this->name = name;
         this->callback = callback;
         this->execution = nullptr;
@@ -64,7 +64,7 @@ namespace Threading {
         _owner = nullptr;
     }
 
-    bool TaskTimer::add(const String &name, timer_callback callback, const TimeSpan &interval, void *owner) {
+    bool TaskTimer::add(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner) {
         if (contains(name))
             return false;
 
@@ -74,11 +74,11 @@ namespace Threading {
         return true;
     }
 
-    bool TaskTimer::add(const String &name, timer_callback callback, void *owner, const TimeSpan &interval) {
+    bool TaskTimer::add(const String &name, TimerCallback callback, void *owner, const TimeSpan &interval) {
         return add(name, callback, interval, owner);
     }
 
-    bool TaskTimer::remove(timer_callback callback) {
+    bool TaskTimer::remove(TimerCallback callback) {
         Locker locker(&_groupsMutex);
         for (uint32_t i = 0; i < _groups.count(); i++) {
             if (_groups[i]->callback == callback) {
@@ -101,12 +101,12 @@ namespace Threading {
     }
 
     bool TaskTimer::change(const String &name, const TimeSpan &interval) {
-        Thread::Id currentThreadId = Thread::currentThreadId();
+        ThreadId currentThreadId = Thread::currentThreadId();
         if (_currentThreadId != currentThreadId) {
             _groupsMutex.lock();
         }
 
-        for (uint32_t i = 0; i < _groups.count(); i++) {
+        for (size_t i = 0; i < _groups.count(); i++) {
             Group *group = _groups[i];
             if (group->name == name) {
                 group->interval = interval;
@@ -125,7 +125,7 @@ namespace Threading {
         return false;
     }
 
-    bool TaskTimer::contains(timer_callback callback) {
+    bool TaskTimer::contains(TimerCallback callback) {
         Locker locker(&_groupsMutex);
         for (uint32_t i = 0; i < _groups.count(); i++) {
             if (_groups[i]->callback == callback) {

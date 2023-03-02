@@ -75,6 +75,12 @@ if (COMMON_ENABLE_TEST)
                 event${CMAKE_FIND_LIBRARY_SUFFIXES}
                 ${EXTERNALS_LIB}
                 )
+        if (NOT WIN_OS)
+            set(EXTERNALS_LIB
+                    event_pthreads${CMAKE_FIND_LIBRARY_SUFFIXES}
+                    ${EXTERNALS_LIB}
+                    )
+        endif ()
     endif ()
 
     if (COMMON_BUILD_DATABASE)
@@ -84,7 +90,7 @@ if (COMMON_ENABLE_TEST)
         if (COMMON_BUILD_MYSQL)
             if (COMMON_BUILD_MYSQL_STATIC)
                 set(EXTERNALS_LIB mysqlclient${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
-            else()
+            else ()
                 set(EXTERNALS_LIB mysqlclient ${EXTERNALS_LIB})
             endif ()
 

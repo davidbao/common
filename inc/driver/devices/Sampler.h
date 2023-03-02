@@ -43,7 +43,7 @@ namespace Drivers
         // return the sample instruction context, do not warry about deleting.
         virtual InstructionDescription* sampleInstruction();
         
-		void instructionProcInner() override;
+		void instructionProc() override;
         
         virtual bool checkOnlineFailed();
         

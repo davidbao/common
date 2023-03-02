@@ -105,8 +105,8 @@ namespace Http {
     }
 
     HttpServer::HttpServer() {
-        _httpThread = new Thread("http_server");
-        _httpsThread = new Thread("https_server");
+        _httpThread = new Thread("http_server", httpServerStart);
+        _httpsThread = new Thread("https_server", httpServerStart);
     }
 
     HttpServer::~HttpServer() {
@@ -127,7 +127,7 @@ namespace Http {
     bool HttpServer::startHttpServer(const Context &context) {
         if (!context.isEmpty() && !_httpThread->isAlive()) {
             _httpContext.context = context;
-            _httpThread->start(httpServerStart, &_httpContext);
+            _httpThread->start(&_httpContext);
             return true;
         }
         return false;
@@ -141,7 +141,7 @@ namespace Http {
     bool HttpServer::startHttpsServer(const Context &context) {
         if (!context.isEmpty() && !_httpsThread->isAlive()) {
             _httpsContext.context = context;
-            _httpsThread->start(httpServerStart, &_httpsContext);
+            _httpsThread->start(&_httpsContext);
             return true;
         }
         return false;
@@ -184,9 +184,9 @@ namespace Http {
 //        String cacertFile = Path::isPathRooted(secure.cacertFile) ? secure.cacertFile : Path::combine(path, secure.cacertFile);
 
 #ifdef WIN32
-        //evthread_use_windows_threads();
-#elif __linux__
-        //        evthread_use_ptheads();
+        evthread_use_windows_threads();
+#else
+        evthread_use_pthreads();
 #endif
 
         struct event_base *base;
@@ -456,7 +456,7 @@ namespace Http {
             static const uint8_t MultiHeader[] = {0x2D, 0x2D, 0x2D, 0x2D, 0x2D, 0x2D};
             static const ByteArray MultiHeaderArray(MultiHeader, 6);
             ByteArray source((const uint8_t *) v[0].iov_base, v[0].iov_len);
-            int pos = source.find(MultiHeaderArray);
+            int pos = (int) source.find(MultiHeaderArray);
             if (pos >= 0)
                 multiData = true;
         }
@@ -467,7 +467,7 @@ namespace Http {
                 static const uint8_t TailStr[] = {0x0D, 0x0A, 0x0D, 0x0A};
                 static const ByteArray TailArray(TailStr, 4);
                 ByteArray source((const uint8_t *) v[i].iov_base, v[i].iov_len);
-                int pos = source.find(TailArray);
+                int pos = (int) source.find(TailArray);
                 if (pos > 0)
                     offset = pos + (int) TailArray.count();
                 r = fs.write((const uint8_t *) v[i].iov_base + offset, 0, v[i].iov_len - offset);

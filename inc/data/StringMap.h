@@ -37,9 +37,6 @@ namespace Data {
 
         StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false);
 
-        COMMON_ATTR_DEPRECATED("use StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false)")
-        StringMap(const KeyValue *item, bool ignoreKeyCase = false);
-
         void add(const String &key, const string &value);
 
         void add(const String &key, const char *value);

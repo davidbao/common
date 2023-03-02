@@ -74,7 +74,7 @@ namespace Communication {
         return nullptr;
     }
 
-    Thread *TcpSingleSampler::_singleThread = nullptr;
+    Timer *TcpSingleSampler::_singleTimer = nullptr;
     Mutex TcpSingleSampler::_poolsMutex;
     PList<TcpSingleSampler> TcpSingleSampler::_pools(false);
 
@@ -166,17 +166,18 @@ namespace Communication {
     }
 
     void TcpSingleSampler::startSinglePool() {
-        if (_singleThread == nullptr) {
-            _singleThread = new Thread("client.InstructionSingleProc");
-            _singleThread->startProc(instructionSingleProc, nullptr, 1);
+        if (_singleTimer == nullptr) {
+            _singleTimer = new Timer("client.InstructionSingleProc.timer",
+                                     TcpSingleSampler::instructionSingleProc,
+                                     1);
         }
     }
 
     void TcpSingleSampler::stopSinglePool() {
-        if (_singleThread != nullptr) {
-            _singleThread->stop();
-            delete _singleThread;
-            _singleThread = nullptr;
+        if (_singleTimer != nullptr) {
+            _singleTimer->stop();
+            delete _singleTimer;
+            _singleTimer = nullptr;
         }
     }
 

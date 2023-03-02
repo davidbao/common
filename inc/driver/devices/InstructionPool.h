@@ -3,7 +3,7 @@
 
 #include "thread/Mutex.h"
 #include "data/LoopPList.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "driver/channels/Channel.h"
 #include "driver/channels/ChannelDescription.h"
 #include "driver/instructions/InstructionDescription.h"
@@ -113,7 +113,7 @@ namespace Drivers
 		void processInstructions();
         void processPacket(Packet* packet);
 
-		virtual void instructionProcInner();
+		virtual void instructionProc();
 
 		Packet* addInstructionInner(InstructionDescription* id, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
         void addInstructionInner(const InstructionDescriptions& ids, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
@@ -124,7 +124,6 @@ namespace Drivers
         DriverManager* manager();
         
     private:
-        static void instructionProc(void* parameter);
         static bool isPacketFinished(void* parameter);
                 
     protected:
@@ -137,7 +136,7 @@ namespace Drivers
 		DeviceDescription* _dd;
 		ChannelDescription* _cd;
 
-		Thread* _instructionThread;
+		Timer* _instructionThread;
 
 		bool _pause;
         

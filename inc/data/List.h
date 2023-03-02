@@ -435,7 +435,6 @@ namespace Data {
             _mutex.unlock();
         }
 
-    protected:
         inline virtual typePtr *data() {
             return _array;
         }
@@ -551,12 +550,12 @@ namespace Data {
         SortedList(SortedList &&array) noexcept: List<type>(array) {
         }
 
-        SortedList(const SortedList &array, off_t offset, size_t count) : List<type>(array, offset, count) {
+        SortedList(const SortedList &array, off_t offset, size_t count) :
+                List<type>(array, offset, count) {
         }
 
-        SortedList(const type *array, size_t count, size_t capacity = List<type>::DefaultCapacity) : List<type>(array,
-                                                                                                                count,
-                                                                                                                capacity) {
+        SortedList(const type *array, size_t count, size_t capacity = List<type>::DefaultCapacity) :
+                List<type>(array, count, capacity) {
         }
 
         SortedList(const type &value, size_t count) : List<type>(value, count) {
@@ -571,7 +570,6 @@ namespace Data {
             return List<type>::count();
         }
 
-    protected:
         inline typename List<type>::typePtr *data() override {
             return List<type>::data();
         }

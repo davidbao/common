@@ -171,7 +171,7 @@ namespace Microservice {
                 IServiceRegister *ss = factory->getService<IServiceRegister>();
                 assert(ss);
                 ss->getServiceIds(serviceIds);
-                for (uint32_t i = 0; i < serviceIds.count(); i++) {
+                for (size_t i = 0; i < serviceIds.count(); i++) {
                     const String &serviceId = serviceIds[i];
                     servicesNode.add(JsonNode("item", serviceId));
                 }
@@ -208,29 +208,28 @@ namespace Microservice {
             return HttpStatus::HttpOk;
         else if (request.method == HttpMethod::Get) {
             JsonNode rootNode;
-            StringArray names("jvm.memory.max",
-                              "jvm.threads.states",
-                              "http.server.requests",
-                              "process.files.max",
-                              "system.load.average.1m",
-                              "jvm.memory.used",
-                              "jvm.memory.committed",
-                              "system.cpu.count",
-                              "logback.events",
-                              "jvm.buffer.memory.used",
-                              "jvm.threads.daemon",
-                              "system.cpu.usage",
-                              "jvm.threads.live",
-                              "jvm.threads.peak",
-                              "process.uptime",
-                              "process.cpu.usage",
-                              "jvm.classes.loaded",
-                              "jvm.classes.unloaded",
-                              "process.files.open",
-                              "jvm.buffer.count",
-                              "jvm.buffer.total.capacity",
-                              "process.start.time",
-                              nullptr);
+            StringArray names({"jvm.memory.max",
+                               "jvm.threads.states",
+                               "http.server.requests",
+                               "process.files.max",
+                               "system.load.average.1m",
+                               "jvm.memory.used",
+                               "jvm.memory.committed",
+                               "system.cpu.count",
+                               "logback.events",
+                               "jvm.buffer.memory.used",
+                               "jvm.threads.daemon",
+                               "system.cpu.usage",
+                               "jvm.threads.live",
+                               "jvm.threads.peak",
+                               "process.uptime",
+                               "process.cpu.usage",
+                               "jvm.classes.loaded",
+                               "jvm.classes.unloaded",
+                               "process.files.open",
+                               "jvm.buffer.count",
+                               "jvm.buffer.total.capacity",
+                               "process.start.time"});
             rootNode.add(JsonNode("names", names));
             response.setContent(rootNode);
 
@@ -460,8 +459,8 @@ namespace Microservice {
             JsonNode availableTagsNode(JsonNode::TypeArray);
             JsonNode idNode;
             idNode.add(JsonNode("tag", "id"));
-            StringArray heapValues("PS Eden Space", "PS Survivor Space", "PS Old Gen", nullptr);
-            StringArray nonHeapValues("Metaspace", "Compressed Class Space", "Code Cache", nullptr);
+            StringArray heapValues({"PS Eden Space", "PS Survivor Space", "PS Old Gen"});
+            StringArray nonHeapValues({"Metaspace", "Compressed Class Space", "Code Cache"});
             if (tag == "area:heap")
                 idNode.add(JsonNode("values", heapValues));
             else if (tag == "area:nonheap")
@@ -469,7 +468,7 @@ namespace Microservice {
             else {
                 JsonNode areaNode;
                 areaNode.add(JsonNode("tag", "area"));
-                StringArray areaValues("heap", "nonheap", nullptr);
+                StringArray areaValues({"heap", "nonheap"});
                 areaNode.add(JsonNode("values", areaValues));
                 availableTagsNode.add(areaNode);
 
@@ -507,7 +506,7 @@ namespace Microservice {
             StringMap tags;
             StringArray texts;
             StringArray::parse(tag, texts, ',');
-            for (uint32_t i = 0; i < texts.count(); i++) {
+            for (size_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 StringArray texts2;
                 StringArray::parse(text, texts2, ':');
@@ -531,8 +530,8 @@ namespace Microservice {
             JsonNode availableTagsNode(JsonNode::TypeArray);
             JsonNode idNode;
             idNode.add(JsonNode("tag", "id"));
-            StringArray heapValues("PS Eden Space", "PS Survivor Space", "PS Old Gen", nullptr);
-            StringArray nonHeapValues("Metaspace", "Compressed Class Space", "Code Cache", nullptr);
+            StringArray heapValues({"PS Eden Space", "PS Survivor Space", "PS Old Gen"});
+            StringArray nonHeapValues({"Metaspace", "Compressed Class Space", "Code Cache"});
             if (area == "heap")
                 idNode.add(JsonNode("values", heapValues));
             else if (area == "nonheap") {
@@ -540,7 +539,7 @@ namespace Microservice {
             } else {
                 JsonNode areaNode;
                 areaNode.add(JsonNode("tag", "area"));
-                StringArray areaValues("heap", "nonheap", nullptr);
+                StringArray areaValues({"heap", "nonheap"});
                 areaNode.add(JsonNode("values", areaValues));
                 availableTagsNode.add(areaNode);
 
@@ -592,8 +591,8 @@ namespace Microservice {
             JsonNode availableTagsNode(JsonNode::TypeArray);
             JsonNode idNode;
             idNode.add(JsonNode("tag", "id"));
-            StringArray heapValues("PS Eden Space", "PS Survivor Space", "PS Old Gen", nullptr);
-            StringArray nonHeapValues("Metaspace", "Compressed Class Space", "Code Cache", nullptr);
+            StringArray heapValues({"PS Eden Space", "PS Survivor Space", "PS Old Gen"});
+            StringArray nonHeapValues({"Metaspace", "Compressed Class Space", "Code Cache"});
             if (tag == "area:heap")
                 idNode.add(JsonNode("values", heapValues));
             else if (tag == "area:nonheap")
@@ -601,7 +600,7 @@ namespace Microservice {
             else {
                 JsonNode areaNode;
                 areaNode.add(JsonNode("tag", "area"));
-                StringArray areaValues("heap", "nonheap", nullptr);
+                StringArray areaValues({"heap", "nonheap"});
                 areaNode.add(JsonNode("values", areaValues));
                 availableTagsNode.add(areaNode);
 
@@ -668,7 +667,7 @@ namespace Microservice {
 
                 StringArray keys;
                 argv.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (argv.at(key, value)) {
@@ -686,30 +685,27 @@ namespace Microservice {
                 JsonNode node;
                 node.add(JsonNode("name", "systemProperties"));
                 JsonNode propertiesNode("properties");
-
-                const StringMap::KeyValue kvs[] = {
+                StringMap properties({
 //                    {"user.country", UserStat::country()},
 //                    {"user.country.format", UserStat::countryFormat()},
-                        {"user.dir", UserStat::dir()},
-                        {"user.name", UserStat::name()},
-                        {"user.language", UserStat::language()},
-                        {"user.timezone", UserStat::timezone()},
-                        {"user.home", UserStat::home()},
-                        {"os.arch", OSStat::arch()},
-                        {"os.name", OSStat::name()},
-                        {"os.version", OSStat::version()},
-                        {"@appId", app->name()},
-                        {"file.encoding", "UTF-8"},
-                        {"file.separator", String(Path::DirectorySeparatorChar)},
-                        {"io.tmpdir", Path::getTempPath()},
+                                             {"user.dir",       UserStat::dir()},
+                                             {"user.name",      UserStat::name()},
+                                             {"user.language",  UserStat::language()},
+                                             {"user.timezone",  UserStat::timezone()},
+                                             {"user.home",      UserStat::home()},
+                                             {"os.arch",        OSStat::arch()},
+                                             {"os.name",        OSStat::name()},
+                                             {"os.version",     OSStat::version()},
+                                             {"@appId",         app->name()},
+                                             {"file.encoding",  "UTF-8"},
+                                             {"file.separator", String(Path::DirectorySeparatorChar)},
+                                             {"io.tmpdir",      Path::getTempPath()},
 //                    {"line.separator", String::NewLine},
-                        {"PID", ((Int32) Process::getCurrentProcessId()).toString()},
-                        nullptr
-                };
-                StringMap properties(kvs);
+                                             {"PID",            ((Int32) Process::getCurrentProcessId()).toString()}
+                                     });
                 StringArray keys;
                 properties.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {
@@ -733,7 +729,7 @@ namespace Microservice {
 
                 StringArray keys;
                 variables.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (variables.at(key, value)) {
@@ -769,7 +765,7 @@ namespace Microservice {
 
                     StringArray keys;
                     properties.keys(keys);
-                    for (uint32_t i = 0; i < keys.count(); i++) {
+                    for (size_t i = 0; i < keys.count(); i++) {
                         const String &key = keys[i];
                         String value;
                         if (properties.at(key, value) && !value.isNullOrEmpty()) {
@@ -806,7 +802,7 @@ namespace Microservice {
 
                     StringArray keys;
                     properties.keys(keys);
-                    for (uint32_t i = 0; i < keys.count(); i++) {
+                    for (size_t i = 0; i < keys.count(); i++) {
                         const String &key = keys[i];
                         String value;
                         if (properties.at(key, value) && !value.isNullOrEmpty()) {
@@ -831,15 +827,13 @@ namespace Microservice {
                 String ipAddress, hostName;
                 cs->getProperty("summer.cloud.client.ip-address", ipAddress);
                 cs->getProperty("summer.cloud.client.hostname", hostName);
-                const StringMap::KeyValue kvs[] = {
-                        {"summer.cloud.client.hostname", hostName},
-                        {"summer.cloud.client.ip-address", ipAddress},
-                        nullptr
-                };
-                StringMap properties(kvs);
+                StringMap properties({
+                                             {"summer.cloud.client.hostname",   hostName},
+                                             {"summer.cloud.client.ip-address", ipAddress}
+                                     });
                 StringArray keys;
                 properties.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {
@@ -857,14 +851,10 @@ namespace Microservice {
                 JsonNode node;
                 node.add(JsonNode("name", "defaultProperties"));
                 JsonNode propertiesNode("properties");
-
-                const StringMap::KeyValue kvs[] = {
-                        nullptr
-                };
-                StringMap properties(kvs);
+                StringMap properties({});
                 StringArray keys;
                 properties.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const String &key = keys[i];
                     String value;
                     if (properties.at(key, value)) {

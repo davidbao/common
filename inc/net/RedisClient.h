@@ -12,7 +12,7 @@
 #include "hiredis/hiredis.h"
 #include "data/String.h"
 #include "data/TimeSpan.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "system/Delegate.h"
 
 using namespace Data;

@@ -18,13 +18,13 @@ namespace Threading {
         class Group {
         public:
             String name;
-            timer_callback callback;
+            TimerCallback callback;
             TimerExecution *execution;
             uint32_t start;
             TimeSpan interval;
             void *owner;
 
-            Group(const String &name, timer_callback callback, const TimeSpan &interval, void *owner = nullptr);
+            Group(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner = nullptr);
 
             Group(const String &name, TimerExecution *execution, const TimeSpan &interval);
 
@@ -39,12 +39,12 @@ namespace Threading {
 
         ~TaskTimer();
 
-        bool add(const String &name, timer_callback callback, const TimeSpan &interval, void *owner = nullptr);
+        bool add(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner = nullptr);
 
-        bool add(const String &name, timer_callback callback, void *owner, const TimeSpan &interval);
+        bool add(const String &name, TimerCallback callback, void *owner, const TimeSpan &interval);
 
         template<class T>
-        bool add(const String &name, const TimerCallback <T> &callback, const TimeSpan &interval) {
+        bool add(const String &name, const ObjectTimerCallback <T> &callback, const TimeSpan &interval) {
             if (contains(name))
                 return false;
 
@@ -54,12 +54,12 @@ namespace Threading {
             return true;
         }
 
-        bool remove(timer_callback callback);
+        bool remove(TimerCallback callback);
 
         bool remove(const String &name);
 
         template<class T>
-        bool remove(const TimerCallback <T> &callback) {
+        bool remove(const ObjectTimerCallback <T> &callback) {
             Locker locker(&_groupsMutex);
             for (uint32_t i = 0; i < _groups.count(); i++) {
                 if (_groups[i]->execution != nullptr &&
@@ -73,7 +73,7 @@ namespace Threading {
 
         bool change(const String &name, const TimeSpan &interval);
 
-        bool contains(timer_callback callback);
+        bool contains(TimerCallback callback);
 
         bool contains(const String &name);
 
@@ -99,7 +99,7 @@ namespace Threading {
         Groups _groups;
         Mutex _groupsMutex;
 
-        Thread::Id _currentThreadId;
+        ThreadId _currentThreadId;
     };
 }
 

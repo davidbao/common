@@ -24,4 +24,8 @@ set(THREAD_SRC
         Timer.cpp
         )
 
+if (NOT WEB_OS)
+    set(THREAD_SRC ${THREAD_SRC} Thread.cpp ThreadPool.cpp)
+endif ()
+
 add_library(thread OBJECT ${THREAD_SRC})

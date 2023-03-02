@@ -13,6 +13,34 @@
 using namespace Json;
 
 namespace Database {
+    OrderByItem::OrderByItem(const String &name, bool asc) : name(name), asc(asc) {
+    }
+
+    OrderByItem::OrderByItem(const OrderByItem &item) : name(item.name), asc(item.asc) {
+    }
+
+    OrderByItem::~OrderByItem() = default;
+
+    void OrderByItem::evaluates(const OrderByItem &other) {
+        name = other.name;
+        asc = other.name;
+    }
+
+    bool OrderByItem::equals(const OrderByItem &other) const {
+        return name == other.name && asc == other.asc;
+    }
+
+    OrderByItem &OrderByItem::operator=(const OrderByItem &other) {
+        if (this != &other) {
+            OrderByItem::evaluates(other);
+        }
+        return *this;
+    }
+
+    bool OrderByItem::isEmpty() const {
+        return name.isNullOrEmpty();
+    }
+
     SqlSelectFilter::SqlSelectFilter(int page, int pageSize) : _page(page), _pageSize(pageSize) {
     }
 
@@ -52,8 +80,8 @@ namespace Database {
     }
 
     void SqlSelectFilter::addRange(const String &key, const String &from, const String &to) {
-        _values.add(String::format("%s.%s", key.c_str(), "from"), from);
-        _values.add(String::format("%s.%s", key.c_str(), "to"), to);
+        _values.add(String::format("%s.%s", key.c_str(), FromStr), from);
+        _values.add(String::format("%s.%s", key.c_str(), ToStr), to);
     }
 
     String SqlSelectFilter::toLikeStr(const String &key, const String &keyAlias) const {
@@ -97,8 +125,8 @@ namespace Database {
     String SqlSelectFilter::toRangeStr(const String &key, const String &keyAlias, bool hasQuotes) const {
         const char *keyStr = !keyAlias.isNullOrEmpty() ? keyAlias.c_str() : key.c_str();
 
-        String fromKey = String::format("%s.%s", key.c_str(), "from");
-        String toKey = String::format("%s.%s", key.c_str(), "to");
+        String fromKey = String::format("%s.%s", key.c_str(), FromStr);
+        String toKey = String::format("%s.%s", key.c_str(), ToStr);
         String fromValue, toValue;
         if (_values.at(fromKey, fromValue) && !fromValue.isNullOrEmpty() &&
             _values.at(toKey, toValue) && !toValue.isNullOrEmpty()) {
@@ -114,6 +142,19 @@ namespace Database {
         String value;
         _values.at(key, value);
         return value;
+    }
+
+    bool SqlSelectFilter::getRangeValue(const String &key, String &fromValue, String &toValue) const {
+        return _values.at(String::format("%s.%s", key.c_str(), FromStr), fromValue) &&
+               _values.at(String::format("%s.%s", key.c_str(), ToStr), toValue);
+    }
+
+    String SqlSelectFilter::getFromValue(const String &key) const {
+        return getValue(String::format("%s.%s", key.c_str(), FromStr));
+    }
+
+    String SqlSelectFilter::getToValue(const String &key) const {
+        return getValue(String::format("%s.%s", key.c_str(), ToStr));
     }
 
     String SqlSelectFilter::orderBy() const {
@@ -152,16 +193,16 @@ namespace Database {
                     Convert::splitStr(k, texts, '.');
                     if (texts.count() == 2) {
                         keyStr = texts[0];
-                        if (texts[1] == "from") {
+                        if (texts[1] == FromStr) {
                             fromKey = k;
                             fromValue = _values[fromKey];
-                            toKey = String::format("%s.%s", texts[0].c_str(), "to");
+                            toKey = String::format("%s.%s", texts[0].c_str(), ToStr);
                             toValue = _values[toKey];
                             excluded.add(toKey, toKey);
-                        } else if (texts[1] == "to") {
+                        } else if (texts[1] == ToStr) {
                             toKey = k;
                             toValue = _values[toKey];
-                            fromKey = String::format("%s.%s", texts[0].c_str(), "from");
+                            fromKey = String::format("%s.%s", texts[0].c_str(), FromStr);
                             fromValue = _values[fromKey];
                             excluded.add(fromKey, fromKey);
                         }
@@ -231,13 +272,12 @@ namespace Database {
             for (size_t i = 0; i < names.count(); i++) {
                 String name = names[i];
                 if (node.getAttribute(name, value)) {
-                    if ((index = (int) name.find("From")) > 0) {
+                    if ((index = (int) name.toLower().find(FromStr)) > 0) {
                         from = value;
                         key = name.substr(0, index);
-                    } else if ((index = (int) name.find("To")) > 0) {
+                    } else if ((index = (int) name.toLower().find(ToStr)) > 0) {
                         to = value;
-                        String temp = name.substr(0, index);
-                        if (temp == key)
+                        if (key == name.substr(0, index))
                             filter.addRange(key, from, to);
                     } else if (String::equals(name, "orderBy", true)) {
                         filter._orderBy = value;
@@ -251,12 +291,10 @@ namespace Database {
                             if (filter._page <= 0)
                                 filter._page = 1;
                             offset = -1;
-                        } else if (name == "pageSize") {
+                        } else if (name == "pageSize" || name == "limit") {
                             Int32::parse(value, filter._pageSize);
                         } else if (name == "offset") {
                             Int32::parse(value, offset);
-                        } else if (name == "limit") {
-                            Int32::parse(value, filter._pageSize);
                         } else {
                             filter.add(key, value);
                         }
@@ -272,5 +310,38 @@ namespace Database {
 
     const StringMap &SqlSelectFilter::values() const {
         return _values;
+    }
+
+    bool SqlSelectFilter::parseOrderBy(const String &str, OrderByItems &items) {
+//        score
+//        score ASC
+//        score DESC
+//        score DESC, name ASC
+//        score, name ASC
+        if (str.isNullOrEmpty()) {
+            return false;
+        }
+
+        StringArray texts;
+        StringArray::parse(str, texts, ',');
+        for (size_t i = 0; i < texts.count(); ++i) {
+            const String &text = texts[i];
+            String itemStr = text.trim(' ');
+            ssize_t pos = itemStr.find(' ');
+            if (pos > 0) {
+                String name = itemStr.substr(0, pos).trim(' ');
+                String ascStr = itemStr.substr(pos + 1, itemStr.length() - pos).trim(' ');
+                if (String::equals(ascStr, AscStr, true)) {
+                    items.add(OrderByItem(name, true));
+                } else if (String::equals(ascStr, DescStr, true)) {
+                    items.add(OrderByItem(name, false));
+                } else {
+                    // Invalid order symbol, then ignore it.
+                }
+            } else {
+                items.add(OrderByItem(itemStr, true));
+            }
+        }
+        return items.count() > 0;
     }
 }

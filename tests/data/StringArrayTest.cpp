@@ -29,9 +29,7 @@ int comparison(const String &x, const String &y) {
 template<class T>
 class AscComparer : public IComparer<T> {
 public:
-    AscComparer() {
-
-    }
+    AscComparer() = default;
 
     int compare(const T &x, const T &y) const override {
         if (x > y)
@@ -98,10 +96,10 @@ bool testConstructor() {
     {
         static const int count = 5;
         StringArray test{String("1"),
-                    String("2"),
-                    String("abc"),
-                    String("bcd"),
-                    String("128")};
+                         String("2"),
+                         String("abc"),
+                         String("bcd"),
+                         String("128")};
         if (test.count() != count) {
             return false;
         }
@@ -113,8 +111,8 @@ bool testConstructor() {
     }
 
     {
-        StringArray test("1", "2", "3", "4", nullptr);
-        if(test.count() != 4) {
+        StringArray test({"1", "2", "3", "4"});
+        if (test.count() != 4) {
             return false;
         }
         for (int i = 0; i < 4; ++i) {
@@ -217,28 +215,31 @@ bool testAdd() {
 }
 
 bool testAddRange() {
-    StringArray test;
-    static const int count = 100;
-    for (int i = 0; i < count; ++i) {
-        test.add(Int32(i).toString());
-    }
-    StringArray test2;
-    if (!test2.addRange(test)) {
-        return false;
-    }
-    if (test != test2) {
-        return false;
-    }
+    {
+        StringArray test;
+        static const int count = 100;
+        for (int i = 0; i < count; ++i) {
+            test.add(Int32(i).toString());
+        }
 
-    StringArray test3;
-    if (!test3.addRange(test, 50, test.count() - 50)) {
-        return false;
-    }
-    if (!(valueEquals(test3[0], 50) && valueEquals(test3[49], 99))) {
-        return false;
-    }
+        StringArray test2;
+        if (!test2.addRange(test)) {
+            return false;
+        }
+        if (test != test2) {
+            return false;
+        }
 
+        StringArray test3;
+        if (!test3.addRange(test, 50, test.count() - 50)) {
+            return false;
+        }
+        if (!(valueEquals(test3[0], 50) && valueEquals(test3[49], 99))) {
+            return false;
+        }
+    }
     StringArray test4;
+    static const int count = 100;
     static const int count2 = 5;
     String array[count] = {
             String("1"),
@@ -262,7 +263,7 @@ bool testAddRange() {
     {
         StringArray test;
         test.addArray("1", "2", "3", "4", nullptr);
-        if(test.count() != 4) {
+        if (test.count() != 4) {
             return false;
         }
         for (int i = 0; i < 4; ++i) {
@@ -275,7 +276,7 @@ bool testAddRange() {
     {
         StringArray test;
         test.addRange({"1", "2", "3", "4"});
-        if(test.count() != 4) {
+        if (test.count() != 4) {
             return false;
         }
         for (int i = 0; i < 4; ++i) {
@@ -421,7 +422,7 @@ bool testSetRange() {
 }
 
 bool testQuickSort() {
-    static const char* fmt = "D2";
+    static const char *fmt = "D2";
 
     StringArray test;
     static const int count = 100;
@@ -680,7 +681,7 @@ bool testIterator() {
     test.add(String("3"));
 
     int index = 1;
-    for (auto it: test) {
+    for (const auto &it: test) {
         if (!valueEquals(it, index)) {
             return false;
         }
@@ -688,7 +689,7 @@ bool testIterator() {
     }
 
     index = 1;
-    for (auto &it: test) {
+    for (const auto &it: test) {
         if (!valueEquals(it, index)) {
             return false;
         }
@@ -730,8 +731,8 @@ bool testLock() {
     test.add(String("2"));
     test.add(String("3"));
 
-    Thread thread("test lock thread");
-    thread.start(lockAction, &test);
+    Thread thread("test lock thread", lockAction);
+    thread.start(&test);
     if (!valueEquals(test[1], 2)) {
         return false;
     }

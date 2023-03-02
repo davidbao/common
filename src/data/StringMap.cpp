@@ -27,14 +27,6 @@ namespace Data {
                                                                                       _ignoreKeyCase(ignoreKeyCase) {
     }
 
-    StringMap::StringMap(const KeyValue *item, bool ignoreKeyCase) : StringMap(ignoreKeyCase) {
-        const KeyValue *kv = item;
-        while (kv != nullptr && !kv->key.isNullOrEmpty()) {
-            add(kv->key, kv->value);
-            kv++;
-        }
-    }
-
     void StringMap::add(const String &key, const string &value) {
         add(key, String(value).toString());
     }

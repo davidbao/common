@@ -45,8 +45,6 @@ namespace Data {
 
         StringArray(std::initializer_list<String> list);
 
-        explicit StringArray(const char *item, ...);
-
         void addArray(const char *item, ...);
 
         bool contains(const String &str, bool ignoreCase = false) const;

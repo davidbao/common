@@ -6,7 +6,7 @@
 #include "BluetoothServerChannelContext.h"
 #include "net/BluetoothClient.h"
 #include "net/BluetoothServer.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 #include "data/TimeSpan.h"
@@ -35,7 +35,6 @@ namespace Drivers
         ssize_t send(const uint8_t* buffer, off_t offset, size_t count);
 
 	private:
-		friend void bluetooth_receiveProc(void* parameter);
 		void receiveProcInner();
 
 		void createDevice(const Channel* channel);
@@ -53,7 +52,7 @@ namespace Drivers
 
 		BluetoothChannelBaseContext* _context;
 
-		Thread* _receiveThread;
+		Timer* _receiveTimer;
 
 		Channel* _channel;
 		Device* _device;

@@ -17,6 +17,7 @@
 #include "database/DbValue.h"
 #include "IO/Stream.h"
 #include "json/JsonNode.h"
+#include "database/SqlSelectFilter.h"
 
 using namespace Data;
 using namespace Json;
@@ -37,6 +38,8 @@ namespace Database {
 
         bool equals(const DataColumn &other) const override;
 
+        DataColumn &operator=(const DataColumn &other);
+
         const String &name() const;
 
         ValueTypes type() const;
@@ -54,8 +57,6 @@ namespace Database {
         bool isDateTime() const;
 
         bool isDigital() const;
-
-        DataColumn &operator=(const DataColumn &other);
 
     protected:
         String _name;
@@ -127,6 +128,8 @@ namespace Database {
 
         bool equals(const DataCell &other) const override;
 
+        DataCell &operator=(const DataCell &other);
+
         ValueTypes type() const;
 
         const DbValue &value() const;
@@ -142,8 +145,6 @@ namespace Database {
         bool isNullValue() const;
 
         void setNullValue();
-
-        DataCell &operator=(const DataCell &other);
 
     private:
         DataCell(const DataColumn &column, const Value &value);
@@ -191,6 +192,8 @@ namespace Database {
 
         bool equals(const DataRow &other) const override;
 
+        DataRow &operator=(const DataRow &other);
+
         bool isEmpty() const;
 
         void addCell(const DataCell &cell);
@@ -200,8 +203,6 @@ namespace Database {
         const DataCells &cells() const;
 
         size_t cellCount() const;
-
-        DataRow &operator=(const DataRow &other);
 
     public:
         static const DataRow Empty;
@@ -223,6 +224,8 @@ namespace Database {
         void evaluates(const DataTable &other) override;
 
         bool equals(const DataTable &other) const override;
+
+        DataTable &operator=(const DataTable &other);
 
         bool isEmpty() const;
 
@@ -255,7 +258,7 @@ namespace Database {
         String anyColumnNameStr(bool hasTableName = false) const;
 
         String columnNameStr(bool hasTableName = false, const StringArray &excludedNames = StringArray::Empty,
-                                   const char *splitStr = ",") const;
+                             const char *splitStr = ",") const;
 
         int totalCount() const;
 
@@ -264,6 +267,22 @@ namespace Database {
         void toJsonNode(JsonNode &node, const String &format = String::Empty) const;
 
         String toJsonString() const;
+
+        void sort(const String &orderBy);
+
+        void sort(const OrderByItems &items);
+
+    private:
+        // A signed integer that indicates the relative values of x and y, as shown in the following table.
+        // Value	            Meaning
+        // Less than 0	        x is less than y.
+        // 0	                x equals y.
+        // Greater than 0	    x is greater than y.
+        typedef int(*Comparison)(const DataRow *x, const DataRow *y, const OrderByItems &items);
+
+        static void quicksort(DataRow *array[], int left, int right, Comparison comparison, const OrderByItems &items);
+
+        static int compare(const DataRow *x, const DataRow *y, const OrderByItems &items);
 
     private:
         String _name;

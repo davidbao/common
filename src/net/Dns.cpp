@@ -118,6 +118,7 @@ namespace Net {
         }
         return true;
 #endif  // __ANDROID__
+        return false;
 #endif  // WIN32
     }
 

@@ -430,46 +430,6 @@ namespace Data {
         return v;
     }
 
-    bool Variant::isValueEqual(Type type, const Value &value1, const Value &value2) {
-        switch (type) {
-            case Null:
-                return true;
-            case Digital:
-                return value1.bValue == value2.bValue;
-            case Integer8:
-                return value1.cValue == value2.cValue;
-            case UInteger8:
-                return value1.ucValue == value2.ucValue;
-            case Integer16:
-                return value1.sValue == value2.sValue;
-            case UInteger16:
-                return value1.usValue == value2.usValue;
-            case Integer32:
-                return value1.nValue == value2.nValue;
-            case UInteger32:
-                return value1.unValue == value2.unValue;
-            case Integer64:
-                return value1.lValue == value2.lValue;
-            case UInteger64:
-                return value1.ulValue == value2.ulValue;
-            case Float32:
-                return value1.fValue == value2.fValue;
-            case Float64:
-                return value1.dValue == value2.dValue;
-            case Text:
-                return equalsTextValue(value1.strValue, value2.strValue);
-            case Date:
-                return value1.dateValue == value2.dateValue;
-            case Timestamp:
-                return value1.timeValue == value2.timeValue;
-            case Blob:
-                return equalsBlobValue(value1.blobValue, value2.blobValue);
-            default:
-                break;
-        }
-        return false;
-    }
-
     bool Variant::setStringValue(const String &str) {
         return setStringValue(str, _type, _value);
     }
@@ -497,10 +457,6 @@ namespace Data {
                 setByteArrayValue(array, type, value);
             }
         }
-    }
-
-    void Variant::setByteArrayValue(const ByteArray &buffer) {
-        setByteArrayValue(buffer, _type, _value);
     }
 
     void Variant::setByteArrayValue(const ByteArray &buffer, Type type, Value &value) {
@@ -549,12 +505,7 @@ namespace Data {
         if (type() != Null) {
             _isNullValue = false;
 
-//            Variant::Value oldValue{.lValue = 0};
-//            changeValue(type(), value(), type(), oldValue);
-
             setValueInner(v);
-
-//            clearValue(type(), oldValue);
         } else {
             _isNullValue = true;
 
@@ -967,43 +918,146 @@ namespace Data {
         if (!changeValue(type1, value1, type2, destValue))
             return false;
 
+        bool result;
         switch (type2) {
             case Null:
-                return false;
+                result = false;
+                break;
             case Digital:
-                return value2.bValue == destValue.bValue;
+                result = value2.bValue == destValue.bValue;
+                break;
             case Integer8:
-                return value2.cValue == destValue.cValue;
+                result = value2.cValue == destValue.cValue;
+                break;
             case UInteger8:
-                return value2.ucValue == destValue.ucValue;
+                result = value2.ucValue == destValue.ucValue;
+                break;
             case Integer16:
-                return value2.sValue == destValue.sValue;
+                result = value2.sValue == destValue.sValue;
+                break;
             case UInteger16:
-                return value2.usValue == destValue.usValue;
+                result = value2.usValue == destValue.usValue;
+                break;
             case Integer32:
-                return value2.nValue == destValue.nValue;
+                result = value2.nValue == destValue.nValue;
+                break;
             case UInteger32:
-                return value2.unValue == destValue.unValue;
+                result = value2.unValue == destValue.unValue;
+                break;
             case Integer64:
-                return value2.lValue == destValue.lValue;
+                result = value2.lValue == destValue.lValue;
+                break;
             case UInteger64:
-                return value2.ulValue == destValue.ulValue;
+                result = value2.ulValue == destValue.ulValue;
+                break;
             case Float32:
-                return value2.fValue == destValue.fValue;
+                result = value2.fValue == destValue.fValue;
+                break;
             case Float64:
-                return value2.dValue == destValue.dValue;
+                result = value2.dValue == destValue.dValue;
+                break;
             case Text:
-                return equalsTextValue(value2.strValue, destValue.strValue);
+                result = equalsTextValue(value2.strValue, destValue.strValue);
+                break;
             case Date:
-                return value2.dateValue == destValue.dateValue;
+                result = value2.dateValue == destValue.dateValue;
+                break;
             case Timestamp:
-                return value2.timeValue == destValue.timeValue;
+                result = value2.timeValue == destValue.timeValue;
+                break;
             case Blob:
-                return equalsBlobValue(value2.blobValue, destValue.blobValue);
+                result = equalsBlobValue(value2.blobValue, destValue.blobValue);
+                break;
             default:
-                return false;
+                result = false;
+                break;
         }
-        return true;
+
+        clearValue(type2, destValue);
+        return result;
+    }
+
+    int Variant::compareTo(const Variant &other) const {
+        Type type1 = type();
+        Type type2 = other.type();
+        if (type1 == Null && type2 == Null) {
+            return 0;
+        }
+
+        const Value &value1 = value();
+        Value value2;
+        if (!changeValue(other.type(), other.value(), type1, value2))
+            return false;
+
+        int result = 0;
+        switch (type1) {
+            case Null:
+                result = 0;
+                break;
+            case Digital:
+                if (value1.bValue > value2.bValue) result = 1;
+                if (value1.bValue < value2.bValue) result = -1;
+                break;
+            case Integer8:
+                if (value1.cValue > value2.cValue) result = 1;
+                if (value1.cValue < value2.cValue) result = -1;
+                break;
+            case UInteger8:
+                if (value1.ucValue > value2.ucValue) result = 1;
+                if (value1.ucValue < value2.ucValue) result = -1;
+                break;
+            case Integer16:
+                if (value1.sValue > value2.sValue) result = 1;
+                if (value1.sValue < value2.sValue) result = -1;
+                break;
+            case UInteger16:
+                if (value1.usValue > value2.usValue) result = 1;
+                if (value1.usValue < value2.usValue) result = -1;
+                break;
+            case Integer32:
+                if (value1.nValue > value2.nValue) result = 1;
+                if (value1.nValue < value2.nValue) result = -1;
+                break;
+            case UInteger32:
+                if (value1.unValue > value2.unValue) result = 1;
+                if (value1.unValue < value2.unValue) result = -1;
+                break;
+            case Integer64:
+                if (value1.lValue > value2.lValue) result = 1;
+                if (value1.lValue < value2.lValue) result = -1;
+                break;
+            case UInteger64:
+                if (value1.ulValue > value2.ulValue) result = 1;
+                if (value1.ulValue < value2.ulValue) result = -1;
+                break;
+            case Float32:
+                if (value1.fValue > value2.fValue) result = 1;
+                if (value1.fValue < value2.fValue) result = -1;
+                break;
+            case Float64:
+                if (value1.dValue > value2.dValue) result = 1;
+                if (value1.dValue < value2.dValue) result = -1;
+                break;
+            case Text:
+                result = compareTextValue(value1.strValue, value2.strValue);
+                break;
+            case Date:
+                if (value1.dateValue > value2.dateValue) result = 1;
+                if (value1.dateValue < value2.dateValue) result = -1;
+                break;
+            case Timestamp:
+                if (value1.timeValue > value2.timeValue) result = 1;
+                if (value1.timeValue < value2.timeValue) result = -1;
+                break;
+            case Blob:
+                result = compareBlobValue(value1.blobValue, value2.blobValue);
+                break;
+            default:
+                result = 0;
+                break;
+        }
+        clearValue(type1, value2);
+        return result;
     }
 
     bool Variant::changeValue(const String &v, Type type, Value &value) {
@@ -1088,7 +1142,7 @@ namespace Data {
                 changed = false;
                 break;
             case Digital:
-                value.dValue = (int8_t) v.ticks();
+                value.dValue = v.ticks() > 0 ? 1 : 0;
                 changed = true;
                 break;
             case Integer8:
@@ -1846,25 +1900,39 @@ namespace Data {
         return changeValue(str, type, value);
     }
 
-    bool Variant::equalsTextValue(const char *value1, const char *value2) {
+    int Variant::compareTextValue(const char *value1, const char *value2) {
         if (value1 != nullptr && value2 != nullptr)
-            return strcmp(value1, value2) == 0;
+            return strcmp(value1, value2);
         else if (value1 == nullptr && value2 == nullptr)
-            return true;
+            return 0;
+        else if (value1 != nullptr && value2 == nullptr)
+            return 1;
         else
-            return false;
+            return -1;
     }
 
-    bool Variant::equalsBlobValue(const uint8_t *value1, const uint8_t *value2) {
+    int Variant::compareBlobValue(const uint8_t *value1, const uint8_t *value2) {
         size_t count1 = blobCount(value1);
         const uint8_t *buffer1 = blobBuffer(value1);
         size_t count2 = blobCount(value2);
         const uint8_t *buffer2 = blobBuffer(value2);
-        if (count1 == count2 &&
-            buffer1 != nullptr && buffer2 != nullptr) {
-            return memcmp(buffer1, buffer2, count1) == 0;
-        }
-        return false;
+
+        if (count1 == count2 && count1 > 0)
+            return memcmp(buffer1, buffer2, count1);
+        else if (count1 == 0 && count2 == 0)
+            return 0;
+        else if (count1 > count2)
+            return 1;
+        else
+            return -1;
+    }
+
+    bool Variant::equalsTextValue(const char *value1, const char *value2) {
+        return compareTextValue(value1, value2) == 0;
+    }
+
+    bool Variant::equalsBlobValue(const uint8_t *value1, const uint8_t *value2) {
+        return compareBlobValue(value1, value2) == 0;
     }
 
     size_t Variant::blobCount(const uint8_t *value) {

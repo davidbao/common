@@ -3,6 +3,7 @@
 
 #include "system/Delegate.h"
 #include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 #include "net/TcpClient.h"
@@ -221,8 +222,8 @@ namespace Drivers {
 
         Clients _clients;
 
-        Thread *_acceptThread;
-        Thread *_closeThread;
+        Timer *_acceptTimer;
+        Timer *_closeTimer;
 
         Thread *_multiplexingThread;
         bool _multiplexingLoop;

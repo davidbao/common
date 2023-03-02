@@ -11,6 +11,7 @@
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 #include "net/OpcuaContext.h"
+#include "thread/Timer.h"
 
 #include <open62541/client.h>
 #include <open62541/client_config_default.h>

@@ -72,13 +72,12 @@ namespace Drivers
         void stop() override;
 
     private:
-        static void tcp_receiveProc(void* parameter);
-        void receiveProcInner();
+        void receiveProc();
         
         void stopInner();
 
     private:
-        Thread* _receiveThread;
+        Timer* _receiveTimer;
     };
 
     class TcpSyncReceiver : public TcpBackgroundReceiver

@@ -35,7 +35,8 @@ namespace Data {
               public IEquatable<Variant, String>,
               public IEquatable<Variant, DateTime>,
               public IEquatable<Variant, TimeSpan>,
-              public IEquatable<Variant, ByteArray> {
+              public IEquatable<Variant, ByteArray>,
+              public IComparable<Variant> {
     public:
         enum Type : uint8_t {
             Null = 0,
@@ -65,7 +66,7 @@ namespace Data {
             uint16_t usValue;
             int32_t nValue;
             uint32_t unValue;
-            int64_t lValue;
+            int64_t lValue{};
             uint64_t ulValue;
             float fValue;
             double dValue;
@@ -121,7 +122,7 @@ namespace Data {
                 dValue = value;
             }
 
-            explicit Value(char* value) {
+            explicit Value(char *value) {
                 strValue = value;
             }
 
@@ -241,6 +242,8 @@ namespace Data {
         bool equals(const TimeSpan &other) const override;
 
         bool equals(const ByteArray &other) const override;
+
+        int compareTo(const Variant &other) const override;
 
         bool isNullType() const;
 
@@ -458,8 +461,6 @@ namespace Data {
 
         void setByteArrayValue(const uint8_t *buffer);
 
-        void setByteArrayValue(const ByteArray &buffer);
-
         void setValueInner(const Value &value);
 
         void clearValue();
@@ -510,6 +511,10 @@ namespace Data {
 
         static bool equalsBlobValue(const uint8_t *value1, const uint8_t *value2);
 
+        static int compareTextValue(const char *value1, const char *value2);
+
+        static int compareBlobValue(const uint8_t *value1, const uint8_t *value2);
+
         static size_t blobCount(const uint8_t *value);
 
         static const uint8_t *blobBuffer(const uint8_t *value);
@@ -519,8 +524,6 @@ namespace Data {
         static void readValue(Stream *stream, bool bigEndian, Type type, Value &value);
 
         static void clearValue(Type type, Value &value);
-
-        static bool isValueEqual(Type type, const Value &value1, const Value &value2);
 
     public:
         static const Variant NullValue;

@@ -21,6 +21,7 @@
 #include <event2/http.h>
 #include <event2/buffer.h>
 #include <event2/util.h>
+#include <event2/thread.h>
 #include <event2/keyvalq_struct.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>

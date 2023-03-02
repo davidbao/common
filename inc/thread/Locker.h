@@ -14,7 +14,7 @@ namespace Threading {
 
     class Locker {
     public:
-        Locker(IMutex *m);
+        explicit Locker(IMutex *m);
 
         ~Locker();
 

@@ -155,7 +155,7 @@ namespace Microservice {
             cs->getProperty("server.http.session.timeout", timeout);
             const TimeSpan interval = TimeSpan::fromMinutes(1);
             _sessionTimer = new Timer("server.http.session.timer",
-                                      TimerCallback<HttpService>(this, &HttpService::sessionTimeUp),
+                                      ObjectTimerCallback<HttpService>(this, &HttpService::sessionTimeUp),
                                       interval);
         }
 

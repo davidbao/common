@@ -373,8 +373,8 @@ namespace Drivers {
 
     TcpServerInteractive::TcpServerInteractive(DriverManager *dm, Channel *channel) : Interactive(dm, channel),
                                                                                       _tcpServer(nullptr),
-                                                                                      _acceptThread(nullptr),
-                                                                                      _closeThread(nullptr),
+                                                                                      _acceptTimer(nullptr),
+                                                                                      _closeTimer(nullptr),
                                                                                       _multiplexingThread(nullptr),
                                                                                       _multiplexingLoop(false), _fd(-1),
                                                                                       _exitSockets{0, 0} {
@@ -434,26 +434,22 @@ namespace Drivers {
 
 #ifdef HAS_ONLY_ASYNC
                 Trace::info("Start a tcp server receiver(async).");
-                _acceptThread = new Thread("server.acceptProc");
-                _acceptThread->startProc(acceptProc, this, 1);
+                _acceptTimer = new Timer("server.acceptProc", acceptProc, 1);
 #else
                 if (tcc->asyncReceiver()) {
                     Trace::info("Start a tcp server receiver(async).");
-                    _acceptThread = new Thread("server.acceptProc");
-                    _acceptThread->startProc(acceptProc, this, 1);
+                    _acceptTimer = new Timer("server.acceptProc", acceptProc, 1);
                 } else if (tcc->syncReceiver()) {
                     Trace::info("Start a tcp server receiver(sync).");
-                    _acceptThread = new Thread("acceptProc");
-                    _acceptThread->startProc(acceptProc, this, 1);
+                    _acceptTimer = new Timer("acceptProc", acceptProc, 1);
                 } else if (tcc->multiPlexingReceiver()) {
                     Trace::info("Start a tcp server receiver(multiplexing).");
-                    _multiplexingThread = new Thread("server.multiplexingProc");
-                    _multiplexingThread->start(multiplexingProc, this);
+                    _multiplexingThread = new Thread("server.multiplexingProc", multiplexingProc);
+                    _multiplexingThread->start(this);
                 }
 #endif
 
-                _closeThread = new Thread("server.closeProc");
-                _closeThread->startProc(closeProc, this, 1000);
+                _closeTimer = new Timer("server.closeProc", closeProc, 1000);
 
                 String message = String::convert("listen a socket, address = %s, port = %d, max connections: %d",
                                                  !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
@@ -511,15 +507,13 @@ namespace Drivers {
 #endif
         }
         if (_multiplexingThread != nullptr) {
-            _multiplexingThread->stop();
             delete _multiplexingThread;
             _multiplexingThread = nullptr;
         }
 
-        if (_closeThread != nullptr) {
-            _closeThread->stop();
-            delete _closeThread;
-            _closeThread = nullptr;
+        if (_closeTimer != nullptr) {
+            delete _closeTimer;
+            _closeTimer = nullptr;
         }
 
         _clients.clear();
@@ -532,10 +526,9 @@ namespace Drivers {
         }
         _tcpServerMutex.unlock();
 
-        if (_acceptThread != nullptr) {
-            _acceptThread->stop();
-            delete _acceptThread;
-            _acceptThread = nullptr;
+        if (_acceptTimer != nullptr) {
+            delete _acceptTimer;
+            _acceptTimer = nullptr;
         }
     }
 

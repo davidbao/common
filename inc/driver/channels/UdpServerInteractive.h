@@ -6,7 +6,7 @@
 #include "UdpServerChannelContext.h"
 #include "net/UdpClient.h"
 #include "net/UdpServer.h"
-#include "thread/Thread.h"
+#include "thread/Timer.h"
 #include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 #include "driver/devices/Device.h"
@@ -35,22 +35,18 @@ namespace Drivers
         const Endpoint& endpoint() const override;
 
 	private:
-		friend void udp_receiveProc(void* parameter);
-		void receiveProcInner();
+		void receiveProc();
         
         bool connectdInner() const;
 
-		inline UdpServerChannelContext* getChannelContext()
-		{
-			return (UdpServerChannelContext*)(_channel->description()->context());
-		}
+		UdpServerChannelContext* getChannelContext() const;
 
 		bool rebind();
 
 	private:
 		UdpServer* _udpServer;
 
-		Thread* _receiveThread;
+		Timer* _receiveTimer;
 
 		Devices _devices;
         bool _retrieved;

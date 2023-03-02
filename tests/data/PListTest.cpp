@@ -741,8 +741,8 @@ bool testLock() {
     test.add(new Value(2));
     test.add(new Value(3));
 
-    Thread thread("test lock thread");
-    thread.start(lockAction, &test);
+    Thread thread("test lock thread", lockAction);
+    thread.start(&test);
     if (!valueEquals(test[1], 2)) {
         return false;
     }

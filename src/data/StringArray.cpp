@@ -37,17 +37,6 @@ namespace Data {
     StringArray::StringArray(std::initializer_list<String> list) : SortedVector<String>(list) {
     }
 
-    StringArray::StringArray(const char *item, ...) : StringArray(DefaultCapacity) {
-        const char *str = item;
-        va_list ap;
-        va_start(ap, item);
-        while (str != nullptr && str[0] != '\0') {
-            add(str);
-            str = va_arg(ap, const char*);
-        }
-        va_end(ap);
-    }
-
     void StringArray::addArray(const char *item, ...) {
         const char *str = item;
         va_list ap;

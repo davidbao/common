@@ -843,7 +843,7 @@ namespace Net {
 
     bool OpcuaClient::translateBrowsePathToNodeId(const String &browsePath, OpcuaNodeId &nodeId) {
         NodeIds nodeIds;
-        bool result = translateBrowsePathsToNodeIds(StringArray(browsePath, nullptr), nodeIds);
+        bool result = translateBrowsePathsToNodeIds(StringArray({browsePath}), nodeIds);
         if (result && nodeIds.count() == 1)
             nodeId.copyFrom(nodeIds[0]);
         return result;
