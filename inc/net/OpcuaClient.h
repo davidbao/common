@@ -77,14 +77,12 @@ namespace Net
         bool write(const OpcuaNodeId* nodeId, T value, int type);
         
     private:
-        static void connectAction(ThreadHolder* holder);
-        
+//        static void connectAction(ThreadHolder* holder);
+
         static void valueChanged(UA_Client *client, UA_UInt32 subId, void *subContext, UA_UInt32 monId, void *monContext, UA_DataValue *value);
         static void stateCallback(UA_Client *client, UA_ClientState clientState);
         static void subscriptionInactivityCallback(UA_Client *client, UA_UInt32 subscriptionId, void *subContext);
-        
-        static void subscriptionCallback(void* state);
-        
+
         static Variant toVariant(const UA_DataValue* value);
 //        static bool toUADataValue(const Variant& from, UA_DataValue* to);
         

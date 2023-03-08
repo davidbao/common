@@ -59,6 +59,7 @@
 #endif
 #if __EMSCRIPTEN__
 #define BROWSER_OS 1
+#define WEB_OS 1
 #endif
 #if __ANDROID__
 #define ANDROID_OS 1

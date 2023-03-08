@@ -37,8 +37,7 @@ namespace Microservice
         bool getHealthNode(JsonNode& node) const override;
         
     private:
-        static void registerCallback(void* parameter);
-        void registerProcInner();
+        void registerProc();
         
     private:
         bool _registered;

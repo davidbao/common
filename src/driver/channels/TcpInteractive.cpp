@@ -188,8 +188,8 @@ namespace Drivers {
             _fd = epollfd;
 #endif
 
-            _multiplexingThread = new Thread("client.multiplexingProc", multiplexingProcInner);
-            _multiplexingThread->start(receiver);
+            _multiplexingThread = new Thread("client.multiplexingProc", multiplexingProcInner, receiver);
+            _multiplexingThread->start();
         }
     }
 

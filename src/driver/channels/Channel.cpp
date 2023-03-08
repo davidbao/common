@@ -78,8 +78,8 @@ namespace Drivers {
     }
 
     Channel::~Channel() {
-        ThreadPool::stop(openAction);
-        ThreadPool::stop(reopenAction);
+//        ThreadPool::stop(openAction);
+//        ThreadPool::stop(reopenAction);
 
         _description = nullptr;
         if (_interactive != nullptr) {
@@ -144,23 +144,23 @@ namespace Drivers {
         return result;
     }
 
-    void Channel::openAction(ThreadHolder *holder) {
-        Channel *channel = static_cast<Channel *>(holder->owner);
-        assert(channel);
-
-        try {
-            channel->open();
-        }
-        catch (const Exception &) {
-        }
-
-        delete holder;
-    }
+//    void Channel::openAction(ThreadHolder *holder) {
+//        Channel *channel = static_cast<Channel *>(holder->owner);
+//        assert(channel);
+//
+//        try {
+//            channel->open();
+//        }
+//        catch (const Exception &) {
+//        }
+//
+//        delete holder;
+//    }
 
     void Channel::openAsync() {
         if (!_opening) {
             Debug::writeFormatLine("Channel::openAsync");
-            ThreadPool::startAsync(openAction, this);
+//            ThreadPool::startAsync(openAction, this);
         }
     }
 
@@ -170,8 +170,8 @@ namespace Drivers {
     }
 
     void Channel::close() {
-        ThreadPool::stop(openAction);
-        ThreadPool::stop(reopenAction);
+//        ThreadPool::stop(openAction);
+//        ThreadPool::stop(reopenAction);
 
         if (_opening) {
             // Waiting for opened.
@@ -196,31 +196,31 @@ namespace Drivers {
         return open();
     }
 
-    void Channel::reopenAction(ThreadHolder *holder) {
-        Channel *channel = static_cast<Channel *>(holder->owner);
-        assert(channel);
-
-        try {
-            channel->reopen();
-        }
-        catch (const Exception &) {
-        }
-
-        delete holder;
-    }
+//    void Channel::reopenAction(ThreadHolder *holder) {
+//        Channel *channel = static_cast<Channel *>(holder->owner);
+//        assert(channel);
+//
+//        try {
+//            channel->reopen();
+//        }
+//        catch (const Exception &) {
+//        }
+//
+//        delete holder;
+//    }
 
     void Channel::reopenAsync() {
         if (!_opening) {
             Debug::writeFormatLine("Channel::reopenAsync");
-            ThreadPool::startAsync(reopenAction, this);
+//            ThreadPool::startAsync(reopenAction, this);
         }
     }
 
     bool Channel::reopened() const {
-        if (ThreadPool::isAlive(openAction)) {
-            // openning...
-            return false;
-        }
+//        if (ThreadPool::isAlive(openAction)) {
+//            // opening...
+//            return false;
+//        }
         return context()->reopened();
     }
 

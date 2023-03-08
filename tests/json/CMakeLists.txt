@@ -19,7 +19,8 @@ set(JSON_SRC
         )
 
 foreach (item ${JSON_SRC})
-    add_executable(${item} ${item})
-    target_link_libraries(${item} ${COMMON_LIB})
-    add_test(NAME ${item} COMMAND ${item})
+    string(REGEX MATCH "[0-9A-Za-z_]*" app ${item})
+    add_executable(${app} ${item})
+    target_link_libraries(${app} ${COMMON_LIB})
+    add_test(NAME ${app} COMMAND ${app})
 endforeach ()

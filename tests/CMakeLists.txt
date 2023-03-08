@@ -113,6 +113,10 @@ if (COMMON_ENABLE_TEST)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation -framework SystemConfiguration")
     endif ()
 
+    if (WEB_OS)
+        add_definitions("-sEXIT_RUNTIME=1")
+    endif ()
+
     # application settings
     set(TEST_BASE_SRC configuration crypto data diag exception http IO json net system thread xml yml)
     if (COMMON_BUILD_COMMUNICATION)

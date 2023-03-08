@@ -35,7 +35,7 @@ namespace Drivers
         ssize_t send(const uint8_t* buffer, off_t offset, size_t count);
 
 	private:
-		void receiveProcInner();
+		void receiveProc();
 
 		void createDevice(const Channel* channel);
         void updateDevice(Channel* channel);

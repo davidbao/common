@@ -16,6 +16,7 @@
 #include "data/PrimitiveInterface.h"
 #include "data/PList.h"
 #include "data/DateTime.h"
+#include "system/Action.h"
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 
@@ -23,118 +24,10 @@
 #include <atomic>
 
 using namespace std;
+using namespace System;
 
 namespace Threading {
-    class ThreadHolder {
-    public:
-        class Value {
-        public:
-            Value();
-
-            virtual ~Value();
-        };
-
-        void *owner;
-        Value *value;
-        bool autoDeleteValue;
-
-        explicit ThreadHolder(void *owner = nullptr, Value *value = nullptr, bool autoDeleteValue = true);
-
-        ~ThreadHolder();
-    };
-
-    typedef void (*ThreadStart)();
-
-    typedef void (*ParameterizedThreadStart)(void *);
-
-    typedef void (*ThreadHolderAction)(ThreadHolder *);
-
-    class ThreadExecution : public IEquatable<ThreadExecution> {
-    public:
-        ThreadExecution() = default;
-
-        virtual void execute() = 0;
-    };
-
-    template<class T>
-    class ObjectThreadStart : public ThreadExecution, public ICloneable<ThreadExecution> {
-    public:
-        typedef void (T::*Method)();
-
-        typedef void (T::*HolderMethod)(ThreadHolder *holder);
-
-        ObjectThreadStart() : _instance(nullptr), _method(nullptr),
-                              _hMethod(nullptr), _holder(nullptr) {
-        }
-
-        ObjectThreadStart(T *instance, Method method) : _instance(instance), _method(method),
-                                                        _hMethod(nullptr), _holder(nullptr) {
-        }
-
-        ObjectThreadStart(T *instance, HolderMethod method, ThreadHolder *holder) : _instance(instance),
-                                                                                    _method(nullptr),
-                                                                                    _hMethod(method),
-                                                                                    _holder(holder) {
-        }
-
-        ObjectThreadStart(const ObjectThreadStart &callback) : _instance(nullptr), _method(nullptr),
-                                                               _hMethod(nullptr), _holder(nullptr) {
-            this->operator=(callback);
-        }
-
-        void operator()() {
-            this->execute();
-        }
-
-        void execute() override {
-            if (_instance != nullptr) {
-                if (_method != nullptr)
-                    return (_instance->*_method)();
-                else if (_hMethod != nullptr)
-                    return (_instance->*_hMethod)(_holder);
-            }
-        }
-
-        ThreadExecution *clone() const override {
-            if (_method != nullptr)
-                return new ObjectThreadStart<T>(_instance, _method);
-            else if (_hMethod != nullptr)
-                return new ObjectThreadStart<T>(_instance, _hMethod, _holder);
-            else
-                return new ObjectThreadStart<T>();
-        }
-
-        bool equals(const ThreadExecution &other) const override {
-            auto callback = dynamic_cast<const ObjectThreadStart *>(&other);
-            return _instance == callback->_instance && _method == callback->_method &&
-                   _hMethod == callback->_hMethod && _holder == callback->_holder;
-        }
-
-        ObjectThreadStart &operator=(const ObjectThreadStart &other) {
-            if (this != &other) {
-                _instance = other._instance;
-                _method = other._method;
-                _hMethod = other._hMethod;
-                _holder = other._holder;
-            }
-            return *this;
-        }
-
-        T *instance() const {
-            return _instance;
-        }
-
-        bool canExecution() const {
-            return _instance != nullptr && (_method != nullptr || _hMethod != nullptr);
-        }
-
-    private:
-        T *_instance;
-        Method _method;
-
-        HolderMethod _hMethod;
-        ThreadHolder *_holder;
-    };
+    typedef Action ThreadStart;
 
     class Thread;
 
@@ -178,22 +71,20 @@ namespace Threading {
         PriorityCount = PriorityLast + 1
     };
 
-    class Thread {
+    class Thread : public Action {
     public:
-        Thread(const String &name, ThreadStart start);
-
-        Thread(const String &name, ParameterizedThreadStart start);
-
-        template<class T>
-        Thread(const String &name, const ObjectThreadStart<T> &start) : Thread(name) {
-            _action.cStart = start.canExecution() ? start.clone() : nullptr;
+        template<class Function, class... Args>
+        explicit Thread(const String &name, Function &&f, Args &&... args) : Action(f, args...) {
+            init(name);
         }
 
-        ~Thread();
+        Thread(const Thread &) = delete;
+
+        ~Thread() override;
 
         bool isAlive() const;
 
-        void start(void *parameter = nullptr);
+        void start();
 
         const String &name() const;
 
@@ -218,12 +109,12 @@ namespace Threading {
 
         static Thread *currentThread();
 
+        static unsigned int concurrency();
+
     private:
-        explicit Thread(const String &name);
+        void init(const String &name);
 
         void run();
-
-        void run2(void *parameter);
 
 #ifdef DEBUG
 
@@ -232,18 +123,6 @@ namespace Threading {
 #endif
 
     private:
-        struct Action {
-            ThreadStart start;
-            ParameterizedThreadStart pStart;
-            ThreadExecution *cStart;
-
-            Action();
-
-            ~Action();
-        };
-
-        Action _action;
-
         thread _thread;
 
         std::atomic<bool> _running;

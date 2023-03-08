@@ -167,11 +167,7 @@ namespace Net {
 
         static void connlost(void *context, char *cause);
 
-        static void connectAction(ThreadHolder *holder);
-
-        static void messageCallback(void *state);
-
-        static void checkCallback(void *state);
+//        static void connectAction(ThreadHolder *holder);
 
     private:
         MQTTClient _client;

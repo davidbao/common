@@ -17,12 +17,26 @@ namespace Threading {
     Dictionary<int, DateTime> Timer::_timers;
 #endif
 
-    Timer::Timer(const String &name, TimerCallback callback, void *state, int dueTime, int period) {
-        _callback = callback;
-        _state = state;
+    Timer::~Timer() {
+#ifdef __EMSCRIPTEN__
+        _timers.remove((int) this);
+#endif
+
+        stop();
+
+#ifdef DEBUG
+        printDebugInfo("Destroy a timer.");
+#endif // DEBUG
+
+#ifndef __EMSCRIPTEN__
+        delete _thread;
+        _thread = nullptr;
+#endif
+    }
+
+    void Timer::init(const String &name, int dueTime, int period) {
         _dueTime = dueTime;
         _period = period;
-        _execution = nullptr;
 
         String tName = name;
         if (tName.isNullOrEmpty()) {
@@ -40,7 +54,7 @@ namespace Threading {
         _start = 0;
         _loop = false;
 
-        _thread = new Thread(tName, ObjectThreadStart<Timer>(this, &Timer::threadProc));
+        _thread = new Thread(tName, &Timer::threadProc, this);
 #endif
 
 #ifdef DEBUG
@@ -48,56 +62,6 @@ namespace Threading {
 #endif // DEBUG
 
         start();
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, void *state, int period) :
-            Timer(name, callback, state, Zero, period) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, int dueTime, int period) :
-            Timer(name, callback, this, dueTime, period) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, int period) : Timer(name, callback, this, period) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, void *state, const TimeSpan &dueTime,
-                 const TimeSpan &period)
-            : Timer(name, callback, state, (int) dueTime.totalMilliseconds(), (int) period.totalMilliseconds()) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, void *state, const TimeSpan &period) :
-            Timer(name, callback, state, TimeSpan::Zero, period) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, const TimeSpan &dueTime, const TimeSpan &period) :
-            Timer(name, callback, this, dueTime, period) {
-    }
-
-    Timer::Timer(const String &name, TimerCallback callback, const TimeSpan &period) :
-            Timer(name, callback, this, period) {
-    }
-
-    Timer::~Timer() {
-#ifdef __EMSCRIPTEN__
-        _timers.remove((int) this);
-#endif
-
-        stop();
-
-#ifdef DEBUG
-        printDebugInfo("Destroy a timer.");
-#endif // DEBUG
-
-#ifndef __EMSCRIPTEN__
-        delete _thread;
-        _thread = nullptr;
-#endif
-
-        if (_execution != nullptr) {
-            delete _execution;
-            _execution = nullptr;
-        }
     }
 
     void Timer::start() {
@@ -188,16 +152,8 @@ namespace Threading {
         return change((int) period.totalMilliseconds());
     }
 
-    void Timer::timerCallback(void *parameter) {
-        auto timer = static_cast<Timer *>(parameter);
-        assert(timer);
-        if (timer->_execution != nullptr)
-            timer->_execution->execute();
-    }
-
     void Timer::fire() {
-        if (_callback != nullptr)
-            _callback(_state);
+        execute();
     }
 
 #ifdef __EMSCRIPTEN__

@@ -141,11 +141,8 @@ namespace Drivers {
         _device = device;
 
         if (_instructionThread == nullptr) {
-            char name[256];
-            sprintf(name, "InstructionProc_%s", _dd->name().c_str());
-            _instructionThread = new Timer(name,
-                                           ObjectTimerCallback<InstructionPool>(this, &InstructionPool::instructionProc),
-                                           1);
+            _instructionThread = new Timer(String::format("InstructionProc_%s", _dd->name().c_str()),
+                                           1, &InstructionPool::instructionProc, this);
         }
 
         resume();

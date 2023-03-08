@@ -285,7 +285,7 @@ namespace Drivers {
             {
                 Client *client = _clients.at(i);
                 if (client != nullptr && client->isOnline()) {
-                    for (uint32_t j = 0; j < endpoints.count(); j++) {
+                    for (size_t j = 0; j < endpoints.count(); j++) {
                         const Endpoint endpoint = endpoints[j];
                         if (endpoint.isEmpty() || endpoint == client->peerEndpoint()) {
                             ips.add(client->senderInstructionPool());
@@ -305,7 +305,7 @@ namespace Drivers {
             {
                 Client *client = _clients.at(i);
                 if (client != nullptr && client->isOnline()) {
-                    for (uint32_t j = 0; j < endpoints.count(); j++) {
+                    for (size_t j = 0; j < endpoints.count(); j++) {
                         const Endpoint endpoint = endpoints[j];
                         if (endpoint.isEmpty() || endpoint != client->peerEndpoint()) {
                             ips.add(client->senderInstructionPool());
@@ -329,7 +329,7 @@ namespace Drivers {
     }
 
     bool TcpServerInteractive::Clients::closeClient(const Endpoint &peerEndpoint) {
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *temp = _clients.at(i);
             if (temp != nullptr) {
                 if (temp->tcpClient()->peerEndpoint() == peerEndpoint) {
@@ -344,7 +344,7 @@ namespace Drivers {
     bool TcpServerInteractive::Clients::getUnusedClients(PList<Client> &clients) {
         Locker locker(&_clientsMutex);
         clients.setAutoDelete(false);
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *client = _clients.at(i);
             if (client != nullptr) {
                 if (!client->connected() ||
@@ -363,7 +363,7 @@ namespace Drivers {
     }
 
     TcpServerInteractive::Client *TcpServerInteractive::Clients::at(int socketId) const {
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *client = _clients[i];
             if (client->socketId() == socketId)
                 return client;
@@ -434,22 +434,23 @@ namespace Drivers {
 
 #ifdef HAS_ONLY_ASYNC
                 Trace::info("Start a tcp server receiver(async).");
-                _acceptTimer = new Timer("server.acceptProc", acceptProc, 1);
+                _acceptTimer = new Timer("server.acceptProc", 1, &TcpServerInteractive::acceptProc, this);
 #else
                 if (tcc->asyncReceiver()) {
                     Trace::info("Start a tcp server receiver(async).");
-                    _acceptTimer = new Timer("server.acceptProc", acceptProc, 1);
+                    _acceptTimer = new Timer("server.acceptProc", 1, &TcpServerInteractive::acceptProc, this);
                 } else if (tcc->syncReceiver()) {
                     Trace::info("Start a tcp server receiver(sync).");
-                    _acceptTimer = new Timer("acceptProc", acceptProc, 1);
+                    _acceptTimer = new Timer("acceptProc", 1, &TcpServerInteractive::acceptProc, this);
                 } else if (tcc->multiPlexingReceiver()) {
                     Trace::info("Start a tcp server receiver(multiplexing).");
-                    _multiplexingThread = new Thread("server.multiplexingProc", multiplexingProc);
-                    _multiplexingThread->start(this);
+                    _multiplexingThread = new Thread("server.multiplexingProc",
+                                                     &TcpServerInteractive::multiplexingProc, this);
+                    _multiplexingThread->start();
                 }
 #endif
 
-                _closeTimer = new Timer("server.closeProc", closeProc, 1000);
+                _closeTimer = new Timer("server.closeProc", 1000, &TcpServerInteractive::closeProc, this);
 
                 String message = String::convert("listen a socket, address = %s, port = %d, max connections: %d",
                                                  !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
@@ -634,13 +635,7 @@ namespace Drivers {
         return new TcpServer();
     }
 
-    void TcpServerInteractive::acceptProc(void *parameter) {
-        TcpServerInteractive *ti = (TcpServerInteractive *) parameter;
-        assert(ti);
-        ti->acceptProcInner();
-    }
-
-    void TcpServerInteractive::acceptProcInner() {
+    void TcpServerInteractive::acceptProc() {
         if (_tcpServer != nullptr) {
             bool valid = _tcpServer != nullptr ? _tcpServer->isValid() : false;
             if (valid) {
@@ -653,30 +648,14 @@ namespace Drivers {
         }
     }
 
-    void TcpServerInteractive::closeProc(void *parameter) {
-        TcpServerInteractive *ti = (TcpServerInteractive *) parameter;
-        assert(ti);
-        ti->closeProcInner();
-    }
-
-    void TcpServerInteractive::closeProcInner() {
+    void TcpServerInteractive::closeProc() {
         PList<Client> clients;
         if (_clients.getUnusedClients(clients)) {
-            for (uint32_t i = 0; i < clients.count(); i++) {
+            for (size_t i = 0; i < clients.count(); i++) {
                 Client *client = clients[i];
                 closeClient(client);
             }
         }
-    }
-
-    void TcpServerInteractive::multiplexingProc(void *parameter) {
-        TcpServerInteractive *ti = (TcpServerInteractive *) parameter;
-        assert(ti);
-        ti->multiplexingProcInner();
-    }
-
-    void TcpServerInteractive::multiplexingProcInner() {
-        multiplexingProc();
     }
 
 #ifdef HAS_KEVENT

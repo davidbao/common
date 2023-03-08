@@ -167,9 +167,19 @@ namespace Communication {
 
     void TcpSingleSampler::startSinglePool() {
         if (_singleTimer == nullptr) {
-            _singleTimer = new Timer("client.InstructionSingleProc.timer",
-                                     TcpSingleSampler::instructionSingleProc,
-                                     1);
+            auto instructionSingleProc = []() {
+#ifdef DEBUG
+                Stopwatch sw("multiplexing.TcpSingleSampler::instructionSingleProc", 1000);
+#endif
+                _poolsMutex.lock();
+                for (size_t i = 0; i < _pools.count(); i++) {
+                    TcpSingleSampler *pool = _pools[i];
+                    pool->addSampleInstruction();
+                    pool->processInstructions();
+                }
+                _poolsMutex.unlock();
+            };
+            _singleTimer = new Timer("client.InstructionSingleProc.timer", 1, instructionSingleProc);
         }
     }
 
@@ -179,20 +189,6 @@ namespace Communication {
             delete _singleTimer;
             _singleTimer = nullptr;
         }
-    }
-
-    void TcpSingleSampler::instructionSingleProc(void *parameter) {
-#ifdef DEBUG
-        Stopwatch sw("multiplexing.TcpSingleSampler::instructionSingleProc", 1000);
-#endif
-
-        _poolsMutex.lock();
-        for (uint32_t i = 0; i < _pools.count(); i++) {
-            TcpSingleSampler *pool = _pools[i];
-            pool->addSampleInstruction();
-            pool->processInstructions();
-        }
-        _poolsMutex.unlock();
     }
 
     bool TcpSingleSampler::reopen() {

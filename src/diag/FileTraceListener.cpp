@@ -140,10 +140,8 @@ namespace Diag {
 
             deleteUnusedFiles();
 
-            static const uint32_t interval = 60 * 1000;        // 60 seconds.
-            _processTimer = new Timer("FileTraceListener.timer",
-                                      ObjectTimerCallback<FileTraceListener>(this, &FileTraceListener::processProc),
-                                      interval);
+            static const int interval = 60 * 1000;        // 60 seconds.
+            _processTimer = new Timer("FileTraceListener.timer", interval, &FileTraceListener::processProc, this);
         }
     }
 

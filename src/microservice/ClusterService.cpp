@@ -11,6 +11,7 @@
 #include "thread/ThreadPool.h"
 #include "thread/Timer.h"
 #include "configuration/ConfigService.h"
+#include <future>
 
 namespace Microservice {
     ClusterContext::ClusterContext() {
@@ -66,7 +67,7 @@ namespace Microservice {
     }
 
     ClusterContexts::ClusterContexts(const ClusterContext **values, size_t count) {
-        for (uint32_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i++) {
             const ClusterContext *value = values[i];
             add(*value);
         }
@@ -174,7 +175,7 @@ namespace Microservice {
 
     void ClusterContexts::operator=(const ClusterContexts &value) {
         clear();
-        for (uint32_t i = 0; i < value.count(); i++) {
+        for (size_t i = 0; i < value.count(); i++) {
             const ClusterContext context = value[i];
             add(context);
         }
@@ -184,7 +185,7 @@ namespace Microservice {
         if (count() != value.count())
             return false;
 
-        for (uint32_t i = 0; i < value.count(); i++) {
+        for (size_t i = 0; i < value.count(); i++) {
             const ClusterContext context1 = value[i];
             const ClusterContext context2 = at(i);
             if (context1 != context2)
@@ -199,7 +200,7 @@ namespace Microservice {
 
     void ClusterContexts::write(Stream *stream) const {
         stream->writeUInt32((uint32_t) count());
-        for (uint32_t i = 0; i < (uint32_t) count(); i++) {
+        for (size_t i = 0; i < (uint32_t) count(); i++) {
             const ClusterContext context = at(i);
             context.write(stream);
         }
@@ -208,7 +209,7 @@ namespace Microservice {
     void ClusterContexts::read(Stream *stream) {
         clear();
         size_t count = stream->readUInt32();
-        for (uint32_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i++) {
             ClusterContext context;
             context.read(stream);
             add(context);
@@ -392,8 +393,8 @@ namespace Microservice {
             : oldValue(oldValue), newValue(newValue) {
     }
 
-    PushAllHolder::PushAllHolder(const Endpoint &endpoint) : endpoint(endpoint) {
-    }
+//    PushAllHolder::PushAllHolder(const Endpoint &endpoint) : endpoint(endpoint) {
+//    }
 
     ClusterRpcServer::ClusterRpcServer(const RpcServerContext &context, ClusterService *service) : RpcServer(context),
                                                                                                    _service(service) {
@@ -490,7 +491,7 @@ namespace Microservice {
         if (_sendTimer == nullptr) {
             TimeSpan interval = TimeSpan::fromSeconds(1);
             cs->getProperty("summer.cluster.sync.interval", interval);
-            _sendTimer = new Timer("cluster_send_timer", pushTimeUp, this, interval);
+            _sendTimer = new Timer("cluster_send_timer", interval, &ClusterService::pushProc, this);
         }
 
         cs->getProperty("summer.cluster.sync.maxPacketCount", _maxPacketCount);
@@ -527,7 +528,7 @@ namespace Microservice {
         }
 
         // connect the another cluster servers.
-        for (uint32_t i = 0; i < _nodes.count(); i++) {
+        for (size_t i = 0; i < _nodes.count(); i++) {
             Endpoint endpoint = _nodes[i];
             if (!endpoint.isEmpty()) {
                 RpcClientContext context(endpoint);
@@ -546,7 +547,7 @@ namespace Microservice {
             _sendTimer = nullptr;
         }
 
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             RpcClient *client = _clients[i];
             client->disconnect();
         }
@@ -577,23 +578,23 @@ namespace Microservice {
     void ClusterService::pushAll(ClusterRpcServer *server, const Endpoint &endpoint) {
         Locker locker(&_contextsMutex);
         if (_contexts.count() > 0) {
-            ThreadHolder *holder = new ThreadHolder(this, new PushAllHolder(endpoint));
-            ThreadPool::startAsync(pushAllAction, holder);
+//            ThreadHolder *holder = new ThreadHolder(this, new PushAllHolder(endpoint));
+//            ThreadPool::startAsync(pushAllAction, holder);
         }
     }
 
-    void ClusterService::pushAllAction(ThreadHolder *holder) {
-        ClusterService *cc = static_cast<ClusterService *>(holder->owner);
-        assert(cc);
-        PushAllHolder *value = (PushAllHolder *) holder->value;
-        assert(value);
+//    void ClusterService::pushAllAction(ThreadHolder *holder) {
+//        ClusterService *cc = static_cast<ClusterService *>(holder->owner);
+//        assert(cc);
+//        PushAllHolder *value = (PushAllHolder *) holder->value;
+//        assert(value);
+//
+//        cc->pushSync(cc->_server, value->endpoint);
+//
+//        delete holder;
+//    }
 
-        cc->pushAllSync(cc->_server, value->endpoint);
-
-        delete holder;
-    }
-
-    bool ClusterService::pushAllSync(ClusterRpcServer *server, const Endpoint &endpoint) {
+    bool ClusterService::pushSync(ClusterRpcServer *server, const Endpoint &endpoint) {
         Locker locker(&_contextsMutex);
 
         const size_t count = _contexts.count();
@@ -647,9 +648,9 @@ namespace Microservice {
             _senderContexts.makeNull(false);
             _senderContextsMutex.unlock();
 
-            pushProc((const ClusterContext **) contexts, count);
+            push((const ClusterContext **) contexts, count);
 
-            for (uint32_t i = 0; i < count; i++) {
+            for (size_t i = 0; i < count; i++) {
                 ClusterContext *context = contexts[i];
                 delete context;
             }
@@ -659,11 +660,11 @@ namespace Microservice {
         }
     }
 
-    void ClusterService::pushProc(const ClusterContext **values, size_t count) {
+    void ClusterService::push(const ClusterContext **values, size_t count) {
         ClusterContexts contexts(values, count);
 
         // send to the other services.
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             RpcClient *client = _clients[i];
             RpcMethodContext context("push", 3);
             PushRequest request(contexts);
@@ -674,12 +675,6 @@ namespace Microservice {
                                             client->endpoint().toString().c_str()));
             }
         }
-    }
-
-    void ClusterService::pushTimeUp(void *state) {
-        ClusterService *cs = (ClusterService *) state;
-        assert(cs);
-        cs->pushProc();
     }
 
     const ClusterContexts &ClusterService::contexts() {

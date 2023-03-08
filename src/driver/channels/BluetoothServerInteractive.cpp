@@ -73,14 +73,12 @@ namespace Drivers {
                 }
 
                 _acceptTimer = new Timer(
-                        "Bluetooth_acceptProc",
-                        ObjectTimerCallback<BluetoothServerInteractive>(this, &BluetoothServerInteractive::acceptProc),
-                        1);
+                        "Bluetooth_acceptProc", 1,
+                        &BluetoothServerInteractive::acceptProc, this);
 
                 _closeTimer = new Timer(
-                        "Bluetooth_closeProc",
-                        ObjectTimerCallback<BluetoothServerInteractive>(this, &BluetoothServerInteractive::closeProc),
-                        1);
+                        "Bluetooth_closeProc", 1,
+                        &BluetoothServerInteractive::closeProc, this);
 
                 return true;
             } else {

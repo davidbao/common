@@ -99,9 +99,7 @@ namespace Net {
         bool connecting() const;
 
     private:
-        static void connectAction(ThreadHolder *holder);
-
-        static void checkCallback(void *state);
+//        static void connectAction(ThreadHolder *holder);
 
     private:
         redisContext *_context;

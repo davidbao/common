@@ -477,8 +477,7 @@ bool testIntReserve() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockIntAction(void *owner) {
-    auto *test = static_cast<Integers *>(owner);
+void lockIntAction(Integers *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->clear();
@@ -490,8 +489,8 @@ bool testIntLock() {
     test.enqueue(2);
     test.enqueue(3);
 
-    Thread thread("test lock thread", lockIntAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockIntAction, &test);
+    thread.start();
     if (test[1] != 2) {
         return false;
     }
@@ -886,8 +885,7 @@ bool testValueReserve() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockValueAction(void *owner) {
-    auto *test = static_cast<Values *>(owner);
+void lockValueAction(Values *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->clear();
@@ -899,8 +897,8 @@ bool testValueLock() {
     test.enqueue(Value(2));
     test.enqueue(Value(3));
 
-    Thread thread("test lock thread", lockValueAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockValueAction, &test);
+    thread.start();
     if (test[1] != 2) {
         return false;
     }

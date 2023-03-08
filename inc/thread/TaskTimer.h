@@ -18,62 +18,30 @@ namespace Threading {
         class Group {
         public:
             String name;
-            TimerCallback callback;
-            TimerExecution *execution;
+            Action *action;
             uint32_t start;
             TimeSpan interval;
-            void *owner;
 
-            Group(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner = nullptr);
-
-            Group(const String &name, TimerExecution *execution, const TimeSpan &interval);
+            Group(const String &name, Action *action, const TimeSpan &interval);
 
             ~Group();
 
             bool isTimeUp();
+
+            void execute();
         };
 
         typedef PList<Group> Groups;
 
-        explicit TaskTimer(const String &name, void *owner = nullptr);
+        explicit TaskTimer(const String &name);
 
         ~TaskTimer();
 
-        bool add(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner = nullptr);
-
-        bool add(const String &name, TimerCallback callback, void *owner, const TimeSpan &interval);
-
-        template<class T>
-        bool add(const String &name, const ObjectTimerCallback <T> &callback, const TimeSpan &interval) {
-            if (contains(name))
-                return false;
-
-            auto *group = new Group(name, callback.clone(), interval);
-            Locker locker(&_groupsMutex);
-            _groups.add(group);
-            return true;
-        }
-
-        bool remove(TimerCallback callback);
+        bool add(const String &name, Action *action, const TimeSpan &interval);
 
         bool remove(const String &name);
 
-        template<class T>
-        bool remove(const ObjectTimerCallback <T> &callback) {
-            Locker locker(&_groupsMutex);
-            for (uint32_t i = 0; i < _groups.count(); i++) {
-                if (_groups[i]->execution != nullptr &&
-                    _groups[i]->execution->equals(callback)) {
-                    _groups.removeAt(i);
-                    return true;
-                }
-            }
-            return false;
-        }
-
         bool change(const String &name, const TimeSpan &interval);
-
-        bool contains(TimerCallback callback);
 
         bool contains(const String &name);
 
@@ -86,18 +54,13 @@ namespace Threading {
         bool isStarted() const;
 
     private:
-        void taskTimeUpInner();
-
-    private:
-        static void taskTimeUp(void *state);
+        void taskTimeUp();
 
     private:
         Timer *_timer;
 
         String _name;
-        void *_owner;
         Groups _groups;
-        Mutex _groupsMutex;
 
         ThreadId _currentThreadId;
     };

@@ -25,20 +25,6 @@ using namespace Diag;
 using namespace System;
 
 namespace Threading {
-    ThreadHolder::Value::Value() = default;
-
-    ThreadHolder::Value::~Value() = default;
-
-    ThreadHolder::ThreadHolder(void *owner, Value *value, bool autoDeleteValue) :
-            owner(owner), value(value), autoDeleteValue(autoDeleteValue) {
-    }
-
-    ThreadHolder::~ThreadHolder() {
-        if (autoDeleteValue && value != nullptr) {
-            delete (value);
-        }
-    }
-
     ThreadId::ThreadId() = default;
 
     ThreadId::ThreadId(const threadId_t &id) : _id(id) {
@@ -73,24 +59,6 @@ namespace Threading {
 
     PList<Thread> Thread::_threads(false, 255);
 
-    Thread::Thread(const String &name, ThreadStart start) : Thread(name) {
-        _action.start = start;
-    }
-
-    Thread::Thread(const String &name, ParameterizedThreadStart start) : Thread(name) {
-        _action.pStart = start;
-    }
-
-    Thread::Thread(const String &name) : _name(name), _running(false) {
-#ifdef DEBUG
-        printDebugInfo("Create a thread.");
-#endif
-
-        _threads.lock();
-        _threads.add(this);
-        _threads.unlock();
-    }
-
     Thread::~Thread() {
 #ifdef DEBUG
         printDebugInfo("Destroy a thread.");
@@ -104,17 +72,25 @@ namespace Threading {
         }
     }
 
-    void Thread::start(void *parameter) {
+    void Thread::init(const String &name) {
+#ifdef DEBUG
+        printDebugInfo("Create a thread.");
+#endif
+        _name = name;
+        _running = false;
+
+        _threads.lock();
+        _threads.add(this);
+        _threads.unlock();
+    }
+
+    void Thread::start() {
         if (!isAlive()) {
 #ifdef DEBUG
             printDebugInfo("Start a thread.");
 #endif
 
-            if (parameter != nullptr) {
-                _thread = thread(&Thread::run2, this, parameter);
-            } else {
-                _thread = thread(&Thread::run, this);
-            }
+            _thread = thread(&Thread::run, this);
 
             _running = true;
         }
@@ -236,7 +212,7 @@ namespace Threading {
             } else if (policy == SCHED_OTHER) {
                 int min = sched_get_priority_min(policy);
                 int max = sched_get_priority_max(policy);
-                int step = (max - min + 1) / 3;
+                int step = (max - min) / 3;
                 if (param.sched_priority > min + step * 2 && param.sched_priority <= max) {
                     return Normal;
                 } else if (param.sched_priority > min + step && param.sched_priority <= min + step * 2) {
@@ -330,11 +306,11 @@ namespace Threading {
         // everywhere is this one.
         int policy = SCHED_OTHER;
         switch (priority) {
-            case AboveNormal:
-                policy = SCHED_RR;
-                break;
             case Highest:
                 policy = SCHED_FIFO;
+                break;
+            case AboveNormal:
+                policy = SCHED_RR;
                 break;
             case Lowest:
             case BelowNormal:
@@ -346,8 +322,8 @@ namespace Threading {
 
         int min = sched_get_priority_min(policy);
         int max = sched_get_priority_max(policy);
-        int step = (max - min + 1) / 3;
         if (policy == SCHED_OTHER) {
+            int step = (max - min) / 3;
             if (priority == Lowest) {
                 param.sched_priority = min + step / 2;
             } else if (priority == BelowNormal) {
@@ -356,14 +332,14 @@ namespace Threading {
                 param.sched_priority = min + 2 * step + step / 2;
             }
         } else {
-            param.sched_priority = min + (max - min) / 2;
+            int step = (max - min) / 2;
+            param.sched_priority = min + step;
         }
 
         if (pthread_setschedparam(_thread.native_handle(), policy, &param) != 0) {
             Trace::error(String::format("Failed to set thread priority'%d:%d'.",
                                         priority, priority, param.sched_priority));
-        }
-        else {
+        } else {
             Debug::writeLine(String::format("Set thread'%s' priority'%d:%d' successfully.",
                                             name().c_str(), priority, param.sched_priority));
         }
@@ -381,26 +357,7 @@ namespace Threading {
     }
 
     void Thread::run() {
-        if (_action.start != nullptr) {
-            _action.start();
-        }
-        if (_action.cStart != nullptr) {
-            _action.cStart->execute();
-        }
-
-        _running = false;
-    }
-
-    void Thread::run2(void *parameter) {
-        if (_action.start != nullptr) {
-            _action.start();
-        }
-        if (_action.cStart != nullptr) {
-            _action.cStart->execute();
-        }
-        if (_action.pStart != nullptr) {
-            _action.pStart(parameter);
-        }
+        execute();
 
         _running = false;
     }
@@ -411,6 +368,10 @@ namespace Threading {
 
     bool Thread::joinable() const {
         return _thread.joinable();
+    }
+
+    unsigned int Thread::concurrency() {
+        return thread::hardware_concurrency();
     }
 
 #ifdef DEBUG
@@ -426,14 +387,4 @@ namespace Threading {
     }
 
 #endif
-
-    Thread::Action::Action() : start(nullptr), pStart(nullptr), cStart(nullptr) {
-    }
-
-    Thread::Action::~Action() {
-        if (cStart != nullptr) {
-            delete cStart;
-            cStart = nullptr;
-        }
-    }
 }

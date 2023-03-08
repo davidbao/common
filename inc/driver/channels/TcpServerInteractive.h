@@ -190,17 +190,9 @@ namespace Drivers {
         virtual void updateContext(const TcpServerChannelContext *tcc);
 
     private:
-        static void acceptProc(void *parameter);
+        void acceptProc();
 
-        void acceptProcInner();
-
-        static void closeProc(void *parameter);
-
-        void closeProcInner();
-
-        static void multiplexingProc(void *parameter);
-
-        void multiplexingProcInner();
+        void closeProc();
 
         void multiplexingProc();
 

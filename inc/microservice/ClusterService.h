@@ -168,13 +168,13 @@ namespace Microservice
         ValueChangedEventArgs(const ClusterContext& oldValue, const ClusterContext& newValue);
     };
 
-    class PushAllHolder : public ThreadHolder::Value
-    {
-    public:
-        Endpoint endpoint;
-        
-        PushAllHolder(const Endpoint& endpoint);
-    };
+//    class PushAllHolder : public ThreadHolder::Value
+//    {
+//    public:
+//        Endpoint endpoint;
+//
+//        PushAllHolder(const Endpoint& endpoint);
+//    };
 
     class ClusterService;
     class ClusterRpcServer : public RpcServer
@@ -249,17 +249,15 @@ namespace Microservice
         Delegates* valueChangedDelegates() override final;
         
     private:
-        bool pushAllSync(ClusterRpcServer* server, const Endpoint& endpoint);
+        bool pushSync(ClusterRpcServer* server, const Endpoint& endpoint);
         bool pushAllSync(ClusterRpcServer* server, const Endpoint& endpoint, const ClusterContexts& contexts, off_t offset, size_t count);
         
         void pushProc();
-        void pushProc(const ClusterContext** values, size_t count);
+        void push(const ClusterContext** values, size_t count);
         
     private:
-        static void pushAllAction(ThreadHolder* holder);
-        
-        static void pushTimeUp(void* state);
-        
+//        static void pushAllAction(ThreadHolder* holder);
+
     private:
         Endpoint _current;
         Endpoints _nodes;   // except current.

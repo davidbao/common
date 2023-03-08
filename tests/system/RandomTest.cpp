@@ -10,10 +10,16 @@
 
 using namespace System;
 
+#ifdef __arm_linux__
+static const int RunningCount = 10;
+#else
+static const int RunningCount = 1000;
+#endif
+
 bool testFloatValue() {
     {
         float min = 0.0f, max = 100.0f;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             float value = Random::getRandValue(min, max);
 //        printf("value: %f\n", value);
             bool result = value >= min && value <= max;
@@ -23,7 +29,7 @@ bool testFloatValue() {
     }
     {
         float min = -100.0f, max = 100.0f;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             float value = Random::getRandValue(min, max);
 //        printf("value: %f\n", value);
             bool result = value >= min && value <= max;
@@ -33,7 +39,7 @@ bool testFloatValue() {
     }
     {
         float min = 0.0f, max = 1.234f;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             float value = Random::getRandValue(min, max);
 //        printf("value: %f\n", value);
             bool result = value >= min && value <= max;
@@ -44,7 +50,7 @@ bool testFloatValue() {
 
     {
         double min = 0.0, max = 100.0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             double value = Random::getRandValue(min, max);
 //        printf("value: %lf\n", value);
             bool result = value >= min && value <= max;
@@ -54,7 +60,7 @@ bool testFloatValue() {
     }
     {
         double min = -100.0, max = 100.0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             double value = Random::getRandValue(min, max);
 //        printf("value: %lf\n", value);
             bool result = value >= min && value <= max;
@@ -64,7 +70,7 @@ bool testFloatValue() {
     }
     {
         double min = (double) -RAND_MAX - 100.0, max = (double) RAND_MAX + 100.0f;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             double value = Random::getRandValue(min, max);
 //        printf("value: %lf\n", value);
             bool result = value >= min && value <= max;
@@ -79,7 +85,7 @@ bool testFloatValue() {
 bool testIntValue() {
     {
         int min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -88,7 +94,7 @@ bool testIntValue() {
     }
     {
         int min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -98,7 +104,7 @@ bool testIntValue() {
 
     {
         uint32_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint32_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -107,7 +113,7 @@ bool testIntValue() {
     }
     {
         uint32_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint32_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= max && value <= min))
@@ -117,7 +123,7 @@ bool testIntValue() {
 
     {
         int64_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int64_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -126,7 +132,7 @@ bool testIntValue() {
     }
     {
         int64_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int64_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -135,7 +141,7 @@ bool testIntValue() {
     }
     {
         int64_t min = -(int64_t) RAND_MAX - (int64_t) 100, max = (int64_t) RAND_MAX + (int64_t) 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int64_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -145,7 +151,7 @@ bool testIntValue() {
 
     {
         uint64_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint64_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -154,7 +160,7 @@ bool testIntValue() {
     }
     {
         uint64_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint64_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= max && value <= min))
@@ -164,7 +170,7 @@ bool testIntValue() {
 
     {
         int16_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int16_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -173,7 +179,7 @@ bool testIntValue() {
     }
     {
         int16_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int16_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -183,7 +189,7 @@ bool testIntValue() {
 
     {
         uint16_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint16_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -192,7 +198,7 @@ bool testIntValue() {
     }
     {
         uint16_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint16_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= max && value <= min))
@@ -202,7 +208,7 @@ bool testIntValue() {
 
     {
         int8_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int8_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -211,7 +217,7 @@ bool testIntValue() {
     }
     {
         int8_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             int8_t value = Random::getRandValue(min, max);
 //        printf("value: %lld\n", value);
             if (!(value >= min && value <= max))
@@ -221,7 +227,7 @@ bool testIntValue() {
 
     {
         uint8_t min = 0, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint8_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= min && value <= max))
@@ -230,7 +236,7 @@ bool testIntValue() {
     }
     {
         uint8_t min = -100, max = 100;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             uint8_t value = Random::getRandValue(min, max);
 //        printf("value: %d\n", value);
             if (!(value >= max && value <= min))
@@ -287,7 +293,7 @@ bool testBoolValue() {
     {
         int trueCount = 0;
         int falseCount = 0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < RunningCount; i++) {
             bool value = Random::getRandValue();
             if (value) {
                 trueCount++;

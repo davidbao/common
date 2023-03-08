@@ -79,10 +79,7 @@ namespace Drivers
         bool reopen() override;
         
         InstructionContext* executeInstruction(InstructionDescription* id) override;
-        
-    private:
-        static void instructionSingleProc(void* parameter);
-        
+
     private:
         static Timer* _singleTimer;
         

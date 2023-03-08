@@ -60,10 +60,7 @@ namespace Microservice
         
     private:
         static bool parseMeta(const String& value, JsonNode& node);
-        
-        static void beatTimeUp(void* state);
-        static void loginTimeUp(void* state);
-        
+
     private:
         HttpClient _httpClient;
         Mutex _httpClientMutex;

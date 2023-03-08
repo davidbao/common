@@ -2,13 +2,16 @@
 
 runTest() {
 	LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH ./$1
-	if [ $? = 0 ];then
+	result=$?
+	if [ $result = 0 ];then
 		echo -e "\033[32mThe test‘$1’ is passed.\033[0m"				# green
 	else
-		echo -e "\033[31mThe test‘$1’ is failed, result is $?\033[0m"	# red
+		echo -e "\033[31mThe test‘$1’ is failed, result is $result\033[0m"	# red
 	fi
-	return $?
+	return $result
 }
+
+runTest ActionTest
 runTest ArrayTest
 runTest ByteArrayTest
 runTest ConfigServiceTest
@@ -27,14 +30,12 @@ runTest JsonTextWriterTest
 runTest ListTest
 runTest LoopListTest
 runTest LoopVectorTest
-runTest KingbaseClientTest
 runTest MapTest
 runTest MappingStreamTest
-runTest Md5ProviderTest
+runTest MathTest
 runTest MemoryStreamTest
+runTest MemoryTraceListenerTest
 runTest MetricsTest
-runTest MysqlClientTest
-runTest NetTypeTest
 runTest PListTest
 runTest PathTest
 runTest PointTest
@@ -43,16 +44,16 @@ runTest RectangleTest
 runTest ResourcesTest
 runTest SerialInfoTest
 runTest SizeTest
-runTest SmProviderTest
 runTest SqlSelectFilterTest
 runTest SqliteClientTest
 runTest StringArrayTest
 runTest StringMapTest
 runTest StringTest
-runTest SummerApplicationTest
 runTest TcpClientTest
+runTest ThreadTest
 runTest TimeSpanTest
 runTest TimeZoneTest
+runTest TimerTest
 runTest TypeInfoTest
 runTest UuidTest
 runTest ValueTypeTest

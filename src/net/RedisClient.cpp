@@ -102,7 +102,7 @@ namespace Net {
         _connecting = true;
 
         if (_checkTimer == nullptr)
-            _checkTimer = new Timer("redis.client.check.timer", checkCallback, this, _errorHandle.checkInterval);
+            _checkTimer = new Timer("redis.client.check.timer", _errorHandle.checkInterval, &RedisClient::check, this);
 
         if (options.isEmpty()) {
             Trace::error("The redis connect option is empty!");
@@ -162,17 +162,17 @@ namespace Net {
 
     void RedisClient::connectAsync(const ConnectOptions &options) {
         _connectOptions = options;
-        ThreadPool::startAsync(connectAction, this);
+//        ThreadPool::startAsync(connectAction, this);
     }
 
-    void RedisClient::connectAction(ThreadHolder *holder) {
-        RedisClient *rc = static_cast<RedisClient *>(holder->owner);
-        assert(rc);
-
-        rc->connect(rc->_connectOptions);
-
-        delete holder;
-    }
+//    void RedisClient::connectAction(ThreadHolder *holder) {
+//        RedisClient *rc = static_cast<RedisClient *>(holder->owner);
+//        assert(rc);
+//
+//        rc->connect(rc->_connectOptions);
+//
+//        delete holder;
+//    }
 
     bool RedisClient::disconnect(TimeSpan timeout) {
         //        Trace::info(String::format("The redis client is disconnecting."));
@@ -301,12 +301,6 @@ namespace Net {
             return true;
         }
         return false;
-    }
-
-    void RedisClient::checkCallback(void *state) {
-        RedisClient *client = (RedisClient *) state;
-        assert(client);
-        client->check();
     }
 
     void RedisClient::check() {

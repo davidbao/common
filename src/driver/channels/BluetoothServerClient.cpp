@@ -35,9 +35,8 @@ namespace Drivers {
             updateDevice(channel);
         }
 
-        _receiveTimer = new Timer("Bluetooth_receiveProc",
-                                  ObjectTimerCallback<BluetoothServerClient>(this, &BluetoothServerClient::receiveProcInner),
-                                  1);
+        _receiveTimer = new Timer("Bluetooth_receiveProc", 1,
+                                  &BluetoothServerClient::receiveProc, this);
 
         _startTime = TickTimeout::getCurrentTickCount();
     }
@@ -100,7 +99,7 @@ namespace Drivers {
         return _client->socketId();
     }
 
-    void BluetoothServerClient::receiveProcInner() {
+    void BluetoothServerClient::receiveProc() {
 #ifdef DEBUG
         Stopwatch sw("BluetoothServerClient_receiveProc", 1000);
 #endif

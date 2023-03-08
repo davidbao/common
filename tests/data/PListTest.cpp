@@ -728,8 +728,7 @@ bool testAutoDelete() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockAction(void *owner) {
-    auto *test = static_cast<Values *>(owner);
+void lockAction(Values *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->set(1, new Value(4));
@@ -741,8 +740,8 @@ bool testLock() {
     test.add(new Value(2));
     test.add(new Value(3));
 
-    Thread thread("test lock thread", lockAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockAction, &test);
+    thread.start();
     if (!valueEquals(test[1], 2)) {
         return false;
     }

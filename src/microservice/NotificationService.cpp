@@ -47,7 +47,13 @@ namespace Microservice {
 
         _initTimerMutex.lock();
         static const TimeSpan interval = TimeSpan::fromSeconds(3);
-        _initTimer = new Timer("mqtt.notification.init.timer", initTimeUp, this, interval);
+        auto initTimeUp = [](MqttNotification *ms) {
+            if (ms->initClientService()) {
+                if (ms->_initTimer != nullptr)
+                    ms->_initTimer->stop();
+            }
+        };
+        _initTimer = new Timer("mqtt.notification.init.timer", interval, initTimeUp, this);
         _initTimerMutex.unlock();
     }
 
@@ -78,16 +84,6 @@ namespace Microservice {
         _service->disconnect();
 
         return true;
-    }
-
-    void MqttNotification::initTimeUp(void *owner) {
-        MqttNotification *ms = (MqttNotification *) owner;
-        assert(ms);
-
-        if (ms->initClientService()) {
-            if (ms->_initTimer != nullptr)
-                ms->_initTimer->stop();
-        }
     }
 
     RedisNotification::RedisNotification() : BaseNotification(NotificationType::Redis) {

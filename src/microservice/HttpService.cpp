@@ -153,10 +153,8 @@ namespace Microservice {
         if (cs->getProperty("server.http.session.enabled", sessionEnabled) && sessionEnabled) {
             TimeSpan timeout = TimeSpan::fromHours(1);
             cs->getProperty("server.http.session.timeout", timeout);
-            const TimeSpan interval = TimeSpan::fromMinutes(1);
-            _sessionTimer = new Timer("server.http.session.timer",
-                                      ObjectTimerCallback<HttpService>(this, &HttpService::sessionTimeUp),
-                                      interval);
+            static const TimeSpan interval = TimeSpan::fromMinutes(1);
+            _sessionTimer = new Timer("server.http.session.timer", interval, &HttpService::sessionTimeUp, this);
         }
 
         // ext mine types.

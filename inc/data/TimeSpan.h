@@ -107,7 +107,7 @@ namespace Data {
 
         static TimeSpan fromMilliseconds(double value);
 
-        static TimeSpan fromTicks(time_t value);
+        static TimeSpan fromTicks(int64_t value);
 
     private:
         static int64_t timeToTicks(int hours, int minutes, int seconds);

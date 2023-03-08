@@ -91,13 +91,13 @@ bool testToString() {
     }
 
     String str3 = test.toString(ByteArray::DecFormat);
-    printf("%s\n", str3.c_str());
+//    printf("%s\n", str3.c_str());
     if(str3 != "00-01-02-03-04-175") {
         return false;
     }
 
     String str4 = test.toString(ByteArray::OtcFormat);
-    printf("%s\n", str3.c_str());
+//    printf("%s\n", str3.c_str());
     if(str4 != "00-01-02-03-04-257") {
         return false;
     }

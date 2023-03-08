@@ -718,8 +718,7 @@ bool testIterator() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockAction(void *owner) {
-    auto *test = static_cast<StringArray *>(owner);
+void lockAction(StringArray *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->set(1, String("4"));
@@ -731,8 +730,8 @@ bool testLock() {
     test.add(String("2"));
     test.add(String("3"));
 
-    Thread thread("test lock thread", lockAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockAction, &test);
+    thread.start();
     if (!valueEquals(test[1], 2)) {
         return false;
     }

@@ -85,9 +85,9 @@ namespace Drivers {
     private:
         DriverManager *manager();
 
-        static void openAction(ThreadHolder *holder);
-
-        static void reopenAction(ThreadHolder *holder);
+//        static void openAction(ThreadHolder *holder);
+//
+//        static void reopenAction(ThreadHolder *holder);
 
         static bool isOpened(void *parameter);
 

@@ -18,52 +18,48 @@
 
 using namespace Data;
 
-namespace Microservice
-{
-    class IServiceDiscovery : public IService
-    {
+namespace Microservice {
+    class IServiceDiscovery : public IService {
     public:
-        virtual void addServiceId(const String& serviceId, ILoadBalancer* lb) = 0;
+        virtual void addServiceId(const String &serviceId, ILoadBalancer *lb) = 0;
     };
 
-    class ServiceDiscovery : public IServiceDiscovery
-    {
+    class ServiceDiscovery : public IServiceDiscovery {
     public:
-        class Item
-        {
+        class Item {
         public:
             String serviceId;
-            ILoadBalancer* lb;
+            ILoadBalancer *lb;
             ServiceInstances instances;
-            
-            Item(const String& serviceId, ILoadBalancer* lb);
+
+            Item(const String &serviceId, ILoadBalancer *lb);
         };
-        class Items : public PList<Item>
-        {
+
+        class Items : public PList<Item> {
         public:
             Items();
-            
-            bool contains(const String& serviceId) const;
+
+            bool contains(const String &serviceId) const;
         };
-        
+
         ServiceDiscovery();
+
         ~ServiceDiscovery() override;
-        
+
         bool initialize();
+
         bool unInitialize();
-        
-        void addServiceId(const String& serviceId, ILoadBalancer* lb) override;
-        
+
+        void addServiceId(const String &serviceId, ILoadBalancer *lb) override;
+
     private:
-        static void serviceCallback(void* parameter);
-        
-        void updateServiceInstances(const String& serviceId = String::Empty);
-        
+        void updateServiceInstances(const String &serviceId = String::Empty);
+
     private:
-        Timer* _serviceTimer;
-        
-        IServiceGovernance* _service;
-        
+        Timer *_serviceTimer;
+
+        IServiceGovernance *_service;
+
         Mutex _itemsMutex;
         Items _items;
     };

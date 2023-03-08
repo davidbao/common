@@ -76,10 +76,7 @@ namespace Communication
         bool checkOnlineFailed() override;
         
         bool reopen() override;
-        
-    private:
-        static void instructionSingleProc(void* parameter);
-        
+
     private:
         uint32_t _detectionInterval;
         uint32_t _resumeInterval;

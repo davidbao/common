@@ -12,139 +12,174 @@
 
 using namespace Data;
 
-namespace Drivers
-{
+namespace Drivers {
     class DriverManager;
-	class InstructionPool
-	{
-	public:
-		class Packet : public IComparable<Packet>
-		{
-		public:
-            enum AutoDelete
-            {
+
+    class InstructionPool {
+    public:
+        class Packet : public IComparable<Packet> {
+        public:
+            enum AutoDelete {
                 None = 0,
                 PacketAndInstruction = 1,
                 PacketOnly = 2
             };
-            
-            Packet(InstructionDescription* id, AutoDelete autoDelete = PacketAndInstruction, uint8_t priority = 0);
-            Packet(DeviceDescription* dd, InstructionDescription* id, AutoDelete autoDelete = PacketAndInstruction, uint8_t priority = 0);
+
+            Packet(InstructionDescription *id, AutoDelete autoDelete = PacketAndInstruction, uint8_t priority = 0);
+
+            Packet(DeviceDescription *dd, InstructionDescription *id, AutoDelete autoDelete = PacketAndInstruction,
+                   uint8_t priority = 0);
+
             ~Packet() override;
-            
-            DeviceDescription* deviceDescription() const;
-            InstructionDescription* getInstruction() const;
-            
-            void process(InstructionContext* ic = nullptr);
+
+            DeviceDescription *deviceDescription() const;
+
+            InstructionDescription *getInstruction() const;
+
+            void process(InstructionContext *ic = nullptr);
+
             bool isProcessed() const;
-            
-            InstructionContext* getInstructionContext() const;
-            
+
+            InstructionContext *getInstructionContext() const;
+
             bool needDeleted() const;
+
             void setAutoDelete();
 
             int compareTo(const Packet &other) const override;
 
-		private:
-            DeviceDescription* _dd;
-			InstructionDescription* _id;
-			AutoDelete _autoDelete;
+        private:
+            DeviceDescription *_dd;
+            InstructionDescription *_id;
+            AutoDelete _autoDelete;
             // 0 is the highest priority.
             uint8_t _priority;
-            
-			bool _processed;
-			InstructionContext* _ic;
-		};
+
+            bool _processed;
+            InstructionContext *_ic;
+        };
+
 //		typedef LoopPList<Packet> LoopInstructions;
-        class LoopInstructions : public LoopPList<Packet>
-        {
+        class LoopInstructions : public LoopPList<Packet> {
         public:
             LoopInstructions(int maxLength = 512, bool autoDelete = true, bool hasPriority = false);
-            
-            void copyTo(Packet** value);
-            
+
+            void copyTo(Packet **value);
+
         private:
             bool _hasPriority;
         };
 
-		InstructionPool(DriverManager* dm, ChannelDescription* cd, DeviceDescription* dd, bool hasPriority = false);
-		virtual ~InstructionPool();
+        InstructionPool(DriverManager *dm, ChannelDescription *cd, DeviceDescription *dd, bool hasPriority = false);
 
-		virtual void start();
-        virtual void start(Channel* channel, Device* device);
-		virtual void stop();
+        virtual ~InstructionPool();
+
+        virtual void start();
+
+        virtual void start(Channel *channel, Device *device);
+
+        virtual void stop();
 
         virtual bool channelConnected() const;
-        
-        Packet* addInstruction(InstructionDescription* id, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        Packet* addTickInstruction(InstructionDescription* id, const TimeSpan& timeout);
-        void addInstruction(const InstructionDescriptions& ids, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        
-        Packet* addInstruction(DeviceDescription* dd, InstructionDescription* id, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        void addInstruction(DeviceDescription* dd, const InstructionDescriptions& ids, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        
-        const String& deviceName() const;
-        const String& channelName() const;
 
-		InstructionContext* executeInstructionSync(InstructionDescription* id);
-        InstructionContext* executeInstructionSync(DeviceDescription* dd, InstructionDescription* id);
+        Packet *addInstruction(InstructionDescription *id,
+                               Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                               uint8_t priority = 0);
 
-        ChannelContext* context() const;
-        ChannelDescription* channelDescription() const;
-        
+        Packet *addTickInstruction(InstructionDescription *id, const TimeSpan &timeout);
+
+        void addInstruction(const InstructionDescriptions &ids,
+                            Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                            uint8_t priority = 0);
+
+        Packet *addInstruction(DeviceDescription *dd, InstructionDescription *id,
+                               Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                               uint8_t priority = 0);
+
+        void addInstruction(DeviceDescription *dd, const InstructionDescriptions &ids,
+                            Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                            uint8_t priority = 0);
+
+        const String &deviceName() const;
+
+        const String &channelName() const;
+
+        InstructionContext *executeInstructionSync(InstructionDescription *id);
+
+        InstructionContext *executeInstructionSync(DeviceDescription *dd, InstructionDescription *id);
+
+        ChannelContext *context() const;
+
+        ChannelDescription *channelDescription() const;
+
         void pause();
+
         void resume();
-        
+
         virtual void reset();
-        
-        Channel* channel() const;
-        Device* device() const;
-        
-        virtual bool containsDevice(const String& deviceName) const;
-        
+
+        Channel *channel() const;
+
+        Device *device() const;
+
+        virtual bool containsDevice(const String &deviceName) const;
+
         void errorHandle(bool error);
 
-	protected:
-		virtual InstructionContext* executeInstruction(InstructionDescription* id);
-        virtual InstructionContext* executeInstruction(DeviceDescription* dd, InstructionDescription* id);
-        
-        virtual void errorHandle(const DeviceDescription* dd, const InstructionDescription* id, bool error);
-
-		void processInstructions();
-        void processPacket(Packet* packet);
-
-		virtual void instructionProc();
-
-		Packet* addInstructionInner(InstructionDescription* id, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        void addInstructionInner(const InstructionDescriptions& ids, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        
-        Packet* addInstructionInner(DeviceDescription* dd, InstructionDescription* id, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        void addInstructionInner(DeviceDescription* dd, const InstructionDescriptions& ids, Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction, uint8_t priority = 0);
-        
-        DriverManager* manager();
-        
-    private:
-        static bool isPacketFinished(void* parameter);
-                
     protected:
-        Channel* _channel;
-        Device* _device;
+        virtual InstructionContext *executeInstruction(InstructionDescription *id);
 
-		LoopInstructions* _instructions;
-		Mutex _instructionsMutex;
+        virtual InstructionContext *executeInstruction(DeviceDescription *dd, InstructionDescription *id);
 
-		DeviceDescription* _dd;
-		ChannelDescription* _cd;
+        virtual void errorHandle(const DeviceDescription *dd, const InstructionDescription *id, bool error);
 
-		Timer* _instructionThread;
+        void processInstructions();
 
-		bool _pause;
-        
-        DriverManager* _manager;
-        
+        void processPacket(Packet *packet);
+
+        virtual void instructionProc();
+
+        Packet *addInstructionInner(InstructionDescription *id,
+                                    Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                                    uint8_t priority = 0);
+
+        void addInstructionInner(const InstructionDescriptions &ids,
+                                 Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                                 uint8_t priority = 0);
+
+        Packet *addInstructionInner(DeviceDescription *dd, InstructionDescription *id,
+                                    Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                                    uint8_t priority = 0);
+
+        void addInstructionInner(DeviceDescription *dd, const InstructionDescriptions &ids,
+                                 Packet::AutoDelete autoDelete = Packet::AutoDelete::PacketAndInstruction,
+                                 uint8_t priority = 0);
+
+        DriverManager *manager();
+
+    private:
+        static bool isPacketFinished(void *parameter);
+
+    protected:
+        Channel *_channel;
+        Device *_device;
+
+        LoopInstructions *_instructions;
+        Mutex _instructionsMutex;
+
+        DeviceDescription *_dd;
+        ChannelDescription *_cd;
+
+        Timer *_instructionThread;
+
+        bool _pause;
+
+        DriverManager *_manager;
+
         // key: instruction name, value: tick count.
         Dictionary<String, uint32_t> _nameTicks;
-	};
+    };
+
     typedef PList<InstructionPool> InstructionPools;
 }
 #endif // INSTRUCTIONPOOL_H

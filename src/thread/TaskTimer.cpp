@@ -13,28 +13,17 @@
 #include "diag/Trace.h"
 
 namespace Threading {
-    TaskTimer::Group::Group(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner) {
+    TaskTimer::Group::Group(const String &name, Action *action, const TimeSpan &interval) {
         this->name = name;
-        this->callback = callback;
-        this->execution = nullptr;
+        this->action = action;
         this->interval = interval;
         this->start = 0;
-        this->owner = owner;
-    }
-
-    TaskTimer::Group::Group(const String &name, TimerExecution *execution, const TimeSpan &interval) {
-        this->name = name;
-        this->callback = nullptr;
-        this->execution = execution;
-        this->interval = interval;
-        this->start = 0;
-        this->owner = nullptr;
     }
 
     TaskTimer::Group::~Group() {
-        if (execution != nullptr) {
-            delete execution;
-            execution = nullptr;
+        if (action != nullptr) {
+            delete action;
+            action = nullptr;
         }
     }
 
@@ -52,46 +41,34 @@ namespace Threading {
         return result;
     }
 
-    TaskTimer::TaskTimer(const String &name, void *owner) {
+    void TaskTimer::Group::execute() {
+        if (action != nullptr) {
+            action->execute();
+        }
+    }
+
+    TaskTimer::TaskTimer(const String &name) {
         _name = name;
-        _owner = owner;
         _timer = nullptr;
     }
 
     TaskTimer::~TaskTimer() {
         stop();
-
-        _owner = nullptr;
     }
 
-    bool TaskTimer::add(const String &name, TimerCallback callback, const TimeSpan &interval, void *owner) {
+    bool TaskTimer::add(const String &name, Action *action, const TimeSpan &interval) {
         if (contains(name))
             return false;
 
-        auto *group = new Group(name, callback, interval, owner);
-        Locker locker(&_groupsMutex);
+        auto *group = new Group(name, action, interval);
+        Locker locker(&_groups);
         _groups.add(group);
         return true;
     }
 
-    bool TaskTimer::add(const String &name, TimerCallback callback, void *owner, const TimeSpan &interval) {
-        return add(name, callback, interval, owner);
-    }
-
-    bool TaskTimer::remove(TimerCallback callback) {
-        Locker locker(&_groupsMutex);
-        for (uint32_t i = 0; i < _groups.count(); i++) {
-            if (_groups[i]->callback == callback) {
-                _groups.removeAt(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
     bool TaskTimer::remove(const String &name) {
-        Locker locker(&_groupsMutex);
-        for (uint32_t i = 0; i < _groups.count(); i++) {
+        Locker locker(&_groups);
+        for (size_t i = 0; i < _groups.count(); i++) {
             if (_groups[i]->name == name) {
                 _groups.removeAt(i);
                 return true;
@@ -103,7 +80,7 @@ namespace Threading {
     bool TaskTimer::change(const String &name, const TimeSpan &interval) {
         ThreadId currentThreadId = Thread::currentThreadId();
         if (_currentThreadId != currentThreadId) {
-            _groupsMutex.lock();
+            _groups.lock();
         }
 
         for (size_t i = 0; i < _groups.count(); i++) {
@@ -113,31 +90,21 @@ namespace Threading {
                 group->start = TickTimeout::getCurrentTickCount();
 
                 if (_currentThreadId != currentThreadId) {
-                    _groupsMutex.unlock();
+                    _groups.unlock();
                 }
                 return true;
             }
         }
 
         if (_currentThreadId != currentThreadId) {
-            _groupsMutex.unlock();
-        }
-        return false;
-    }
-
-    bool TaskTimer::contains(TimerCallback callback) {
-        Locker locker(&_groupsMutex);
-        for (uint32_t i = 0; i < _groups.count(); i++) {
-            if (_groups[i]->callback == callback) {
-                return true;
-            }
+            _groups.unlock();
         }
         return false;
     }
 
     bool TaskTimer::contains(const String &name) {
-        Locker locker(&_groupsMutex);
-        for (uint32_t i = 0; i < _groups.count(); i++) {
+        Locker locker(&_groups);
+        for (size_t i = 0; i < _groups.count(); i++) {
             if (_groups[i]->name == name) {
                 return true;
             }
@@ -146,7 +113,7 @@ namespace Threading {
     }
 
     void TaskTimer::clear() {
-        Locker locker(&_groupsMutex);
+        Locker locker(&_groups);
         _groups.clear();
     }
 
@@ -155,10 +122,7 @@ namespace Threading {
             return;
 
         String name = !_name.isNullOrEmpty() ? _name : "TaskTimer";
-        if (dueTime == TimeSpan::Zero)
-            _timer = new Timer(name, taskTimeUp, this, 1);
-        else
-            _timer = new Timer(name, taskTimeUp, this, (int) dueTime.totalMilliseconds(), 1);
+        _timer = new Timer(name, (int) dueTime.totalMilliseconds(), 1, &TaskTimer::taskTimeUp, this);
 
 //        uint32_t interval = 0;      // ms
 //        if(_groups.count() == 1)
@@ -196,24 +160,15 @@ namespace Threading {
         return _timer != nullptr;
     }
 
-    void TaskTimer::taskTimeUp(void *state) {
-        auto *tt = static_cast<TaskTimer *>(state);
-        assert(tt);
-        tt->taskTimeUpInner();
-    }
-
-    void TaskTimer::taskTimeUpInner() {
+    void TaskTimer::taskTimeUp() {
         _currentThreadId = Thread::currentThreadId();
 
-        Locker locker(&_groupsMutex);
+        Locker locker(&_groups);
 
-        for (uint32_t i = 0; i < _groups.count(); i++) {
+        for (size_t i = 0; i < _groups.count(); i++) {
             Group *group = _groups[i];
             if (group->isTimeUp()) {
-                if (group->callback != nullptr)
-                    group->callback(group->owner != nullptr ? group->owner : _owner);
-                else if (group->execution != nullptr)
-                    group->execution->execute();
+                group->execute();
             }
         }
     }

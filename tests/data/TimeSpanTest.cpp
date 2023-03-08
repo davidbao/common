@@ -84,6 +84,12 @@ bool testConstructor() {
         }
     }
     {
+        TimeSpan test = TimeSpan::fromMilliseconds(283907665646L);
+        if (test.ticks() != 2839076656460000L) {
+            return false;
+        }
+    }
+    {
         TimeSpan test = TimeSpan::fromTicks(10 * 1000);
         if (test.totalMilliseconds() != 1) {
             return false;

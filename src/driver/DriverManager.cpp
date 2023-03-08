@@ -117,22 +117,22 @@ namespace Drivers {
         }
     }
 
-    void DriverManager::resetAction(ThreadHolder *holder) {
-        DriverManager *dm = static_cast<DriverManager *>(holder->owner);
-        assert(dm);
-
-        try {
-            dm->reset();
-        }
-        catch (const Exception &) {
-        }
-
-        delete holder;
-    }
+//    void DriverManager::resetAction(ThreadHolder *holder) {
+//        DriverManager *dm = static_cast<DriverManager *>(holder->owner);
+//        assert(dm);
+//
+//        try {
+//            dm->reset();
+//        }
+//        catch (const Exception &) {
+//        }
+//
+//        delete holder;
+//    }
 
     void DriverManager::resetAsync() {
         Debug::writeFormatLine("DriverManager::resetAsync");
-        ThreadPool::startAsync(resetAction, this);
+//        ThreadPool::startAsync(resetAction, this);
     }
 
     void DriverManager::pause() {

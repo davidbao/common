@@ -15,57 +15,57 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-	class BluetoothServerInteractive : public Interactive
-	{
-	public:
-		BluetoothServerInteractive(DriverManager* dm, Channel* channel);
-		~BluetoothServerInteractive() override;
+namespace Drivers {
+    class BluetoothServerInteractive : public Interactive {
+    public:
+        BluetoothServerInteractive(DriverManager *dm, Channel *channel);
 
-		bool open() override;
-		void close() override;
+        ~BluetoothServerInteractive() override;
 
-		bool connected() override;
+        bool open() override;
+
+        void close() override;
+
+        bool connected() override;
+
         size_t available() override;
 
-		ssize_t send(const uint8_t* buffer, off_t offset, size_t count) override;
-		ssize_t receive(uint8_t* buffer, off_t offset, size_t count) override;
+        ssize_t send(const uint8_t *buffer, off_t offset, size_t count) override;
 
-		inline void setAcceptAction(client_accpet_callback acceptAction)
-		{
-			_acceptAction = acceptAction;
-		}
-		inline void setCloseAction(client_close_callback closeAction)
-		{
-			_closeAction = closeAction;
-		}
+        ssize_t receive(uint8_t *buffer, off_t offset, size_t count) override;
 
-	private:
-		void acceptProc();
+        inline void setAcceptAction(client_accpet_callback acceptAction) {
+            _acceptAction = acceptAction;
+        }
 
-		void closeProc();
+        inline void setCloseAction(client_close_callback closeAction) {
+            _closeAction = closeAction;
+        }
 
-		inline BluetoothServerChannelContext* getChannelContext()  
-		{
-			return (BluetoothServerChannelContext*)(_channel->description()->context());
-		}
+    private:
+        void acceptProc();
 
-		bool rebind();
+        void closeProc();
 
-	private:
-		BluetoothServer* _bluetoothServer;
-		Mutex _bluetoothServerMutex;
+        inline BluetoothServerChannelContext *getChannelContext() {
+            return (BluetoothServerChannelContext *) (_channel->description()->context());
+        }
 
-		Mutex _mutexClients;
-		BluetoothServerClients _clients;
+        bool rebind();
 
-		Timer* _acceptTimer;
-		Timer* _closeTimer;
+    private:
+        BluetoothServer *_bluetoothServer;
+        Mutex _bluetoothServerMutex;
 
-		client_accpet_callback _acceptAction;
-		client_close_callback _closeAction;
-	};
+        Mutex _mutexClients;
+        BluetoothServerClients _clients;
+
+        Timer *_acceptTimer;
+        Timer *_closeTimer;
+
+        client_accpet_callback _acceptAction;
+        client_close_callback _closeAction;
+    };
 }
 
 #endif // BLUETOOTHSERVERINTERACTIVE_H

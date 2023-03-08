@@ -34,7 +34,7 @@
 #include <tchar.h>
 #include <psapi.h>
 
-#elif LINUX_OS
+#elif __linux__
 #include <sys/vfs.h>
 #include <unistd.h>
 #include <limits.h>
@@ -190,6 +190,18 @@ namespace IO {
 #elif WIN_OS
         LARGE_INTEGER diretorySize = __GetDirectorySize(path.c_str());
         return diretorySize.QuadPart;
+#elif __arm_linux__
+        char buf[1024];
+        char line[256];
+        FILE *f = popen(String::format("du -s %s", path.c_str()), "r");
+        while (fgets(line, sizeof(line), f) != nullptr) {
+            uint64_t size = 0;
+            sscanf(line, "%" PRId64 "\t%s", &size, buf);
+            pclose(f);
+            return size;
+        }
+        pclose(f);
+        return 0;
 #else
         return 0;
 #endif
@@ -204,7 +216,7 @@ namespace IO {
         if (status)
             numCPUs = 1;
         return numCPUs;
-#elif LINUX_OS
+#elif __linux__
         char buf[1024];
         unsigned buflen = 0;
         char line[256];
@@ -503,7 +515,7 @@ namespace IO {
     }
 
     int ThreadStat::daemon() {
-        return ThreadPool::threadCount();
+        return Thread::concurrency();
     }
 
     int64_t MemoryStat::systemMax() {
@@ -598,7 +610,7 @@ namespace IO {
 //        int64_t mem_free = vm_stat.free_count * (int64_t)pagesize;
 //        int64_t mem_total = mem_used + mem_free;
         return mem_used;
-#elif LINUX_OS || __arm_linux__
+#elif __linux__
         char buf[1024];
         unsigned buflen = 0;
         char line[256];
@@ -629,7 +641,7 @@ namespace IO {
 #endif
     }
 
-#ifdef LINUX_OS
+#ifdef __linux__
     // return bytes.
     int64_t MemoryStat::getProcStatusValue(const char* name)
     {
@@ -685,7 +697,7 @@ namespace IO {
     int64_t MemoryStat::max() {
 #if MAC_OS
         return 0;
-#elif LINUX_OS
+#elif __linux__
         return getProcStatusValue("VmPeak") * 1024;
 #elif WIN32
         PROCESS_MEMORY_COUNTERS info;
@@ -712,7 +724,7 @@ namespace IO {
         if (result != KERN_SUCCESS)
             return 0;
         return static_cast<int64_t>(vmInfo.phys_footprint);
-#elif LINUX_OS
+#elif __linux__
         return getProcStatmValue(ProcStatm::Resident) - getProcStatmValue(ProcStatm::Shared);
 #elif WIN32
         PROCESS_MEMORY_COUNTERS info;
@@ -727,7 +739,7 @@ namespace IO {
 #if MAC_OS
         struct mstats ms = mstats();
         return (int64_t) ms.bytes_used;
-#elif LINUX_OS
+#elif __linux__
         struct mallinfo mi = mallinfo();
         return mi.uordblks;
 #else
@@ -748,7 +760,7 @@ namespace IO {
 #if MAC_OS
         struct mstats ms = mstats();
         return (int64_t) ms.bytes_total;
-#elif LINUX_OS
+#elif __linux__
         struct mallinfo mi = mallinfo();
         return mi.arena;
 #else
@@ -782,7 +794,7 @@ namespace IO {
         String name;
 #ifdef WIN_OS
         Environment::getVariable("USERNAME", name);
-#elif LINUX_OS
+#elif __linux__
         Environment::getVariable("USER", name);
         if (name.isNullOrEmpty()) {
             name = "root";
@@ -808,7 +820,7 @@ namespace IO {
             result = result.replace("/var/db/timezone/zoneinfo/", String::Empty);
         }
         return result;
-#elif LINUX_OS
+#elif __linux__
         String result;
         char str[PATH_MAX];
         ssize_t count = readlink("/etc/localtime", str, PATH_MAX);
@@ -847,7 +859,7 @@ namespace IO {
     String OSStat::name() {
 #if MAC_OS
         return "macOS";
-#elif LINUX_OS
+#elif __linux__
         return "linux";
 #elif WIN_OS
         return "windows";
@@ -873,7 +885,7 @@ namespace IO {
         }
         pclose(f);
         return String::Empty;
-#elif LINUX_OS
+#elif __linux__
         char buf[1024];
         unsigned buflen = 0;
         char line[256];

@@ -67,8 +67,8 @@ namespace Drivers
         void reopen(Channel* channel, bool allowConnected = false);        
         
     private:
-        static void resetAction(ThreadHolder* holder);
-        
+//        static void resetAction(ThreadHolder* holder);
+
         static void channelOpened(void* owner, void* sender, EventArgs* args);
         static void channelClosed(void* owner, void* sender, EventArgs* args);
 

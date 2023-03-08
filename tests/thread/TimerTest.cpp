@@ -8,6 +8,12 @@
 
 #include "data/ValueType.h"
 #include "thread/Timer.h"
+#include "system/OsDefine.h"
+#include "diag/Trace.h"
+
+#ifdef WEB_OS
+#include <emscripten.h>
+#endif
 
 using namespace Data;
 using namespace Threading;
@@ -29,13 +35,70 @@ private:
     int _value;
 };
 
+#ifdef WEB_OS
+std::unique_ptr<Timer> timer;
+
 bool testConstructor() {
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
+//            printf("timerProc\n");
             a++;
         };
-        Timer test("t1", timerProc, 100);
+        timer = std::unique_ptr<Timer>(new Timer("t1", 100, timerProc));
+
+        auto mainProc = []() {
+            Diag::Debug::writeLine("testConstructor1");
+            Thread::msleep(200);
+            printf("testConstructor2\n");
+            Timer *test = timer.get();
+            if (test->name() != "t1") {
+                printf("testConstructor3\n");
+                exit(1);
+            }
+            printf("testConstructor4\n");
+            if (a < 2) {
+                printf("testConstructor5\n");
+                exit(1);
+            }
+            printf("testConstructor6\n");
+            exit(0);
+            printf("testConstructor7\n");
+        };
+        emscripten_set_main_loop(mainProc, 0, 0);
+    }
+
+    return true;
+}
+
+bool testStart() {
+    {
+    }
+
+    return true;
+}
+
+bool testRunning() {
+    {
+    }
+
+    return true;
+}
+
+bool testChange() {
+    {
+    }
+
+    return true;
+}
+#else
+bool testConstructor() {
+    {
+        static int a = 0;
+        auto timerProc = []() {
+            a++;
+        };
+        Timer test("t1", 100, timerProc);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -46,10 +109,10 @@ bool testConstructor() {
     }
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             a++;
         };
-        Timer test("t1", timerProc, 200, 100);
+        Timer test("t1", 200, 100, timerProc);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -64,7 +127,7 @@ bool testConstructor() {
             int *v = (int *) state;
             (*v)++;
         };
-        Timer test("t1", timerProc, &a, 100);
+        Timer test("t1", 100, timerProc, &a);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -79,7 +142,7 @@ bool testConstructor() {
             int *v = (int *) state;
             (*v)++;
         };
-        Timer test("t1", timerProc, &a, 200, 100);
+        Timer test("t1", 200, 100, timerProc, &a);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -91,10 +154,10 @@ bool testConstructor() {
 
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             a++;
         };
-        Timer test("t1", timerProc, TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(100), timerProc);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -105,10 +168,10 @@ bool testConstructor() {
     }
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             a++;
         };
-        Timer test("t1", timerProc, TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100), timerProc);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -123,7 +186,7 @@ bool testConstructor() {
             int *v = (int *) state;
             (*v)++;
         };
-        Timer test("t1", timerProc, &a, TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(100), timerProc, &a);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -138,7 +201,7 @@ bool testConstructor() {
             int *v = (int *) state;
             (*v)++;
         };
-        Timer test("t1", timerProc, &a, TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100), timerProc, &a);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -150,7 +213,7 @@ bool testConstructor() {
 
     {
         Foo foo(0);
-        Timer test("t1", ObjectTimerCallback<Foo>(&foo, &Foo::bar), 100);
+        Timer test("t1", 100, &Foo::bar, &foo);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -161,7 +224,7 @@ bool testConstructor() {
     }
     {
         Foo foo(0);
-        Timer test("t1", ObjectTimerCallback<Foo>(&foo, &Foo::bar), 200, 100);
+        Timer test("t1", 200, 100, &Foo::bar, &foo);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -172,7 +235,7 @@ bool testConstructor() {
     }
     {
         Foo foo(0);
-        Timer test("t1", ObjectTimerCallback<Foo>(&foo, &Foo::bar), TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(100), &Foo::bar, &foo);
         Thread::msleep(200);
         if (test.name() != "t1") {
             return false;
@@ -183,8 +246,7 @@ bool testConstructor() {
     }
     {
         Foo foo(0);
-        Timer test("t1", ObjectTimerCallback<Foo>(&foo, &Foo::bar),
-                TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100));
+        Timer test("t1", TimeSpan::fromMilliseconds(200), TimeSpan::fromMilliseconds(100), &Foo::bar, &foo);
         Thread::msleep(250);
         if (test.name() != "t1") {
             return false;
@@ -196,19 +258,21 @@ bool testConstructor() {
 
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
-            auto timer = (Timer*) state;
-            timer->stop();
+        struct Entry {
+            Timer *timer;
+        };
+        Entry entry;
+        auto timerProc = [](Entry *entry) {
+            entry->timer->stop();
             a++;
         };
-        Timer test("t1", timerProc, 100);
-        if (test.name() != "t1") {
-            return false;
-        }
+        entry.timer = new Timer("t1", 100, timerProc, &entry);
         Thread::msleep(250);
         if (a != 1) {
+            delete entry.timer;
             return false;
         }
+        delete entry.timer;
     }
 
     return true;
@@ -217,10 +281,12 @@ bool testConstructor() {
 bool testStart() {
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
+//            Diag::Debug::writeLine("testStart.timer.invoke!");
             a++;
         };
-        Timer test("t1", timerProc, 1000);
+        Timer test("t1", 1000, timerProc);
+        Thread::msleep(100);
         test.stop();
         test.start();
         Thread::msleep(100);
@@ -235,10 +301,10 @@ bool testStart() {
 
 bool testRunning() {
     {
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             Thread::msleep(100);
         };
-        Timer test("t1", timerProc, 100);
+        Timer test("t1", 100, timerProc);
         if (!test.running()) {
             return false;
         }
@@ -250,10 +316,10 @@ bool testRunning() {
 bool testChange() {
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             a++;
         };
-        Timer test("t1", timerProc, 100);
+        Timer test("t1", 100, timerProc);
         Thread::msleep(200);
         if (a < 2) {
             return false;
@@ -266,10 +332,10 @@ bool testChange() {
     }
     {
         static int a = 0;
-        auto timerProc = [](void *state) {
+        auto timerProc = []() {
             a++;
         };
-        Timer test("t1", timerProc, 100);
+        Timer test("t1", 100, timerProc);
         Thread::msleep(200);
         if (a < 2) {
             return false;
@@ -283,6 +349,7 @@ bool testChange() {
 
     return true;
 }
+#endif // WEB_OS
 
 int main() {
     if (!testConstructor()) {

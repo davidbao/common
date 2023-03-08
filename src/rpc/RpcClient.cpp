@@ -10,7 +10,6 @@
 #include "rpc/RpcContext.h"
 #include "RpcInstruction.h"
 #include "rpc/RpcInstructionContext.h"
-#include "RpcInstruction.h"
 #include "communication/ClientService.h"
 
 namespace Rpc {

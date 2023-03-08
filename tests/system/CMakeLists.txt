@@ -12,6 +12,7 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(SYSTEM_SRC
+        ActionTest.cpp
 #        Application.cpp
 #        BCDUtilities.cpp
 #        CheckUtilities.cpp
@@ -49,7 +50,8 @@ set(SYSTEM_SRC
 #endif ()
 
 foreach (item ${SYSTEM_SRC})
-    add_executable(${item} ${item})
-    target_link_libraries(${item} ${COMMON_LIB})
-    add_test(NAME ${item} COMMAND ${item})
+    string(REGEX MATCH "[0-9A-Za-z_]*" app ${item})
+    add_executable(${app} ${item})
+    target_link_libraries(${app} ${COMMON_LIB})
+    add_test(NAME ${app} COMMAND ${app})
 endforeach ()

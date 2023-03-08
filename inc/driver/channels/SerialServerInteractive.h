@@ -11,43 +11,45 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-	class Device;
-	class SerialServerInteractive : public Interactive, public BackgroudReceiver
-	{
-	public:
-		SerialServerInteractive(DriverManager* dm, Channel* channel);
-		~SerialServerInteractive() override;
+namespace Drivers {
+    class Device;
 
-		bool open() override;
-		void close() override;
+    class SerialServerInteractive : public Interactive, public BackgroudReceiver {
+    public:
+        SerialServerInteractive(DriverManager *dm, Channel *channel);
 
-		bool connected() override;
+        ~SerialServerInteractive() override;
+
+        bool open() override;
+
+        void close() override;
+
+        bool connected() override;
+
         size_t available() override;
 
-        ssize_t send(const uint8_t* buffer, off_t offset, size_t count) override;
-		ssize_t receive(uint8_t* buffer, off_t offset, size_t count) override;
-        ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout) override;
+        ssize_t send(const uint8_t *buffer, off_t offset, size_t count) override;
 
-	private:
-		friend void serial_receiveProc(void* parameter);
-		void receiveProcInner();
-        
+        ssize_t receive(uint8_t *buffer, off_t offset, size_t count) override;
+
+        ssize_t receive(uint8_t *buffer, off_t offset, size_t count, uint32_t timeout) override;
+
+    private:
+        void receiveProc();
+
         bool connectdInner() const;
 
-		inline SerialChannelContext* getChannelContext()
-		{
-			return (SerialChannelContext*)(_channel->description()->context());
-		}
+        inline SerialChannelContext *getChannelContext() {
+            return (SerialChannelContext *) (_channel->description()->context());
+        }
 
-	private:
-		SerialPort*	_port;
+    private:
+        SerialPort *_port;
 
-		Timer* _receiveThread;
+        Timer *_receiveThread;
 
-		Device* _device;
-	};
+        Device *_device;
+    };
 }
 
 #endif // SERIALSERVERINTERACTIVE_H

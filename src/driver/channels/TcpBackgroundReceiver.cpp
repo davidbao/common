@@ -146,9 +146,7 @@ namespace Drivers {
 
     void TcpAsyncReceiver::start() {
         if (_receiveTimer == nullptr) {
-            _receiveTimer = new Timer("Tcp_receiveProc.timer",
-                                      ObjectTimerCallback<TcpAsyncReceiver>(this, &TcpAsyncReceiver::receiveProc),
-                                      1);
+            _receiveTimer = new Timer("Tcp_receiveProc.timer", 1, &TcpAsyncReceiver::receiveProc, this);
         }
     }
 

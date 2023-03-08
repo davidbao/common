@@ -10,10 +10,12 @@
 #include "diag/Trace.h"
 #include "IO/Path.h"
 #include "IO/Directory.h"
+#include "thread/Thread.h"
 
 using namespace Diag;
 using namespace System;
 using namespace IO;
+using namespace Threading;
 
 #ifdef WIN32
 static const char* TestName = "PATHEXT";
@@ -22,8 +24,8 @@ static const char* PathContent = "EXE";
 static const char* TestName = "PATH";
 static const char* PathContent = "/";
 #else
-static const char* TestName = "PATH";
-static const char* PathContent = "/usr/bin";
+static const char *TestName = "PATH";
+static const char *PathContent = "/usr/bin";
 #endif
 
 static const String _path = Path::combine(Path::getTempPath(), "environment_test");
@@ -40,7 +42,7 @@ bool testGetVariables() {
             Debug::writeFormatLine("%s=%s", key.c_str(), value.c_str());
         }
     }
-    if(!variables.contains(TestName)) {
+    if (!variables.contains(TestName)) {
         return false;
     }
     return true;
@@ -48,11 +50,11 @@ bool testGetVariables() {
 
 bool testGetVariable() {
     String variable;
-    if(!Environment::getVariable(TestName, variable)) {
+    if (!Environment::getVariable(TestName, variable)) {
         return false;
     }
     Debug::writeLine(variable);
-    if(variable.find(PathContent) < 0) {
+    if (variable.find(PathContent) < 0) {
         return false;
     }
 
@@ -60,44 +62,44 @@ bool testGetVariable() {
 }
 
 bool testSetVariable() {
-    static const char* Name = "Common_Test_Variable";
+    static const char *Name = "Common_Test_Variable";
 
     String value = "abc123";
-    if(!Environment::setVariable(Name, value)) {
+    if (!Environment::setVariable(Name, value)) {
         return false;
     }
     String variable;
-    if(!Environment::getVariable(Name, variable)) {
+    if (!Environment::getVariable(Name, variable)) {
         return false;
     }
-    if(value != variable) {
+    if (value != variable) {
         return false;
     }
 
     String value2 = "abc123.def456";
-    if(!Environment::setVariable(Name, value2, true)) {
+    if (!Environment::setVariable(Name, value2, true)) {
         return false;
     }
     String variable2;
-    if(!Environment::getVariable(Name, variable2)) {
+    if (!Environment::getVariable(Name, variable2)) {
         return false;
     }
-    if(value2 != variable2) {
+    if (value2 != variable2) {
         return false;
     }
 
     String value3 = "abc123.def456.ghi789";
-    if(Environment::setVariable(Name, value3, false)) {
+    if (Environment::setVariable(Name, value3, false)) {
         return false;
     }
     String variable3;
-    if(!Environment::getVariable(Name, variable3)) {
+    if (!Environment::getVariable(Name, variable3)) {
         return false;
     }
-    if(value3 == variable3) {
+    if (value3 == variable3) {
         return false;
     }
-    if(value2 != variable3) {
+    if (value2 != variable3) {
         return false;
     }
 
@@ -105,20 +107,20 @@ bool testSetVariable() {
 }
 
 bool testRemoveVariable() {
-    static const char* Name = "Common_Test_Variable";
+    static const char *Name = "Common_Test_Variable";
 
     String value = "abc123";
-    if(!Environment::setVariable(Name, value)) {
+    if (!Environment::setVariable(Name, value)) {
         return false;
     }
 #ifdef WIN32
     // Do not support remove a variable in windows.
 #else
-    if(!Environment::removeVariable(Name)) {
+    if (!Environment::removeVariable(Name)) {
         return false;
     }
     String variable;
-    if(Environment::getVariable(Name, variable)) {
+    if (Environment::getVariable(Name, variable)) {
         return false;
     }
 #endif
@@ -150,21 +152,65 @@ bool testCurrentDirectory() {
     return true;
 }
 
+bool testUserName() {
+    if (Environment::userName().isNullOrEmpty()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool testVersion() {
+    if (Environment::version().isNullOrEmpty()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool testGetTickCount() {
+    {
+        uint64_t tick = Environment::getTickCount();
+        if (tick == 0) {
+            return false;
+        }
+    }
+    {
+        uint64_t tick1 = Environment::getTickCount();
+        Thread::msleep(10);
+        uint64_t tick2 = Environment::getTickCount();
+        if (tick1 >= tick2) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
-    if(!testGetVariables()) {
+    if (!testGetVariables()) {
         return 1;
     }
-    if(!testGetVariable()) {
+    if (!testGetVariable()) {
         return 2;
     }
-    if(!testSetVariable()) {
+    if (!testSetVariable()) {
         return 3;
     }
-    if(!testRemoveVariable()) {
+    if (!testRemoveVariable()) {
         return 4;
     }
-    if(!testCurrentDirectory()) {
+    if (!testCurrentDirectory()) {
         return 5;
+    }
+    if (!testUserName()) {
+        return 6;
+    }
+    if (!testVersion()) {
+        return 7;
+    }
+    if (!testGetTickCount()) {
+        return 8;
     }
 
     return 0;

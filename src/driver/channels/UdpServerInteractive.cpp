@@ -29,9 +29,7 @@ namespace Drivers {
     }
 
     bool UdpServerInteractive::open() {
-        _receiveTimer = new Timer("Udp_receiveProc.timer",
-                                  ObjectTimerCallback<UdpServerInteractive>(this, &UdpServerInteractive::receiveProc),
-                                  1);
+        _receiveTimer = new Timer("Udp_receiveProc.timer", 1, &UdpServerInteractive::receiveProc, this);
 
         return rebind();
     }

@@ -528,8 +528,13 @@ namespace Microservice {
                     assert(content);
                     if (AccessToken::parse(content->value(), _accessToken)) {
                         if (_loginTimer == nullptr) {
-                            _loginTimer = new Timer("nacos.login.timer", loginTimeUp, this,
-                                                    _accessToken.tokenTtl * 1000, _accessToken.tokenTtl * 1000);
+                            auto loginTimeUp = [](NacosService *ns) {
+                                ns->login();
+                            };
+                            _loginTimer = new Timer("nacos.login.timer",
+                                                    (int) _accessToken.tokenTtl * 1000,
+                                                    (int) _accessToken.tokenTtl * 1000,
+                                                    loginTimeUp, this);
                         } else {
                             _loginTimer->change(_accessToken.tokenTtl * 1000);
                         }
@@ -567,12 +572,6 @@ namespace Microservice {
     bool NacosService::send(const Url &url, const HttpMethod &method, HttpResponse &response) {
         StringMap properties;
         return send(url, method, properties, response);
-    }
-
-    void NacosService::loginTimeUp(void *state) {
-        NacosService *ns = (NacosService *) state;
-        assert(ns);
-        ns->login();
     }
 
     NacosService::AccessToken::AccessToken() {

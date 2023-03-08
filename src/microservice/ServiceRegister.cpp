@@ -57,8 +57,9 @@ namespace Microservice {
             cs->getProperty(String::format("summer.cloud.%s.discovery.healthCheckInterval", name.c_str()), value);
             int checkInterval = 10;
             Int32::parse(value.trim('S', 's'), checkInterval);
-            _registerTimer = new Timer("microservice.registertimer", registerCallback, this,
-                                       TimeSpan::fromSeconds(checkInterval));
+            _registerTimer = new Timer("microservice.register.timer",
+                                       TimeSpan::fromSeconds(checkInterval),
+                                       &ServiceRegister::registerProc, this);
         }
 
         return true;
@@ -93,13 +94,7 @@ namespace Microservice {
         return false;
     }
 
-    void ServiceRegister::registerCallback(void *parameter) {
-        ServiceRegister *pr = (ServiceRegister *) parameter;
-        assert(pr);
-        pr->registerProcInner();
-    }
-
-    void ServiceRegister::registerProcInner() {
+    void ServiceRegister::registerProc() {
         if (!_registered) {
             assert(!_name.isNullOrEmpty());
             ServiceGovernanceFactory *factory = ServiceGovernanceFactory::instance();
@@ -112,7 +107,7 @@ namespace Microservice {
             else {
                 _service->chooseNext();
                 if (!_service->isFirstEndpoint())
-                    registerProcInner();
+                    registerProc();
             }
         } else {
             static int count = 0;
@@ -122,7 +117,7 @@ namespace Microservice {
                     _registered = false;
                     _service->chooseNext();
                     if (!_service->isFirstEndpoint())
-                        registerProcInner();
+                        registerProc();
                 }
             }
         }

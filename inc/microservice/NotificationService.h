@@ -17,10 +17,8 @@
 using namespace Data;
 using namespace Http;
 
-namespace Microservice
-{
-    enum NotificationType
-    {
+namespace Microservice {
+    enum NotificationType {
         Http = 1,
         Mqtt = 2,
         Redis = 4,
@@ -28,105 +26,104 @@ namespace Microservice
         All = Http | Mqtt | Redis | Kafka
     };
 
-    class INotificationService : public IService
-    {
+    class INotificationService : public IService {
     public:
         virtual bool allowPush() const = 0;
-        virtual void push(NotificationType type, const String& key, const String& value) = 0;
-        
-        void push(const String& key, const String& value);
+
+        virtual void push(NotificationType type, const String &key, const String &value) = 0;
+
+        void push(const String &key, const String &value);
     };
 
-    class BaseNotification
-    {
+    class BaseNotification {
     public:
         BaseNotification(NotificationType type);
+
         virtual ~BaseNotification();
-        
-        virtual void push(const String& key, const String& value) = 0;
-        
+
+        virtual void push(const String &key, const String &value) = 0;
+
         NotificationType type() const;
-        
+
     private:
         NotificationType _type;
     };
 
-    class HttpNotification : public BaseNotification
-    {
+    class HttpNotification : public BaseNotification {
     public:
-        HttpNotification(const Url& url);
+        HttpNotification(const Url &url);
+
         ~HttpNotification() override;
-        
-        void push(const String& key, const String& value) override;
-        
+
+        void push(const String &key, const String &value) override;
+
     private:
         Url _url;
         HttpClient _webClient;
     };
 
-    class MqttNotification : public BaseNotification
-    {
+    class MqttNotification : public BaseNotification {
     public:
-        MqttNotification(const MqttClient::ConnectOptions& options);
+        MqttNotification(const MqttClient::ConnectOptions &options);
+
         ~MqttNotification() override;
-        
-        void push(const String& key, const String& value) override;
-        
+
+        void push(const String &key, const String &value) override;
+
     private:
         bool initClientService();
+
         bool unInitClientService();
-        
-    private:
-        static void initTimeUp(void* owner);
-        
+
     private:
         Mutex _initTimerMutex;
-        Timer* _initTimer;
+        Timer *_initTimer;
 
         MqttClient::ConnectOptions _connectOptions;
-        MqttClient* _service;
+        MqttClient *_service;
     };
 
-    class RedisNotification : public BaseNotification
-    {
+    class RedisNotification : public BaseNotification {
     public:
         RedisNotification();
+
         ~RedisNotification() override;
-        
-        void push(const String& key, const String& value) override;
-        
+
+        void push(const String &key, const String &value) override;
+
     private:
     };
 
     typedef PList<BaseNotification> Notifications;
 
-    class NotificationService : public INotificationService, public PoolService
-    {
+    class NotificationService : public INotificationService, public PoolService {
     public:
         NotificationService();
+
         ~NotificationService() override;
-        
+
         bool initialize();
+
         bool unInitialize();
-        
+
         bool allowPush() const override;
-        void push(NotificationType type, const String& key, const String& value) override;
-        
+
+        void push(NotificationType type, const String &key, const String &value) override;
+
     protected:
-        void process(const IPoolEntry* value) override;
-        
+        void process(const IPoolEntry *value) override;
+
     private:
         Mutex _notificationsMutex;
         Notifications _notifications;
-        
-        class ValueEntry : public IPoolEntry
-        {
+
+        class ValueEntry : public IPoolEntry {
         public:
             NotificationType type;
             String key;
             String value;
-            
-            ValueEntry(NotificationType type, const String& key, const String& value);
+
+            ValueEntry(NotificationType type, const String &key, const String &value);
         };
     };
 }

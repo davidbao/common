@@ -89,17 +89,17 @@ namespace Net {
 
     void OpcuaClient::connectAsync(const ConnectOptions &options) {
         _connectOptions = options;
-        ThreadPool::startAsync(connectAction, this);
+//        ThreadPool::startAsync(connectAction, this);
     }
 
-    void OpcuaClient::connectAction(ThreadHolder *holder) {
-        OpcuaClient *oc = static_cast<OpcuaClient *>(holder->owner);
-        assert(oc);
-
-        oc->connect(oc->_connectOptions);
-
-        delete holder;
-    }
+//    void OpcuaClient::connectAction(ThreadHolder *holder) {
+//        OpcuaClient *oc = static_cast<OpcuaClient *>(holder->owner);
+//        assert(oc);
+//
+//        oc->connect(oc->_connectOptions);
+//
+//        delete holder;
+//    }
 
     bool OpcuaClient::disconnect(const TimeSpan &timeout) {
 //        Debug::writeLine("OpcuaClient::disconnect");
@@ -488,8 +488,16 @@ namespace Net {
             /* The first publish request should return the initial value of the variable */
             UA_Client_run_iterate(_client, _connectOptions.samplingInterval.totalMilliseconds());
             if (_subscriptionTimer == nullptr) {
-                _subscriptionTimer = new Timer("OpcUA.Subscription", subscriptionCallback, this,
-                                               _connectOptions.samplingInterval.totalMilliseconds());
+                auto subscriptionCallback = [](OpcuaClient *oc) {
+                    if (oc->connected()) {
+                        Locker locker(&oc->_subscriptionMutex);
+
+                        UA_Client_run_iterate(oc->_client, 100);
+                    }
+                };
+                _subscriptionTimer = new Timer("OpcUA.Subscription",
+                                               _connectOptions.samplingInterval.totalMilliseconds(),
+                                               subscriptionCallback, this);
                 _subscriptionTimer->start();
             }
 
@@ -584,8 +592,16 @@ namespace Net {
             /* The first publish request should return the initial value of the variable */
             UA_Client_run_iterate(_client, _connectOptions.samplingInterval.totalMilliseconds());
             if (_subscriptionTimer == nullptr) {
-                _subscriptionTimer = new Timer("OpcUA.Subscription", subscriptionCallback, this,
-                                               _connectOptions.samplingInterval.totalMilliseconds());
+                auto subscriptionCallback = [](OpcuaClient *oc) {
+                    if (oc->connected()) {
+                        Locker locker(&oc->_subscriptionMutex);
+
+                        UA_Client_run_iterate(oc->_client, 100);
+                    }
+                };
+                _subscriptionTimer = new Timer("OpcUA.Subscription",
+                                               _connectOptions.samplingInterval.totalMilliseconds(),
+                                               subscriptionCallback, this);
                 _subscriptionTimer->start();
             }
 
@@ -693,15 +709,6 @@ namespace Net {
 
     void OpcuaClient::subscriptionInactivityCallback(UA_Client *client, UA_UInt32 subscriptionId, void *subContext) {
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Subscription Id %u was deleted", subscriptionId);
-    }
-
-    void OpcuaClient::subscriptionCallback(void *state) {
-        OpcuaClient *oc = (OpcuaClient *) state;
-        if (oc->connected()) {
-            Locker locker(&oc->_subscriptionMutex);
-
-            UA_Client_run_iterate(oc->_client, 100);
-        }
     }
 
     Variant OpcuaClient::toVariant(const UA_DataValue *from) {

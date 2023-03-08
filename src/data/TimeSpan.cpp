@@ -58,7 +58,7 @@ namespace Data {
     int64_t TimeSpan::timeToTicks(int hours, int minutes, int seconds) {
         // totalSeconds is bounded by 2^31 * 2^12 + 2^31 * 2^8 + 2^31,
         // which is less than 2^44, meaning we won't overflow totalSeconds.
-        int64_t totalSeconds = (int64_t) hours * 3600 + (int64_t) minutes * 60 + (time_t) seconds;
+        int64_t totalSeconds = (int64_t) hours * 3600 + (int64_t) minutes * 60 + (int64_t) seconds;
         if (totalSeconds > MaxSeconds || totalSeconds < MinSeconds)
             throw ArgumentOutOfRangeException(String::Empty,
                                               "TimeSpan overflowed because the duration is too long.");
@@ -218,7 +218,7 @@ namespace Data {
         return interval(value, 1);
     }
 
-    TimeSpan TimeSpan::fromTicks(time_t value) {
+    TimeSpan TimeSpan::fromTicks(int64_t value) {
         return TimeSpan(value);
     }
 
@@ -237,7 +237,7 @@ namespace Data {
         if ((millis > INT64_MAX / TicksPerMillisecond) || (millis < INT64_MIN / TicksPerMillisecond))
             throw OverflowException("Overflow_TimeSpanTooLong");
 
-        return TimeSpan((time_t) millis * TicksPerMillisecond);
+        return TimeSpan((int64_t) millis * TicksPerMillisecond);
     }
 
     TimeSpan TimeSpan::add(const TimeSpan &ts) const {

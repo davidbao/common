@@ -842,8 +842,7 @@ bool testIntIterator() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockIntAction(void *owner) {
-    auto *test = static_cast<Integers *>(owner);
+void lockIntAction(Integers *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->set(1, 4);
@@ -855,8 +854,8 @@ bool testIntLock() {
     test.add(2);
     test.add(3);
 
-    Thread thread("test lock thread", lockIntAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockIntAction, &test);
+    thread.start();
     if (test[1] != 2) {
         return false;
     }
@@ -1559,8 +1558,7 @@ bool testIterator() {
 #ifndef __EMSCRIPTEN__
 
 // Do not support on web, so the mutex does not worked.
-void lockAction(void *owner) {
-    auto *test = static_cast<Values *>(owner);
+void lockAction(Values *test) {
     Locker locker(test);
     Thread::msleep(500);
     test->set(1, Value(4));
@@ -1572,8 +1570,8 @@ bool testLock() {
     test.add(Value(2));
     test.add(Value(3));
 
-    Thread thread("test lock thread", lockAction);
-    thread.start(&test);
+    Thread thread("test lock thread", lockAction, &test);
+    thread.start();
     if (!valueEquals(test[1], 2)) {
         return false;
     }

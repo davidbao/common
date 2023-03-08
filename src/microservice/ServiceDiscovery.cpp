@@ -74,7 +74,11 @@ namespace Microservice {
         }
 
         if (_serviceTimer == nullptr) {
-            _serviceTimer = new Timer("microservice.servicetimer", serviceCallback, this, TimeSpan::fromSeconds(5));
+            auto serviceCallback = [](ServiceDiscovery *cs) {
+                cs->updateServiceInstances();
+            };
+            _serviceTimer = new Timer("microservice.service.timer",
+                                      TimeSpan::fromSeconds(5), serviceCallback, this);
         }
 
         return true;
@@ -90,12 +94,6 @@ namespace Microservice {
             _service = nullptr;
         }
         return true;
-    }
-
-    void ServiceDiscovery::serviceCallback(void *parameter) {
-        ServiceDiscovery *cs = (ServiceDiscovery *) parameter;
-        assert(cs);
-        cs->updateServiceInstances();
     }
 
     void ServiceDiscovery::updateServiceInstances(const String &serviceId) {

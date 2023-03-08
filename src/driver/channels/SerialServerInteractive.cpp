@@ -24,9 +24,8 @@ namespace Drivers {
 
     bool SerialServerInteractive::open() {
         _receiveThread = new Timer(
-                "Serial_receiveProc",
-                ObjectTimerCallback<SerialServerInteractive>(this, &SerialServerInteractive::receiveProcInner),
-                1);
+                "Serial_receiveProc", 1,
+                &SerialServerInteractive::receiveProc, this);
 
         SerialChannelContext *scc = getChannelContext();
 
@@ -109,7 +108,7 @@ namespace Drivers {
         return len;
     }
 
-    void SerialServerInteractive::receiveProcInner() {
+    void SerialServerInteractive::receiveProc() {
 #ifdef DEBUG
         Stopwatch sw("SerialServerInteractive_receiveProc", 1000);
 #endif

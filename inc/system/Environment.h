@@ -27,10 +27,26 @@ namespace System {
 
         static bool setCurrentDirectory(const String &path);
 
+        static String userName();
+
+        static String version();
+
+        // Gets the number of milliseconds elapsed since the system started.
+        static uint64_t getTickCount();
+
     private:
-        static char **const AllEnvironments;
+#ifndef WIN32
+
+        /* Returns the number of 100ns ticks from unspecified time: this should be monotonic */
+        static uint64_t get_100ns_ticks();
+
+        static uint64_t get_boot_time();
+
+        /* Returns the number of milliseconds from boot time: this should be monotonic */
+        static uint64_t get_msec_ticks();
+
+#endif
     };
 }
 
-
-#endif /* Environment_h */
+#endif // Environment_h

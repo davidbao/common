@@ -152,9 +152,18 @@ namespace Drivers {
 
     void SenderSinglePool::startSinglePool() {
         if (_singleTimer == nullptr) {
-            _singleTimer = new Timer("server.InstructionSingleProc.timer",
-                                      SenderSinglePool::instructionSingleProc,
-                                      1);
+            auto instructionSingleProc = []() {
+#ifdef DEBUG
+                Stopwatch sw("multiplexing.TcpSyncSender::instructionSingleProc", 1000);
+#endif
+                _poolsMutex.lock();
+                for (uint32_t i = 0; i < _pools.count(); i++) {
+                    SenderSinglePool *pool = _pools[i];
+                    pool->processInstructions();
+                }
+                _poolsMutex.unlock();
+            };
+            _singleTimer = new Timer("server.InstructionSingleProc.timer", 1, instructionSingleProc);
         }
     }
 
@@ -164,18 +173,6 @@ namespace Drivers {
             delete _singleTimer;
             _singleTimer = nullptr;
         }
-    }
-
-    void SenderSinglePool::instructionSingleProc(void *parameter) {
-#ifdef DEBUG
-        Stopwatch sw("multiplexing.TcpSyncSender::instructionSingleProc", 1000);
-#endif
-        _poolsMutex.lock();
-        for (uint32_t i = 0; i < _pools.count(); i++) {
-            SenderSinglePool *pool = _pools[i];
-            pool->processInstructions();
-        }
-        _poolsMutex.unlock();
     }
 
     bool SenderSinglePool::reopen() {

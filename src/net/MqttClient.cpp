@@ -113,7 +113,7 @@ namespace Net {
 
     MqttClient::MqttClient(const String &clientId) : _client(nullptr), _deliveredtoken(0), _clientId(clientId),
                                                      _connecting(false), _errorCode(MQTTCLIENT_SUCCESS) {
-        _messageTimer = new Timer("mqtt.client.message.timer", messageCallback, this, 100);
+        _messageTimer = new Timer("mqtt.client.message.timer", 100, &MqttClient::processMessage, this);
         _checkTimer = nullptr;
     }
 
@@ -136,7 +136,8 @@ namespace Net {
         _connecting = true;
 
         if (_checkTimer == nullptr)
-            _checkTimer = new Timer("mqtt.client.check.timer", checkCallback, this, _errorHandle.checkInterval);
+            _checkTimer = new Timer("mqtt.client.check.timer",
+                                    _errorHandle.checkInterval, &MqttClient::check, this);
 
         if (options.isEmpty()) {
             Trace::error("The mqtt connect option is empty!");
@@ -200,17 +201,17 @@ namespace Net {
 
     void MqttClient::connectAsync(const ConnectOptions &options) {
         _connectOptions = options;
-        ThreadPool::startAsync(connectAction, this);
+//        ThreadPool::startAsync(connectAction, this);
     }
 
-    void MqttClient::connectAction(ThreadHolder *holder) {
-        MqttClient *mc = static_cast<MqttClient *>(holder->owner);
-        assert(mc);
-
-        mc->connect(mc->_connectOptions);
-
-        delete holder;
-    }
+//    void MqttClient::connectAction(ThreadHolder *holder) {
+//        MqttClient *mc = static_cast<MqttClient *>(holder->owner);
+//        assert(mc);
+//
+//        mc->connect(mc->_connectOptions);
+//
+//        delete holder;
+//    }
 
     bool MqttClient::disconnect(const TimeSpan &timeout) {
         //        Trace::info(String::format("The Mqtt client is disconnecting."));
@@ -407,18 +408,6 @@ namespace Net {
     void MqttClient::connlost(void *context, char *cause) {
         Debug::writeLine("Connection lost.");
         Debug::writeFormatLine("cause: %s", cause);
-    }
-
-    void MqttClient::messageCallback(void *state) {
-        MqttClient *client = (MqttClient *) state;
-        assert(client);
-        client->processMessage();
-    }
-
-    void MqttClient::checkCallback(void *state) {
-        MqttClient *client = (MqttClient *) state;
-        assert(client);
-        client->check();
     }
 
     void MqttClient::processMessage() {

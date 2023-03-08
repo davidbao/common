@@ -21,9 +21,7 @@ namespace System {
 
     void PoolBaseService::start() {
         if (_timer == nullptr) {
-            _timer = new Timer("PoolService.timer",
-                               ObjectTimerCallback<PoolBaseService>(this, &PoolBaseService::processProc),
-                               _interval);
+            _timer = new Timer("PoolService.timer", _interval, &PoolBaseService::processProc, this);
         }
     }
 

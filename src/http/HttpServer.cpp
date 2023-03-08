@@ -104,22 +104,18 @@ namespace Http {
     HttpServer::ContextEntry::ContextEntry() : base(nullptr), loopExit(true) {
     }
 
-    HttpServer::HttpServer() {
-        _httpThread = new Thread("http_server", httpServerStart);
-        _httpsThread = new Thread("https_server", httpServerStart);
+    HttpServer::HttpServer() : _httpThread(nullptr), _httpsThread(nullptr) {
     }
 
     HttpServer::~HttpServer() {
         stop();
 
         delete _httpThread;
-        _httpThread = nullptr;
-
         delete _httpsThread;
-        _httpsThread = nullptr;
     }
 
     bool HttpServer::startHttpServer(const Context &context, const Actions &actions) {
+        _httpThread = new Thread("http_server", httpServerStart, &_httpContext);
         _httpContext.actions = actions;
         return startHttpServer(context);
     }
@@ -127,13 +123,14 @@ namespace Http {
     bool HttpServer::startHttpServer(const Context &context) {
         if (!context.isEmpty() && !_httpThread->isAlive()) {
             _httpContext.context = context;
-            _httpThread->start(&_httpContext);
+            _httpThread->start();
             return true;
         }
         return false;
     }
 
     bool HttpServer::startHttpsServer(const Context &context, const Actions &actions) {
+        _httpsThread = new Thread("https_server", httpServerStart, &_httpsContext);
         _httpsContext.actions = actions;
         return startHttpsServer(context);
     }
@@ -141,7 +138,7 @@ namespace Http {
     bool HttpServer::startHttpsServer(const Context &context) {
         if (!context.isEmpty() && !_httpsThread->isAlive()) {
             _httpsContext.context = context;
-            _httpsThread->start(&_httpsContext);
+            _httpsThread->start();
             return true;
         }
         return false;

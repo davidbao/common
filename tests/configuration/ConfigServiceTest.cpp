@@ -60,7 +60,7 @@ bool testInitialize() {
     static int argc = 3;
     static const char *argv[] = {"ConfigServiceTest", "-q", "--debug=true"};
     Application app(argc, argv, _rootPath);
-    printf("_rootPath: %s\n", _rootPath.c_str());
+//    printf("_rootPath: %s\n", _rootPath.c_str());
     // create an application.yml & application_dev.yml.
     String ymlFileName = Path::combine(_rootPath, "application.yml");
     YmlNode::Properties properties;

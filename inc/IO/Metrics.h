@@ -94,7 +94,7 @@ namespace IO {
         };
 
     private:
-#ifdef LINUX_OS
+#ifdef __linux__
         static int64_t getProcStatusValue(const char* name);
         static int64_t getProcStatmValue(ProcStatm statm);
 #endif

@@ -257,18 +257,17 @@ namespace System {
         }
     }
 
-    static void Application_forceExitProc(void *state) {
-        Trace::info("Force exiting!");
-        OS::reboot();
-    }
-
     void Application::exit(int code) {
         Trace::writeFormatLine("The application is exiting.", Trace::Info);
         _exitCode = code;
         _loop = false;
 
-        static auto *forceExitTimer = new Timer("forceExitTimer", Application_forceExitProc, nullptr,
-                                                TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30));
+        auto timerProc = []() {
+            Trace::info("Force exiting!");
+            OS::reboot();
+        };
+        static auto *forceExitTimer = new Timer("forceExitTimer",
+                                                TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30), timerProc);
         forceExitTimer->start();
     }
 

@@ -91,7 +91,7 @@ bool testThreadStat() {
             return false;
         }
 
-        if (ThreadStat::daemon() != 0) {
+        if (ThreadStat::daemon() <= 0) {
             return false;
         }
 #endif
