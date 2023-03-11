@@ -8,19 +8,22 @@
 
 #include "data/ValueType.h"
 #include "thread/Thread.h"
-#include "diag/Trace.h"
-#include <tuple>
-#include <utility>
+#include "system/Environment.h"
 
 #ifdef __linux__
 
 #include <unistd.h>
 
+#elif WIN_OS
+
+#include "diag/Trace.h"
+using namespace Diag;
+
 #endif
 
 using namespace Data;
-using namespace Diag;
 using namespace Threading;
+using namespace System;
 
 class Foo {
 public:
@@ -60,6 +63,31 @@ bool testThreadId() {
 }
 
 bool testConstructor() {
+    {
+        Thread test;
+    }
+    {
+        static int a = 0;
+        auto runFunc = [] {
+            a++;
+        };
+        Thread test = Thread("test_thread", runFunc);
+        if (test.name() != "test_thread") {
+            return false;
+        }
+    }
+    {
+        static int a = 0;
+        auto runFunc = [] {
+            a++;
+        };
+        Thread test;
+        test = Thread("test_thread", runFunc);
+        if (test.name() != "test_thread") {
+            return false;
+        }
+    }
+
     {
         static int a = 0;
         auto runFunc = [] {
@@ -156,20 +184,20 @@ bool testId() {
     return true;
 }
 
-class PriorityTest {
-public:
-    std::atomic<bool> loopSwitch;
-    int64_t threadCount;
-
-    PriorityTest() : loopSwitch(true), threadCount(0) {
-    }
-
-    void threadMethod() {
-        while (loopSwitch) {
-            threadCount++;
-        }
-    }
-};
+//class PriorityTest {
+//public:
+//    std::atomic<bool> loopSwitch;
+//    int64_t threadCount;
+//
+//    PriorityTest() : loopSwitch(true), threadCount(0) {
+//    }
+//
+//    void threadMethod() {
+//        while (loopSwitch) {
+//            threadCount++;
+//        }
+//    }
+//};
 
 bool testPriority() {
     {
@@ -327,6 +355,37 @@ bool testCurrentThread() {
     return true;
 }
 
+bool testDelay() {
+    {
+        auto func = [] {
+            Thread::sleep(100);
+            return false;
+        };
+        uint64_t start = Environment::getTickCount();
+        Thread::delay(200, Func<bool>(func));
+        uint64_t end = Environment::getTickCount();
+        int64_t elapsed = (int64_t) (end - start);
+        if (elapsed < 200) {
+            return false;
+        }
+    }
+    {
+        auto func = [] {
+            Thread::sleep(100);
+            return true;
+        };
+        uint64_t start = Environment::getTickCount();
+        Thread::delay(200, Func<bool>(func));
+        uint64_t end = Environment::getTickCount();
+        int64_t elapsed = (int64_t) (end - start);
+        if (!(elapsed >= 100 && elapsed <= 200)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
 #ifdef WIN32
     Trace::enableFlushConsoleOutput();
@@ -351,6 +410,9 @@ int main() {
     }
     if (!testCurrentThread()) {
         return 7;
+    }
+    if (!testDelay()) {
+        return 8;
     }
 
     return 0;

@@ -17,6 +17,23 @@ namespace Threading {
     Dictionary<int, DateTime> Timer::_timers;
 #endif
 
+    Timer::Timer() noexcept {
+        _dueTime = Zero;
+        _period = Zero;
+
+#ifdef __EMSCRIPTEN__
+        _running = false;
+#else
+        _firstInvoke = true;
+        _start = 0;
+        _loop = false;
+#endif
+    }
+
+    Timer::Timer(Timer &&other) noexcept {
+        move(other);
+    }
+
     Timer::~Timer() {
 #ifdef __EMSCRIPTEN__
         _timers.remove((int) this);
@@ -27,11 +44,13 @@ namespace Threading {
 #ifdef DEBUG
         printDebugInfo("Destroy a timer.");
 #endif // DEBUG
+    }
 
-#ifndef __EMSCRIPTEN__
-        delete _thread;
-        _thread = nullptr;
-#endif
+    Timer &Timer::operator=(Timer &&other) noexcept {
+        if (this != &other) {
+            move(other);
+        }
+        return *this;
     }
 
     void Timer::init(const String &name, int dueTime, int period) {
@@ -54,7 +73,7 @@ namespace Threading {
         _start = 0;
         _loop = false;
 
-        _thread = new Thread(tName, &Timer::threadProc, this);
+        _thread = Thread(tName, &Timer::threadProc, this);
 #endif
 
 #ifdef DEBUG
@@ -62,6 +81,29 @@ namespace Threading {
 #endif // DEBUG
 
         start();
+    }
+
+    void Timer::move(Timer &other) {
+        _action = std::move(other._action);
+        _name = std::move(other._name);
+        _dueTime = other._dueTime;
+        _period = other._period;
+
+#ifdef __EMSCRIPTEN__
+        if (other._running) {
+            _running = true;
+            other._running = false;
+        }
+#else
+        _firstInvoke = other._firstInvoke;
+        _start = other._start;
+        if (other._loop) {
+            _loop = true;
+            other._loop = false;
+        }
+
+        _thread = std::move(other._thread);
+#endif
     }
 
     void Timer::start() {
@@ -77,12 +119,12 @@ namespace Threading {
             _firstInvoke = true;
             _loop = true;
 
-            _thread->start();
+            _thread.start();
 #endif
         }
     }
 
-    void Timer::stop(uint32_t delaySeconds) {
+    void Timer::stop(int delaySeconds) {
 #ifdef DEBUG
         printDebugInfo("Stop a timer.");
 #endif // DEBUG
@@ -92,15 +134,15 @@ namespace Threading {
 #else
         _loop = false;
 
-        if (_thread->id() != Thread::currentThreadId()) {
-            auto isThreadDead = [](void *parameter) {
-                return parameter != nullptr && !((Thread *) parameter)->isAlive();
+        if (_thread.id() != Thread::currentThreadId()) {
+            auto isThreadDead = [](Thread *thread) {
+                return !thread->isAlive();
             };
-            TickTimeout::sdelay(delaySeconds, isThreadDead, _thread);
-            if (_thread->joinable()) {
-                _thread->join();
-            } else if (_thread->isAlive()) {
-                _thread->detach();
+            Thread::delay(TimeSpan::fromSeconds(delaySeconds), Func<bool>(isThreadDead, &_thread));
+            if (_thread.isAlive()) {
+                _thread.detach();
+            } else if (_thread.joinable()) {
+                _thread.join();
             }
         } else {
         }
@@ -108,7 +150,7 @@ namespace Threading {
     }
 
     void Timer::stop(const TimeSpan &delay) {
-        stop((uint32_t) delay.totalSeconds());
+        stop((int) delay.totalSeconds());
     }
 
     const String &Timer::name() const {
@@ -119,7 +161,7 @@ namespace Threading {
 #ifdef __EMSCRIPTEN__
         return _running;
 #else
-        return _thread->isAlive();
+        return _thread.isAlive();
 #endif
     }
 
@@ -153,7 +195,7 @@ namespace Threading {
     }
 
     void Timer::fire() {
-        execute();
+        _action.execute();
     }
 
 #ifdef __EMSCRIPTEN__

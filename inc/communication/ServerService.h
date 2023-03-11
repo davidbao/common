@@ -32,7 +32,7 @@ namespace Communication {
     public:
         ServerService();
 
-        ServerService(const Server &server);
+        explicit ServerService(const Server &server);
 
         ~ServerService() override;
 
@@ -110,7 +110,7 @@ namespace Communication {
                              const Endpoint &endpoint = Endpoint::Empty, int sendCount = -1) {
             Debug::writeFormatLine("ServerService::startLoopSender, name: %s", name.c_str());
             Locker locker(&_loopSendersMutex);
-            for (uint32_t i = 0; i < _loopSenders.count(); i++) {
+            for (size_t i = 0; i < _loopSenders.count(); i++) {
                 BaseLoopSender *sender = _loopSenders[i];
                 if (sender->name() == name) {
                     _loopSenders.removeAt(i);
@@ -165,7 +165,7 @@ namespace Communication {
                     buffer = new Buffer(MaxBufferLength);
                     _includedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint32_t i = 0; i < data.count(); i++) {
+                for (size_t i = 0; i < data.count(); i++) {
                     buffer->enqueue(data[i]->clone());
                 }
             }
@@ -187,7 +187,7 @@ namespace Communication {
                     buffer = new Buffer(MaxBufferLength);
                     _excludedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint32_t i = 0; i < data.count(); i++) {
+                for (size_t i = 0; i < data.count(); i++) {
                     buffer->enqueue(data[i]->clone());
                 }
             }
@@ -206,7 +206,7 @@ namespace Communication {
                 Locker locker(&_includedBufferMutex);
                 PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer *buffer = nullptr;
                     if (_includedBuffer.at(peerEndpoint, buffer)) {
@@ -237,7 +237,7 @@ namespace Communication {
                 Locker locker(&_excludedBufferMutex);
                 PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer *buffer = nullptr;
                     if (_excludedBuffer.at(peerEndpoint, buffer)) {
@@ -274,7 +274,7 @@ namespace Communication {
         void startPacketSender(const String &name, const TimeSpan &interval, int packetCount = 10) {
             Debug::writeFormatLine("ServerService::startPacketSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 BasePacketSender *sender = _packetSenders[i];
                 if (sender->name() == name) {
                     _packetSenders.removeAt(i);
@@ -294,7 +294,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSender(const String &name, const K *data, const Endpoint &peerEndpoint = Endpoint::Empty) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data, peerEndpoint);
@@ -311,7 +311,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSender(const String &name, const T &data, const Endpoint &peerEndpoint = Endpoint::Empty) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSyncSender <T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addRange(data);
@@ -326,7 +326,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSenderWithoutClient(const String &name, const K *data, const Endpoint &peerEndpoint) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addWithoutClient(data, peerEndpoint);
@@ -380,7 +380,7 @@ namespace Communication {
                     buffer = new Buffer(MaxBufferLength);
                     _includedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint32_t i = 0; i < data.count(); i++) {
+                for (size_t i = 0; i < data.count(); i++) {
                     buffer->enqueue(data[i]->clone());
                 }
             }
@@ -402,7 +402,7 @@ namespace Communication {
                     buffer = new Buffer(MaxBufferLength);
                     _excludedBuffer.add(peerEndpoint, buffer);
                 }
-                for (uint32_t i = 0; i < data.count(); i++) {
+                for (size_t i = 0; i < data.count(); i++) {
                     buffer->enqueue(data[i]->clone());
                 }
             }
@@ -424,7 +424,7 @@ namespace Communication {
                 _includedBufferMutex.lock();
                 PList<Endpoint> keys;
                 _includedBuffer.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer *buffer = nullptr;
                     if (_includedBuffer.at(peerEndpoint, buffer)) {
@@ -435,7 +435,7 @@ namespace Communication {
                 _includedBuffer.clear(false);
                 _includedBufferMutex.unlock();
 
-                for (uint32_t i = 0; i < buffers.count(); i++) {
+                for (size_t i = 0; i < buffers.count(); i++) {
                     const Endpoint peerEndpoint = peerEndpoints[i];
                     Buffer *buffer = buffers[i];
                     size_t count = buffer->count();
@@ -467,7 +467,7 @@ namespace Communication {
                 _excludedBufferMutex.lock();
                 PList<Endpoint> keys;
                 _excludedBuffer.keys(keys);
-                for (uint32_t i = 0; i < keys.count(); i++) {
+                for (size_t i = 0; i < keys.count(); i++) {
                     const Endpoint peerEndpoint = *keys[i];
                     Buffer *buffer = nullptr;
                     if (_excludedBuffer.at(peerEndpoint, buffer)) {
@@ -478,7 +478,7 @@ namespace Communication {
                 _excludedBuffer.clear(false);
                 _excludedBufferMutex.unlock();
 
-                for (uint32_t i = 0; i < buffers.count(); i++) {
+                for (size_t i = 0; i < buffers.count(); i++) {
                     const Endpoint peerEndpoint = peerEndpoints[i];
                     Buffer *buffer = buffers[i];
                     size_t count = buffer->count();
@@ -517,7 +517,7 @@ namespace Communication {
         void startPacketSyncSender(typename PacketSyncSender<T, K, C>::FailedAction failedAction, void *owner,
                                    const String &name, const TimeSpan &interval, int packetCount = 10) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 BasePacketSender *sender = _packetSenders[i];
                 if (sender->name() == name) {
                     // Do not remove the old one.
@@ -534,7 +534,7 @@ namespace Communication {
         template<class T, class K, class C>
         void startPacketSyncSender(const String &name, const TimeSpan &interval, int packetCount = 10) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 BasePacketSender *sender = _packetSenders[i];
                 if (sender->name() == name) {
                     // Do not remove the old one.
@@ -556,7 +556,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSyncSender(const String &name, const K *data, const Endpoint &peerEndpoint = Endpoint::Empty) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data, peerEndpoint);
@@ -573,7 +573,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSyncSender(const String &name, const T &data, const Endpoint &peerEndpoint = Endpoint::Empty) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addRange(data);
@@ -588,7 +588,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSyncSenderWithoutClient(const String &name, const K *data, const Endpoint &peerEndpoint) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 auto sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addWithoutClient(data, peerEndpoint);
@@ -601,14 +601,14 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsyncAll(const T &inputData, int packetCount, const String &name) const {
             return sendVectorAsync<T, C>(Endpoint::Empty, inputData, packetCount, name);
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsync(const Endpoint &endpoint, const T &inputData, int packetCount, const String &name) const {
             Endpoints endpoints;
@@ -617,12 +617,12 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool
         sendVectorAsync(const Endpoints &endpoints, const T &inputData, int packetCount, const String &name) const {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -633,7 +633,7 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsyncWithoutClient(const Endpoint &endpoint, const T &inputData, int packetCount,
                                           const String &name) const {
@@ -647,7 +647,7 @@ namespace Communication {
         bool sendVectorAsyncWithoutClient(const Endpoints &endpoints, const T &inputData, int packetCount,
                                           const String &name) const {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -658,7 +658,7 @@ namespace Communication {
         }
 
         // T is input data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendAsync(const Endpoint &endpoint, const T &inputData, const String &name) const {
             Endpoints endpoints;
@@ -667,13 +667,13 @@ namespace Communication {
         }
 
         // T is input data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendAsync(const Endpoints &endpoints, const T &inputData, const String &name) const {
             bool result = true;
             InstructionPools ips;
             getClientPools(endpoints, ips);
-            for (uint32_t i = 0; i < ips.count(); i++) {
+            for (size_t i = 0; i < ips.count(); i++) {
                 if (!sendAsync<T, C>(ips[i], inputData, name))
                     result = false;
             }
@@ -701,7 +701,7 @@ namespace Communication {
 //						name.c_str(), ips.count());
 //            }
 //#endif
-            for (uint32_t i = 0; i < ips.count(); i++) {
+            for (size_t i = 0; i < ips.count(); i++) {
                 if (!sendAsync<T, C>(ips[i], inputData, name))
                     result = false;
             }
@@ -715,7 +715,7 @@ namespace Communication {
         }
 
         // T is input data, K is output data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class K, class C>
         bool sendSync(const Endpoint &endpoint, const T &inputData, K &outputData, const String &name,
                       int trySendCount = -1) const {
@@ -725,14 +725,14 @@ namespace Communication {
         }
 
         // T is input data, K is output data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class K, class C>
         bool sendSync(const Endpoints &endpoints, const T &inputData, K &outputData, const String &name,
                       int trySendCount = -1) const {
             bool result = true;
             InstructionPools ips;
             getClientPools(endpoints, ips);
-            for (uint32_t i = 0; i < ips.count(); i++) {
+            for (size_t i = 0; i < ips.count(); i++) {
                 if (!sendSync<T, K, C>(ips[i], inputData, outputData, name, trySendCount))
                     result = false;
             }
@@ -768,7 +768,7 @@ namespace Communication {
 //                        name.c_str(), ips.count());
 //            }
 //#endif
-            for (uint32_t i = 0; i < ips.count(); i++) {
+            for (size_t i = 0; i < ips.count(); i++) {
                 if (!sendSync<T, K, C>(ips[i], inputData, outputData, name, trySendCount))
                     result = false;
             }
@@ -821,7 +821,7 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         StatusContext sendVectorSync(const Endpoint &endpoint, const T &inputData, int packetCount, const String &name,
                                      int trySendCount = -1) const {
@@ -831,13 +831,13 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         StatusContext
         sendVectorSync(const Endpoints &endpoints, const T &inputData, int packetCount, const String &name,
                        int trySendCount = -1) const {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -856,7 +856,7 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         StatusContext
         sendVectorSyncWithoutClient(const Endpoint &endpoint, const T &inputData, int packetCount, const String &name,
@@ -872,7 +872,7 @@ namespace Communication {
         sendVectorSyncWithoutClient(const Endpoints &endpoints, const T &inputData, int packetCount, const String &name,
                                     int trySendCount = -1) const {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -936,7 +936,7 @@ namespace Communication {
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
                 uint32_t packetCount = rcontext->packetCount();
-                for (uint32_t i = 0; i < packetCount; i++) {
+                for (size_t i = 0; i < packetCount; i++) {
                     InstructionDescription *id = new InstructionDescription(name, context, false);
                     context->setPacketNo(i);
                     context->transferData();
@@ -1030,7 +1030,7 @@ namespace Communication {
             InstructionDescription *ids = new InstructionDescription(name, context);
             ip->addInstruction(ids);
             uint32_t packetCount = context->calcPacketCount();
-            for (uint32_t i = 0; i < packetCount; i++) {
+            for (size_t i = 0; i < packetCount; i++) {
                 Thread::msleep(10);
 
                 context = new C();
@@ -1108,7 +1108,7 @@ namespace Communication {
             InstructionDescription *ids = new InstructionDescription(name, context);
             ip->addInstruction(ids);
             uint32_t packetCount = context->calcPacketCount();
-            for (uint32_t i = 0; i < packetCount; i++) {
+            for (size_t i = 0; i < packetCount; i++) {
                 Thread::msleep(10);
 
                 context = new C();
@@ -1150,7 +1150,7 @@ namespace Communication {
         bool isSendSuccessfully(const String &instructionName, const InstructionContext *ic, bool condition) const;
 
         // T is input data, C is context.
-        // Sent all of clients if address is empty.
+        // Sent all clients if address is empty.
         template<class T, class C>
         bool sendAsync(InstructionPool *ip, const T &inputData, const String &name) const {
 #ifdef DEBUG
@@ -1169,7 +1169,7 @@ namespace Communication {
         }
 
         // T is input data, K is output data, C is context.
-        // Sent all of clients if address is empty.
+        // Sent all clients if address is empty.
         template<class T, class K, class C>
         bool sendSync(InstructionPool *ip, const T &inputData, K &outputData, const String &name,
                       int trySendCount = -1) const {

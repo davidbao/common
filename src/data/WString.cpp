@@ -8,9 +8,8 @@
 
 #include <cctype>
 #include <cstdarg>
-#include <cinttypes>
 #include <clocale>
-#include <assert.h>
+#include <cassert>
 #include "data/WString.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"
@@ -27,11 +26,16 @@ namespace Data {
     const WString WString::Empty = L"";
     const WString WString::NA = L"N/A";     // Not applicable
 
-    WString::WString(uint32_t capacity) : _buffer(capacity) {
+    WString::WString(size_t capacity) : _buffer(capacity) {
     }
 
     WString::WString(const WString &value) {
         this->operator=(value);
+    }
+
+    WString::WString(WString &&value) {
+        this->operator=(value);
+        value.empty();
     }
 
     WString::WString(const wstring &value) : WString(value.c_str()) {
@@ -62,7 +66,7 @@ namespace Data {
 
     void WString::addString(const wchar_t *value, size_t count) {
         if (value != nullptr) {
-            if(count == 0) {
+            if (count == 0) {
                 count = wcslen(value);
             }
             size_t length = Math::min(wcslen(value), count);
@@ -123,7 +127,17 @@ namespace Data {
     }
 
     WString &WString::operator=(const WString &value) {
-        setString(value.getString());
+        if (this != &value) {
+            setString(value.getString());
+        }
+        return *this;
+    }
+
+    WString &WString::operator=(WString &&value) {
+        if (this != &value) {
+            setString(value.getString());
+            value.empty();
+        }
         return *this;
     }
 
@@ -380,7 +394,7 @@ namespace Data {
                   wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (wchar_t i : temp) {
+        for (wchar_t i: temp) {
             if (i != '\0') {
                 trimChars.add(i);
             }
@@ -393,7 +407,7 @@ namespace Data {
                        wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (wchar_t i : temp) {
+        for (wchar_t i: temp) {
             if (i != '\0') {
                 trimChars.add(i);
             }
@@ -406,7 +420,7 @@ namespace Data {
                      wchar_t trimChar4) {
         Vector<wchar_t> trimChars;
         const wchar_t temp[] = {trimChar1, trimChar2, trimChar3, trimChar4};
-        for (wchar_t i : temp) {
+        for (wchar_t i: temp) {
             if (i != '\0') {
                 trimChars.add(i);
             }

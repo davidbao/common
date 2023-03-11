@@ -31,7 +31,7 @@ namespace Communication {
             Type type;
             String str;
 
-            TypeString(Type type = Type::None, const String &str = String::Empty);
+            explicit TypeString(Type type = Type::None, const String &str = String::Empty);
 
             bool isEmpty() const;
 
@@ -61,7 +61,7 @@ namespace Communication {
             TypeString _strings[Type::Count];
         };
 
-        ServerServices(Type type = Type::All);
+        explicit ServerServices(Type type = Type::All);
 
         ~ServerServices();
 
@@ -113,7 +113,7 @@ namespace Communication {
         bool closeClient(const Endpoint &endpoint);
 
         // T is input data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendAsync(const Endpoint &endpoint, const T &inputData, const String &name) {
             bool result = true;
@@ -126,13 +126,13 @@ namespace Communication {
         }
 
         // T is input data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendAsync(const Endpoints &endpoints, const T &inputData, const String &name) {
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 if (!ss->sendAsync<T, C>(endpoints, inputData, name))
                     result = false;
@@ -146,7 +146,7 @@ namespace Communication {
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 if (!ss->sendAsyncAll<T, C>(inputData, name))
                     result = false;
@@ -172,7 +172,7 @@ namespace Communication {
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 if (!ss->sendAsyncWithoutClient<T, C>(endpoints, inputData, name))
                     result = false;
@@ -181,7 +181,7 @@ namespace Communication {
         }
 
         // T is input data, K is output data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class K, class C>
         bool sendSync(const Endpoint &endpoint, const T &inputData, K &outputData, const String &name) {
             ServerService *ss = getService(endpoint);
@@ -192,13 +192,13 @@ namespace Communication {
         }
 
         // T is input data, K is output data, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class K, class C>
         bool sendSync(const Endpoints &endpoints, const T &inputData, K &outputData, const String &name) {
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 if (!ss->sendSync<T, K, C>(endpoints, inputData, outputData, name))
                     result = false;
@@ -219,7 +219,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     K *newData = data.clone();
                     ServerService *ss = services[i];
                     ss->addPacketSender<T, K, C>(name, newData, peerEndpoint);
@@ -241,7 +241,7 @@ namespace Communication {
         bool addPacketSenderWithoutClient(const String &name, const K &data, const Endpoint &peerEndpoint) {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 K *newData = data.clone();
                 services[i]->addPacketSenderWithoutClient<T, K, C>(name, newData, peerEndpoint);
             }
@@ -256,7 +256,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     ServerService *ss = services[i];
                     ss->startPacketSender<T, K, C>(name, interval, packetCount);
                 }
@@ -281,7 +281,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     ServerService *ss = services[i];
                     ss->startPacketSyncSender<T, K, C>(failedAction, owner, name, interval, packetCount);
                 }
@@ -301,7 +301,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     ServerService *ss = services[i];
                     ss->startPacketSyncSender<T, K, C>(name, interval, packetCount);
                 }
@@ -323,7 +323,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     K *newData = data.clone();
                     ServerService *ss = services[i];
                     ss->addPacketSyncSender<T, K, C>(name, newData, peerEndpoint);
@@ -346,7 +346,7 @@ namespace Communication {
             if (peerEndpoint.isEmpty()) {
                 PList<ServerService> services;
                 getAllServices(services);
-                for (uint32_t i = 0; i < services.count(); i++) {
+                for (size_t i = 0; i < services.count(); i++) {
                     T *newData = data.clone();
                     ServerService *ss = services[i];
                     ss->addPacketSender<T, K, C>(name, newData, peerEndpoint);
@@ -368,7 +368,7 @@ namespace Communication {
         bool addPacketSyncSenderWithoutClient(const String &name, const K &data, const Endpoint &peerEndpoint) {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 K *newData = data.clone();
                 services[i]->addPacketSyncSenderWithoutClient<T, K, C>(name, newData, peerEndpoint);
             }
@@ -376,7 +376,7 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsync(const Endpoint &endpoint, const T &inputData, int packetCount, const String &name) {
             bool result = true;
@@ -389,13 +389,13 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsync(const Endpoints &endpoints, const T &inputData, int packetCount, const String &name) {
             bool result = true;
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 if (!ss->sendVectorAsync<T, C>(endpoints, inputData, packetCount, name))
                     result = false;

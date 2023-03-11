@@ -13,6 +13,7 @@
 #include "data/String.h"
 #include "data/TimeSpan.h"
 #include "thread/Timer.h"
+#include "thread/Task.h"
 #include "system/Delegate.h"
 
 using namespace Data;
@@ -115,6 +116,8 @@ namespace Net {
 
         Timer *_checkTimer;
         bool _connecting;
+
+        Task _connectTask;
     };
 }
 

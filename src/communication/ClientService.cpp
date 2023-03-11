@@ -280,7 +280,7 @@ namespace Communication {
     void ClientService::stopLoopSender(const String &name) {
         Debug::writeFormatLine("ClientService::stopLoopSender, name: %s", name.c_str());
         Locker locker(&_loopSendersMutex);
-        for (uint32_t i = 0; i < _loopSenders.count(); i++) {
+        for (size_t i = 0; i < _loopSenders.count(); i++) {
             BaseLoopSender *sender = _loopSenders[i];
             if (sender->name() == name) {
                 _loopSenders.removeAt(i);
@@ -291,7 +291,7 @@ namespace Communication {
 
     bool ClientService::hasLoopSender(const String &name) {
         Locker locker(&_loopSendersMutex);
-        for (uint32_t i = 0; i < _loopSenders.count(); i++) {
+        for (size_t i = 0; i < _loopSenders.count(); i++) {
             BaseLoopSender *sender = _loopSenders[i];
             if (sender->name() == name) {
                 return true;
@@ -304,7 +304,7 @@ namespace Communication {
     bool ClientService::stopPacketSender(const String &name) {
         Debug::writeFormatLine("ClientService::stopPacketSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 _packetSenders.removeAt(i);
@@ -316,7 +316,7 @@ namespace Communication {
 
     bool ClientService::hasPacketSender(const String &name) {
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 return true;
@@ -329,7 +329,7 @@ namespace Communication {
     bool ClientService::stopPacketSyncSender(const String &name) {
         Debug::writeFormatLine("ClientService::stopPacketSyncSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 _packetSenders.removeAt(i);
@@ -341,7 +341,7 @@ namespace Communication {
 
     bool ClientService::hasPacketSyncSender(const String &name) {
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 return true;
@@ -483,7 +483,7 @@ namespace Communication {
     }
 
     ClientService *ClientServices::at(const Endpoint &endpoint) const {
-        for (uint32_t i = 0; i < _services.count(); i++) {
+        for (size_t i = 0; i < _services.count(); i++) {
             ClientService *cs = _services[i];
             if (cs->endpoint() == endpoint)
                 return cs;

@@ -76,7 +76,7 @@ namespace Microservice
         
 //        bool contains(const String& seviceId) const;
         
-        ServerProperty at(uint32_t i) const;
+        ServerProperty at(size_t i) const;
         
     private:
         PList<ServerProperty> _servers;
@@ -143,7 +143,7 @@ namespace Microservice
         
         size_t count() const;
         
-        ServiceInstance* at(uint32_t i) const;
+        ServiceInstance* at(size_t i) const;
         ServiceInstance* at(const String& serviceId) const;
         
         void toServerProperties(ServerProperties& servers) const;

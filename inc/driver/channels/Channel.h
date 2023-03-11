@@ -6,6 +6,7 @@
 #include "exception/Exception.h"
 #include "thread/Thread.h"
 #include "thread/Mutex.h"
+#include "thread/Task.h"
 #include "system/Delegate.h"
 #include "net/Receiver.h"
 #include "../IContextProperty.h"
@@ -85,10 +86,6 @@ namespace Drivers {
     private:
         DriverManager *manager();
 
-//        static void openAction(ThreadHolder *holder);
-//
-//        static void reopenAction(ThreadHolder *holder);
-
         static bool isOpened(void *parameter);
 
     private:
@@ -104,6 +101,9 @@ namespace Drivers {
 
         Delegates _openedDelegates;
         Delegates _closedDelegates;
+
+        Task _openTask;
+        Task _reopenTask;
     };
 
     typedef PList<Channel> Channels;

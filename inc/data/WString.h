@@ -10,7 +10,7 @@
 #define WString_h
 
 #include "data/Vector.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include <string>
 
 namespace IO {
@@ -60,9 +60,11 @@ namespace Data {
         static const WString NA;     // Not applicable
 
         // Constructor & destructor
-        WString(uint32_t capacity = 256);
+        WString(size_t capacity = 256);
 
         WString(const WString &value);
+
+        WString(WString &&value);
 
         WString(const wstring &value);
 
@@ -213,6 +215,8 @@ namespace Data {
         WString operator+(const wchar_t *value) const;
 
         WString &operator=(const WString &value);
+
+        WString &operator=(WString &&value);
 
         WString &operator=(const wstring &value);
 

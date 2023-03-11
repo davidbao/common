@@ -10,7 +10,6 @@
 
 #include "net/MqttClient.hpp"
 #include "diag/Trace.h"
-#include "thread/ThreadPool.h"
 
 using namespace Diag;
 
@@ -111,13 +110,15 @@ namespace Net {
         return !operator==(value);
     }
 
-    MqttClient::MqttClient(const String &clientId) : _client(nullptr), _deliveredtoken(0), _clientId(clientId),
+    MqttClient::MqttClient(const String &clientId) : _client(nullptr), _deliveredToken(0), _clientId(clientId),
                                                      _connecting(false), _errorCode(MQTTCLIENT_SUCCESS) {
         _messageTimer = new Timer("mqtt.client.message.timer", 100, &MqttClient::processMessage, this);
         _checkTimer = nullptr;
     }
 
     MqttClient::~MqttClient() {
+        _connectTask.cancel(3);
+
         delete _messageTimer;
         _messageTimer = nullptr;
 
@@ -201,17 +202,8 @@ namespace Net {
 
     void MqttClient::connectAsync(const ConnectOptions &options) {
         _connectOptions = options;
-//        ThreadPool::startAsync(connectAction, this);
+        _connectTask = Task::run(&MqttClient::connect, this, _connectOptions);
     }
-
-//    void MqttClient::connectAction(ThreadHolder *holder) {
-//        MqttClient *mc = static_cast<MqttClient *>(holder->owner);
-//        assert(mc);
-//
-//        mc->connect(mc->_connectOptions);
-//
-//        delete holder;
-//    }
 
     bool MqttClient::disconnect(const TimeSpan &timeout) {
         //        Trace::info(String::format("The Mqtt client is disconnecting."));
@@ -370,7 +362,7 @@ namespace Net {
     void MqttClient::delivered(void *context, MQTTClient_deliveryToken dt) {
         //        Debug::writeFormatLine("Message with token value %d delivery confirmed.", dt);
         MqttClient *client = (MqttClient *) context;
-        client->_deliveredtoken = dt;
+        client->_deliveredToken = dt;
     }
 
     int MqttClient::msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message) {
@@ -419,7 +411,7 @@ namespace Net {
             _messages.makeNull(false);
             _messagesMutex.unlock();
 
-            for (uint32_t i = 0; i < count; i++) {
+            for (size_t i = 0; i < count; i++) {
                 Message *message = messages[i];
                 MessageArrivedEventArgs args(message);
                 _messageArrivedDelegates.invoke(this, &args);

@@ -62,7 +62,7 @@ namespace Drivers {
 #ifdef DEBUG
         Stopwatch sw("TcpMultiPlexingReceiver::Clients::remove", 3000);
 #endif
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *temp = _clients[i];
             if (temp->tcpClient() == client) {
 //                TickTimeout::delay(TimeSpan::fromSeconds(20), isProcessed, temp);
@@ -99,7 +99,7 @@ namespace Drivers {
     }
 
     TcpMultiPlexingReceiver::Client *TcpMultiPlexingReceiver::Clients::at(int socketId) const {
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *client = _clients[i];
             if (client->socketId() == socketId)
                 return client;

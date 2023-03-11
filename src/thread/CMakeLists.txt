@@ -17,6 +17,7 @@ set(THREAD_SRC
         Mutex.cpp
         Process.cpp
         ProcessMutex.cpp
+        Task.cpp
         TaskTimer.cpp
         Thread.cpp
         ThreadPool.cpp

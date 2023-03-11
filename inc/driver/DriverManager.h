@@ -5,6 +5,7 @@
 #include "data/PList.h"
 #include "data/StringArray.h"
 #include "thread/Locker.h"
+#include "thread/Task.h"
 #include "DriverDescription.h"
 #include "channels/ChannelDescription.h"
 #include "channels/Channel.h"
@@ -83,6 +84,8 @@ namespace Drivers
         
         Delegates _channelOpenedDelegates;
         Delegates _channelClosedDelegates;
+
+        Task _resetTask;
 	};
 }
 #endif // DRIVERMANAGER_H

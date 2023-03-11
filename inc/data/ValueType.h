@@ -10,7 +10,7 @@
 #define ValueType_h
 
 #include "data/Vector.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "data/String.h"
 
 namespace IO {

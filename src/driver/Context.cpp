@@ -65,7 +65,7 @@ namespace Drivers
 //
 //    Data* Context::find(const String& name)
 //    {
-//        for (uint32_t i = 0; i < _data->count(); i++)
+//        for (size_t i = 0; i < _data->count(); i++)
 //        {
 //            Data *data=_data->at(i);
 //            if(data->name() == name)

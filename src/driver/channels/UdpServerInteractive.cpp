@@ -156,7 +156,7 @@ namespace Drivers {
                 ByteArray buffer;
                 Device *first = _devices[0];
                 if (first->receive(&buffer)) {
-                    for (uint32_t i = 0; i < _devices.count(); i++) {
+                    for (size_t i = 0; i < _devices.count(); i++) {
                         Device *device = _devices[i];
                         if (device->executeInstruction(buffer))
                             break;

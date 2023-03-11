@@ -308,7 +308,6 @@ bool testOperators() {
         }
     }
 
-#ifndef __arm_linux__
     {
         String str = _text3;
         WString str2 = str;
@@ -317,7 +316,6 @@ bool testOperators() {
             return false;
         }
     }
-#endif
 
     return true;
 }

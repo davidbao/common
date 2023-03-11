@@ -157,7 +157,7 @@ namespace Drivers {
                 Stopwatch sw("multiplexing.TcpSyncSender::instructionSingleProc", 1000);
 #endif
                 _poolsMutex.lock();
-                for (uint32_t i = 0; i < _pools.count(); i++) {
+                for (size_t i = 0; i < _pools.count(); i++) {
                     SenderSinglePool *pool = _pools[i];
                     pool->processInstructions();
                 }

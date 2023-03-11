@@ -1,9 +1,7 @@
 #include "thread/TickTimeout.h"
-#include "data/Convert.h"
 #include "thread/Thread.h"
 #include "data/Vector.h"
 #include "diag/Trace.h"
-#include "thread/ThreadPool.h"
 #include "driver/channels/Channel.h"
 #include "driver/channels/ChannelDescription.h"
 #include "driver/channels/TcpInteractive.h"
@@ -78,8 +76,8 @@ namespace Drivers {
     }
 
     Channel::~Channel() {
-//        ThreadPool::stop(openAction);
-//        ThreadPool::stop(reopenAction);
+        _reopenTask.cancel(3);
+        _openTask.cancel(3);
 
         _description = nullptr;
         if (_interactive != nullptr) {
@@ -144,23 +142,10 @@ namespace Drivers {
         return result;
     }
 
-//    void Channel::openAction(ThreadHolder *holder) {
-//        Channel *channel = static_cast<Channel *>(holder->owner);
-//        assert(channel);
-//
-//        try {
-//            channel->open();
-//        }
-//        catch (const Exception &) {
-//        }
-//
-//        delete holder;
-//    }
-
     void Channel::openAsync() {
         if (!_opening) {
             Debug::writeFormatLine("Channel::openAsync");
-//            ThreadPool::startAsync(openAction, this);
+            _openTask = Task::run(&Channel::open, this);
         }
     }
 
@@ -170,8 +155,8 @@ namespace Drivers {
     }
 
     void Channel::close() {
-//        ThreadPool::stop(openAction);
-//        ThreadPool::stop(reopenAction);
+        _openTask.cancel(3);
+        _reopenTask.cancel(3);
 
         if (_opening) {
             // Waiting for opened.
@@ -185,42 +170,21 @@ namespace Drivers {
 
         EventArgs e;
         _closedDelegates.invoke(this, &e);
-
-//        Trace::writeLine(String::convert("Close a channel'%s'!", name().c_str()), Trace::Info);
     }
 
     bool Channel::reopen() {
-//        Trace::writeLine(String::convert("Reopen a channel'%s'!", name().c_str()), Trace::Info);
-
         close();
         return open();
     }
 
-//    void Channel::reopenAction(ThreadHolder *holder) {
-//        Channel *channel = static_cast<Channel *>(holder->owner);
-//        assert(channel);
-//
-//        try {
-//            channel->reopen();
-//        }
-//        catch (const Exception &) {
-//        }
-//
-//        delete holder;
-//    }
-
     void Channel::reopenAsync() {
         if (!_opening) {
             Debug::writeFormatLine("Channel::reopenAsync");
-//            ThreadPool::startAsync(reopenAction, this);
+            _reopenTask = Task::run(&Channel::reopen, this);
         }
     }
 
     bool Channel::reopened() const {
-//        if (ThreadPool::isAlive(openAction)) {
-//            // opening...
-//            return false;
-//        }
         return context()->reopened();
     }
 

@@ -74,7 +74,7 @@ namespace Drivers {
     }
 
     bool UdpInteractive::Clients::contains(const Client *client) const {
-        for (uint32_t i = 0; i < _items.count(); i++) {
+        for (size_t i = 0; i < _items.count(); i++) {
             const Client *item = _items[i];
             if (item->iface == client->iface)
                 return true;
@@ -122,7 +122,7 @@ namespace Drivers {
         if (ucc->address() == "any") {
             StringArray ifaces;
             NetInterface::getInterfaceNames(ifaces);
-            for (uint32_t i = 0; i < ifaces.count(); i++) {
+            for (size_t i = 0; i < ifaces.count(); i++) {
                 String iface = ifaces[i];
                 if (iface.find("lo") < 0) {
                     Debug::writeFormatLine("interface name: %s", iface.c_str());
@@ -153,7 +153,7 @@ namespace Drivers {
     }
 
     void UdpInteractive::close() {
-        for (uint32_t i = 0; i < _clients.count(); i++) {
+        for (size_t i = 0; i < _clients.count(); i++) {
             Client *client = _clients[i];
             client->client->close();
         }

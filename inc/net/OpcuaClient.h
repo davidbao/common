@@ -12,6 +12,7 @@
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 #include "net/OpcuaContext.h"
 #include "thread/Timer.h"
+#include "thread/Task.h"
 
 #include <open62541/client.h>
 #include <open62541/client_config_default.h>
@@ -97,6 +98,8 @@ namespace Net
         Delegates _messageArrived;
         
         SubscriptionIds _subscriptionIds;
+
+        Task _connectTask;
     };
 }
 #endif

@@ -19,6 +19,7 @@
 #include "system/Delegate.h"
 #include "thread/Thread.h"
 #include "thread/Timer.h"
+#include "thread/Task.h"
 #include "MQTTClient.h"
 
 using namespace Data;
@@ -167,13 +168,11 @@ namespace Net {
 
         static void connlost(void *context, char *cause);
 
-//        static void connectAction(ThreadHolder *holder);
-
     private:
         MQTTClient _client;
         Mutex _clientMutex;
 
-        MQTTClient_deliveryToken _deliveredtoken;
+        MQTTClient_deliveryToken _deliveredToken;
         ConnectOptions _connectOptions;
         ErrorHandle _errorHandle;
 
@@ -195,6 +194,8 @@ namespace Net {
         bool _connecting;
 
         int _errorCode;
+
+        Task _connectTask;
     };
 }
 #endif

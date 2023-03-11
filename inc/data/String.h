@@ -10,7 +10,7 @@
 #define String_h
 
 #include "data/Vector.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include <string>
 
 namespace IO {
@@ -63,6 +63,8 @@ namespace Data {
         String(size_t capacity = 256);
 
         String(const String &value);
+
+        String(String &&value);
 
         String(const string &value);
 
@@ -212,6 +214,8 @@ namespace Data {
         String operator+(const char *value) const;
 
         String &operator=(const String &value);
+
+        String &operator=(String &&value);
 
         String &operator=(const string &value);
 

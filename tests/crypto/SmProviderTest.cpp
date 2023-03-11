@@ -10,7 +10,6 @@
 #include "IO/FileStream.h"
 #include "IO/Path.h"
 #include "IO/File.h"
-#include "IO/Directory.h"
 
 using namespace Crypto;
 
@@ -77,9 +76,8 @@ bool testSm2_generatePublicKey() {
 }
 
 bool testSm3() {
-    Sm3Provider sm3;
     String cypherText;
-    sm3.computeHash(_plainText, cypherText);
+    Sm3Provider::computeHash(_plainText, cypherText);
     String expect = "44E82DDE406154A6F3AC0C9348D72E0977FAE7DDAA62B74FF2ABA06B551F9579";
     if(cypherText != expect) {
         return false;
@@ -89,7 +87,6 @@ bool testSm3() {
 }
 
 bool testSm3_file() {
-    Sm3Provider sm3;
     String fileName = Path::combine(Path::getTempPath(), "test_sm3_file.txt");
     FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     for (int i = 0; i < 100; ++i) {
@@ -97,7 +94,7 @@ bool testSm3_file() {
     }
     fs.close();
     String cypherText;
-    sm3.computeFileHash(fileName, cypherText);
+    Sm3Provider::computeFileHash(fileName, cypherText);
     File::deleteFile(fileName);
     String expect = "139A691C9692E8770D680960C2B17477E4F847C19334D63C894DE6ABB8D2CBBA";
     if(cypherText != expect) {
@@ -296,27 +293,35 @@ bool testSm4_ctr() {
 
 int main() {
     if(!testSm2()) {
+        printf("Failed to testSm2.\n");
         return 1;
     }
     if(!testSm2_generatePublicKey()) {
+        printf("Failed to testSm2_generatePublicKey.\n");
         return 2;
     }
     if(!testSm3()) {
+        printf("Failed to testSm3.\n");
         return 3;
     }
     if(!testSm3_file()) {
+        printf("Failed to testSm3_file.\n");
         return 4;
     }
     if(!testSm4_ecb()) {
+        printf("Failed to testSm4_ecb.\n");
         return 5;
     }
     if(!testSm4_cbc()) {
+        printf("Failed to testSm4_cbc.\n");
         return 6;
     }
     if(!testSm4_ofb()) {
+        printf("Failed to testSm4_ofb.\n");
         return 7;
     }
     if(!testSm4_ctr()) {
+        printf("Failed to testSm4_ctr.\n");
         return 8;
     }
 

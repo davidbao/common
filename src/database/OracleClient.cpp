@@ -683,7 +683,7 @@ namespace Database {
         }
 
         destroy:
-        for (uint32_t j = 0; j < columnCount; j++) {
+        for (size_t j = 0; j < columnCount; j++) {
             delete[] buffer[j];
             delete[] alenps[j];
         }

@@ -14,7 +14,7 @@
 #include "system/OsDefine.h"
 #include "data/IEnumerable.h"
 #include "data/ISortable.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 

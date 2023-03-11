@@ -50,7 +50,7 @@ namespace System {
         if (!(Char::isLetter(ch) || ch == '_'))
             return false;
 
-        for (uint32_t i = 0; i < name.length(); i++) {
+        for (size_t i = 0; i < name.length(); i++) {
             if (!Char::isLetterOrDigit(name[i]) && name[i] != '_')
                 return false;
         }

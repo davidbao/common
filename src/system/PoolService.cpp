@@ -81,14 +81,14 @@ namespace System {
             _valuesMutex.unlock();
 
             if (!_batch) {
-                for (uint32_t i = 0; i < count; i++) {
+                for (size_t i = 0; i < count; i++) {
                     IPoolEntry *value = values[i];
                     process(value);
                     delete value;
                 }
             } else {
                 process((const IPoolEntry **) values, count);
-                for (uint32_t i = 0; i < count; i++) {
+                for (size_t i = 0; i < count; i++) {
                     IPoolEntry *value = values[i];
                     delete value;
                 }

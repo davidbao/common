@@ -13,7 +13,7 @@
 #include <map>
 #include "data/Vector.h"
 #include "data/IEnumerable.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 
 using namespace Threading;
 

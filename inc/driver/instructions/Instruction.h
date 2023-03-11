@@ -11,7 +11,7 @@
 
 #include "data/ByteArray.h"
 #include "data/String.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "data/Convert.h"
 #include "xml/XmlTextReader.h"
 #include "xml/XmlTextWriter.h"

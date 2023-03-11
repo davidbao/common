@@ -1,16 +1,8 @@
-#include "thread/TickTimeout.h"
-#include "data/Convert.h"
 #include "thread/Thread.h"
 #include "data/Vector.h"
 #include "diag/Trace.h"
-#include "diag/Trace.h"
 #include "system/Math.h"
-#include "diag/Stopwatch.h"
-#include "thread/ThreadPool.h"
 #include "driver/channels/ChannelDescription.h"
-#include "driver/channels/TcpInteractive.h"
-#include "driver/channels/TcpServerInteractive.h"
-#include "driver/channels/UdpServerInteractive.h"
 #include "driver/channels/UdpInteractive.h"
 #include "driver/channels/MockInteractive.h"
 #ifndef __EMSCRIPTEN__
@@ -29,8 +21,8 @@ namespace Drivers
     {
         _name = name;
         _interactiveName = interactiveName;
-        _context = NULL;
-        _interactive = NULL;
+        _context = nullptr;
+        _interactive = nullptr;
         _iType = InteractiveType::ITSender;
         _enabled = true;
         
@@ -117,8 +109,8 @@ namespace Drivers
     ChannelDescription::~ChannelDescription()
     {
         delete _context;
-        _context = NULL;
-        _interactive = NULL;    // deleted by Channel
+        _context = nullptr;
+        _interactive = nullptr;    // deleted by Channel
     }
     
     void ChannelDescription::setName(const String& name)

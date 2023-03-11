@@ -481,7 +481,7 @@ namespace Database {
             }
         }
         if (items.count() > 0) {
-            quicksort(_rows.data(), 0, _rows.count() - 1, compare, items);
+            quicksort(_rows.data(), 0, (int) _rows.count() - 1, compare, items);
         }
     }
 

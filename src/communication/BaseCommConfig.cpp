@@ -849,7 +849,7 @@ namespace Communication
         if(useSSL)
         {
             // ssl first.
-            for (uint32_t i=0; i<_clients.count(); i++)
+            for (size_t i=0; i<_clients.count(); i++)
             {
                 Client* client = _clients[i];
                 if(client->enabled && (client->name == sslName || client->name == ssl2Name))
@@ -859,7 +859,7 @@ namespace Communication
                 }
             }
         }
-        for (uint32_t i=0; i<_clients.count(); i++)
+        for (size_t i=0; i<_clients.count(); i++)
         {
             Client* client = _clients[i];
             if(client->enabled && (client->name == name || client->name == tcpName))
@@ -872,7 +872,7 @@ namespace Communication
     }
     const Server& BaseCommConfig::server(const String& name) const
     {
-        for (uint32_t i=0; i<_servers.count(); i++)
+        for (size_t i=0; i<_servers.count(); i++)
         {
             const Server* server = _servers[i];
             if(server->name == name)

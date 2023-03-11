@@ -15,14 +15,18 @@
 #include <sys/stat.h>
 #include <cstdlib>
 
-#if WIN32
+#ifdef WIN32
+
 #include <Windows.h>
 #include <memory.h>
 #include <fcntl.h>
 #include <io.h>
 #include <direct.h>
-#include <Shlwapi.h>
-#include <Shlobj.h>
+#include <sys/stat.h>
+#include "Shlwapi.h"
+
+#define HAS_LUTIMES 1
+
 #elif __APPLE__
 
 #include <sys/param.h>
@@ -31,15 +35,38 @@
 #include <pwd.h>
 #include <sys/time.h>
 
+#define HAS_LUTIMES 1
+
+#elif __ANDROID__
+
+#include <dirent.h>
+
+#elif __linux__
+
+#include <linux/version.h>
+#include <dirent.h>
+#include <sys/time.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
 #else
+#define HAS_LUTIMES 1
+#endif
+
+#elif __EMSCRIPTEN__
+
+#include <dirent.h>
+
+#else
+
 #include <sys/vfs.h>
 #include <libgen.h>
 #include <limits.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <pwd.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-#endif
+
+#endif // WIN32
 
 using namespace Diag;
 using namespace System;
@@ -545,10 +572,9 @@ namespace IO {
             }
             CloseHandle(handle);
             return result;
-#elif __EMSCRIPTEN__ || __ANDROID__
+#elif !HAS_LUTIMES
             DateTime lastAccessTime;
-            if(!getLastAccessTime(path, lastAccessTime))
-            {
+            if (!getLastAccessTime(path, lastAccessTime)) {
                 lastAccessTime = time;
             }
 
@@ -678,10 +704,9 @@ namespace IO {
             }
             CloseHandle(handle);
             return result;
-#elif __EMSCRIPTEN__ || __ANDROID__
+#elif !HAS_LUTIMES
             DateTime modifyTime;
-            if(!getModifyTime(path, modifyTime))
-            {
+            if (!getModifyTime(path, modifyTime)) {
                 modifyTime = time;
             }
 

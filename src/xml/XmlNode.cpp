@@ -167,7 +167,7 @@ namespace Xml {
         if (isValid()) {
             PList<XmlNode> nodes;
             subNodes(nodes);
-            for (uint32_t i = 0; i < nodes.count(); i++) {
+            for (size_t i = 0; i < nodes.count(); i++) {
                 const XmlNode *subNode = nodes[i];
                 if (subNode->getAttribute(name) == value) {
                     node.copyFrom(subNode);
@@ -331,7 +331,7 @@ namespace Xml {
         _node->node = value->_node->node;
 
         _attributes.copyFrom(&value->_attributes);
-        for (uint32_t i = 0; i < _attributes.count(); i++) {
+        for (size_t i = 0; i < _attributes.count(); i++) {
             _attributes.PList<XmlAttribute>::at(i)->_node = this;
         }
     }

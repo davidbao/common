@@ -57,7 +57,7 @@ namespace Communication {
     }
 
     ServerServices::~ServerServices() {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr) {
                 delete _services[i];
                 _services[i] = nullptr;
@@ -90,7 +90,7 @@ namespace Communication {
 
     void ServerServices::updateConfig(const StringMap &properties) {
         String str;
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             String scheme;
             const String prefix = String::format("servers[%d]", i);
             if (properties.at(String::format("%s.scheme", prefix.c_str()), scheme)) {
@@ -114,7 +114,7 @@ namespace Communication {
 
     bool ServerServices::initialize(const BaseCommService::InstructionCallback &callback) {
         bool result[Type::Count];
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             result[i] = true;
         }
         if ((_type & Tcp) == Tcp) {
@@ -142,7 +142,7 @@ namespace Communication {
             }
         }
 
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (!result[i])
                 return false;
         }
@@ -151,7 +151,7 @@ namespace Communication {
 
     bool ServerServices::unInitialize() {
         bool result[Type::Count];
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             result[i] = true;
         }
         if ((_type & Tcp) == Tcp) {
@@ -183,7 +183,7 @@ namespace Communication {
             }
         }
 
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (!result[i])
                 return false;
         }
@@ -192,14 +192,14 @@ namespace Communication {
 
     void ServerServices::getAllServices(PList<ServerService> &services) const {
         services.setAutoDelete(false);
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr)
                 services.add(_services[i]);
         }
     }
 
     ServerService *ServerServices::getService(const Endpoint &peerEndpoint) const {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             ServerService *ss = _services[i];
             if (ss != nullptr && ss->contains(peerEndpoint))
                 return ss;
@@ -221,7 +221,7 @@ namespace Communication {
     }
 
     bool ServerServices::hasServices() const {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr)
                 return true;
         }
@@ -229,7 +229,7 @@ namespace Communication {
     }
 
     TcpServerInteractive::Client *ServerServices::getClient(const Endpoint &peerEndpoint) const {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr) {
                 TcpServerInteractive::Client *client = _services[i]->getClient(peerEndpoint);
                 if (client != nullptr)
@@ -258,7 +258,7 @@ namespace Communication {
     }
 
     bool ServerServices::contains(const Endpoint &endpoint) const {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr && _services[i]->contains(endpoint))
                 return true;
         }
@@ -270,7 +270,7 @@ namespace Communication {
     }
 
     InstructionPool *ServerServices::getClientPool(const Endpoint &endpoint) {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr) {
                 InstructionPool *ip = _services[i]->tsi()->getClientPool(endpoint);
                 if (ip != nullptr)
@@ -281,7 +281,7 @@ namespace Communication {
     }
 
     void ServerServices::getClientPools(const Endpoints &endpoints, InstructionPools &ips) const {
-        for (uint32_t i = 0; i < Type::Count; i++) {
+        for (size_t i = 0; i < Type::Count; i++) {
             if (_services[i] != nullptr)
                 _services[i]->tsi()->getClientPools(endpoints, ips);
         }
@@ -301,7 +301,7 @@ namespace Communication {
     void ServerServices::addCloseDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             TcpServerInteractive *tsi = ss->tsi();
             if (tsi != nullptr) {
@@ -313,7 +313,7 @@ namespace Communication {
     void ServerServices::removeCloseDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             TcpServerInteractive *tsi = ss->tsi();
             if (tsi != nullptr) {
@@ -325,7 +325,7 @@ namespace Communication {
     void ServerServices::addAcceptDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             TcpServerInteractive *tsi = ss->tsi();
             if (tsi != nullptr) {
@@ -337,7 +337,7 @@ namespace Communication {
     void ServerServices::removeAcceptDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             TcpServerInteractive *tsi = ss->tsi();
             if (tsi != nullptr) {
@@ -349,7 +349,7 @@ namespace Communication {
     void ServerServices::addReceivedDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             ss->receivedDelegates()->add(delegate);
         }
@@ -358,7 +358,7 @@ namespace Communication {
     void ServerServices::removeReceivedDelegate(const Delegate &delegate) {
         PList<ServerService> services;
         getAllServices(services);
-        for (uint32_t i = 0; i < services.count(); i++) {
+        for (size_t i = 0; i < services.count(); i++) {
             ServerService *ss = services[i];
             ss->receivedDelegates()->remove(delegate);
         }
@@ -379,7 +379,7 @@ namespace Communication {
         if (peerEndpoint.isEmpty()) {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 ss->stopPacketSender(name);
             }
@@ -395,7 +395,7 @@ namespace Communication {
         if (peerEndpoint.isEmpty()) {
             PList<ServerService> services;
             getAllServices(services);
-            for (uint32_t i = 0; i < services.count(); i++) {
+            for (size_t i = 0; i < services.count(); i++) {
                 ServerService *ss = services[i];
                 ss->stopPacketSyncSender(name);
             }

@@ -71,7 +71,7 @@ namespace Http {
         StringArray::parse(str, lines, Char::NewLine);
         if (lines.count() > 0) {
 //            const String& status = lines[0];
-            for (uint32_t i = 0; i < lines.count(); i++) {
+            for (size_t i = 0; i < lines.count(); i++) {
 //                Debug::writeFormatLine("%s", lines[i].c_str());
 
                 const String &line = lines[i].trim('\r', ' ');
@@ -97,7 +97,7 @@ namespace Http {
     }
 
     bool HttpHeaders::getValue(const String &name, String &value) const {
-        for (uint32_t i = 0; i < _values.count(); i++) {
+        for (size_t i = 0; i < _values.count(); i++) {
             const HttpHeader *header = _values[i];
             if (header->name == name) {
                 value = header->value;
@@ -112,7 +112,7 @@ namespace Http {
     }
 
     bool HttpHeaders::contains(const String &name) const {
-        for (uint32_t i = 0; i < _values.count(); i++) {
+        for (size_t i = 0; i < _values.count(); i++) {
             const HttpHeader *header = _values[i];
             if (name == header->name)
                 return true;
@@ -122,7 +122,7 @@ namespace Http {
 
     void HttpHeaders::addInner(HttpHeader *header) {
         bool found = false;
-        for (uint32_t i = 0; i < _values.count(); i++) {
+        for (size_t i = 0; i < _values.count(); i++) {
             HttpHeader *item = _values[i];
             if (item->name == header->name) {
                 found = true;
@@ -171,7 +171,7 @@ namespace Http {
     bool HttpHeaders::operator==(const HttpHeaders &value) const {
         if (_values.count() != value.count())
             return false;
-        for (uint32_t i = 0; i < _values.count(); i++) {
+        for (size_t i = 0; i < _values.count(); i++) {
             if (_values[i]->operator!=(*value._values[i]))
                 return false;
         }
@@ -218,7 +218,7 @@ namespace Http {
         String str;
         StringArray names;
         _values.keys(names);
-        for (uint32_t i = 0; i < names.count(); i++) {
+        for (size_t i = 0; i < names.count(); i++) {
             const String &name = names[i];
             String value;
             _values.at(name, value);
@@ -317,7 +317,7 @@ namespace Http {
     bool HttpCookie::parse(const String &str, HttpCookie &cookie) {
         StringArray texts;
         StringArray::parse(str, texts, ';');
-        for (uint32_t i = 0; i < texts.count(); i++) {
+        for (size_t i = 0; i < texts.count(); i++) {
             String text = texts[i];
             text = text.trimStart(' ');
             text = text.trimEnd(' ');
@@ -459,7 +459,7 @@ namespace Http {
     HttpSession *HttpSessions::atByName(const String &name) const {
         Vector<String> keys;
         _sessions.keys(keys);
-        for (uint32_t i = 0; i < keys.count(); i++) {
+        for (size_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             HttpSession *value = nullptr;
             if (_sessions.at(key, value) && value != nullptr && value->name() == name) {
@@ -473,7 +473,7 @@ namespace Http {
         Vector<String> keys;
         _sessions.keys(keys);
         StringArray removed;
-        for (uint32_t i = 0; i < keys.count(); i++) {
+        for (size_t i = 0; i < keys.count(); i++) {
             const String &key = keys[i];
             HttpSession *session = nullptr;
             if (_sessions.at(key, session) && session != nullptr && session->isExpired()) {
@@ -481,7 +481,7 @@ namespace Http {
             }
         }
 
-        for (uint32_t i = 0; i < removed.count(); i++) {
+        for (size_t i = 0; i < removed.count(); i++) {
             remove(removed[i]);
         }
     }
@@ -799,7 +799,7 @@ namespace Http {
     bool HttpProperties::parse(const String &value, HttpProperties &properties) {
         StringArray texts;
         StringArray::parse(value, texts, '&');
-        for (uint32_t i = 0; i < texts.count(); i++) {
+        for (size_t i = 0; i < texts.count(); i++) {
             const String &text = texts[i];
             StringArray texts2;
             StringArray::parse(text, texts2, '=');
@@ -887,7 +887,7 @@ namespace Http {
         StringArray paths, inputs;
         if (StringArray::parse(path, paths, PathSplitSymbol) &&
             StringArray::parse(url.relativeUrl(), inputs, PathSplitSymbol)) {
-            for (uint32_t i = 0; i < paths.count(); i++) {
+            for (size_t i = 0; i < paths.count(); i++) {
                 const String &text = paths[i];
                 const String &input = i < inputs.count() ? inputs[i] : String::Empty;
                 if (text != input) {

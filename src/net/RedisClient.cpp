@@ -11,7 +11,6 @@
 #include "thread/Timer.h"
 #include "diag/Trace.h"
 #include "system/Delegate.h"
-#include "thread/ThreadPool.h"
 
 #ifdef WIN32
 #include <winsock.h>
@@ -87,6 +86,8 @@ namespace Net {
     }
 
     RedisClient::~RedisClient() {
+        _connectTask.cancel(3);
+
         if (_checkTimer != nullptr) {
             delete _checkTimer;
             _checkTimer = nullptr;
@@ -162,17 +163,8 @@ namespace Net {
 
     void RedisClient::connectAsync(const ConnectOptions &options) {
         _connectOptions = options;
-//        ThreadPool::startAsync(connectAction, this);
+        _connectTask = Task::run(&RedisClient::connect, this, _connectOptions);
     }
-
-//    void RedisClient::connectAction(ThreadHolder *holder) {
-//        RedisClient *rc = static_cast<RedisClient *>(holder->owner);
-//        assert(rc);
-//
-//        rc->connect(rc->_connectOptions);
-//
-//        delete holder;
-//    }
 
     bool RedisClient::disconnect(TimeSpan timeout) {
         //        Trace::info(String::format("The redis client is disconnecting."));

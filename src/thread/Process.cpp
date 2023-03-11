@@ -215,7 +215,7 @@ namespace Threading {
             argv[0] = new char[tempLen];
             memset(argv[0], 0, tempLen);
             strcpy(argv[0], fileName);
-            for (uint32_t i = 1; i <= len; i++) {
+            for (size_t i = 1; i <= len; i++) {
                 const String &valueStr = as[i - 1];
                 size_t tempLen = valueStr.length() + 1;
                 argv[i] = new char[tempLen];

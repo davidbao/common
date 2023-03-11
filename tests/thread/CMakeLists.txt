@@ -22,7 +22,7 @@ set(THREAD_SRC
         TimerTest.cpp
         )
 if (NOT WEB_OS)
-    set(THREAD_SRC ${THREAD_SRC} ThreadTest.cpp)
+    set(THREAD_SRC ${THREAD_SRC} TaskTest.cpp ThreadTest.cpp)
 endif ()
 
 foreach (item ${THREAD_SRC})

@@ -67,7 +67,7 @@ namespace Communication {
     void ServerService::stopLoopSender(const String &name) {
         Debug::writeFormatLine("ServerService::stopLoopSender, name: %s", name.c_str());
         Locker locker(&_loopSendersMutex);
-        for (uint32_t i = 0; i < _loopSenders.count(); i++) {
+        for (size_t i = 0; i < _loopSenders.count(); i++) {
             BaseLoopSender *sender = _loopSenders[i];
             if (sender->name() == name) {
                 _loopSenders.removeAt(i);
@@ -80,7 +80,7 @@ namespace Communication {
     void ServerService::stopPacketSender(const String &name) {
         Debug::writeFormatLine("ServerService::stopPacketSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 _packetSenders.removeAt(i);
@@ -93,7 +93,7 @@ namespace Communication {
     bool ServerService::stopPacketSyncSender(const String &name) {
         Debug::writeFormatLine("ServerService::stopPacketSyncSender, name: %s", name.c_str());
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 _packetSenders.removeAt(i);
@@ -105,7 +105,7 @@ namespace Communication {
 
     bool ServerService::hasPacketSyncSender(const String &name) {
         Locker locker(&_packetSendersMutex);
-        for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+        for (size_t i = 0; i < _packetSenders.count(); i++) {
             BasePacketSender *sender = _packetSenders[i];
             if (sender->name() == name) {
                 return true;
@@ -296,7 +296,7 @@ namespace Communication {
             assert(dm);
 
             StringArray deviceNames;
-            for (uint32_t i = 0; i < endpoints.count(); i++) {
+            for (size_t i = 0; i < endpoints.count(); i++) {
                 const Endpoint endpoint = endpoints[i];
                 String deviceName = !endpoint.isEmpty() ?
                                     String::convert("UdpClientDevice_%s", endpoint.address.c_str()) :
@@ -326,7 +326,7 @@ namespace Communication {
             assert(dm);
 
             StringArray deviceNames;
-            for (uint32_t i = 0; i < endpoints.count(); i++) {
+            for (size_t i = 0; i < endpoints.count(); i++) {
                 const Endpoint endpoint = endpoints[i];
                 String deviceName = !endpoint.isEmpty() ?
                                     String::convert("UdpClientDevice_%s", endpoint.address.c_str()) :

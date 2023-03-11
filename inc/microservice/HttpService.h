@@ -297,7 +297,7 @@ namespace Microservice {
                     removed.add(mapping);
                 }
             }
-            for (uint32_t i = 0; i < removed.count(); i++) {
+            for (size_t i = 0; i < removed.count(); i++) {
                 _mappings.remove(removed[i]);
             }
         }

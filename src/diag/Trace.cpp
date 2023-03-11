@@ -172,7 +172,7 @@ namespace Diag {
 #endif
         // log to listeners.
         if (_enableLog) {
-            for (uint32_t i = 0; i < _traceListeners.count(); i++) {
+            for (size_t i = 0; i < _traceListeners.count(); i++) {
                 _traceListeners[i]->write(str, category);
             }
         }

@@ -10,7 +10,7 @@
 #define HttpContent_h
 
 #include "data/String.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "data/StringArray.h"
 #include "data/PList.h"
 #include "data/Map.h"

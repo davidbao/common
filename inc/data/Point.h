@@ -11,7 +11,7 @@
 
 #include "data/Vector.h"
 #include "data/String.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 
 using namespace Data;
 

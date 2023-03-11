@@ -107,7 +107,7 @@ namespace Communication {
 
             Debug::writeFormatLine("ClientService::startLoopSender, name: %s", name.c_str());
             Locker locker(&_loopSendersMutex);
-            for (uint32_t i = 0; i < _loopSenders.count(); i++) {
+            for (size_t i = 0; i < _loopSenders.count(); i++) {
                 BaseLoopSender *sender = _loopSenders[i];
                 if (sender->name() == name) {
                     _loopSenders.removeAt(i);
@@ -182,7 +182,7 @@ namespace Communication {
 
             Debug::writeFormatLine("ClientService::startPacketSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 BasePacketSender *sender = _packetSenders[i];
                 if (sender->name() == name) {
                     // Do not remove the old one.
@@ -205,7 +205,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSender(const String &name, const K *data) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 PacketSender<T, K, C> *sender = dynamic_cast<PacketSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data);
@@ -246,7 +246,7 @@ namespace Communication {
 
             void addRange(const T &data) {
                 Locker locker(&_bufferMutex);
-                for (uint32_t i = 0; i < data.count(); i++) {
+                for (size_t i = 0; i < data.count(); i++) {
                     _buffer.enqueue(data[i]->clone());
                 }
             }
@@ -302,7 +302,7 @@ namespace Communication {
 
             Debug::writeFormatLine("ClientService::startPacketSyncSender, name: %s", name.c_str());
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 BasePacketSender *sender = _packetSenders[i];
                 if (sender->name() == name) {
                     // Do not remove the old one.
@@ -325,7 +325,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSyncSender(const String &name, const K *data) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 PacketSyncSender<T, K, C> *sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data);
@@ -342,7 +342,7 @@ namespace Communication {
         template<class T, class K, class C>
         bool addPacketSyncSender(const String &name, const T &data) {
             Locker locker(&_packetSendersMutex);
-            for (uint32_t i = 0; i < _packetSenders.count(); i++) {
+            for (size_t i = 0; i < _packetSenders.count(); i++) {
                 PacketSyncSender<T, K, C> *sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addRange(data);
@@ -401,11 +401,11 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         StatusContext sendVectorSync(const T &inputData, int packetCount, const String &name, int trySendCount = -1) {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -440,11 +440,11 @@ namespace Communication {
         }
 
         // T is input data and T is vector, C is context.
-        // Sent all of clients if endpoint is empty.
+        // Sent all clients if endpoint is empty.
         template<class T, class C>
         bool sendVectorAsync(const T &inputData, int packetCount, const String &name) {
             const size_t count = inputData.count();
-            for (uint32_t i = 0; i < count; i += packetCount) {
+            for (size_t i = 0; i < count; i += packetCount) {
                 T temp(false);
                 temp.addRange(&inputData, i, Math::min(packetCount, (int) (count - i)));
 
@@ -474,7 +474,7 @@ namespace Communication {
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
                 uint32_t packetCount = rcontext->packetCount();
-                for (uint32_t i = 0; i < packetCount; i++) {
+                for (size_t i = 0; i < packetCount; i++) {
                     context->setPacketNo(i);
                     context->transferData();
                     context->outputData()->clear();
@@ -559,7 +559,7 @@ namespace Communication {
                     uint32_t packetCount = rcontext->packetCount();
                     result = DownloadFileResult::Succeed;
 
-                    for (uint32_t i = 0; i < packetCount; i++) {
+                    for (size_t i = 0; i < packetCount; i++) {
                         C *context = new C();
                         context->setInputData(&inputData);
                         context->setHeader(header);
@@ -719,7 +719,7 @@ namespace Communication {
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
                 uint32_t packetCount = rcontext->packetCount();
-                for (uint32_t i = 0; i < packetCount; i++) {
+                for (size_t i = 0; i < packetCount; i++) {
                     context->setPacketNo(i);
                     context->transferData();
                     InstructionDescription *id = new InstructionDescription(name, context, false);
@@ -783,7 +783,7 @@ namespace Communication {
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
                 uint32_t packetCount = rcontext->packetCount();
-                for (uint32_t i = 0; i < packetCount; i++) {
+                for (size_t i = 0; i < packetCount; i++) {
                     InstructionDescription *id = new InstructionDescription(name, context, false);
                     context->setPacketNo(i);
                     context->transferData();
@@ -861,7 +861,7 @@ namespace Communication {
             InstructionDescription *ids = new InstructionDescription(name, context);
             _instructionPool->addInstruction(ids);
             uint32_t packetCount = context->calcPacketCount();
-            for (uint32_t i = 0; i < packetCount; i++) {
+            for (size_t i = 0; i < packetCount; i++) {
                 Thread::msleep(10);
 
                 context = new C();

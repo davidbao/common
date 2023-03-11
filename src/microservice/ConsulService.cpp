@@ -140,10 +140,10 @@ namespace Microservice {
     }
 
     bool ConsulService::chooseNext() {
-        for (uint32_t i = 0; i < _endpoints.count(); i++) {
+        for (size_t i = 0; i < _endpoints.count(); i++) {
             const Endpoint &endpoint = _endpoints[i];
             if (endpoint == _current) {
-                uint32_t pos = i == _endpoints.count() - 1 ? 0 : i + 1;
+                size_t pos = i == _endpoints.count() - 1 ? 0 : i + 1;
                 _current = _endpoints[pos];
                 return true;
             }
@@ -175,13 +175,13 @@ namespace Microservice {
             JsonNode servicesNode("services");
             JsonNodes nodes;
             if (tempNode.subNodes(nodes)) {
-                for (uint32_t i = 0; i < nodes.count(); i++) {
+                for (size_t i = 0; i < nodes.count(); i++) {
                     const JsonNode &subNode = nodes[i];
                     String serviceId;
                     StringArray tags;
                     if (subNode.getAttribute("Service", serviceId) && subNode.getAttribute("Tags", tags)) {
                         JsonNode serviceNode(serviceId, JsonNode::TypeArray);
-                        for (uint32_t i = 0; i < tags.count(); i++) {
+                        for (size_t i = 0; i < tags.count(); i++) {
                             const String &tag = tags[i];
                             serviceNode.add(JsonNode("item", tag));
                         }
@@ -235,7 +235,7 @@ namespace Microservice {
         if (getAllServices(_baseUrl, content) && JsonNode::parse(content, node)) {
             JsonNodes nodes;
             if (node.subNodes(nodes)) {
-                for (uint32_t i = 0; i < nodes.count(); i++) {
+                for (size_t i = 0; i < nodes.count(); i++) {
                     const JsonNode &subNode = nodes[i];
                     String serviceId;
                     if (subNode.getAttribute("Service", serviceId))
@@ -266,7 +266,7 @@ namespace Microservice {
         if (!JsonNode::parse(content, root) && root.type() == JsonNode::TypeArray)
             return false;
 
-        for (uint32_t i = 0; i < instances.count(); i++) {
+        for (size_t i = 0; i < instances.count(); i++) {
             ServiceInstance *instance = instances.at(i);
             instance->setAlive(false);
         }
@@ -297,7 +297,7 @@ namespace Microservice {
                         StringMap meta;
                         StringArray names;
                         metaNode.getAttributeNames(names);
-                        for (uint32_t i = 0; i < names.count(); i++) {
+                        for (size_t i = 0; i < names.count(); i++) {
                             String value;
                             if (metaNode.getAttribute(names[i], value))
                                 meta.add(names[i], value);
@@ -350,7 +350,7 @@ namespace Microservice {
             StringArray::parseMultiSymbol(host, texts, ',', ';', ' ');
             _endpoints.clear();
             if (texts.count() > 1) {
-                for (uint32_t i = 0; i < texts.count(); i++) {
+                for (size_t i = 0; i < texts.count(); i++) {
                     const String &text = texts[i];
                     Endpoint endpoint;
                     if (Endpoint::parse(text, endpoint)) {
@@ -419,7 +419,7 @@ namespace Microservice {
         if (cs->getProperty("summer.cloud.consul.discovery.tags", value) && !value.isNullOrEmpty()) {
             StringArray texts;
             StringArray::parseMultiSymbol(value, texts, ',', ';', ' ');
-            for (uint32_t i = 0; i < texts.count(); i++) {
+            for (size_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 if (tags.length() > 0)
                     tags.append(',');
@@ -431,7 +431,7 @@ namespace Microservice {
         if (cs->getProperty("summer.cloud.consul.discovery.meta", value) && !value.isNullOrEmpty()) {
             StringArray texts;
             StringArray::parseMultiSymbol(value, texts, ',', ';', ' ');
-            for (uint32_t i = 0; i < texts.count(); i++) {
+            for (size_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 if (meta.length() > 0)
                     meta.append(',');

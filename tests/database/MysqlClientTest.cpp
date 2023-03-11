@@ -8,21 +8,32 @@
 
 #include "database/MysqlClient.h"
 #include "IO/Path.h"
+#include "system/Application.h"
 
 using namespace Database;
+using namespace System;
 
-static const String _baseUrl("mysql://192.167.0.6:3306");
-static const String _url = _baseUrl + "/MysqlClientTest_db";
-static const String _username = "root";
-static const String _password = "123456.com";
+static String _baseUrl("mysql://192.167.0.6:3306");
+static String _database = "MysqlClientTest_db";
+static String _url = _baseUrl + "/" + _database;
+static String _username = "root";
+static String _password = "123456.com";
 
 void setUp() {
+    MysqlClient test;
+    if (!test.open(Url(_baseUrl), _username, _password)) {
+        return;
+    }
+    test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+        return;
+    }
 }
 
 void cleanUp() {
     MysqlClient test;
     if (test.open(Url(_baseUrl), _username, _password)) {
-        test.executeSql("DROP DATABASE IF EXISTS MysqlClientTest_db;");
+        test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
     }
 }
 
@@ -32,8 +43,8 @@ bool testCreateDatabase() {
         if (!test.open(Url(_baseUrl), _username, _password)) {
             return false;
         }
-        test.executeSql("DROP DATABASE IF EXISTS MysqlClientTest_db;");
-        if(!test.executeSql("CREATE DATABASE MysqlClientTest_db;")) {
+        test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+        if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
             return false;
         }
     }
@@ -345,7 +356,69 @@ bool testExecuteSql() {
     return true;
 }
 
-int main() {
+bool parseArguments(const Application &app) {
+    const Application::Arguments &arguments = app.arguments();
+    String host, userName, password, database;
+    Port port;
+    if (arguments.contains("help") || arguments.contains("?")) {
+        puts("Usage:");
+        puts("-?, --help            Display this help and exit.");
+        puts("-h, --host=name       Connect to host.");
+        puts("-P, --port=#          Port number to use for connection.");
+        puts("-u, --user=name       User for login if not current user.");
+        puts("-p, --password[=name] Password to use when connecting to server.");
+        puts("-d, --database=name   Database for test.");
+        return false;
+    }
+
+    if(arguments.contains("host") || arguments.contains("h")) {
+        host = arguments["host"];
+        if (host.isNullOrEmpty()) {
+            host = arguments["h"];
+        }
+    }
+    if(arguments.contains("port") || arguments.contains("P")) {
+        if (!Port::parse(arguments["port"], port)) {
+            Port::parse(arguments["P"], port);
+        }
+    }
+    if(arguments.contains("user") || arguments.contains("u")) {
+        userName = arguments["user"];
+        if (userName.isNullOrEmpty()) {
+            userName = arguments["u"];
+        }
+    }
+    if(arguments.contains("password") || arguments.contains("p")) {
+        password = arguments["password"];
+        if (password.isNullOrEmpty()) {
+            password = arguments["p"];
+        }
+    }
+    if(arguments.contains("database") || arguments.contains("d")) {
+        database = arguments["database"];
+        if (database.isNullOrEmpty()) {
+            database = arguments["d"];
+        }
+    }
+
+    _baseUrl = String::format("mysql://%s:%s",
+                              !host.isNullOrEmpty() ? host.c_str() : "localhost",
+                              !port.isEmpty() ? port.toString().c_str() : "3306");
+    _database = !database.isNullOrEmpty() ? database : "MysqlClientTest_db";
+    _url = _baseUrl + "/" + _database;
+    _username = !userName.isNullOrEmpty() ? userName : "root";
+    _password = !password.isNullOrEmpty() ? password : "123456.com";
+
+    return true;
+}
+
+// argv: -h=192.167.0.6 -P=3306 -u=root -p=123456.com -d=test_db
+int main(int argc, const char *argv[]) {
+    Application app(argc, argv);
+    if (!parseArguments(app)) {
+        return 0;
+    }
+
     setUp();
 
     int result = 0;

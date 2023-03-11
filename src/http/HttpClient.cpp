@@ -169,7 +169,7 @@ namespace Http {
             // request headers.
             struct curl_slist *headerList = nullptr;
             if (request.headers.count() > 0) {
-                for (uint32_t i = 0; i < request.headers.count(); i++) {
+                for (size_t i = 0; i < request.headers.count(); i++) {
                     const HttpHeader *header = request.headers[i];
                     headerList = curl_slist_append(headerList, header->toString().c_str());
                 }

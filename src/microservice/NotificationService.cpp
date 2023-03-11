@@ -196,7 +196,7 @@ namespace Microservice {
         assert(entry);
 
         Locker locker(&_notificationsMutex);
-        for (uint32_t i = 0; i < _notifications.count(); i++) {
+        for (size_t i = 0; i < _notifications.count(); i++) {
             BaseNotification *n = _notifications[i];
             if ((entry->type & NotificationType::Http) == NotificationType::Http &&
                 n->type() == NotificationType::Http) {

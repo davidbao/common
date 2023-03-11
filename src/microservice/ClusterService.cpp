@@ -8,7 +8,6 @@
 
 #include "microservice/ClusterService.h"
 #include "system/ServiceFactory.h"
-#include "thread/ThreadPool.h"
 #include "thread/Timer.h"
 #include "configuration/ConfigService.h"
 #include <future>
@@ -473,6 +472,8 @@ namespace Microservice {
     }
 
     ClusterService::~ClusterService() {
+        _pushTask.cancel(3);
+
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
         factory->removeService<IClusterService>();
@@ -578,6 +579,7 @@ namespace Microservice {
     void ClusterService::pushAll(ClusterRpcServer *server, const Endpoint &endpoint) {
         Locker locker(&_contextsMutex);
         if (_contexts.count() > 0) {
+            _pushTask = Task::run(&ClusterService::pushSync, this, _server, endpoint);
 //            ThreadHolder *holder = new ThreadHolder(this, new PushAllHolder(endpoint));
 //            ThreadPool::startAsync(pushAllAction, holder);
         }

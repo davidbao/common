@@ -477,7 +477,7 @@ namespace Communication {
     }
 
     bool FileInstructionEntry::saveFile(const FileHeader *header, const FileDatas *fds) {
-        for (uint32_t i = 0; i < fds->count(); i++) {
+        for (size_t i = 0; i < fds->count(); i++) {
             if (!saveFile(header, fds->at(i)))
                 return false;
         }
@@ -513,7 +513,7 @@ namespace Communication {
     }
 
     bool FileInstructionEntry::saveFileInner(const FileHeader *header, const FileDatas *fds) {
-        for (uint32_t i = 0; i < fds->count(); i++) {
+        for (size_t i = 0; i < fds->count(); i++) {
             if (!saveFileInner(header, fds->at(i)))
                 return false;
         }

@@ -42,6 +42,11 @@ namespace Data {
         this->operator=(value);
     }
 
+    String::String(String &&value) {
+        this->operator=(value);
+        value.empty();
+    }
+
     String::String(const string &value) : String(value.c_str()) {
     }
 
@@ -131,7 +136,17 @@ namespace Data {
     }
 
     String &String::operator=(const String &value) {
-        setString(value.getString());
+        if (this != &value) {
+            setString(value.getString());
+        }
+        return *this;
+    }
+
+    String &String::operator=(String &&value) {
+        if (this != &value) {
+            setString(value.getString());
+            value.empty();
+        }
         return *this;
     }
 

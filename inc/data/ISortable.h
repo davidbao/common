@@ -9,7 +9,7 @@
 #ifndef ISortable_h
 #define ISortable_h
 
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 
 namespace Data {
     // Only use the Quicksort algorithm.

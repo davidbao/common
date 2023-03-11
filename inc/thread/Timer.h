@@ -16,38 +16,46 @@
 #include "data/Dictionary.h"
 
 namespace Threading {
-    class Timer : public Action {
+    class Timer {
     public:
+        Timer() noexcept;
+
         template<class Function, class... Args>
         explicit Timer(const String &name, int dueTime, int period,
-                       Function &&f, Args &&... args) : Action(f, args...) {
+                       Function &&f, Args &&... args) : _action(f, args...) {
             init(name, dueTime, period);
         }
 
         template<class Function, class... Args>
-        explicit Timer(const String &name, int period, Function &&f, Args &&... args) : Action(f, args...) {
+        explicit Timer(const String &name, int period, Function &&f, Args &&... args) : _action(f, args...) {
             init(name, Zero, period);
         }
 
         template<class Function, class... Args>
         explicit Timer(const String &name, TimeSpan dueTime, TimeSpan period,
-                       Function &&f, Args &&... args) : Action(f, args...) {
+                       Function &&f, Args &&... args) : _action(f, args...) {
             init(name, (int) dueTime.totalMilliseconds(), (int) period.totalMilliseconds());
         }
 
         template<class Function, class... Args>
         explicit Timer(const String &name, TimeSpan period,
-                       Function &&f, Args &&... args) : Action(f, args...) {
+                       Function &&f, Args &&... args) : _action(f, args...) {
             init(name, Zero, (int) period.totalMilliseconds());
         }
 
         Timer(const Timer &) = delete;
 
-        ~Timer() override;
+        Timer(Timer &&other) noexcept;
+
+        ~Timer();
+
+        Timer &operator=(const Timer &) = delete;
+
+        Timer &operator=(Timer &&other) noexcept;
 
         void start();
 
-        void stop(uint32_t delaySeconds = 10);
+        void stop(int delaySeconds = 10);
 
         void stop(const TimeSpan &delay);
 
@@ -65,6 +73,8 @@ namespace Threading {
 
     private:
         void init(const String &name, int dueTime, int period);
+
+        void move(Timer &other);
 
         void fire();
 
@@ -84,7 +94,9 @@ namespace Threading {
 
     private:
 #ifdef __EMSCRIPTEN__
+
         static void threadProc(int value);
+
 #endif
 
     public:
@@ -93,6 +105,8 @@ namespace Threading {
 
     private:
         String _name;
+
+        Action _action;
 
         int _dueTime;
         int _period;
@@ -104,7 +118,7 @@ namespace Threading {
         uint32_t _start;
         std::atomic<bool> _loop;
 
-        Thread *_thread;
+        Thread _thread;
 #endif
 
     private:

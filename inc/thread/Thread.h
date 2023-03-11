@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include "data/String.h"
 #include "data/ValueType.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "data/PList.h"
 #include "data/DateTime.h"
 #include "system/Action.h"
@@ -27,8 +27,6 @@ using namespace std;
 using namespace System;
 
 namespace Threading {
-    typedef Action ThreadStart;
-
     class Thread;
 
     class ThreadId : public IEquatable<ThreadId>, public IEvaluation<ThreadId>, public IComparable<ThreadId> {
@@ -66,21 +64,27 @@ namespace Threading {
         BelowNormal = 1,
         Normal = 2,
         AboveNormal = 3,
-        Highest = 4,
-        PriorityLast = Highest,
-        PriorityCount = PriorityLast + 1
+        Highest = 4
     };
 
-    class Thread : public Action {
+    class Thread {
     public:
+        Thread() noexcept;
+
         template<class Function, class... Args>
-        explicit Thread(const String &name, Function &&f, Args &&... args) : Action(f, args...) {
+        explicit Thread(const String &name, Function &&f, Args &&... args) : _action(f, args...), _running(false) {
             init(name);
         }
 
         Thread(const Thread &) = delete;
 
-        ~Thread() override;
+        Thread(Thread &&other) noexcept;
+
+        ~Thread();
+
+        Thread &operator=(const Thread &) = delete;
+
+        Thread &operator=(Thread &&other) noexcept;
 
         bool isAlive() const;
 
@@ -105,6 +109,12 @@ namespace Threading {
 
         static void sleep(const TimeSpan &interval);
 
+        static void sleep(uint32_t msecs);
+
+        static bool delay(const TimeSpan &interval, const Func<bool> &condition);
+
+        static bool delay(uint32_t msecs, const Func<bool> &condition);
+
         static ThreadId currentThreadId();
 
         static Thread *currentThread();
@@ -113,6 +123,8 @@ namespace Threading {
 
     private:
         void init(const String &name);
+
+        void move(Thread &other);
 
         void run();
 
@@ -124,6 +136,8 @@ namespace Threading {
 
     private:
         thread _thread;
+
+        Action _action;
 
         std::atomic<bool> _running;
 

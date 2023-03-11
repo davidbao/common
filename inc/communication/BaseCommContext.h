@@ -16,7 +16,7 @@
 #include "data/StreamVector.h"
 #include "data/ByteArray.h"
 #include "net/NetType.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "driver/instructions/InstructionContext.h"
 
 using namespace Data;
@@ -333,7 +333,7 @@ namespace Communication {
             assert(inputData);
             MemoryStream ms;
             size_t count = 0;
-            for (uint32_t i = 0; i < inputData->count(); i++) {
+            for (size_t i = 0; i < inputData->count(); i++) {
                 P *p = inputData->at(i);
                 p->write(&ms);
                 if (ms.length() > this->BasePacketContext::packetLength()) {
@@ -412,7 +412,7 @@ namespace Communication {
         inline bool isFirstPart() const {
             FileDatas *fdatas = ElementContext<T, FileDatas>::outputData();
             if (fdatas != nullptr) {
-                for (uint32_t i = 0; i < fdatas->count(); i++) {
+                for (size_t i = 0; i < fdatas->count(); i++) {
                     const FileData *fdata = fdatas->at(i);
                     if (fdata->packetNo == 0)
                         return true;
@@ -424,7 +424,7 @@ namespace Communication {
         inline bool isLastPart() const {
             FileDatas *fdatas = ElementContext<T, FileDatas>::outputData();
             if (fdatas != nullptr) {
-                for (uint32_t i = 0; i < fdatas->count(); i++) {
+                for (size_t i = 0; i < fdatas->count(); i++) {
                     const FileData *fdata = fdatas->at(i);
                     if (_header.packetCount - 1 == fdata->packetNo)
                         return true;

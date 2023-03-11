@@ -205,7 +205,7 @@ namespace Communication {
             ms.setVersion(version());
             int count = 0;
             _ranges.clear();
-            for (uint32_t i = 0; i < outputData->count(); i++) {
+            for (size_t i = 0; i < outputData->count(); i++) {
                 P *p = outputData->at(i);
                 p->write(&ms);
                 if (ms.length() > context->packetLength()) {

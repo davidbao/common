@@ -13,6 +13,7 @@
 #include "rpc/RpcClient.h"
 #include "rpc/RpcServer.h"
 #include "system/ServiceFactory.h"
+#include "thread/Task.h"
 
 using namespace Data;
 using namespace Rpc;
@@ -274,6 +275,8 @@ namespace Microservice
         int _maxPacketCount;
         Mutex _senderContextsMutex;
         LoopPList<ClusterContext> _senderContexts;
+
+        Task _pushTask;
     };
 }
 

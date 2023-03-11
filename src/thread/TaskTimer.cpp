@@ -135,7 +135,7 @@ namespace Threading {
 //            Group* group2 = _groups[1];
 //            interval = Math::getGreatestCommonDivisor((uint32_t)group1->interval.totalMilliseconds(), (uint32_t)group2->interval.totalMilliseconds());
 //            
-//            for (uint32_t i=2; i<_groups.count(); i++)
+//            for (size_t i=2; i<_groups.count(); i++)
 //            {
 //                Group* group = _groups[i];
 //                interval = Math::getGreatestCommonDivisor(interval, (uint32_t)group->interval.totalMilliseconds());

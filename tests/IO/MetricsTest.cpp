@@ -46,7 +46,7 @@ bool testDiskStat() {
 
 #ifdef __EMSCRIPTEN__
 #elif LINUX_OS
-    if (DiskStat::getPathUsed("/etc/init.d") == 0) {
+    if (DiskStat::getPathUsed("/usr/include") == 0) {
         printf("failed DiskStat::getPathUsed\n");
         return false;
     }

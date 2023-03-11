@@ -283,7 +283,7 @@ namespace Diag {
         if (Directory::exists(_context.path)) {
             StringArray fileNames;
             Directory::getFiles(_context.path, filter, SearchOption::TopDirectoryOnly, fileNames);
-            for (uint32_t i = 0; i < fileNames.count(); ++i) {
+            for (size_t i = 0; i < fileNames.count(); ++i) {
                 const String &fileName = fileNames[i];
                 String name = Path::getFileName(fileName);
                 removeFile(_context.path, name, days);

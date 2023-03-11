@@ -22,15 +22,32 @@
 #include <sys/stat.h>
 #include "Shlwapi.h"
 
+#define HAS_LUTIMES 1
+
 #elif __APPLE__
 
 #include <sys/mount.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
+#define HAS_LUTIMES 1
+
 #elif __ANDROID__
-#include <malloc.h>
+
+#elif __linux__
+
+#include <linux/version.h>
+#include <sys/time.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
 #else
+#define HAS_LUTIMES 1
+#endif
+
+#elif __EMSCRIPTEN__
+
+#else
+
 #include <sys/vfs.h>
 #include <libgen.h>
 #include <limits.h>
@@ -38,7 +55,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#endif
+
+#endif // WIN32
 
 #ifndef S_ISDIR
 #define    S_ISDIR(m)    (((m) & S_IFMT) == S_IFDIR)    /* directory */
@@ -574,10 +592,9 @@ namespace IO {
             }
             CloseHandle(handle);
             return result;
-#elif __EMSCRIPTEN__ || __ANDROID__
+#elif !HAS_LUTIMES
             DateTime modifyTime;
-            if(!getModifyTime(path, modifyTime))
-            {
+            if (!getModifyTime(path, modifyTime)) {
                 modifyTime = time;
             }
 
@@ -640,10 +657,9 @@ namespace IO {
             }
             CloseHandle(handle);
             return result;
-#elif __EMSCRIPTEN__ || __ANDROID__
+#elif !HAS_LUTIMES
             DateTime lastAccessTime;
-            if(!getLastAccessTime(path, lastAccessTime))
-            {
+            if (!getLastAccessTime(path, lastAccessTime)) {
                 lastAccessTime = time;
             }
 

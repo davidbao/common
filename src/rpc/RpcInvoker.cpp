@@ -82,7 +82,7 @@ namespace Rpc {
         if (!contains(method->name))
             _methods.add(method);
         else {
-            for (uint32_t i = 0; i < _methods.count(); i++) {
+            for (size_t i = 0; i < _methods.count(); i++) {
                 RpcMethod *item = _methods[i];
                 if (item->name == method->name) {
                     _methods.set(i, method);
@@ -92,7 +92,7 @@ namespace Rpc {
     }
 
     bool RpcMethods::at(const String &methodName, RpcMethod *&method) const {
-        for (uint32_t i = 0; i < _methods.count(); i++) {
+        for (size_t i = 0; i < _methods.count(); i++) {
             RpcMethod *item = _methods[i];
             if (item->name == methodName) {
                 method = item;
@@ -103,7 +103,7 @@ namespace Rpc {
     }
 
     bool RpcMethods::contains(const String &methodName) const {
-        for (uint32_t i = 0; i < _methods.count(); i++) {
+        for (size_t i = 0; i < _methods.count(); i++) {
             const RpcMethod *item = _methods[i];
             if (item->name == methodName)
                 return true;

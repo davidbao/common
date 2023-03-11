@@ -191,7 +191,7 @@ namespace Drivers {
 
     void InstructionPool::addInstruction(const InstructionDescriptions &ids, Packet::AutoDelete autoDelete,
                                          uint8_t priority) {
-        for (uint32_t i = 0; i < ids.count(); i++) {
+        for (size_t i = 0; i < ids.count(); i++) {
             InstructionDescription *id = ids.at(i);
             addInstruction(id, autoDelete, priority);
         }
@@ -212,7 +212,7 @@ namespace Drivers {
 
     void InstructionPool::addInstruction(DeviceDescription *dd, const InstructionDescriptions &ids,
                                          Packet::AutoDelete autoDelete, uint8_t priority) {
-        for (uint32_t i = 0; i < ids.count(); i++) {
+        for (size_t i = 0; i < ids.count(); i++) {
             InstructionDescription *id = ids.at(i);
             addInstruction(dd, id, autoDelete, priority);
         }
@@ -231,7 +231,7 @@ namespace Drivers {
 
     void InstructionPool::addInstructionInner(const InstructionDescriptions &ids, Packet::AutoDelete autoDelete,
                                               uint8_t priority) {
-        for (uint32_t i = 0; i < ids.count(); i++) {
+        for (size_t i = 0; i < ids.count(); i++) {
             InstructionDescription *id = ids.at(i);
             addInstructionInner(id, autoDelete, priority);
         }
@@ -250,7 +250,7 @@ namespace Drivers {
 
     void InstructionPool::addInstructionInner(DeviceDescription *dd, const InstructionDescriptions &ids,
                                               Packet::AutoDelete autoDelete, uint8_t priority) {
-        for (uint32_t i = 0; i < ids.count(); i++) {
+        for (size_t i = 0; i < ids.count(); i++) {
             InstructionDescription *id = ids.at(i);
             addInstructionInner(dd, id, autoDelete, priority);
         }
@@ -268,13 +268,13 @@ namespace Drivers {
                 _instructionsMutex.unlock();
 
                 if (channelConnected()) {
-                    for (uint32_t i = 0; i < count; i++) {
+                    for (size_t i = 0; i < count; i++) {
                         Packet *packet = packets[i];
                         processPacket(packet);
                     }
                 } else {
 //                    Debug::writeFormatLine("InstructionPool::processInstructions, channelConnected is false, device name: %s", _device->name().c_str());
-                    for (uint32_t i = 0; i < count; i++) {
+                    for (size_t i = 0; i < count; i++) {
                         Packet *packet = packets[i];
                         if (packet->needDeleted()) {
                             delete packet;

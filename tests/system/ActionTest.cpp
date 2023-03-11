@@ -7,8 +7,10 @@
 //
 
 #include "system/Action.h"
+#include "data/String.h"
 
 using namespace System;
+using namespace Data;
 
 static int func1Var = 0, func2Var = 0;
 
@@ -34,6 +36,28 @@ private:
     int _var = 0;
 };
 
+class FooStr {
+public:
+    void func1() {
+        _var += "1";
+    }
+
+    void func2(const String &var) {
+        _var += var;
+    }
+
+    String func3(const String &x, const String &y) {
+        return x + y;
+    }
+
+    String var() const {
+        return _var;
+    }
+
+private:
+    String _var;
+};
+
 void func1() {
     func1Var++;
 }
@@ -44,6 +68,39 @@ void func2(int var) {
 
 int func3(int x, int y) {
     return x + y;
+}
+
+bool testConstructor() {
+    {
+        func1Var = 0;
+        Action test = Action(func1);
+        test.execute();
+        if (func1Var != 1) {
+            return false;
+        }
+
+        test = Action(&func2, 3);
+        func2Var = 0;
+        test.execute();
+        if (func2Var != 3) {
+            return false;
+        }
+    }
+    {
+        func1Var = 0;
+        Action test(&func1);
+        Action test2(std::move(test));
+        test.execute();
+        if (func1Var != 0) {
+            return false;
+        }
+        test2.execute();
+        if (func1Var != 1) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool testAction() {
@@ -117,6 +174,41 @@ bool testAction() {
         }
     }
 
+    {
+        FooStr foo;
+        Action test(&FooStr::func1, &foo);
+        test.execute();
+        if (foo.var() != "1") {
+            return false;
+        }
+    }
+    {
+        FooStr foo;
+        Action test(&FooStr::func1, &foo);
+        test.execute();
+        test.execute();
+        if (foo.var() != "11") {
+            return false;
+        }
+    }
+    {
+        FooStr foo;
+        Action test(&FooStr::func2, &foo, "3");
+        test.execute();
+        if (foo.var() != "3") {
+            return false;
+        }
+    }
+    {
+        FooStr foo;
+        Action test(&FooStr::func2, &foo, "3");
+        test.execute();
+        test.execute();
+        if (foo.var() != "33") {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -150,6 +242,24 @@ bool testFunc() {
             return false;
         }
         if (test.execute() != 3) {
+            return false;
+        }
+    }
+
+    {
+        FooStr foo;
+        Func<String> test(&FooStr::func3, &foo, "1", "2");
+        if (test.execute() != "12") {
+            return false;
+        }
+    }
+    {
+        FooStr foo;
+        Func<String> test(&FooStr::func3, &foo, "1", "2");
+        if (test.execute() != "12") {
+            return false;
+        }
+        if (test.execute() != "12") {
             return false;
         }
     }
@@ -259,14 +369,17 @@ bool testInvoke() {
 }
 
 int main() {
-    if (!testAction()) {
+    if (!testConstructor()) {
         return 1;
     }
-    if (!testFunc()) {
+    if (!testAction()) {
         return 2;
     }
-    if (!testInvoke()) {
+    if (!testFunc()) {
         return 3;
+    }
+    if (!testInvoke()) {
+        return 4;
     }
 
     return 0;

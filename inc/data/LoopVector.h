@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include "system/OsDefine.h"
 #include "data/TypeInfo.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 #include "thread/Mutex.h"
 #include "thread/Locker.h"
 

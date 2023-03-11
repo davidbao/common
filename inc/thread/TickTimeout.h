@@ -3,7 +3,7 @@
 
 #include "data/TimeSpan.h"
 #include "thread/Thread.h"
-#include "data/PrimitiveInterface.h"
+#include "data/DataInterface.h"
 
 using namespace Data;
 

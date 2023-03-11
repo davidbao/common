@@ -9,6 +9,7 @@
 #include "thread/Thread.h"
 #include "diag/Trace.h"
 #include "exception/Exception.h"
+#include "system/Environment.h"
 
 #ifdef WIN_OS
 
@@ -19,6 +20,10 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#endif
+
+#ifndef SCHED_IDLE
+#define SCHED_IDLE 5
 #endif
 
 using namespace Diag;
@@ -59,6 +64,13 @@ namespace Threading {
 
     PList<Thread> Thread::_threads(false, 255);
 
+    Thread::Thread() noexcept: _running(false) {
+    }
+
+    Thread::Thread(Thread &&other) noexcept: _running(false) {
+        move(other);
+    }
+
     Thread::~Thread() {
 #ifdef DEBUG
         printDebugInfo("Destroy a thread.");
@@ -72,6 +84,13 @@ namespace Threading {
         }
     }
 
+    Thread &Thread::operator=(Thread &&other) noexcept {
+        if (this != &other) {
+            move(other);
+        }
+        return *this;
+    }
+
     void Thread::init(const String &name) {
 #ifdef DEBUG
         printDebugInfo("Create a thread.");
@@ -80,6 +99,21 @@ namespace Threading {
         _running = false;
 
         _threads.lock();
+        _threads.add(this);
+        _threads.unlock();
+    }
+
+    void Thread::move(Thread &other) {
+        _action = std::move(other._action);
+        _name = std::move(other._name);
+        _thread = std::move(other._thread);
+        if (other._running) {
+            _running = true;
+            other._running = false;
+        }
+
+        _threads.lock();
+        _threads.remove(&other);
         _threads.add(this);
         _threads.unlock();
     }
@@ -126,6 +160,29 @@ namespace Threading {
         Thread::msleep((uint32_t) interval.totalMilliseconds());
     }
 
+    void Thread::sleep(uint32_t msecs) {
+        msleep(msecs);
+    }
+
+    bool Thread::delay(const TimeSpan &interval, const Func<bool> &condition) {
+        uint64_t start = Environment::getTickCount();
+
+        do {
+            uint64_t end = Environment::getTickCount();
+            auto elapsed = (int64_t) (end - start);
+            if (elapsed >= (int64_t) interval.totalMilliseconds()) {
+                return false;
+            }
+
+            Thread::sleep(1);
+        } while (!condition.execute());
+        return true;
+    }
+
+    bool Thread::delay(uint32_t msecs, const Func<bool> &condition) {
+        return delay(TimeSpan::fromMilliseconds(msecs), condition);
+    }
+
     ThreadId Thread::currentThreadId() {
         return ThreadId(this_thread::get_id());
     }
@@ -133,7 +190,7 @@ namespace Threading {
     Thread *Thread::currentThread() {
         Locker locker(&_threads);
         for (size_t i = 0; i < _threads.count(); ++i) {
-            Thread *thread = _threads[i];
+            auto thread = _threads[i];
             if (thread->_thread.get_id() == this_thread::get_id()) {
                 return thread;
             }
@@ -357,7 +414,7 @@ namespace Threading {
     }
 
     void Thread::run() {
-        execute();
+        _action.execute();
 
         _running = false;
     }

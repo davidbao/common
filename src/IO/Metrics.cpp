@@ -8,9 +8,9 @@
 
 #include "IO/Metrics.h"
 #include "data/ValueType.h"
+#include "data/TimeZone.h"
 #include "diag/Trace.h"
 #include "system/Environment.h"
-#include "thread/ThreadPool.h"
 #include "thread/Process.h"
 #include "system/Application.h"
 #include <cinttypes>
@@ -810,8 +810,8 @@ namespace IO {
     }
 
     String UserStat::timezone() {
-#if MAC_OS
         String result;
+#if MAC_OS
         char str[PATH_MAX];
         ssize_t count = readlink("/etc/localtime", str, PATH_MAX);
         if (count > 0 && count < PATH_MAX) {
@@ -819,23 +819,18 @@ namespace IO {
             result = str;
             result = result.replace("/var/db/timezone/zoneinfo/", String::Empty);
         }
-        return result;
 #elif __linux__
-        String result;
         char str[PATH_MAX];
         ssize_t count = readlink("/etc/localtime", str, PATH_MAX);
-        if (count > 0 && count < PATH_MAX)
-        {
+        if (count > 0 && count < PATH_MAX) {
             str[count] = '\0';
             result = str;
             result = result.replace("/usr/share/zoneinfo/", String::Empty);
         }
-        return result;
 #elif WIN_OS
-        return "Not supported";
 #else
-        return "Not supported";
 #endif
+        return !result.isNullOrEmpty() ? result : TimeZone::Local.toString();
     }
 
     String UserStat::home() {

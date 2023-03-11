@@ -146,9 +146,12 @@ namespace System {
         typedef make_indices_imp<Ep, Sp> type;
     };
 
-    template<class ResultType>
+    template<class TResult>
     class Func {
     public:
+        Func() noexcept: _action(nullptr), _gp(nullptr), _deleteGp(nullptr) {
+        }
+
         template<class Function, class... Args>
         explicit Func(Function &&f, Args &&... args) {
             typedef std::tuple<typename std::decay<Function>::type, typename std::decay<Args>::type...> Gp;
@@ -159,24 +162,40 @@ namespace System {
             _gp = gp.get();
             gp.release();
 
-            _deleteGp = &Func::deleteGp<Gp>;
+            _deleteGp = &deleteGp<Gp>;
         }
 
         Func(const Func &) = delete;
 
+        Func(Func &&other) noexcept: _action(nullptr), _gp(nullptr), _deleteGp(nullptr) {
+            move(other);
+        }
+
         virtual ~Func() {
             _action = nullptr;
-            (this->*_deleteGp)();
-            _deleteGp = nullptr;
+            if (_deleteGp) {
+                _deleteGp(_gp);
+                _gp = nullptr;
+                _deleteGp = nullptr;
+            }
         }
 
-        ResultType execute() {
-            return _action(_gp);
+        Func &operator=(const Func &) = delete;
+
+        Func &operator=(Func &&other) noexcept {
+            if (this != &other) {
+                move(other);
+            }
+            return *this;
         }
 
-        ResultType operator()() {
+        TResult execute() const {
+            return _action != nullptr ? _action(_gp) : TResult();
+        }
+
+        TResult operator()() const {
             return execute();
-        };
+        }
 
     public:
 #if __cplusplus > 201402L
@@ -204,9 +223,25 @@ namespace System {
 #endif // C++17
 
     private:
+        void move(Func &other) {
+//            _action = std::move(other._action);
+//            other._action = nullptr;
+//            _gp = std::move(other._gp);
+//            other._gp = nullptr;
+//            _deleteGp = std::move(other._deleteGp);
+//            other._deleteGp = nullptr;
+            _action = other._action;
+            other._action = nullptr;
+            _gp = other._gp;
+            other._gp = nullptr;
+            _deleteGp = other._deleteGp;
+            other._deleteGp = nullptr;
+        }
+
+    private:
         template<class Gp>
-        static ResultType executeProxy(void *pgp) {
-            auto emptyDeleter = [](Gp *gp) -> void {
+        static TResult executeProxy(void *pgp) {
+            auto emptyDeleter = [](Gp *) -> void {
             };
             std::unique_ptr<Gp, decltype(emptyDeleter)> gp(static_cast<Gp *>(pgp), emptyDeleter);
             typedef typename make_tuple_indices<std::tuple_size<Gp>::value, 1>::type Index;
@@ -214,24 +249,23 @@ namespace System {
         }
 
         template<class Function, class ...Args, size_t ...Indices>
-        static ResultType executeProxy(std::tuple<Function, Args...> &gp, tuple_indices<Indices...>) {
+        static TResult executeProxy(std::tuple<Function, Args...> &gp, tuple_indices<Indices...>) {
             return invoke(std::move(std::get<0>(gp)), std::move(std::get<Indices>(gp))...);
         }
 
         template<class Gp>
-        void deleteGp() {
-            std::unique_ptr<Gp> gp(static_cast<Gp *>(_gp));
-            Gp *pgp = gp.release();
-            delete pgp;
+        static void deleteGp(void *pgp) {
+            std::unique_ptr<Gp> gp(static_cast<Gp *>(pgp));
+            delete gp.release();
         }
 
     private:
-        typedef ResultType (*Callback)(void *);
+        typedef TResult (*Callback)(void *);
 
         Callback _action;
         void *_gp;
 
-        typedef void (Func::*DeleteCallback)();
+        typedef void (*DeleteCallback)(void *);
 
         DeleteCallback _deleteGp;
     };

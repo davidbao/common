@@ -44,7 +44,7 @@ namespace System {
     void Delegates::add(void *owner, EventHandler handler) {
         Locker locker(&_mutex);
 
-        for (uint32_t i = 0; i < count(); i++) {
+        for (size_t i = 0; i < count(); i++) {
             Delegate *delegate = at(i);
             if (delegate != nullptr) {
                 if (delegate->owner == owner &&
@@ -59,7 +59,7 @@ namespace System {
     void Delegates::remove(void *owner, EventHandler handler) {
         Locker locker(&_mutex);
 
-        for (uint32_t i = 0; i < count(); i++) {
+        for (size_t i = 0; i < count(); i++) {
             Delegate *delegate = at(i);
             if (delegate != nullptr) {
                 if (delegate->owner == owner &&
@@ -82,7 +82,7 @@ namespace System {
     void Delegates::invoke(void *sender, EventArgs *args) {
 //        Locker locker(&_mutex);
 
-        for (uint32_t i = 0; i < count(); i++) {
+        for (size_t i = 0; i < count(); i++) {
             Delegate *delegate = at(i);
             if (delegate != nullptr) {
                 delegate->invoke(sender, args);
@@ -97,7 +97,7 @@ namespace System {
     bool Delegates::contains(EventHandler handler) {
         Locker locker(&_mutex);
 
-        for (uint32_t i = 0; i < count(); i++) {
+        for (size_t i = 0; i < count(); i++) {
             Delegate *delegate = at(i);
             if (delegate != nullptr && delegate->handler == handler) {
                 return true;

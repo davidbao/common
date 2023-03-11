@@ -420,7 +420,7 @@ namespace Data {
         memset(buffer, 0, len);
         stream->read(buffer, 0, len);
         bool isNull = true;
-        for (uint32_t i = 0; i < sizeof(buffer); i++) {
+        for (size_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;
@@ -476,7 +476,7 @@ namespace Data {
         memset(buffer, 0, sizeof(buffer));
         stream->read(buffer, 0, sizeof(buffer));
         bool isNull = true;
-        for (uint32_t i = 0; i < sizeof(buffer); i++) {
+        for (size_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;
@@ -516,7 +516,7 @@ namespace Data {
         memset(buffer, 0, sizeof(buffer));
         stream->read(buffer, 0, sizeof(buffer));
         bool isNull = true;
-        for (uint32_t i = 0; i < sizeof(buffer); i++) {
+        for (size_t i = 0; i < sizeof(buffer); i++) {
             if (buffer[i] != 0) {
                 isNull = false;
                 break;

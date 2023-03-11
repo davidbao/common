@@ -144,7 +144,7 @@ namespace Microservice {
         };
         HttpResponse response(new HttpJsonContent());
         if (send(url, HttpMethod::Get, kvs, response)) {
-            for (uint32_t i = 0; i < instances.count(); i++) {
+            for (size_t i = 0; i < instances.count(); i++) {
                 ServiceInstance *instance = instances.at(i);
                 instance->setAlive(false);
             }
@@ -173,7 +173,7 @@ namespace Microservice {
                             StringMap meta;
                             StringArray names;
                             metaNode.getAttributeNames(names);
-                            for (uint32_t i = 0; i < names.count(); i++) {
+                            for (size_t i = 0; i < names.count(); i++) {
                                 String value;
                                 if (metaNode.getAttribute(names[i], value))
                                     meta.add(names[i], value);
@@ -193,10 +193,10 @@ namespace Microservice {
     }
 
     bool NacosService::chooseNext() {
-        for (uint32_t i = 0; i < _endpoints.count(); i++) {
+        for (size_t i = 0; i < _endpoints.count(); i++) {
             const Endpoint &endpoint = _endpoints[i];
             if (endpoint == _current) {
-                uint32_t pos = i == _endpoints.count() - 1 ? 0 : i + 1;
+                size_t pos = i == _endpoints.count() - 1 ? 0 : i + 1;
                 _current = _endpoints[pos];
                 return true;
             }
@@ -222,7 +222,7 @@ namespace Microservice {
             detailsNode.add(JsonNode("leader", leader));
 
             JsonNode servicesNode("services");
-            for (uint32_t i = 0; i < serviceIds.count(); i++) {
+            for (size_t i = 0; i < serviceIds.count(); i++) {
                 const String &serviceId = serviceIds[i];
                 JsonNode serviceNode(serviceId, JsonNode::TypeArray);
                 servicesNode.add(serviceNode);
@@ -303,7 +303,7 @@ namespace Microservice {
             StringArray::parseMultiSymbol(host, texts, ',', ';', ' ');
             _endpoints.clear();
             if (texts.count() > 1) {
-                for (uint32_t i = 0; i < texts.count(); i++) {
+                for (size_t i = 0; i < texts.count(); i++) {
                     const String &text = texts[i];
                     Endpoint endpoint;
                     if (Endpoint::parse(text, endpoint)) {
@@ -330,7 +330,7 @@ namespace Microservice {
 
             StringArray texts;
             StringArray::parseMultiSymbol(value, texts, ',', ';', ' ');
-            for (uint32_t i = 0; i < texts.count(); i++) {
+            for (size_t i = 0; i < texts.count(); i++) {
                 const String &text = texts[i];
                 StringArray texts2;
                 StringArray::parse(text, texts2, '=');

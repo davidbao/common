@@ -448,7 +448,7 @@ namespace Communication
 //            MemoryStream ms;
 //            size_t count = 0;
 //            _ranges.clear();
-//            for (uint32_t i = 0; i < inputData->count(); i++)
+//            for (size_t i = 0; i < inputData->count(); i++)
 //            {
 //                P* p = inputData->at(i);
 //                p->write(&ms);

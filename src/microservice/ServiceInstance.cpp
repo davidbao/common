@@ -104,7 +104,7 @@ namespace Microservice {
     }
 
     void ServerProperties::addRange(const ServerProperties &servers, bool onlyUp) {
-        for (uint32_t i = 0; i < servers.count(); i++) {
+        for (size_t i = 0; i < servers.count(); i++) {
             ServerProperty server = servers.at(i);
             if ((onlyUp && server.isAlive()) || !onlyUp)
                 _servers.add(new ServerProperty(server));
@@ -126,7 +126,7 @@ namespace Microservice {
 //            const 
 //        }
 //    }
-    ServerProperty ServerProperties::at(uint32_t i) const {
+    ServerProperty ServerProperties::at(size_t i) const {
         ServerProperty *server = _servers.at(i);
         return server != nullptr ? *server : ServerProperty::Empty;
     }
@@ -216,7 +216,7 @@ namespace Microservice {
         static const Regex expressionRegex("^(\\S+)=(.*)$");
 
         StringArray groups;
-        for (uint32_t i = 0; i < _tags.count(); i++) {
+        for (size_t i = 0; i < _tags.count(); i++) {
             const String &tag = _tags[i];
             if (expressionRegex.match(tag, groups) && groups.count() == 2 &&
                 groups[0] == name) {
@@ -264,7 +264,7 @@ namespace Microservice {
         return _instances.count();
     }
 
-    ServiceInstance *ServiceInstances::at(uint32_t i) const {
+    ServiceInstance *ServiceInstances::at(size_t i) const {
         return _instances.at(i);
 //        ServiceInstance* instance = _instances.at(i);
 //        return instance != nullptr ? *instance : ServiceInstance::Empty;

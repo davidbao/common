@@ -79,7 +79,7 @@ namespace Diag {
         if (count > 0) {
             auto values = new String*[count];
             _messages.copyTo(values);
-            for (uint32_t i = 0; i < count; i++) {
+            for (size_t i = 0; i < count; i++) {
                 messages.add(*values[i]);
             }
             delete[] values;
