@@ -10,34 +10,24 @@
 #define TaskTimer_h
 
 #include "thread/Timer.h"
-#include "thread/Mutex.h"
 
 namespace Threading {
     class TaskTimer {
     public:
-        class Group {
-        public:
-            String name;
-            Action *action;
-            uint32_t start;
-            TimeSpan interval;
-
-            Group(const String &name, Action *action, const TimeSpan &interval);
-
-            ~Group();
-
-            bool isTimeUp();
-
-            void execute();
-        };
-
-        typedef PList<Group> Groups;
-
-        explicit TaskTimer(const String &name);
+        explicit TaskTimer(const String &name = String::Empty);
 
         ~TaskTimer();
 
-        bool add(const String &name, Action *action, const TimeSpan &interval);
+        template<class Function, class... Args>
+        bool add(const String &name, const TimeSpan &interval, Function &&f, Args &&... args) {
+            if (contains(name))
+                return false;
+
+            auto group = new Group(name, interval, f, args...);
+            Locker locker(&_groups);
+            _groups.add(group);
+            return true;
+        }
 
         bool remove(const String &name);
 
@@ -51,12 +41,42 @@ namespace Threading {
 
         void stop();
 
-        bool isStarted() const;
+        bool running() const;
+
+        const String &name() const;
+
+        bool hasTimer();
 
     private:
         void taskTimeUp();
 
     private:
+        class Group {
+        public:
+            template<class Function, class... Args>
+            Group(const String &name, const TimeSpan &interval, Function &&f, Args &&... args) :
+                    _name(name), _interval(interval), _start(0), _action(f, args...) {
+            }
+
+            ~Group() = default;
+
+            const String &name() const;
+
+            bool isTimeUp();
+
+            void execute() const;
+
+            void change(const String &name, const TimeSpan &interval);
+
+        private:
+            String _name;
+            uint64_t _start;
+            TimeSpan _interval;
+            Action _action;
+        };
+
+        typedef PList<Group> Groups;
+
         Timer *_timer;
 
         String _name;

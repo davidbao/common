@@ -17,7 +17,7 @@
 #include "thread/Mutex.h"
 #include "data/String.h"
 #include "data/StringMap.h"
-#include "thread/ProcessMutex.h"
+#include "diag/ProcessMutex.h"
 #include "thread/Thread.h"
 #include "data/Culture.h"
 #include "data/DateTime.h"
@@ -84,6 +84,8 @@ namespace System {
         bool isExiting() const;
 
         const Arguments &arguments() const;
+
+        void addArgument(const String &key, const String &value);
 
         bool withQuit() const;
 

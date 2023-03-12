@@ -18,7 +18,7 @@ set(SYSTEM_SRC
 #        CheckUtilities.cpp
 #        Clipboard.cpp
 #        Console.cpp
-#        Delegate.cpp
+        DelegateTest.cpp
 #        DynamicLoader.cpp
         EnvironmentTest.cpp
 #        LocalTime.cpp

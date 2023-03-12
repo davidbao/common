@@ -15,18 +15,15 @@ set(THREAD_SRC
         # thread
         Locker.cpp
         Mutex.cpp
-        Process.cpp
-        ProcessMutex.cpp
         Task.cpp
         TaskTimer.cpp
         Thread.cpp
-        ThreadPool.cpp
         TickTimeout.cpp
         Timer.cpp
         )
 
 if (NOT WEB_OS)
-    set(THREAD_SRC ${THREAD_SRC} Thread.cpp ThreadPool.cpp)
+    set(THREAD_SRC ${THREAD_SRC} Thread.cpp)
 endif ()
 
 add_library(thread OBJECT ${THREAD_SRC})

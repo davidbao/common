@@ -17,7 +17,7 @@ set(THREAD_SRC
 #        Mutex.cpp
 #        Process.cpp
 #        ProcessMutex.cpp
-#        TaskTimer.cpp
+        TaskTimerTest.cpp
 #        TickTimeout.cpp
         TimerTest.cpp
         )

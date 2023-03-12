@@ -11,7 +11,7 @@
 #include "data/TimeZone.h"
 #include "diag/Trace.h"
 #include "system/Environment.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "system/Application.h"
 #include <cinttypes>
 

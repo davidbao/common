@@ -27,7 +27,7 @@ namespace System {
 
     class WebStarter : public IStarter {
     public:
-        WebStarter(const String &name, int argc = 0, const char *argv[] = nullptr);
+        explicit WebStarter(const String &name, int argc = 0, const char *argv[] = nullptr);
 
         ~WebStarter() override;
 

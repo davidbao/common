@@ -2,7 +2,7 @@
 #include "diag/Stopwatch.h"
 #include "thread/Locker.h"
 #include "thread/Thread.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "diag/Trace.h"
 #include "system/Math.h"
 #include "driver/DriverManager.h"

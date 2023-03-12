@@ -15,6 +15,8 @@ set(DIAG_SRC
         # diag
         FileTraceListener.cpp
         MemoryTraceListener.cpp
+        Process.cpp
+        ProcessMutex.cpp
         StopMemory.cpp
         Stopwatch.cpp
         Trace.cpp

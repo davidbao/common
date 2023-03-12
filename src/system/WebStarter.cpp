@@ -20,7 +20,7 @@ namespace System {
         _config = new ConfigService();
         _starter = nullptr;
 
-        initialize();
+        WebStarter::initialize();
     }
 
     WebStarter::~WebStarter() {
@@ -47,7 +47,7 @@ namespace System {
     }
 
     void WebStarter::exited(void *owner, void *sender, EventArgs *args) {
-        WebStarter *starter = static_cast<WebStarter *>(owner);
+        auto starter = static_cast<WebStarter *>(owner);
         assert(starter);
         starter->unInitialize();
         delete starter;

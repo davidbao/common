@@ -8,15 +8,18 @@
 
 #include "database/KingbaseClient.h"
 #include "diag/Trace.h"
+#include "system/Application.h"
 
 using namespace Diag;
 using namespace Database;
+using namespace System;
 
-static const String _baseUrl("kingbase://192.166.1.19:54321");
-static const String _url = _baseUrl + "/KINGBASECLIENTTEST_DB";
-static const String _username = "SYSTEM";
-static const String _password = "MANAGER";
-static const String _schema = _username;
+static String _baseUrl("kingbase://192.166.1.19:54321");
+static String _database = "KINGBASECLIENTTEST_DB";
+static String _url = _baseUrl + "/" + _database;
+static String _username = "SYSTEM";
+static String _password = "MANAGER";
+static String _schema = "SYSTEM";
 
 void setUp() {
     Trace::enableConsoleOutput();
@@ -349,7 +352,77 @@ bool testExecuteSql() {
     return true;
 }
 
-int main() {
+bool parseArguments(const Application &app) {
+    const Application::Arguments &arguments = app.arguments();
+    String host, userName, password, schema, database;
+    Port port;
+    if (arguments.contains("help") || arguments.contains("?")) {
+        puts("Usage:");
+        puts("-?, --help            Display this help and exit.");
+        puts("-h, --host=name       Connect to host.");
+        puts("-P, --port=#          Port number to use for connection.");
+        puts("-u, --user=name       User for login if not current user.");
+        puts("-p, --password[=name] Password to use when connecting to server.");
+        puts("-s, --schema=name     Schema for test.");
+        puts("-d, --database=name   Database for test.");
+        return false;
+    }
+
+    if(arguments.contains("host") || arguments.contains("h")) {
+        host = arguments["host"];
+        if (host.isNullOrEmpty()) {
+            host = arguments["h"];
+        }
+    }
+    if(arguments.contains("port") || arguments.contains("P")) {
+        if (!Port::parse(arguments["port"], port)) {
+            Port::parse(arguments["P"], port);
+        }
+    }
+    if(arguments.contains("user") || arguments.contains("u")) {
+        userName = arguments["user"];
+        if (userName.isNullOrEmpty()) {
+            userName = arguments["u"];
+        }
+    }
+    if(arguments.contains("password") || arguments.contains("p")) {
+        password = arguments["password"];
+        if (password.isNullOrEmpty()) {
+            password = arguments["p"];
+        }
+    }
+    if(arguments.contains("schema") || arguments.contains("s")) {
+        schema = arguments["database"];
+        if (schema.isNullOrEmpty()) {
+            schema = arguments["s"];
+        }
+    }
+    if(arguments.contains("database") || arguments.contains("d")) {
+        database = arguments["database"];
+        if (database.isNullOrEmpty()) {
+            database = arguments["d"];
+        }
+    }
+
+    _baseUrl = String::format("kingbase://%s:%s",
+                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.19",
+                              !port.isEmpty() ? port.toString().c_str() : "54321");
+    _schema = !schema.isNullOrEmpty() ? schema : "SYSTEM";
+    _database = !database.isNullOrEmpty() ? database : "KINGBASECLIENTTEST_DB";
+    _url = _baseUrl + "/" + _database;
+    _username = !userName.isNullOrEmpty() ? userName : "SYSTEM";
+    _password = !password.isNullOrEmpty() ? password : "MANAGER";
+
+    return true;
+}
+
+// argv: -h=192.167.0.6 -P=3306 -u=root -p=123456.com -s=test_schema -d=KINGBASECLIENTTEST_DB
+int main(int argc, const char *argv[]) {
+    Application app(argc, argv);
+    if (!parseArguments(app)) {
+        return 0;
+    }
+
     setUp();
 
     int result = 0;

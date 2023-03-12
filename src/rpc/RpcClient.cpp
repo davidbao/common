@@ -127,7 +127,7 @@ namespace Rpc {
 
             Sampler *sampler = _service->clientSampler();
             if (sampler != nullptr) {
-                sampler->statusChangedDelegates()->add(Delegate(this, samplerStatusEventHandler));
+                sampler->statusChangedDelegates()->add(this, samplerStatusEventHandler);
             }
             return true;
         }
@@ -137,7 +137,7 @@ namespace Rpc {
     bool RpcClient::unInitService() {
         if (_service != nullptr) {
             const Endpoint &ep = _service->client().endpoint();
-            Trace::writeFormatLine("Uninitialize the rpc client service! endpoint: %s", ep.toString().c_str());
+            Trace::writeFormatLine("Uninitialized the rpc client service! endpoint: %s", ep.toString().c_str());
 
             // send close instruction.
             RpcCloseRequest request;
@@ -146,7 +146,7 @@ namespace Rpc {
 
             Sampler *sampler = _service->clientSampler();
             if (sampler != nullptr) {
-                sampler->statusChangedDelegates()->remove(Delegate(this, samplerStatusEventHandler));
+                sampler->statusChangedDelegates()->remove(this, samplerStatusEventHandler);
             }
 
             _service->unInitialize();

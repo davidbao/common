@@ -6,11 +6,11 @@
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
-#ifndef __common__Delegate__
-#define __common__Delegate__
+#ifndef Delegate_h
+#define Delegate_h
 
-#include "thread/Mutex.h"
-#include "data/PList.h"
+#include "data/List.h"
+#include <functional>
 
 using namespace Data;
 
@@ -24,38 +24,78 @@ namespace System {
 
     class HandledEventArgs : public EventArgs {
     public:
-        HandledEventArgs(bool handled = false);
+        explicit HandledEventArgs(bool handled = false);
 
     public:
         bool handled;
     };
 
-    typedef void (*EventHandler)(void *, void *, EventArgs *);
-//    typedef void (*HandledEventHandler)(void*, HandledEventArgs*);
-
-    class Delegate {
+    class IDelegate {
     public:
-        Delegate(const Delegate &delegate);
+        IDelegate() = default;
 
-        Delegate(EventHandler handler);
+        virtual ~IDelegate() = default;
+
+        virtual void invoke(void *sender, EventArgs *args) const = 0;
+
+        void invoke(void *sender) const {
+            invoke(sender, nullptr);
+        }
+
+        void invoke() const {
+            invoke(nullptr, nullptr);
+        }
+    };
+
+    typedef void (*EventHandler)(void *, void *, EventArgs *);
+
+    class Delegates;
+
+    class Delegate : public IEquatable<Delegate>, public IEvaluation<Delegate> {
+    public:
+        Delegate();
+
+        explicit Delegate(EventHandler handler);
 
         Delegate(void *owner, EventHandler handler);
 
-        void invoke(void *sender = nullptr, EventArgs *args = nullptr);
+        Delegate(const Delegate &other);
 
-    public:
+        Delegate(Delegate &&other) noexcept;
+
+        Delegate &operator=(const Delegate &other);
+
+        void evaluates(const Delegate &other) override;
+
+        bool equals(const Delegate &other) const override;
+
+        void invoke(void *sender = nullptr, EventArgs *args = nullptr) const;
+
+    private:
+        friend Delegates;
+
         EventHandler handler;
         void *owner;
     };
 
-//    typedef PList<Delegate> Delegates;
-    class Delegates : public PList<Delegate> {
+    class Delegates : public List<Delegate> {
     public:
-        Delegates(bool autoDelete = true, uint32_t capacity = 5);
+        using List<Delegate>::add;
+        using List<Delegate>::remove;
 
-        void add(const Delegate &delegate);
+        explicit Delegates(size_t capacity = 5);
 
-        void remove(const Delegate &delegate);
+        Delegates(const Delegates &array);
+
+        Delegates(Delegates &&array) noexcept;
+
+        Delegates(const List &array, off_t offset, size_t count);
+
+        Delegates(const Delegate *array, size_t count, size_t capacity = DefaultCapacity);
+
+        Delegates(const Delegate &value, size_t count);
+
+        Delegates(std::initializer_list<Delegate> list);
 
         void add(void *owner, EventHandler handler);
 
@@ -64,10 +104,7 @@ namespace System {
         void invoke(void *sender = nullptr, EventArgs *args = nullptr);
 
         bool contains(EventHandler handler);
-
-    private:
-        Mutex _mutex;
     };
 }
 
-#endif /* defined(__common__Delegate__) */
+#endif // Delegate_h

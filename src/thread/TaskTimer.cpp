@@ -7,69 +7,51 @@
 //
 
 #include "thread/TaskTimer.h"
-#include "thread/TickTimeout.h"
 #include "thread/Locker.h"
 #include "system/Math.h"
 #include "diag/Trace.h"
+#include "system/Environment.h"
 
 namespace Threading {
-    TaskTimer::Group::Group(const String &name, Action *action, const TimeSpan &interval) {
-        this->name = name;
-        this->action = action;
-        this->interval = interval;
-        this->start = 0;
-    }
-
-    TaskTimer::Group::~Group() {
-        if (action != nullptr) {
-            delete action;
-            action = nullptr;
-        }
+    const String &TaskTimer::Group::name() const {
+        return _name;
     }
 
     bool TaskTimer::Group::isTimeUp() {
-        if (start == 0) {
-            start = TickTimeout::getCurrentTickCount();
+        if (_start == 0) {
+            _start = Environment::getTickCount();
             return true;
         }
 
-        assert(interval != TimeSpan::Zero);
-        bool result = TickTimeout::isTimeout(start, interval);
+        assert(_interval != TimeSpan::Zero);
+        bool result = Environment::getTickCount() - _start > (uint64_t) _interval.totalMilliseconds();
         if (result) {
-            start = TickTimeout::getCurrentTickCount();
+            _start = Environment::getTickCount();
         }
         return result;
     }
 
-    void TaskTimer::Group::execute() {
-        if (action != nullptr) {
-            action->execute();
-        }
+    void TaskTimer::Group::execute() const {
+        _action.execute();
     }
 
-    TaskTimer::TaskTimer(const String &name) {
-        _name = name;
-        _timer = nullptr;
+    void TaskTimer::Group::change(const String &name, const TimeSpan &interval) {
+        _interval = interval;
+        _start = 0;
+    }
+
+    TaskTimer::TaskTimer(const String &name) :
+            _name(!name.isNullOrEmpty() ? name : "TaskTimer"), _timer(nullptr) {
     }
 
     TaskTimer::~TaskTimer() {
         stop();
     }
 
-    bool TaskTimer::add(const String &name, Action *action, const TimeSpan &interval) {
-        if (contains(name))
-            return false;
-
-        auto *group = new Group(name, action, interval);
-        Locker locker(&_groups);
-        _groups.add(group);
-        return true;
-    }
-
     bool TaskTimer::remove(const String &name) {
         Locker locker(&_groups);
         for (size_t i = 0; i < _groups.count(); i++) {
-            if (_groups[i]->name == name) {
+            if (_groups[i]->name() == name) {
                 _groups.removeAt(i);
                 return true;
             }
@@ -85,9 +67,8 @@ namespace Threading {
 
         for (size_t i = 0; i < _groups.count(); i++) {
             Group *group = _groups[i];
-            if (group->name == name) {
-                group->interval = interval;
-                group->start = TickTimeout::getCurrentTickCount();
+            if (group->name() == name) {
+                group->change(name, interval);
 
                 if (_currentThreadId != currentThreadId) {
                     _groups.unlock();
@@ -105,7 +86,7 @@ namespace Threading {
     bool TaskTimer::contains(const String &name) {
         Locker locker(&_groups);
         for (size_t i = 0; i < _groups.count(); i++) {
-            if (_groups[i]->name == name) {
+            if (_groups[i]->name() == name) {
                 return true;
             }
         }
@@ -118,35 +99,10 @@ namespace Threading {
     }
 
     void TaskTimer::start(const TimeSpan &dueTime) {
-        if (isStarted())
+        if (running())
             return;
 
-        String name = !_name.isNullOrEmpty() ? _name : "TaskTimer";
-        _timer = new Timer(name, (int) dueTime.totalMilliseconds(), 1, &TaskTimer::taskTimeUp, this);
-
-//        uint32_t interval = 0;      // ms
-//        if(_groups.count() == 1)
-//        {
-//            interval = (uint32_t)_groups[0]->interval.totalMilliseconds();
-//        }
-//        else if(_groups.count() > 1)
-//        {
-//            Group* group1 = _groups[0];
-//            Group* group2 = _groups[1];
-//            interval = Math::getGreatestCommonDivisor((uint32_t)group1->interval.totalMilliseconds(), (uint32_t)group2->interval.totalMilliseconds());
-//            
-//            for (size_t i=2; i<_groups.count(); i++)
-//            {
-//                Group* group = _groups[i];
-//                interval = Math::getGreatestCommonDivisor(interval, (uint32_t)group->interval.totalMilliseconds());
-//            }
-//        }
-//        
-//        if(interval > 0)
-//        {
-//            interval = interval >= 1000 ? interval / 100 : interval;
-//            _timer = new Timer(taskTimeUp, this, interval);
-//        }
+        _timer = new Timer(name(), (int) dueTime.totalMilliseconds(), 1, &TaskTimer::taskTimeUp, this);
     }
 
     void TaskTimer::stop() {
@@ -156,8 +112,17 @@ namespace Threading {
         }
     }
 
-    bool TaskTimer::isStarted() const {
-        return _timer != nullptr;
+    bool TaskTimer::running() const {
+        return _timer != nullptr && _timer->running();
+    }
+
+    const String &TaskTimer::name() const {
+        return _name;
+    }
+
+    bool TaskTimer::hasTimer() {
+        Locker locker(&_groups);
+        return _groups.count() > 0;
     }
 
     void TaskTimer::taskTimeUp() {

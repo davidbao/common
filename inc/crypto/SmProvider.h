@@ -25,9 +25,9 @@ namespace Crypto {
     public:
         Sm2Provider();
 
-        Sm2Provider(const uint8_t publicKey[PublicKeyLength]);
+        explicit Sm2Provider(const uint8_t publicKey[PublicKeyLength]);
 
-        Sm2Provider(const ByteArray &publicKey);
+        explicit Sm2Provider(const ByteArray &publicKey);
 
         Sm2Provider(const uint8_t publicKey[PublicKeyLength], const uint8_t privateKey[PrivateKeyLength]);
 
@@ -81,7 +81,7 @@ namespace Crypto {
     public:
         static const int Length = 32;
 
-        Sm3Provider();
+        Sm3Provider() = default;
 
         static bool computeHash(const String &data, ByteArray &output);
 
@@ -106,15 +106,15 @@ namespace Crypto {
         };
         static const int Length = 16;
 
-        Sm4Provider(const uint8_t key[Length], CypherMode mode = CypherMode::Ecb);
+        explicit Sm4Provider(const uint8_t key[Length], CypherMode mode = CypherMode::Ecb);
 
         Sm4Provider(const uint8_t key[Length], const uint8_t iv[Length], CypherMode mode = CypherMode::Ecb);
 
-        Sm4Provider(const ByteArray &key, CypherMode mode = CypherMode::Ecb);
+        explicit Sm4Provider(const ByteArray &key, CypherMode mode = CypherMode::Ecb);
 
         Sm4Provider(const ByteArray &key, const ByteArray &iv, CypherMode mode = CypherMode::Ecb);
 
-        Sm4Provider(const String &key, CypherMode mode = CypherMode::Ecb);
+        explicit Sm4Provider(const String &key, CypherMode mode = CypherMode::Ecb);
 
         Sm4Provider(const String &key, const String &iv, CypherMode mode = CypherMode::Ecb);
 

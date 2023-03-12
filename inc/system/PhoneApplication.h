@@ -79,10 +79,6 @@ namespace System {
 
         void setCoord(const PositionCoord &coord);
 
-        const Arguments &arguments() const;
-
-        void addArgument(const String &key, const String &value);
-
     private:
         enum EventType {
             EventCreate = 0,
@@ -117,8 +113,6 @@ namespace System {
 
         String _phoneModel;
         PositionCoord _coord;
-
-        Arguments _arguments;
     };
 }
 

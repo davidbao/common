@@ -9,7 +9,7 @@
 #include "microservice/Actuator.h"
 #include "IO/Metrics.h"
 #include "IO/Directory.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "thread/TickTimeout.h"
 #include "system/Environment.h"
 #include "system/ServiceFactory.h"

@@ -50,7 +50,7 @@
 #include "system/Math.h"
 #include "data/Convert.h"
 #include "data/DateTime.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "thread/TickTimeout.h"
 #include "net/Dns.h"
 #include "net/TcpClient.h"
@@ -73,6 +73,8 @@
 #define closesocket(a) ::close(a)
 #define SUPPORT_IP6
 #endif
+
+using namespace Diag;
 
 namespace Net {
     String NetInterface::Client::stateStr() const {

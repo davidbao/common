@@ -12,8 +12,9 @@
 #include "data/String.h"
 #include "data/TimeSpan.h"
 #include "data/DateTime.h"
+#include "data/PList.h"
 #include "system/ServiceFactory.h"
-#include "Delegate.h"
+#include "system/Delegate.h"
 
 namespace System {
     class Property {

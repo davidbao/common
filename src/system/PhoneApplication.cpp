@@ -176,12 +176,4 @@ namespace System {
     void PhoneApplication::setCoord(const PositionCoord &coord) {
         _coord = coord;
     }
-
-    const PhoneApplication::Arguments &PhoneApplication::arguments() const {
-        return _arguments;
-    }
-
-    void PhoneApplication::addArgument(const String &key, const String &value) {
-        _arguments.add(key, value);
-    }
 }

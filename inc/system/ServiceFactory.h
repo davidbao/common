@@ -1,5 +1,13 @@
-#ifndef SERVICEFACTORY_H
-#define SERVICEFACTORY_H
+//
+//  ServiceFactory.h
+//  common
+//
+//  Created by baowei on 2018/12/8.
+//  Copyright (c) 2018 com. All rights reserved.
+//
+
+#ifndef ServiceFactory_h
+#define ServiceFactory_h
 
 #include "data/String.h"
 #include "data/Dictionary.h"
@@ -56,8 +64,9 @@ namespace System {
 
         template<class T>
         String getTypeName(const String &name) const {
-            return name.isNullOrEmpty() ? String(typeid(T).name()) : String::format("%s.%s", typeid(T).name(),
-                                                                                    name.c_str());
+            return name.isNullOrEmpty() ?
+                   String(typeid(T).name()) :
+                   String::format("%s.%s", typeid(T).name(), name.c_str());
         }
 
         void addServiceInner(const String &name, IService *service);
@@ -73,4 +82,4 @@ namespace System {
         Dictionary<String, IService *> _services;
     };
 }
-#endif // SERVICEFACTORY_H
+#endif // ServiceFactory_h

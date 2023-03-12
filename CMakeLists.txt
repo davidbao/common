@@ -128,7 +128,6 @@ message(STATUS "COMMON_BUILD_IOPORT: " ${COMMON_BUILD_IOPORT})
 
 # set externals path.
 set(EXTERNALS_PATH ${CMAKE_SOURCE_DIR}/externals)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}-${OS_NAME})
 
 # include files.
 if (WEB_OS)
@@ -156,7 +155,18 @@ if (COMMON_BUILD_KINGBASE)
     ADD_DEFINITIONS(-DHAS_DB_KINGBASE=1)
 endif ()
 
+# output path.
+if (WIN_OS)
+    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${OS_NAME}/${CMAKE_VS_PLATFORM_NAME})
+else ()
+    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${OS_NAME}/${CMAKE_BUILD_TYPE})
+endif ()
+#message(STATUS "LIBRARY_OUTPUT_PATH: " ${LIBRARY_OUTPUT_PATH})
+
+# src path.
 add_subdirectory(src)
+
+# test.
 if (COMMON_ENABLE_TEST)
     enable_testing()
     add_subdirectory(tests)

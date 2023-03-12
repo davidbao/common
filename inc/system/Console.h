@@ -11,7 +11,7 @@
 
 #include "data/String.h"
 #include "data/StringArray.h"
-#include "thread/ProcessMutex.h"
+#include "diag/ProcessMutex.h"
 #include "data/Culture.h"
 #include "data/DateTime.h"
 #include "Delegate.h"

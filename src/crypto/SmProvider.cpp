@@ -9,7 +9,6 @@
 #include "crypto/SmProvider.h"
 #include "system/Math.h"
 #include "system/Random.h"
-#include "diag/Trace.h"
 #include <openssl/ec.h>
 
 using namespace System;
@@ -366,7 +365,7 @@ namespace Crypto {
     Sm2Provider Sm2Provider::fromPrivateKey(const ByteArray &privateKey) {
         ByteArray publicKey;
         Sm2Provider::generatePublicKey(privateKey, publicKey);
-        return Sm2Provider(publicKey, privateKey);
+        return {publicKey, privateKey};
     }
 
     bool Sm2Provider::getPrivateKey(EC_KEY *key, uint8_t privateKey[PrivateKeyLength]) {
@@ -415,9 +414,6 @@ namespace Crypto {
         BN_CTX_end(ctx);
         BN_CTX_free(ctx);
         return true;
-    }
-
-    Sm3Provider::Sm3Provider() {
     }
 
     bool Sm3Provider::computeHash(const String &data, ByteArray &output) {
@@ -585,10 +581,10 @@ namespace Crypto {
             EVP_CIPHER_CTX_free(ctx);
             return false;
         }
-        uint8_t *out = (uint8_t *) malloc(((data.count() >> 4) + 1) << 4);
+        auto out = (uint8_t *) malloc(((data.count() >> 4) + 1) << 4);
         int len = 0;
         int currentLen = 0;
-        if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), (int)data.count())) {
+        if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             free(out);
             return false;
@@ -639,7 +635,7 @@ namespace Crypto {
         uint8_t out[1024 + EVP_MAX_BLOCK_LENGTH];
         int len = 0;
         int currentLen = 0;
-        if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), (int)data.count())) {
+        if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             return false;
         }

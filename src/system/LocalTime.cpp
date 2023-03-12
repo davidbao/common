@@ -5,7 +5,7 @@
 #include "diag/Trace.h"
 #include "IO/Path.h"
 #include "IO/File.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "thread/Thread.h"
 
 #ifdef WIN32

@@ -34,12 +34,14 @@
 #include <mach-o/dyld.h>
 
 #else
+
 #include <sys/vfs.h>
 #include <libgen.h>
-#include <limits.h>
+#include <climits>
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
+
 #ifdef __arm_linux__
 #include <linux/reboot.h>
 #include <sys/reboot.h>

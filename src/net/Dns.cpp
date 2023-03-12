@@ -31,7 +31,7 @@
 #endif
 
 #include "net/TcpClient.h"
-#include "thread/Process.h"
+#include "diag/Process.h"
 #include "IO/Directory.h"
 #include "IO/Path.h"
 #include "IO/File.h"
