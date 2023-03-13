@@ -784,32 +784,50 @@ namespace Data {
         if (str.length() > 0) {
             String oldLocaleName = setlocale(LC_ALL, nullptr);
             setlocale(LC_ALL, "");
-            const char *chSrc = str.c_str();
-            size_t nDestSize = mbstowcs(nullptr, chSrc, 0) + 1;
-            auto *wchDest = new wchar_t[nDestSize];
-            wmemset(wchDest, 0, nDestSize);
-            mbstowcs(wchDest, chSrc, nDestSize);
-            WString wstrResult = wchDest;
-            delete[]wchDest;
-            setlocale(LC_ALL, oldLocaleName);
-            return wstrResult;
+            const char *src = str.c_str();
+            size_t len = mbstowcs(nullptr, src, 0);
+            if (len == (size_t) -1 && errno == EILSEQ) {
+                setlocale(LC_ALL, "en_US.utf8");
+                len = mbstowcs(nullptr, src, 0);
+            }
+            if (len > 0) {
+                size_t nDestSize = len + 1;
+                auto wchDest = new wchar_t[nDestSize];
+                wmemset(wchDest, 0, nDestSize);
+                mbstowcs(wchDest, src, nDestSize);
+                WString wchStr = wchDest;
+                delete[]wchDest;
+                setlocale(LC_ALL, oldLocaleName);
+                return wchStr;
+            } else {
+                setlocale(LC_ALL, oldLocaleName);
+            }
         }
         return WString::Empty;
     }
 
     String WString::convert(const WString &str) {
         if (str.length() > 0) {
-            const wchar_t *src = str.c_str();
             String oldLocaleName = setlocale(LC_ALL, nullptr);
             setlocale(LC_ALL, "");
-            size_t nDestSize = wcstombs(nullptr, src, 0) + 1;
-            char *chDest = new char[nDestSize];
-            memset(chDest, 0, nDestSize);
-            wcstombs(chDest, src, nDestSize);
-            String strResult = chDest;
-            delete[]chDest;
-            setlocale(LC_ALL, oldLocaleName);
-            return strResult;
+            const wchar_t *src = str.c_str();
+            size_t len = wcstombs(nullptr, src, 0);
+            if (len == (size_t) -1 && errno == EILSEQ) {
+                setlocale(LC_ALL, "en_US.utf8");
+                len = wcstombs(nullptr, src, 0);
+            }
+            if (len > 0) {
+                size_t nDestSize = len + 1;
+                auto chDest = new char[nDestSize];
+                memset(chDest, 0, nDestSize);
+                wcstombs(chDest, src, nDestSize);
+                String strResult = chDest;
+                delete[]chDest;
+                setlocale(LC_ALL, oldLocaleName);
+                return strResult;
+            } else {
+                setlocale(LC_ALL, oldLocaleName);
+            }
         }
         return String::Empty;
     }

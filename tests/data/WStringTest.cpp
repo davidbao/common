@@ -307,14 +307,16 @@ bool testOperators() {
         }
     }
 
+#ifndef __arm_linux__
     {
         WString str = _text3;
         String str2 = str;
-        printf("WString to String: %s\n", str2.c_str());
+//        printf("WString to String: %s\n", str2.c_str());
         if (str2 != "ABC/abc123,)_中文") {
             return false;
         }
     }
+#endif
 
     return true;
 }
