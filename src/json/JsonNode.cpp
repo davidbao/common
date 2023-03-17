@@ -48,9 +48,7 @@ namespace Json {
         if (value.find('{') == 0 ||
             value.find('[') == 0) {
             _inner = new JSONNode(JSON_NODE);
-            _inner->set_name(name.c_str());
-            JSONNode node = JSONWorker::parse(value.c_str());
-            _inner->operator=(node);
+            JsonNode::parse(value, *this);
             _inner->set_name(name.c_str());
         } else {
             _inner = new JSONNode(name.c_str(), value);
@@ -233,8 +231,8 @@ namespace Json {
     }
 
     bool JsonNode::parse(const String &str, JsonNode &node) {
-        if (!str.isNullOrEmpty()) {
-            JSONNode temp = JSONWorker::parse(str.c_str());
+        if (!str.isNullOrEmpty() && libjson::is_valid(str.c_str())) {
+            JSONNode temp = libjson::parse(str.c_str());
             node._inner->operator=(temp);
             return node.type() != TypeNone;
         }

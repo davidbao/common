@@ -148,11 +148,11 @@ else (${CMAKE_SYSTEM_NAME} STREQUAL "Release")
 endif ()
 
 if (COMMON_BUILD_NOTIFICATION)
-    ADD_DEFINITIONS(-DHAS_NOTIFICATION=1)
+    add_definitions(-DHAS_NOTIFICATION=1)
 endif ()
 
 if (COMMON_BUILD_KINGBASE)
-    ADD_DEFINITIONS(-DHAS_DB_KINGBASE=1)
+    add_definitions(-DHAS_DB_KINGBASE=1)
 endif ()
 
 # output path.

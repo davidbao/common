@@ -261,18 +261,6 @@ namespace Data {
 #endif
     };
 
-    template<class valueType, class posType>
-    class IPositionGetter {
-    public:
-        virtual ~IPositionGetter() = default;
-
-        virtual valueType at(posType pos) const = 0;
-
-        valueType operator[](posType pos) const {
-            return this->at(pos);
-        }
-    };
-
     template<class Setter>
     class IIndexSetter {
     public:
@@ -377,6 +365,52 @@ namespace Data {
             return this->at((size_t) pos);
         }
 #endif
+    };
+
+    template<class valueType, class posType>
+    class IPositionGetter {
+    public:
+        virtual ~IPositionGetter() = default;
+
+        virtual valueType at(posType pos) const = 0;
+
+        valueType operator[](posType pos) const {
+            return this->at(pos);
+        }
+    };
+
+    template<class valueType, class posType>
+    class IPositionSetter {
+    public:
+        virtual ~IPositionSetter() = default;
+
+        virtual valueType &at(posType pos) = 0;
+
+        virtual bool set(posType pos, const valueType &value) = 0;
+
+        valueType &operator[](posType pos) {
+            return this->at(pos);
+        }
+    };
+
+    template<class valueType, class posType>
+    class IPositionable {
+    public:
+        virtual ~IPositionable() = default;
+
+        virtual valueType at(posType pos) const = 0;
+
+        valueType operator[](posType pos) const {
+            return this->at(pos);
+        }
+
+        virtual valueType &at(posType pos) = 0;
+
+        virtual bool set(posType pos, const valueType &value) = 0;
+
+        valueType &operator[](posType pos) {
+            return this->at(pos);
+        }
     };
 
     template<typename T>

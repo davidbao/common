@@ -369,6 +369,51 @@ bool testEquals() {
         }
     }
 
+    {
+        StringMap test;
+        JsonNode node("test", R"({"test1":1,"test2":"abc","test3":true})");
+        node.getAttribute(test);
+        if (!(test["test1"] == "1" && test["test2"] == "abc" && test["test3"] == "true")) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        JsonNode node("test", R"({"test1":1,"test2":"abc","test3":true,})");
+        node.getAttribute(test);
+        if (test.count() > 0) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        JsonNode node("test", R"({""test2":"abc","test3":true})");
+        node.getAttribute(test);
+        if (test.count() > 0) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        JsonNode node("test", "{abc}");
+        node.getAttribute(test);
+        if (test.count() > 0) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        JsonNode node("test", "{}");
+        node.getAttribute(test);
+        if (test.count() > 0) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -835,6 +880,34 @@ bool testParse() {
             return false;
         }
         if (!(test["test1"] == "1" && test["test2"] == "abc" && test["test3"] == "true")) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        if (JsonNode::parse(R"({"test1":1,"test2":"abc","test3":true,})", test)) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        if (JsonNode::parse(R"({""test2":"abc","test3":true})", test)) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        if (JsonNode::parse("abc", test)) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test;
+        if (JsonNode::parse("", test)) {
             return false;
         }
     }
