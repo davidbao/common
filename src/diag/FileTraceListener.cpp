@@ -125,7 +125,7 @@ namespace Diag {
 
         _context = context;
 
-        if (!isRealPath(_context.path.c_str())) {
+        if (!isRealPath(_context.path)) {
             String logPath = getLogPath();
 #ifdef WIN32
             const char *fmt = "%s\\%s";
@@ -136,7 +136,7 @@ namespace Diag {
         }
 
         if (_context.enable) {
-            createFile(_context.path.c_str());
+            createFile(_context.path);
 
             deleteUnusedFiles();
 
@@ -226,7 +226,7 @@ namespace Diag {
                 delete _file;
                 _file = nullptr;
             }
-            createFile(_context.path.c_str());
+            createFile(_context.path);
         }
 
         if (!fileOpened())
@@ -330,7 +330,7 @@ namespace Diag {
                 delete _file;
                 _file = nullptr;
             }
-            return createFile(_context.path.c_str());
+            return createFile(_context.path);
         }
         return true;
     }
@@ -350,7 +350,7 @@ namespace Diag {
             Directory::createDirectory(logPath);
         }
         _fullFileName = Path::combine(logPath, fileName);
-        _file = new FileStream(_fullFileName, FileMode::FileCreate, FileAccess::FileWrite);
+        _file = new FileStream(_fullFileName, FileMode::FileAppend, FileAccess::FileWrite);
         return fileOpened();
     }
 

@@ -174,12 +174,14 @@ namespace Json {
 
     JsonNode JsonNode::at(const String &name) const {
         JsonNode node(JsonNode::TypeNone);
-        JSONNode::const_iterator iter = _inner->begin();
-        for (; iter != _inner->end(); ++iter) {
-            const JSONNode &n = *iter;
-            if (n.name() == name) {
-                node._inner->operator=(n);
-                break;
+        if (_inner->type() == JSON_NODE || _inner->type() == JSON_ARRAY) {
+            JSONNode::const_iterator iter = _inner->begin();
+            for (; iter != _inner->end(); ++iter) {
+                const JSONNode &n = *iter;
+                if (n.name() == name) {
+                    node._inner->operator=(n);
+                    break;
+                }
             }
         }
         return node;
@@ -260,12 +262,7 @@ namespace Json {
         JSONNode::const_iterator iter = _inner->begin();
         for (; iter != _inner->end(); ++iter) {
             const JSONNode &n = *iter;
-            String str;
-            if (n.type() == JSON_NODE)
-                str = n.write();
-            else
-                str = n.name();
-            names.add(str);
+            names.add(n.name());
         }
     }
 
@@ -411,6 +408,11 @@ namespace Json {
         if (this != &value) {
             JsonNode::evaluates(value);
         }
+        return *this;
+    }
+
+    JsonNode &JsonNode::operator=(const String &value) {
+        JsonNode::parse(value, *this);
         return *this;
     }
 

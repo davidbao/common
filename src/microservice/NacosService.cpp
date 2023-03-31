@@ -483,9 +483,8 @@ namespace Microservice {
         if (send(url, HttpMethod::Get, response)) {
             const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);
             assert(content);
-            JsonNode node = content->value();
             JsonNode dataNode, serviceNode;
-            node.at("data", dataNode);
+            content->node().at("data", dataNode);
             if (dataNode.count() > 0 && dataNode.at(0, serviceNode)) {
                 JsonNode eNode, rNode, mNode, nNode;
                 serviceNode.at("extendInfo", eNode);
@@ -526,7 +525,7 @@ namespace Microservice {
                 if (_httpClient.send(request, response) && response.status == HttpOk) {
                     const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);
                     assert(content);
-                    if (AccessToken::parse(content->value(), _accessToken)) {
+                    if (AccessToken::parse(content->node(), _accessToken)) {
                         if (_loginTimer == nullptr) {
                             auto loginTimeUp = [](NacosService *ns) {
                                 ns->login();

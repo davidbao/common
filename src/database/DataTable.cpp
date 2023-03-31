@@ -275,6 +275,14 @@ namespace Database {
         return _cells == other._cells;
     }
 
+    const DataCell &DataRow::at(size_t pos) const {
+        return _cells[pos];
+    }
+
+    const DataCell &DataRow::at(const String &pos) const {
+        return _cells[pos];
+    }
+
     bool DataRow::isEmpty() const {
         return _cells.count() == 0;
     }
@@ -356,6 +364,14 @@ namespace Database {
         _rows.addRange(rows);
     }
 
+    bool DataTable::removeRow(size_t pos) {
+        return _rows.removeAt(pos);
+    }
+
+    bool DataTable::setRow(size_t pos, const DataRow &row) {
+        return _rows.set(pos, row);
+    }
+
     const DataRows &DataTable::rows() const {
         return _rows;
     }
@@ -370,6 +386,14 @@ namespace Database {
 
     void DataTable::addColumns(const DataColumns &columns) {
         _columns.addRange(columns);
+    }
+
+    bool DataTable::removeColumn(size_t pos) {
+        return _columns.removeAt(pos);
+    }
+
+    bool DataTable::setColumn(size_t pos, const DataColumn &column) {
+        return _columns.set(pos, column);
     }
 
     const DataColumns &DataTable::columns() const {

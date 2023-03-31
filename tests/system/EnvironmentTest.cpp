@@ -175,6 +175,7 @@ bool testGetTickCount() {
             return false;
         }
     }
+#ifndef __EMSCRIPTEN__
     {
         uint64_t tick1 = Environment::getTickCount();
         Thread::msleep(10);
@@ -183,6 +184,7 @@ bool testGetTickCount() {
             return false;
         }
     }
+#endif
 
     return true;
 }

@@ -1059,6 +1059,56 @@ bool testParse() {
         }
     }
 
+    {
+        DateTime test;
+        if(!DateTime::parse("6.00:00:36", test)) {
+            return false;
+        }
+        if (!(test.day() == 6 && test.hour() == 0 && test.minute() == 0 && test.second() == 36)) {
+            return false;
+        }
+    }
+
+    {
+        DateTime test;
+        if(!DateTime::parse("06.00:00:36", test)) {
+            return false;
+        }
+//        printf("time: %s\n", test.toString().c_str());
+        if (!(test.day() == 6 && test.hour() == 0 && test.minute() == 0 && test.second() == 36)) {
+            return false;
+        }
+    }
+
+#ifndef __EMSCRIPTEN__
+    {
+        DateTime test;
+        if(DateTime::parse("32.00:00:36", test)) {
+            return false;
+        }
+    }
+#endif
+
+    {
+        DateTime test;
+        if(!DateTime::parse("00:00:36", test)) {
+            return false;
+        }
+        if (!(test.hour() == 0 && test.minute() == 0 && test.second() == 36)) {
+            return false;
+        }
+    }
+
+    {
+        DateTime test;
+        if(!DateTime::parse("00:36", test)) {
+            return false;
+        }
+        if (!(test.hour() == 0 && test.minute() == 36 && test.second() == 0)) {
+            return false;
+        }
+    }
+
     return true;
 }
 

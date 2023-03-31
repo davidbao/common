@@ -48,11 +48,11 @@ namespace Json {
             TypeNode = 5
         };
 
-        JsonNode(Type type = Type::TypeNode);
+        explicit JsonNode(Type type = Type::TypeNode);
 
         JsonNode(const JsonNode &node);
 
-        JsonNode(const String &name, Type type = Type::TypeNode);
+        explicit JsonNode(const String &name, Type type = Type::TypeNode);
 
         JsonNode(const String &name, const bool &value);
 
@@ -167,6 +167,8 @@ namespace Json {
         bool isEmpty() const;
 
         JsonNode &operator=(const JsonNode &value);
+
+        JsonNode &operator=(const String &value);
 
         bool copyTo(YmlNode &node) const;
 

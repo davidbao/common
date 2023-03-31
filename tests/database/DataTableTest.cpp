@@ -1345,6 +1345,55 @@ bool testDataTableProperty() {
     return true;
 }
 
+bool testDataTableOperation() {
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", ValueTypes::Integer32, true),
+                                DataColumn("name", ValueTypes::Text, false),
+                                DataColumn("score", ValueTypes::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        if (!test.removeColumn(1)) {
+            return false;
+        }
+        if (test.columnCount() != 2) {
+            return false;
+        }
+        if (!(!test.columns()["id"].isNull() && !test.columns()["score"].isNull())) {
+            return false;
+        }
+
+        if (!test.removeRow(1)) {
+            return false;
+        }
+        if (test.rowCount() != 2) {
+            return false;
+        }
+        if (!(test.rows()[0][0].value() == 1 && test.rows()[1][0].value() == 3)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool testDataTablesConstructor() {
     DataTable table("abc");
     table.addColumns({
@@ -1890,6 +1939,9 @@ int main() {
     }
     if (!testDataTableProperty()) {
         return 63;
+    }
+    if (!testDataTableOperation()) {
+        return 64;
     }
 
     if (!testDataTablesConstructor()) {

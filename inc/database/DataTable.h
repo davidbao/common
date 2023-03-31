@@ -176,7 +176,9 @@ namespace Database {
         bool hasColumn(const String &columnName) const;
     };
 
-    class DataRow : public IEvaluation<DataRow>, public IEquatable<DataRow> {
+    class DataRow : public IEvaluation<DataRow>, public IEquatable<DataRow>,
+                    public IIndexGetter<const DataCell &>,
+                    public IPositionGetter<const DataCell &, const String &> {
     public:
         DataRow();
 
@@ -191,6 +193,10 @@ namespace Database {
         void evaluates(const DataRow &other) override;
 
         bool equals(const DataRow &other) const override;
+
+        const DataCell &at(size_t pos) const override;
+
+        const DataCell &at(const String &pos) const override;
 
         DataRow &operator=(const DataRow &other);
 
@@ -237,6 +243,10 @@ namespace Database {
 
         void addRows(const DataRows &rows);
 
+        bool removeRow(size_t pos);
+
+        bool setRow(size_t pos, const DataRow &row);
+
         const DataRows &rows() const;
 
         size_t rowCount() const;
@@ -244,6 +254,10 @@ namespace Database {
         void addColumn(const DataColumn &column);
 
         void addColumns(const DataColumns &columns);
+
+        bool removeColumn(size_t pos);
+
+        bool setColumn(size_t pos, const DataColumn &column);
 
         const DataColumns &columns() const;
 

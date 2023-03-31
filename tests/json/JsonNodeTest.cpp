@@ -414,15 +414,25 @@ bool testEquals() {
         }
     }
 
+    {
+        StringMap test;
+        JsonNode node;
+        node = R"({"test1":1,"test2":"abc","test3":true})";
+        if (node["test1"].value() != "1") {
+            return false;
+        }
+    }
+
     return true;
 }
 
 bool testAt() {
     {
         JsonNode test{
-                {"test1", "1"},
+                {"test1", 1},
                 {"test2", "abc"},
-                {"test3", "true"},
+                {"test3", true},
+                {"array", {"1", "2", "3"}},
         };
         if (test.at(0).value() != "1") {
             return false;
@@ -451,6 +461,28 @@ bool testAt() {
         }
         String value;
         if (test.getAttribute("test4", value)) {
+            return false;
+        }
+
+        JsonNode node = test["test3"];
+        if (node.value() != "true") {
+            return false;
+        }
+        String str = node.getAttribute("str");
+        if (!str.isNullOrEmpty()) {
+            return false;
+        }
+
+        node = test["array"];
+        if (node.count() != 3) {
+            return false;
+        }
+        if (node[0].value() != "1") {
+            return false;
+        }
+        value = node.value();
+        str = node.getAttribute("str");
+        if (!str.isNullOrEmpty()) {
             return false;
         }
     }
@@ -515,6 +547,14 @@ bool testAt() {
             return false;
         }
         if (!v.isEmpty()) {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test;
+        JsonNode::parse("{\"type\":\"cycle\",\"interval\":\"00:01:00\"}", test);
+        if (test.getAttribute("type") != "cycle") {
             return false;
         }
     }

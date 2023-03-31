@@ -201,8 +201,7 @@ namespace Data {
         const int MaxCount = 16;
         char temp[MaxCount];
 
-        DateTime now = DateTime::now();
-        int year = now.year(), month = now.month(), day = now.day(), hour = 0, minute = 0, second = 0, millisecond = 0;
+        int year = 1, month = 1, day = 1, hour = 0, minute = 0, second = 0, millisecond = 0;
         const char *buffer = str.c_str();
         int yearIndex = (int) ((String) buffer).find(dtfi->dateSeparator);
         if (yearIndex > 0) {
@@ -246,6 +245,9 @@ namespace Data {
             if (!TimeSpan::parse(buffer, timeSpan))
                 return false;
 
+            if (timeSpan.days() >= 1) {
+                day = timeSpan.days();
+            }
             hour = timeSpan.hours();
             minute = timeSpan.minutes();
             second = timeSpan.seconds();

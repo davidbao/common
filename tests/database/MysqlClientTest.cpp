@@ -419,6 +419,53 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
+//    MysqlClient client;
+//    if (!client.open(_url, _username, _password)) {
+//        return -1;
+//    }
+//    {
+//        DataTable test("p_poverview_curve");
+//        test.addColumns({
+//                                DataColumn("id", ValueTypes::Integer64, true),
+//                                DataColumn("pid", ValueTypes::Integer32, false),
+//                                DataColumn("time", ValueTypes ::Date, false),
+//                                DataColumn("P", ValueTypes::Float32, false),
+//                                DataColumn("Q", ValueTypes::Float32, false),
+//                                DataColumn("Ia", ValueTypes::Float32, false),
+//                                DataColumn("Ib", ValueTypes::Float32, false),
+//                                DataColumn("Ic", ValueTypes::Float32, false),
+//                                DataColumn("Ua", ValueTypes::Float32, false),
+//                                DataColumn("Ub", ValueTypes::Float32, false),
+//                                DataColumn("Uc", ValueTypes::Float32, false),
+//                        });
+//
+//        int days = 30;
+//        DateTime time = DateTime::now();
+//        time = time.date() - TimeSpan::fromDays(days);
+//        for (int i = 0; i < days * 24; ++i) {
+//            Debug::writeFormatLine("time: %s", time.toString().c_str());
+//            DataRow row{
+//                    DataCell(test.columns()[0], DbClient::generateSnowFlakeId()),
+//                    DataCell(test.columns()[1], 1 + i),
+//                    DataCell(test.columns()[2], time),
+//                    DataCell(test.columns()[3], rand() % 100),
+//                    DataCell(test.columns()[4], 86),
+//                    DataCell(test.columns()[5], 86),
+//                    DataCell(test.columns()[6], 86),
+//                    DataCell(test.columns()[7], 86),
+//                    DataCell(test.columns()[8], 86),
+//                    DataCell(test.columns()[9], 86),
+//                    DataCell(test.columns()[10], 86),
+//            };
+//            test.addRow(row);
+//
+//            time += TimeSpan::fromHours(1);
+//        }
+//        client.executeSqlInsert(test);
+//    }
+//
+//    return 0;
+
     setUp();
 
     int result = 0;
