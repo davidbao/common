@@ -129,9 +129,9 @@ bool testInsertRecordByTable() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -175,9 +175,9 @@ bool testReplaceRecordByTable() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -223,9 +223,9 @@ bool testRetrieveCount() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -271,9 +271,9 @@ bool testTransaction() {
         test.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -320,9 +320,9 @@ bool testTransaction() {
         test.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -426,17 +426,17 @@ int main(int argc, const char *argv[]) {
 //    {
 //        DataTable test("p_poverview_curve");
 //        test.addColumns({
-//                                DataColumn("id", ValueTypes::Integer64, true),
-//                                DataColumn("pid", ValueTypes::Integer32, false),
-//                                DataColumn("time", ValueTypes ::Date, false),
-//                                DataColumn("P", ValueTypes::Float32, false),
-//                                DataColumn("Q", ValueTypes::Float32, false),
-//                                DataColumn("Ia", ValueTypes::Float32, false),
-//                                DataColumn("Ib", ValueTypes::Float32, false),
-//                                DataColumn("Ic", ValueTypes::Float32, false),
-//                                DataColumn("Ua", ValueTypes::Float32, false),
-//                                DataColumn("Ub", ValueTypes::Float32, false),
-//                                DataColumn("Uc", ValueTypes::Float32, false),
+//                                DataColumn("id", DbType::Integer64, true),
+//                                DataColumn("pid", DbType::Integer32, false),
+//                                DataColumn("time", DbType ::Date, false),
+//                                DataColumn("P", DbType::Float32, false),
+//                                DataColumn("Q", DbType::Float32, false),
+//                                DataColumn("Ia", DbType::Float32, false),
+//                                DataColumn("Ib", DbType::Float32, false),
+//                                DataColumn("Ic", DbType::Float32, false),
+//                                DataColumn("Ua", DbType::Float32, false),
+//                                DataColumn("Ub", DbType::Float32, false),
+//                                DataColumn("Uc", DbType::Float32, false),
 //                        });
 //
 //        int days = 30;

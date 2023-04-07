@@ -49,7 +49,7 @@ namespace Database {
         bool abortExecuting();
 
     protected:
-        ValueTypes getColumnType(int type) override;
+        DbType getColumnType(int type) override;
 
     private:
         uint32_t executeSqlInner(const String &sql);

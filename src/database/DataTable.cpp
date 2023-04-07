@@ -9,10 +9,10 @@
 #include "database/DataTable.h"
 
 namespace Database {
-    const DataColumn DataColumn::Empty("", ValueTypes::Null, false);
+    const DataColumn DataColumn::Empty("", DbType::Null, false);
 
-    DataColumn::DataColumn(const String &name, const ValueTypes &type, bool pkey) : _name(name), _type(type),
-                                                                                    _primaryKey(pkey) {
+    DataColumn::DataColumn(const String &name, const DbType &type, bool pkey) : _name(name), _type(type),
+                                                                                _primaryKey(pkey) {
     }
 
     DataColumn::DataColumn(const String &name, const String &type, bool pkey) : DataColumn(name,
@@ -20,7 +20,7 @@ namespace Database {
                                                                                            pkey) {
     }
 
-    DataColumn::DataColumn(const DataColumn &column) : DataColumn(String::Empty, ValueTypes::Null, false) {
+    DataColumn::DataColumn(const DataColumn &column) : DataColumn(String::Empty, DbType::Null, false) {
         DataColumn::evaluates(column);
     }
 
@@ -40,7 +40,7 @@ namespace Database {
         return _name;
     }
 
-    ValueTypes DataColumn::type() const {
+    DbType DataColumn::type() const {
         return _type;
     }
 
@@ -103,7 +103,8 @@ namespace Database {
     DataCell::DataCell(const DataColumn &column) : _column(column), _value(column.type()) {
     }
 
-    DataCell::DataCell(const DataColumn &column, const Value &value) : _column(column), _value(column.type(), value) {
+    DataCell::DataCell(const DataColumn &column, const DbValue::Value &value) :
+            _column(column), _value(column.type(), value) {
     }
 
     DataCell::DataCell(const DataColumn &column, const DbValue &value) : _column(column), _value(value) {
@@ -174,7 +175,7 @@ namespace Database {
         return _column == other._column && _value == other._value;
     }
 
-    ValueTypes DataCell::type() const {
+    DbType DataCell::type() const {
         return _column.type();
     }
 
@@ -464,7 +465,7 @@ namespace Database {
                 JsonNode rowNode;
                 for (size_t j = 0; j < cells.count(); j++) {
                     const DataCell &cell = cells.at(j);
-                    rowNode.add(JsonNode(cell.columnName(), !cell.isNullValue() ? cell.valueStr() : String::Empty));
+                    rowNode.add(JsonNode(cell.columnName(), cell.value()));
                 }
                 node.add(rowNode);
             }
@@ -475,7 +476,7 @@ namespace Database {
                 StringArray texts;
                 for (size_t j = 0; j < cells.count(); j++) {
                     const DataCell &cell = cells.at(j);
-                    texts.add(!cell.isNullValue() ? cell.valueStr() : String::Empty);
+                    texts.add(cell.valueStr());
                 }
                 node.add(JsonNode("row", texts));
             }

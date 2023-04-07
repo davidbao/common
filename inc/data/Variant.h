@@ -10,6 +10,7 @@
 #define Variant_h
 
 #include "data/String.h"
+#include "data/List.h"
 #include "exception/Exception.h"
 #include "IO/Stream.h"
 #include "data/DateTime.h"
@@ -536,6 +537,10 @@ namespace Data {
     private:
         static const size_t MaxBlobCount = 10 * 1024 * 1024;
     };
+
+    typedef List<Variant> Variants;
+
+    typedef Dictionary<String, Variant> VariantMap;
 }
 
 

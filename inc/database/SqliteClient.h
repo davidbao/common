@@ -45,9 +45,9 @@ namespace Database {
         bool rollbackTransaction() override;
 
     protected:
-        ValueTypes getColumnType(int type) override;
+        DbType getColumnType(int type) override;
 
-        static ValueTypes getColumnType(const String &type);
+        static DbType getColumnType(const String &type);
 
     private:
         int executeSqlInner(const String &sql);

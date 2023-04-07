@@ -25,7 +25,7 @@ using namespace Json;
 namespace Database {
     class DataColumn : public IEvaluation<DataColumn>, public IEquatable<DataColumn> {
     public:
-        explicit DataColumn(const String &name = String::Empty, const ValueTypes &type = ValueTypes::Null,
+        explicit DataColumn(const String &name = String::Empty, const DbType &type = DbType::Null,
                             bool pkey = false);
 
         DataColumn(const String &name, const String &type, bool pkey = false);
@@ -42,7 +42,7 @@ namespace Database {
 
         const String &name() const;
 
-        ValueTypes type() const;
+        DbType type() const;
 
         bool primaryKey() const;
 
@@ -60,7 +60,7 @@ namespace Database {
 
     protected:
         String _name;
-        ValueTypes _type;
+        DbType _type;
         bool _primaryKey;
 
     public:
@@ -130,7 +130,7 @@ namespace Database {
 
         DataCell &operator=(const DataCell &other);
 
-        ValueTypes type() const;
+        DbType type() const;
 
         const DbValue &value() const;
 
@@ -147,7 +147,7 @@ namespace Database {
         void setNullValue();
 
     private:
-        DataCell(const DataColumn &column, const Value &value);
+        DataCell(const DataColumn &column, const DbValue::Value &value);
 
     public:
         static const DataCell Empty;

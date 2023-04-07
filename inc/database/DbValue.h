@@ -15,7 +15,6 @@ using namespace Data;
 
 namespace Database {
     typedef Variant DbValue;
-    typedef Variant::Type ValueTypes;
-    typedef Variant::Value Value;
+    typedef Variant::Type DbType;
 }
 #endif // DbValue_h

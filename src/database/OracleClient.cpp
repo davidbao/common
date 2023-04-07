@@ -19,27 +19,27 @@ using namespace Diag;
 namespace Database {
     class InnerColumn {
     public:
-        Value datavalue;    //output variable
-        ub4 datasize;
-        ub2 datatype;
+        DbValue::Value dataValue;    //output variable
+        ub4 dataSize;
+        ub2 dataType;
 
         InnerColumn() {
-            datavalue.strValue = nullptr;
-            datasize = 0;
-            datatype = 0;
+            dataValue.strValue = nullptr;
+            dataSize = 0;
+            dataType = 0;
         }
 
         InnerColumn(ub2 type, ub4 size) {
-            datatype = type;
-            datasize = size;
-            datavalue.strValue = new char[datasize];
-            memset(datavalue.strValue, 0, datasize);
+            dataType = type;
+            dataSize = size;
+            dataValue.strValue = new char[dataSize];
+            memset(dataValue.strValue, 0, dataSize);
         }
 
         ~InnerColumn() {
-            if (datavalue.strValue != nullptr) {
-                delete[] datavalue.strValue;
-                datavalue.strValue = nullptr;
+            if (dataValue.strValue != nullptr) {
+                delete[] dataValue.strValue;
+                dataValue.strValue = nullptr;
             }
         }
     };
@@ -271,31 +271,31 @@ namespace Database {
         return false;
     }
 
-    ValueTypes OracleClient::getColumnType(int type) {
+    DbType OracleClient::getColumnType(int type) {
         switch (type) {
             case SQLT_CHR:
             case SQLT_AFC:
             case SQLT_STR:
-                return ValueTypes::Text;
+                return DbType::Text;
             case SQLT_DAT:
-                return ValueTypes::Date;
+                return DbType::Date;
             case SQLT_INT:
-                return ValueTypes::Integer32;
+                return DbType::Integer32;
             case SQLT_LNG:
-                return ValueTypes::Integer64;
+                return DbType::Integer64;
             case SQLT_NUM:
-                return ValueTypes::Float64;
+                return DbType::Float64;
             case SQLT_FLT:
-                return ValueTypes::Float32;
+                return DbType::Float32;
             case SQLT_TIMESTAMP:
             case SQLT_TIMESTAMP_TZ:
             case SQLT_TIMESTAMP_LTZ:
-                return ValueTypes::Timestamp;
+                return DbType::Timestamp;
             case SQLT_BOL:
-                return ValueTypes::Digital;
+                return DbType::Digital;
             default:
                 assert(false);
-                return ValueTypes::Null;
+                return DbType::Null;
         }
     }
 
@@ -395,8 +395,8 @@ namespace Database {
             table_columnCount == 0) {
             OCIParam *paramhp;
             const ub4 DEFAULT_LONG_SIZE = 32768;
-            ub2 datatype = 0;
-            ub4 datasize = 0;
+            ub2 dataType = 0;
+            ub4 dataSize = 0;
             ub4 dispsize = 0;
             text *col_name;
             ub4 col_name_len;
@@ -410,7 +410,7 @@ namespace Database {
                                     (dvoid **) &col_name, (ub4 *) &col_name_len, (ub4) OCI_ATTR_NAME,
                                     (OCIError *) _oracleDb->error);
                 result = OCIAttrGet((dvoid *) paramhp, (ub4) OCI_DTYPE_PARAM,
-                                    (dvoid **) &datatype, 0, (ub4) OCI_ATTR_DATA_TYPE, (OCIError *) _oracleDb->error);
+                                    (dvoid **) &dataType, 0, (ub4) OCI_ATTR_DATA_TYPE, (OCIError *) _oracleDb->error);
 
                 /* Retrieve the length semantics for the column */
                 charSemantics = 0;
@@ -419,16 +419,16 @@ namespace Database {
                 if (charSemantics) {
                     /* Retrieve the column width in characters */
                     OCIAttrGet((dvoid *) paramhp, OCI_DTYPE_PARAM,
-                               (dvoid *) &datasize, 0, OCI_ATTR_CHAR_SIZE, (OCIError *) _oracleDb->error);
+                               (dvoid *) &dataSize, 0, OCI_ATTR_CHAR_SIZE, (OCIError *) _oracleDb->error);
                 } else {
                     result = OCIAttrGet((dvoid *) paramhp, (ub4) OCI_DTYPE_PARAM,
-                                        (dvoid **) &datasize, 0, (ub4) OCI_ATTR_DATA_SIZE,
+                                        (dvoid **) &dataSize, 0, (ub4) OCI_ATTR_DATA_SIZE,
                                         (OCIError *) _oracleDb->error);
                 }
-                if (datasize > DEFAULT_LONG_SIZE || datasize == 0)
-                    datasize = DEFAULT_LONG_SIZE;
+                if (dataSize > DEFAULT_LONG_SIZE || dataSize == 0)
+                    dataSize = DEFAULT_LONG_SIZE;
                 /* add one more uint8_t to store the ternimal char of String */
-                datasize = datasize + 1;
+                dataSize = dataSize + 1;
                 result = OCIAttrGet((dvoid *) paramhp, (ub4) OCI_DTYPE_PARAM,
                                     (dvoid **) &dispsize, 0, (ub4) OCI_ATTR_DISP_SIZE, (OCIError *) _oracleDb->error);
                 if (dispsize > DEFAULT_LONG_SIZE || dispsize == 0)
@@ -436,26 +436,26 @@ namespace Database {
                 /* add one more uint8_t to store the ternimal char of String */
                 dispsize = dispsize + 1;
 
-                bool useDispSize = datatype == SQLT_DAT ||
-                                   datatype == SQLT_TIMESTAMP ||
-                                   datatype == SQLT_TIMESTAMP_TZ ||
-                                   datatype == SQLT_TIMESTAMP_LTZ;
-                InnerColumn *icolumn = new InnerColumn(datatype, useDispSize ? dispsize : datasize);
+                bool useDispSize = dataType == SQLT_DAT ||
+                                   dataType == SQLT_TIMESTAMP ||
+                                   dataType == SQLT_TIMESTAMP_TZ ||
+                                   dataType == SQLT_TIMESTAMP_LTZ;
+                InnerColumn *icolumn = new InnerColumn(dataType, useDispSize ? dispsize : dataSize);
                 icolumns.add(icolumn);
 
                 strncpy(name, (const char *) col_name, col_name_len);
                 name[col_name_len] = '\0';
                 if (table_columnCount == 0) {
-                    table.addColumn(DataColumn(name, getColumnType(datatype)));
+                    table.addColumn(DataColumn(name, getColumnType(dataType)));
                 }
             }
 
             OCIDefine *define;
             for (int i = 0; i < numcols; i++) {
                 const InnerColumn *icolumn = icolumns[i];
-                if (!(icolumn->datatype == SQLT_BLOB || icolumn->datatype == SQLT_CLOB)) {
+                if (!(icolumn->dataType == SQLT_BLOB || icolumn->dataType == SQLT_CLOB)) {
                     result = OCIDefineByPos(statement, &define, _oracleDb->error, i + 1,
-                                            (dvoid *) icolumn->datavalue.strValue, icolumn->datasize, SQLT_STR, nullptr,
+                                            (dvoid *) icolumn->dataValue.strValue, icolumn->dataSize, SQLT_STR, nullptr,
                                             nullptr, nullptr, OCI_DEFAULT);
                     if (result) {
                         OCIHandleFree(statement, OCI_HTYPE_STMT);
@@ -480,9 +480,9 @@ namespace Database {
             for (size_t i = 0; i < table.columnCount(); i++) {
                 const DataColumn &column = table.columns().at(i);
                 const InnerColumn *icolumn = icolumns[i];
-                ValueTypes type = column.type();
-                DataCell *cell = new DataCell(column, DbValue(type, icolumn->datavalue.strValue));
-                row.addCell(DataCell(column, DbValue(type, icolumn->datavalue.strValue)));
+                DbType type = column.type();
+                DataCell *cell = new DataCell(column, DbValue(type, icolumn->dataValue.strValue));
+                row.addCell(DataCell(column, DbValue(type, icolumn->dataValue.strValue)));
             }
             table.addRow(row);
         }

@@ -246,7 +246,7 @@ namespace Database {
                 if (cell.isNullValue()) {
                     sqlite3_bind_null(stmt, j + 1);
                 } else {
-                    ValueTypes type = cell.type();
+                    DbType type = cell.type();
                     const DbValue &value = cell.value();
                     switch (type) {
                         case DbValue::Null:
@@ -374,7 +374,7 @@ namespace Database {
                 DataRow row;
                 for (int i = 0; i < columnCount; i++) {
                     const DataColumn &column = table.columns().at(i);
-                    ValueTypes type = column.type();
+                    DbType type = column.type();
                     const char *str = (const char *) sqlite3_column_text(stmt, i);
                     row.addCell(DataCell(column, DbValue(type, str)));
                 }
@@ -412,26 +412,26 @@ namespace Database {
         return executeSqlInner("ROLLBACK TRANSACTION");
     }
 
-    ValueTypes SqliteClient::getColumnType(int type) {
+    DbType SqliteClient::getColumnType(int type) {
         switch (type) {
             case SQLITE_TEXT:
-                return ValueTypes::Text;
+                return DbType::Text;
             case SQLITE_INTEGER:
-                return ValueTypes::Integer32;
+                return DbType::Integer32;
             case SQLITE_FLOAT:
-                return ValueTypes::Float32;
+                return DbType::Float32;
             case SQLITE_BLOB:
-                return ValueTypes::Blob;
+                return DbType::Blob;
             case SQLITE_NULL:
-                return ValueTypes::Null;
+                return DbType::Null;
             default:
                 assert(false);
-                return ValueTypes::Null;
+                return DbType::Null;
         }
     }
 
-    ValueTypes SqliteClient::getColumnType(const String &type) {
-        ValueTypes valueType = DbValue::Null;
+    DbType SqliteClient::getColumnType(const String &type) {
+        DbType valueType = DbValue::Null;
         String temp = type.toLower();
         if (temp.find("int") >= 0) {
             valueType = DbValue::Integer32;

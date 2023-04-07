@@ -1327,6 +1327,29 @@ bool testCompareTo() {
     return true;
 }
 
+bool testCollection() {
+    {
+        Variants test {
+                Variant(1.0), Variant(1), Variant("abc")
+        };
+        if (test.count() != 3) {
+            return false;
+        }
+    }
+    {
+        VariantMap test {
+                {"1", Variant(1.0)},
+                {"2", Variant(1)},
+                {"3", Variant("abc")}
+        };
+        if (test.count() != 3) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testConstructor()) {
         return 1;
@@ -1357,6 +1380,9 @@ int main() {
     }
     if (!testCompareTo()) {
         return 10;
+    }
+    if (!testCollection()) {
+        return 11;
     }
 
     return 0;

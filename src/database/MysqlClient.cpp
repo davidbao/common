@@ -411,7 +411,7 @@ namespace Database {
                 DataRow row;
                 for (int i = 0; i < columnCount; i++) {
                     const DataColumn &column = table.columns().at(i);
-                    ValueTypes type = column.type();
+                    DbType type = column.type();
                     const char *str = (const char *) sql_row[i];
                     row.addCell(DataCell(column, DbValue(type, str)));
                 }
@@ -435,44 +435,45 @@ namespace Database {
         return mysql_query(_mysqlDb->mysqlDb, "ROLLBACK");              // mysql_rollback(_mysqlDb->mysqlDb);
     }
 
-    ValueTypes MysqlClient::getColumnType(int type) {
+    DbType MysqlClient::getColumnType(int type) {
         switch (type) {
             case MYSQL_TYPE_VARCHAR:
             case MYSQL_TYPE_VAR_STRING:
             case MYSQL_TYPE_STRING:
             case MYSQL_TYPE_BLOB:
-                return ValueTypes::Text;
+            case MYSQL_TYPE_JSON:
+                return DbType::Text;
             case MYSQL_TYPE_TINY:
             case MYSQL_TYPE_SHORT:
             case MYSQL_TYPE_LONG:
             case MYSQL_TYPE_INT24:
-                return ValueTypes::Integer32;
+                return DbType::Integer32;
             case MYSQL_TYPE_LONGLONG:
-                return ValueTypes::Integer64;
+                return DbType::Integer64;
             case MYSQL_TYPE_FLOAT:
-                return ValueTypes::Float32;
+                return DbType::Float32;
             case MYSQL_TYPE_DOUBLE:
             case MYSQL_TYPE_DECIMAL:
-                return ValueTypes::Float64;
+                return DbType::Float64;
             case MYSQL_TYPE_NULL:
-                return ValueTypes::Null;
+                return DbType::Null;
             case MYSQL_TYPE_DATE:
             case MYSQL_TYPE_TIME:
             case MYSQL_TYPE_DATETIME:
-                return ValueTypes::Date;
+                return DbType::Date;
             case MYSQL_TYPE_TIMESTAMP:
-                return ValueTypes::Timestamp;
+                return DbType::Timestamp;
             case MYSQL_TYPE_BIT:
-                return ValueTypes::Digital;
+                return DbType::Digital;
             case MYSQL_TYPE_NEWDECIMAL:
-                return ValueTypes::Integer64;
+                return DbType::Integer64;
             case MYSQL_TYPE_TINY_BLOB:
             case MYSQL_TYPE_MEDIUM_BLOB:
             case MYSQL_TYPE_LONG_BLOB:
-                return ValueTypes::Blob;
+                return DbType::Blob;
             default:
                 assert(false);
-                return ValueTypes::Null;
+                return DbType::Null;
         }
     }
 

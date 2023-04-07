@@ -745,6 +745,66 @@ bool testLock() {
 
 #endif  // __EMSCRIPTEN__
 
+bool testParse() {
+    {
+        String str = "1; 2; 3";
+        StringArray texts;
+        if (!StringArray::parse(str, texts)) {
+            return false;
+        }
+        if (texts.count() != 3) {
+            return false;
+        }
+        if (texts[0] != "1" && texts[1] != "2" && texts[2] != "3") {
+            return false;
+        }
+    }
+
+    {
+        String str = "1, 2, 3";
+        StringArray texts;
+        if (!StringArray::parse(str, texts, ',')) {
+            return false;
+        }
+        if (texts.count() != 3) {
+            return false;
+        }
+        if (texts[0] != "1" && texts[1] != "2" && texts[2] != "3") {
+            return false;
+        }
+    }
+
+    {
+        String str = "[1, 2, 3]";
+        StringArray texts;
+        if (!StringArray::parseJson(str, texts)) {
+            return false;
+        }
+        if (texts.count() != 3) {
+            return false;
+        }
+        if (texts[0] != "1" && texts[1] != "2" && texts[2] != "3") {
+            return false;
+        }
+    }
+
+    {
+        String str = "test1";
+        StringArray texts;
+        if (!StringArray::parseJson(str, texts)) {
+            return false;
+        }
+        if (texts.count() != 1) {
+            return false;
+        }
+        if (texts[0] != "test1") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testConstructor()) {
         return 1;
@@ -805,6 +865,9 @@ int main() {
         return 19;
     }
 #endif // __EMSCRIPTEN__
+    if (!testParse()) {
+        return 20;
+    }
 
     return 0;
 }

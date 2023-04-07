@@ -24,7 +24,7 @@ bool testDataColumnConstructor() {
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Text);
+        DataColumn test("abc", DbType::Text);
         if (!test.isString()) {
             return false;
         }
@@ -33,37 +33,37 @@ bool testDataColumnConstructor() {
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Text, true);
+        DataColumn test("abc", DbType::Text, true);
         if (!test.primaryKey()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Integer64);
+        DataColumn test("abc", DbType::Integer64);
         if (!test.isInteger()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Digital);
+        DataColumn test("abc", DbType::Digital);
         if (!test.isDigital()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Date);
+        DataColumn test("abc", DbType::Date);
         if (!test.isDateTime()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Float64);
+        DataColumn test("abc", DbType::Float64);
         if (!test.isFloat()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Float32);
+        DataColumn test("abc", DbType::Float32);
         if (!test.isFloat()) {
             return false;
         }
@@ -172,7 +172,7 @@ bool testDataColumnEquals() {
 
 bool testDataColumnProperty() {
     {
-        DataColumn test("abc", ValueTypes::Text);
+        DataColumn test("abc", DbType::Text);
         if (!test.isString()) {
             return false;
         }
@@ -181,51 +181,51 @@ bool testDataColumnProperty() {
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Text, true);
+        DataColumn test("abc", DbType::Text, true);
         if (!test.primaryKey()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Integer64);
+        DataColumn test("abc", DbType::Integer64);
         if (!test.isInteger()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Digital);
+        DataColumn test("abc", DbType::Digital);
         if (!test.isDigital()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Date);
+        DataColumn test("abc", DbType::Date);
         if (!test.isDateTime()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Float64);
+        DataColumn test("abc", DbType::Float64);
         if (!test.isFloat()) {
             return false;
         }
     }
     {
-        DataColumn test("abc", ValueTypes::Float32);
+        DataColumn test("abc", DbType::Float32);
         if (!test.isFloat()) {
             return false;
         }
     }
 
     {
-        DataColumn test("abc", ValueTypes::Float32, true);
+        DataColumn test("abc", DbType::Float32, true);
         if (!test.primaryKey()) {
             return false;
         }
         if (test.name() != "abc") {
             return false;
         }
-        if (test.type() != ValueTypes::Float32) {
+        if (test.type() != DbType::Float32) {
             return false;
         }
     }
@@ -248,9 +248,9 @@ bool testDataColumnsConstructor() {
     }
     {
         DataColumns test{
-                DataColumn("id", ValueTypes::Integer32, true),
-                DataColumn("name", ValueTypes::Text, false),
-                DataColumn("score", ValueTypes::Float64, false),
+                DataColumn("id", DbType::Integer32, true),
+                DataColumn("name", DbType::Text, false),
+                DataColumn("score", DbType::Float64, false),
         };
         if (test.count() != 3) {
             return false;
@@ -262,9 +262,9 @@ bool testDataColumnsConstructor() {
 
     {
         DataColumns test{
-                DataColumn("id", ValueTypes::Integer32, true),
-                DataColumn("name", ValueTypes::Text, false),
-                DataColumn("score", ValueTypes::Float64, false),
+                DataColumn("id", DbType::Integer32, true),
+                DataColumn("name", DbType::Text, false),
+                DataColumn("score", DbType::Float64, false),
         };
         DataColumns test2(test);
         if (test2.count() != 3) {
@@ -276,9 +276,9 @@ bool testDataColumnsConstructor() {
     }
     {
         DataColumns test{
-                DataColumn("id", ValueTypes::Integer32, true),
-                DataColumn("name", ValueTypes::Text, false),
-                DataColumn("score", ValueTypes::Float64, false),
+                DataColumn("id", DbType::Integer32, true),
+                DataColumn("name", DbType::Text, false),
+                DataColumn("score", DbType::Float64, false),
         };
         DataColumns test2 = test;
         if (test2.count() != 3) {
@@ -295,9 +295,9 @@ bool testDataColumnsConstructor() {
 bool testDataColumnsAt() {
     {
         DataColumns test{
-                DataColumn("id", ValueTypes::Integer32, true),
-                DataColumn("name", ValueTypes::Text, false),
-                DataColumn("score", ValueTypes::Float64, false),
+                DataColumn("id", DbType::Integer32, true),
+                DataColumn("name", DbType::Text, false),
+                DataColumn("score", DbType::Float64, false),
         };
         const DataColumn &column = test.at(0);
         if (column.name() != "id") {
@@ -306,9 +306,9 @@ bool testDataColumnsAt() {
     }
     {
         DataColumns test{
-                DataColumn("id", ValueTypes::Integer32, true),
-                DataColumn("name", ValueTypes::Text, false),
-                DataColumn("score", ValueTypes::Float64, false),
+                DataColumn("id", DbType::Integer32, true),
+                DataColumn("name", DbType::Text, false),
+                DataColumn("score", DbType::Float64, false),
         };
         const DataColumn &column = test.at("id");
         if (column.name() != "id") {
@@ -327,112 +327,112 @@ bool testDataCellConstructor() {
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Bool);
+        DataColumn column("abc", DbType::Bool);
         DataCell test(column, true);
         if (test.value() != true) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Integer8);
+        DataColumn column("abc", DbType::Integer8);
         DataCell test(column, (int8_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::UInteger8);
+        DataColumn column("abc", DbType::UInteger8);
         DataCell test(column, (uint8_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Integer16);
+        DataColumn column("abc", DbType::Integer16);
         DataCell test(column, (int16_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::UInteger16);
+        DataColumn column("abc", DbType::UInteger16);
         DataCell test(column, (uint16_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Integer32);
+        DataColumn column("abc", DbType::Integer32);
         DataCell test(column, (int32_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::UInteger32);
+        DataColumn column("abc", DbType::UInteger32);
         DataCell test(column, (uint32_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Integer64);
+        DataColumn column("abc", DbType::Integer64);
         DataCell test(column, (int64_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::UInteger64);
+        DataColumn column("abc", DbType::UInteger64);
         DataCell test(column, (uint64_t) 1);
         if (test.value() != 1) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Float32);
+        DataColumn column("abc", DbType::Float32);
         DataCell test(column, 1.0f);
         if (test.value() != 1.0f) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Float64);
+        DataColumn column("abc", DbType::Float64);
         DataCell test(column, 1.0);
         if (test.value() != 1.0) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Text);
+        DataColumn column("abc", DbType::Text);
         DataCell test(column, "test");
         if (test.value() != "test") {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Text);
+        DataColumn column("abc", DbType::Text);
         DataCell test(column, String("test"));
         if (test.value() != String("test")) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Date);
+        DataColumn column("abc", DbType::Date);
         DataCell test(column, DateTime(2010, 1, 2));
         if (test.value() != DateTime(2010, 1, 2)) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Timestamp);
+        DataColumn column("abc", DbType::Timestamp);
         DataCell test(column, TimeSpan::fromHours(1));
         if (test.value() != TimeSpan::fromHours(1)) {
             return false;
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Blob);
+        DataColumn column("abc", DbType::Blob);
         DataCell test(column, ByteArray{1, 2, 3, 4});
         if (test.value() != ByteArray{1, 2, 3, 4}) {
             return false;
@@ -440,7 +440,7 @@ bool testDataCellConstructor() {
     }
 
     {
-        DataColumn column("abc", ValueTypes::Text);
+        DataColumn column("abc", DbType::Text);
         DataCell test(column, String("test"));
         DataCell test2(test);
         if (test2 != test) {
@@ -448,7 +448,7 @@ bool testDataCellConstructor() {
         }
     }
     {
-        DataColumn column("abc", ValueTypes::Text);
+        DataColumn column("abc", DbType::Text);
         DataCell test(column, String("test"));
         DataCell test2 = test;
         if (test2 != test) {
@@ -461,7 +461,7 @@ bool testDataCellConstructor() {
 
 bool testDataCellEquals() {
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         DataCell test2;
         test2.evaluates(test);
         if (!test2.equals(test)) {
@@ -469,7 +469,7 @@ bool testDataCellEquals() {
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         DataCell test2;
         test2 = test;
         if (!test2.equals(test)) {
@@ -477,7 +477,7 @@ bool testDataCellEquals() {
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         DataCell test2;
         test2.evaluates(test);
         if (test2 != test) {
@@ -485,7 +485,7 @@ bool testDataCellEquals() {
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         DataCell test2;
         test2.evaluates(test);
         if (!(test2 == test)) {
@@ -498,20 +498,20 @@ bool testDataCellEquals() {
 
 bool testDataCellProperty() {
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
-        if (test.type() != ValueTypes::Text) {
+        DataCell test(DataColumn("abc", DbType::Text), "123");
+        if (test.type() != DbType::Text) {
             return false;
         }
     }
 
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.value() != "123") {
             return false;
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         const DbValue &value = test.value();
         String v;
         if (!value.getValue(v)) {
@@ -523,52 +523,52 @@ bool testDataCellProperty() {
     }
 
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.valueStr() != "123") {
             return false;
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.valueStr(false) != "123") {
             return false;
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.valueStr(true) != "'123'") {
             return false;
         }
     }
 
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.columnName() != "abc") {
             return false;
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (!test.matchColumnName("abc")) {
             return false;
         }
     }
 
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
-        if (test.column() != DataColumn("abc", ValueTypes::Text)) {
+        DataCell test(DataColumn("abc", DbType::Text), "123");
+        if (test.column() != DataColumn("abc", DbType::Text)) {
             return false;
         }
     }
 
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         if (test.isNullValue()) {
             return false;
         }
     }
     {
-        DataCell test(DataColumn("abc", ValueTypes::Text), "123");
+        DataCell test(DataColumn("abc", DbType::Text), "123");
         test.setNullValue();
         if (!test.isNullValue()) {
             return false;
@@ -587,9 +587,9 @@ bool testDataCellsConstructor() {
     }
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         if (test.count() != 3) {
             return false;
@@ -601,9 +601,9 @@ bool testDataCellsConstructor() {
 
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         DataCells test2(test);
         if (test2.count() != 3) {
@@ -615,9 +615,9 @@ bool testDataCellsConstructor() {
     }
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         DataCells test2 = test;
         if (test2.count() != 3) {
@@ -634,9 +634,9 @@ bool testDataCellsConstructor() {
 bool testDataCellsAt() {
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         const DataCell &column = test.at(0);
         if (column.columnName() != "id") {
@@ -645,9 +645,9 @@ bool testDataCellsAt() {
     }
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         const DataCell &column = test.at("id");
         if (column.columnName() != "id") {
@@ -661,9 +661,9 @@ bool testDataCellsAt() {
 bool tetDataCellsColumn() {
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         if (!test.hasColumn("name")) {
             return false;
@@ -671,9 +671,9 @@ bool tetDataCellsColumn() {
     }
     {
         DataCells test{
-                DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                DataCell(DataColumn("score", DbType::Float64, false), 87),
         };
         const DbValue &value = test.cellValue("name");
         if (value != "abc") {
@@ -693,9 +693,9 @@ bool testDataRowConstructor() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         if (test.cellCount() != 3) {
             return false;
@@ -703,9 +703,9 @@ bool testDataRowConstructor() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2(test);
         if (test2.cellCount() != 3) {
@@ -714,9 +714,9 @@ bool testDataRowConstructor() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2 = test;
         if (test2.cellCount() != 3) {
@@ -730,9 +730,9 @@ bool testDataRowConstructor() {
 bool testDataRowEquals() {
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2;
         test2.evaluates(test);
@@ -742,9 +742,9 @@ bool testDataRowEquals() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2;
         test2 = test;
@@ -754,9 +754,9 @@ bool testDataRowEquals() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2;
         test2.evaluates(test);
@@ -766,9 +766,9 @@ bool testDataRowEquals() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         DataRow test2;
         test2.evaluates(test);
@@ -783,9 +783,9 @@ bool testDataRowEquals() {
 bool testDataRowProperty() {
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         if (test.isEmpty()) {
             return false;
@@ -793,22 +793,22 @@ bool testDataRowProperty() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
                      });
-        test.addCell(DataCell(DataColumn("score", ValueTypes::Float64, false), 87));
+        test.addCell(DataCell(DataColumn("score", DbType::Float64, false), 87));
         if (test.cellCount() != 3) {
             return false;
         }
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
                      }
         );
         test.addCells({
-                              DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                              DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                              DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                              DataCell(DataColumn("score", DbType::Float64, false), 87),
                       });
         if (test.cellCount() != 3) {
             return false;
@@ -816,9 +816,9 @@ bool testDataRowProperty() {
     }
     {
         DataRow test({
-                             DataCell(DataColumn("id", ValueTypes::Integer32, true), 1),
-                             DataCell(DataColumn("name", ValueTypes::Text, false), "abc"),
-                             DataCell(DataColumn("score", ValueTypes::Float64, false), 87),
+                             DataCell(DataColumn("id", DbType::Integer32, true), 1),
+                             DataCell(DataColumn("name", DbType::Text, false), "abc"),
+                             DataCell(DataColumn("score", DbType::Float64, false), 87),
                      });
         const DataCells &cells = test.cells();
         if (cells.count() != 3) {
@@ -831,9 +831,9 @@ bool testDataRowProperty() {
 
 bool testDataRowsConstructor() {
     DataColumns columns{
-            DataColumn("id", ValueTypes::Integer32, true),
-            DataColumn("name", ValueTypes::Text, false),
-            DataColumn("score", ValueTypes::Float64, false),
+            DataColumn("id", DbType::Integer32, true),
+            DataColumn("name", DbType::Text, false),
+            DataColumn("score", DbType::Float64, false),
     };
 
     {
@@ -907,9 +907,9 @@ bool testDataTableConstructor() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -943,9 +943,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -972,9 +972,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1001,9 +1001,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1030,9 +1030,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1059,9 +1059,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1089,9 +1089,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1131,7 +1131,7 @@ bool testDataTableEquals() {
         if (!column.primaryKey()) {
             return false;
         }
-        if (column.type() != ValueTypes::Integer32) {
+        if (column.type() != DbType::Integer32) {
             return false;
         }
     }
@@ -1139,9 +1139,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1169,9 +1169,9 @@ bool testDataTableEquals() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1214,9 +1214,9 @@ bool testDataTableProperty() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1258,9 +1258,9 @@ bool testDataTableProperty() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1313,9 +1313,9 @@ bool testDataTableProperty() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1349,9 +1349,9 @@ bool testDataTableOperation() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1397,9 +1397,9 @@ bool testDataTableOperation() {
 bool testDataTablesConstructor() {
     DataTable table("abc");
     table.addColumns({
-                             DataColumn("id", ValueTypes::Integer32, true),
-                             DataColumn("name", ValueTypes::Text, false),
-                             DataColumn("score", ValueTypes::Float64, false),
+                             DataColumn("id", DbType::Integer32, true),
+                             DataColumn("name", DbType::Text, false),
+                             DataColumn("score", DbType::Float64, false),
                      });
     table.addRows({
                           DataRow({
@@ -1474,9 +1474,9 @@ bool testDataTablesConstructor() {
 bool testDataTablesAt() {
     DataTable table("abc");
     table.addColumns({
-                             DataColumn("id", ValueTypes::Integer32, true),
-                             DataColumn("name", ValueTypes::Text, false),
-                             DataColumn("score", ValueTypes::Float64, false),
+                             DataColumn("id", DbType::Integer32, true),
+                             DataColumn("name", DbType::Text, false),
+                             DataColumn("score", DbType::Float64, false),
                      });
     table.addRows({
                           DataRow({
@@ -1529,9 +1529,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1586,9 +1586,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1647,9 +1647,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1708,9 +1708,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1763,9 +1763,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({
@@ -1821,9 +1821,9 @@ bool testSort() {
     {
         DataTable test("abc");
         test.addColumns({
-                                DataColumn("id", ValueTypes::Integer32, true),
-                                DataColumn("name", ValueTypes::Text, false),
-                                DataColumn("score", ValueTypes::Float64, false),
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
                         });
         test.addRows({
                              DataRow({

@@ -12,6 +12,7 @@
 #include "data/String.h"
 #include "data/Vector.h"
 #include "data/List.h"
+#include "data/Variant.h"
 #include "data/StringArray.h"
 #include "data/IAttribute.h"
 #include "yml/YmlNode.h"
@@ -82,6 +83,8 @@ namespace Json {
 
         JsonNode(const String &name, const String &value);
 
+        JsonNode(const String &name, const Variant &value);
+
         template<class T>
         JsonNode(const String &name, const T &value) : JsonNode(name, value.toString()) {
         }
@@ -104,6 +107,13 @@ namespace Json {
 
         JsonNode(const String &name, const StringMap &value);
 
+        template<typename TKey, typename TValue>
+        JsonNode(const String &name, const Dictionary<TKey, TValue> &value) : JsonNode(name, Type::TypeNode) {
+            for (auto it = value.begin(); it != value.end(); ++it) {
+                add(JsonNode(it.key(), it.value()));
+            }
+        }
+
         JsonNode(std::initializer_list<JsonNode> list);
 
         JsonNode(const String &name, std::initializer_list<JsonNode> list);
@@ -120,6 +130,8 @@ namespace Json {
 
         bool getAttribute(const String &name, String &value) const override;
 
+        bool getAttribute(const String &name, StringArray &value) const override;
+
         bool setAttribute(const String &name, const String &value) override;
 
         bool at(size_t pos, JsonNode &node) const;
@@ -133,8 +145,6 @@ namespace Json {
         String toString(bool format = false) const;
 
         void getAttributeNames(StringArray &names) const;
-
-        bool getAttribute(const String &name, StringArray &value) const;
 
         bool getAttribute(StringArray &value) const;
 

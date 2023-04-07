@@ -55,6 +55,84 @@ namespace Json {
         }
     }
 
+    JsonNode::JsonNode(const String &name, const Variant &value) : _attach(false) {
+        const Variant::Value &v = value.value();
+        switch (value.type()) {
+            case Variant::Null:
+                _inner = new JSONNode(JSON_NODE);
+                _inner->set_name(name.c_str());
+                break;
+            case Variant::Digital:
+                _inner = new JSONNode(name.c_str(), v.bValue);
+                break;
+            case Variant::Integer8:
+                _inner = new JSONNode(name.c_str(), v.cValue);
+                break;
+            case Variant::UInteger8:
+                _inner = new JSONNode(name.c_str(), v.ucValue);
+                break;
+            case Variant::Integer16:
+                _inner = new JSONNode(name.c_str(), v.sValue);
+                break;
+            case Variant::UInteger16:
+                _inner = new JSONNode(name.c_str(), v.usValue);
+                break;
+            case Variant::Integer32:
+                _inner = new JSONNode(name.c_str(), v.nValue);
+                break;
+            case Variant::UInteger32:
+                _inner = new JSONNode(name.c_str(), v.unValue);
+                break;
+            case Variant::Integer64:
+                _inner = new JSONNode(name.c_str(), v.lValue);
+                break;
+            case Variant::UInteger64:
+                _inner = new JSONNode(name.c_str(), v.ulValue);
+                break;
+            case Variant::Float32:
+                _inner = new JSONNode(name.c_str(), v.fValue);
+                break;
+            case Variant::Float64:
+                _inner = new JSONNode(name.c_str(), v.dValue);
+                break;
+            case Variant::Text: {
+                String value = v.strValue;
+                if (value.find('{') == 0 ||
+                    value.find('[') == 0) {
+                    _inner = new JSONNode(JSON_NODE);
+                    JsonNode::parse(value, *this);
+                    _inner->set_name(name.c_str());
+                } else {
+                    _inner = new JSONNode(name.c_str(), value);
+                }
+            }
+                break;
+            case Variant::Date: {
+                DateTime time(v.dateValue);
+                _inner = new JSONNode(name.c_str(), time.toString());
+            }
+                break;
+            case Variant::Timestamp: {
+                TimeSpan time(v.timeValue);
+                _inner = new JSONNode(name.c_str(), time.toString());
+            }
+                break;
+            case Variant::Blob: {
+                ByteArray array;
+                if (value.getValue(array)) {
+                    for (size_t i = 0; i < array.count(); i++) {
+                        add(JsonNode("item", array[i]));
+                    }
+                }
+            }
+                break;
+            default:
+                _inner = new JSONNode(JSON_NODE);
+                _inner->set_name(name.c_str());
+                break;
+        }
+    }
+
     JsonNode::JsonNode(const String &name, const bool &value) : _attach(false) {
         _inner = new JSONNode(name.c_str(), value);
     }
@@ -274,18 +352,19 @@ namespace Json {
         } else if (node.type() == JSON_NODE)
             value = node.write();
         else if (node.type() == JSON_ARRAY) {
-            StringArray texts;
-            JSONNode::const_iterator iter = node.begin();
-            for (; iter != node.end(); ++iter) {
-                const JSONNode &n = *iter;
-                String str;
-                if (n.type() == JSON_NODE)
-                    str = n.write();
-                else
-                    str = n.as_string();
-                texts.add(str);
-            }
-            value = texts.toString();
+            value = node.write();
+//            StringArray texts;
+//            JSONNode::const_iterator iter = node.begin();
+//            for (; iter != node.end(); ++iter) {
+//                const JSONNode &n = *iter;
+//                String str;
+//                if (n.type() == JSON_NODE)
+//                    str = n.write();
+//                else
+//                    str = n.as_string();
+//                texts.add(str);
+//            }
+//            value = texts.toString();
         } else {
             value = node.as_string();
         }
@@ -305,6 +384,10 @@ namespace Json {
                 value.add(str);
             }
             return true;
+        } else if (_inner->type() == JSON_NODE) {
+            value.add(_inner->write());
+        } else if (_inner->type() != JSON_NULL) {
+            value.add(_inner->as_string());
         }
         return false;
     }

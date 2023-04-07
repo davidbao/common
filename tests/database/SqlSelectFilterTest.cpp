@@ -90,6 +90,19 @@ bool testProperty() {
 
     {
         SqlSelectFilter test(1, 100, {
+                {"names", "Xu; Zhang; Liu"},
+                {"age",   "90"}
+        });
+        if (test.toArrayLikeStr("names", "name") != "(name like '%Xu%' OR name like '%Zhang%' OR name like '%Liu%')") {
+            return false;
+        }
+        if (test.toArrayLikeStr("age", "age") != "(age like '%90%')") {
+            return false;
+        }
+    }
+
+    {
+        SqlSelectFilter test(1, 100, {
                 {"name", "Xu"},
                 {"age",  "90"}
         });

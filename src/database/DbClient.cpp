@@ -35,7 +35,7 @@ namespace Database {
 
     bool DbClient::retrieveCount(const String &sql, int &count) {
         DataTable table("countTable");
-        table.addColumn(DataColumn("count", ValueTypes::Integer32));
+        table.addColumn(DataColumn("count", DbType::Integer32));
         if (executeSqlQuery(sql, table)) {
             if (table.rowCount() == 1) {
                 count = table.rows().at(0).cells().at(0).value();

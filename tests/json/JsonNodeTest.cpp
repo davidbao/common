@@ -626,8 +626,8 @@ bool testProperty() {
 
     {
         StringMap value{{"test1", "1"},
-                       {"test2", "2"},
-                       {"test3", "3"}};
+                        {"test2", "2"},
+                        {"test3", "3"}};
         JsonNode test;
         test.addRange(value);
         if (test.toString() != R"({"test1":"1","test2":"2","test3":"3"})") {
@@ -838,6 +838,98 @@ bool testAttribute() {
             return false;
         }
         if (nodes[0].name() != "test") {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test{
+                {"test1", "1"},
+                {"test2", "abc"},
+                {"test3", "[1, 2]"},
+        };
+
+        StringMap values;
+        if (!test.getAttribute(values)) {
+            return false;
+        }
+        if (values.count() != 3) {
+            return false;
+        }
+//        for (auto it = values.begin(); it != values.end(); ++it) {
+//            const String &k = it.key();
+//            const String &v = it.value();
+//            printf("key: %s, value: %s\n", k.c_str(), v.c_str());
+//        }
+        if (!(values["test1"] == "1" && values["test2"] == "abc" &&
+              values["test3"] == "[1,2]")) {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test{
+                {"test1", "1"},
+                {"test2", "abc"},
+                {"test3", R"([{"a":1}, {"b":"abcd"}])"},
+        };
+//        printf("%s\n", test.toString().c_str());
+        StringMap values;
+        if (!test.getAttribute(values)) {
+            return false;
+        }
+        if (values.count() != 3) {
+            return false;
+        }
+//        for (auto it = values.begin(); it != values.end(); ++it) {
+//            const String &k = it.key();
+//            const String &v = it.value();
+//            printf("key: %s, value: %s\n", k.c_str(), v.c_str());
+//        }
+        if (!(values["test1"] == "1" && values["test2"] == "abc" &&
+              values["test3"] == R"([{"a":1},{"b":"abcd"}])")) {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test;
+        if (!JsonNode::parse(R"(["test1", "test2"])", test)) {
+            return false;
+        }
+        StringArray texts;
+        test.getAttribute(texts);
+        if (texts.count() != 2) {
+            return false;
+        }
+        if (texts[0] != "test1" && texts[1] != "test2") {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test;
+        if (!JsonNode::parse(R"(["test1"])", test)) {
+            return false;
+        }
+        StringArray texts;
+        test.getAttribute(texts);
+        if (texts.count() != 1) {
+            return false;
+        }
+        if (texts[0] != "test1") {
+            return false;
+        }
+    }
+
+    {
+        JsonNode test("name", "test1");
+        StringArray texts;
+        test.getAttribute(texts);
+        if (texts.count() != 1) {
+            return false;
+        }
+        if (texts[0] != "test1") {
             return false;
         }
     }

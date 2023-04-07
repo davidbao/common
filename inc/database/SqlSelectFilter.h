@@ -61,6 +61,8 @@ namespace Database {
 
         String toLikeStr(const String &key, const String &keyAlias = String::Empty) const;
 
+        String toArrayLikeStr(const String &key, const String &keyAlias, const char &splitSymbol = ';') const;
+
         String toEqualTextStr(const String &key, const String &keyAlias = String::Empty) const;
 
         String toEqualNumberStr(const String &key, const String &keyAlias = String::Empty) const;

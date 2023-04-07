@@ -11,6 +11,9 @@
 #include "data/Convert.h"
 #include "data/String.h"
 #include "IO/Stream.h"
+#include "json/JsonNode.h"
+
+using namespace Json;
 
 namespace Data {
     const StringArray StringArray::Empty;
@@ -134,6 +137,16 @@ namespace Data {
         else if (splitSymbol3 != '\0' && str.find(splitSymbol3) >= 0)
             StringArray::parse(str, texts, splitSymbol3);
         return StringArray::parse(str, texts, splitSymbol1);
+    }
+
+    bool StringArray::parseJson(const String &jsonStr, StringArray &texts) {
+        JsonNode node;
+        if (JsonNode::parse(jsonStr, node)) {
+            return node.getAttribute(texts);
+        } else {
+            texts.add(jsonStr);
+            return true;
+        }
     }
 
     StringArray &StringArray::operator=(const String &str) {

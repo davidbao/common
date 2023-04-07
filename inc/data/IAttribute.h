@@ -24,6 +24,8 @@ namespace Data {
 
         virtual bool getAttribute(const String &name, String &value) const = 0;
 
+        virtual bool getAttribute(const String &name, StringArray &value) const;
+
         String getAttribute(const String &name) const;
 
         bool getAttribute(const String &name, bool &value) const;

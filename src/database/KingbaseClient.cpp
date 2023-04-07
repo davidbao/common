@@ -417,7 +417,7 @@ namespace Database {
                 DataRow row;
                 for (int j = 0; j < columnCount; j++) {
                     const DataColumn &column = table.columns().at(j);
-                    ValueTypes type = column.type();
+                    DbType type = column.type();
                     const char *str = (const char *) KCIResultGetColumnValue(res, i, j);
 #ifdef WIN32
                     row.addCell(DataCell(column, DbValue(type, String::GBKtoUTF8(str))));
@@ -451,51 +451,51 @@ namespace Database {
         return result;
     }
 
-    ValueTypes KingbaseClient::getColumnType(int type) {
+    DbType KingbaseClient::getColumnType(int type) {
         switch (type) {
             case KCI_BOOLOID:        /* bool */
-                return ValueTypes::Digital;
+                return DbType::Digital;
             case KCI_BYTEAOID:        /* varbinary,bytea */
             case KCI_INT2OID:        /* smallint */
             case KCI_INT4OID:        /* int */
             case KCI_TINYINTOID:      /* tinyint */
-                return ValueTypes::Integer32;
+                return DbType::Integer32;
             case KCI_INT8OID:        /* bigint  */
-                return ValueTypes::Integer64;
+                return DbType::Integer64;
             case KCI_FLOAT4OID:       /* real */
-                return ValueTypes::Float32;
+                return DbType::Float32;
             case KCI_FLOAT8OID:       /* double，float(default) */
             case KCI_NUMERICOID:      /* numeric,decimal */
-                return ValueTypes::Float64;
+                return DbType::Float64;
             case KCI_BPCHAROID:      /* char */
             case KCI_VARCHAROID:      /* varchar */
             case KCI_TEXTOID:        /* text */
-                return ValueTypes::Text;
+                return DbType::Text;
             case KCI_DATEOID:      /* date */
             case KCI_TIMEOID:      /* time */
             case KCI_DATETIMEOID:      /* datetime */
-                return ValueTypes::Date;
+                return DbType::Date;
             case KCI_TIMESTAMPOID:      /* timestamp */
             case KCI_TIMESTAMPTZOID:      /* timestamp with time zone */
-                return ValueTypes::Timestamp;
+                return DbType::Timestamp;
             case KCI_INTERVALOID:      /* interval day,interval day to second, \
  							 interval hour,interval minute,interval \
  							 month,interval second,interval year, \
  							 interval year to month */
             case KCI_TIMETZOID:      /* time with time zone */
-                return ValueTypes::Timestamp;
+                return DbType::Timestamp;
             case KCI_ZPBITOID:      /* bit */
             case KCI_VARBITOID:      /* bitvarying */
-                return ValueTypes::Integer32;
+                return DbType::Integer32;
             case KCI_XMLOID:      /* xml */
             case KCI_TsqueryOID:      /* tsquery */
             case KCI_tsvectorOID:      /* tsvector */
             case KCI_BLOBOID:      /* blob */
             case KCI_CLOBOID:      /* clob */
-                return ValueTypes::Blob;
+                return DbType::Blob;
             default:
                 assert(false);
-                return ValueTypes::Null;
+                return DbType::Null;
         }
     }
 

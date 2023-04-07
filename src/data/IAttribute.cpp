@@ -9,6 +9,10 @@
 #include "data/IAttribute.h"
 
 namespace Data {
+    bool IAttributeGetter::getAttribute(const String &name, StringArray &value) const {
+        return StringArray::parse(getAttribute(name), value);
+    }
+
     String IAttributeGetter::getAttribute(const String &name) const {
         String value;
         getAttribute(name, value);

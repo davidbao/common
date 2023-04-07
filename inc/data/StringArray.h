@@ -71,6 +71,8 @@ namespace Data {
         static bool parseMultiSymbol(const String &str, StringArray &texts, const char &splitSymbol1 = ';',
                                      const char &splitSymbol2 = '\0', const char &splitSymbol3 = '\0');
 
+        static bool parseJson(const String &jsonStr, StringArray &texts);
+
     public:
         static const StringArray Empty;
     };

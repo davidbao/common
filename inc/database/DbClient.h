@@ -59,7 +59,7 @@ namespace Database {
         static uint64_t generateSnowFlakeId();
 
     protected:
-        virtual ValueTypes getColumnType(int type) = 0;
+        virtual DbType getColumnType(int type) = 0;
 
     protected:
         void printErrorInfo(const String &methodName, const String &sql = String::Empty,

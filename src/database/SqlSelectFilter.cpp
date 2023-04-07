@@ -95,6 +95,28 @@ namespace Database {
         }
     }
 
+    String SqlSelectFilter::toArrayLikeStr(const String &key, const String &keyAlias, const char &splitSymbol) const {
+        const char *keyStr = !keyAlias.isNullOrEmpty() ? keyAlias.c_str() : key.c_str();
+
+        String value;
+        if (_values.at(key, value) && !value.isNullOrEmpty()) {
+            StringArray texts;
+            StringArray::parse(value, texts, splitSymbol);
+            String str;
+            str.append("(");
+            for (size_t i = 0; i < texts.count(); ++i) {
+                if (i > 0) {
+                    str.append(" OR ");
+                }
+                str.append(String::format("%s like '%%%s%%'", keyStr, texts[i].trim().c_str()));
+            }
+            str.append(")");
+            return str;
+        } else {
+            return "1=1";
+        }
+    }
+
     String SqlSelectFilter::toEqualTextStr(const String &key, const String &keyAlias) const {
         return toEqualStr(key, keyAlias, true);
     }
