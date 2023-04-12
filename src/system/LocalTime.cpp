@@ -180,9 +180,8 @@ namespace System {
 #if __linux__ && !__ANDROID__
     bool LocalTime::hwclock(const DateTime& time)
     {
-        system("hwclock -w");
-        return true;
-        
+        return system("hwclock -w") >= 0;
+
 //        struct rtc_time rt;
 //        rt.tm_sec = time.second();/* Seconds.[0-60] (1 leap second)*/
 //        rt.tm_min = time.minute();/* Minutes.[0-59] */

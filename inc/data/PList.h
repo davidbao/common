@@ -40,9 +40,11 @@ namespace Data {
             addRange(array);
         }
 
-        PList(PList &&array)  noexcept : PList(array.autoDelete(), array.capacity()) {
+        PList(PList &&array)  noexcept {
             _array = array._array;
             _count = array._count;
+            _capacity = array._capacity;
+            _autoDelete = array._autoDelete;
             array._array = nullptr;
             array._count = 0;
         }
@@ -74,7 +76,7 @@ namespace Data {
             if (capacity > 0 && capacity != _capacity) {
                 if (count() == 0) {
                     _capacity = capacity;
-                    makeNull();
+                    clear();
                 } else {
                     // have data.
                     size_t size = this->size(_count, capacity);
@@ -181,21 +183,22 @@ namespace Data {
         }
 
         inline bool insert(size_t pos, const typePtr value) {
-            if ((size_t) pos <= _count) {
-                if (canResize()) {
-                    autoResize();
-                }
-
-                typePtr *temp = _array;
-                _array = new typePtr[size()];
-                memcpy(_array, temp, sizeof(typePtr) * (pos));
-                _array[pos] = (typePtr) value;
-                memcpy(_array + (pos + 1), temp + pos, sizeof(typePtr) * (_count - pos));
-                delete[] temp;
-                _count++;
-                return true;
-            }
-            return false;
+            return insertRange(pos, &value, 1);
+//            if ((size_t) pos <= _count) {
+//                if (canResize()) {
+//                    autoResize();
+//                }
+//
+//                typePtr *temp = _array;
+//                _array = new typePtr[size()];
+//                memcpy(_array, temp, sizeof(typePtr) * (pos));
+//                _array[pos] = (typePtr) value;
+//                memcpy(_array + (pos + 1), temp + pos, sizeof(typePtr) * (_count - pos));
+//                delete[] temp;
+//                _count++;
+//                return true;
+//            }
+//            return false;
         }
 
         inline bool setRange(size_t pos, const PList &array) {

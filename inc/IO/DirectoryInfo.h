@@ -12,6 +12,8 @@
 #include "data/StringArray.h"
 #include "data/String.h"
 
+using namespace Data;
+
 namespace IO {
     class DirectoryInfo {
     public:

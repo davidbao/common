@@ -125,9 +125,9 @@ bool testInsertRecordByTable() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -171,9 +171,9 @@ bool testReplaceRecordByTable() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -219,9 +219,9 @@ bool testRetrieveCount() {
         }
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -267,9 +267,9 @@ bool testTransaction() {
         test.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({
@@ -316,9 +316,9 @@ bool testTransaction() {
         test.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
-                                 DataColumn("id", ValueTypes::Integer32, true),
-                                 DataColumn("name", ValueTypes::Text, false),
-                                 DataColumn("score", ValueTypes::Float64, false),
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
                          });
         table.addRows({
                               DataRow({

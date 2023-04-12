@@ -11,6 +11,7 @@
 #include <clocale>
 #include <cfloat>
 #include <cassert>
+#include <climits>
 #include "data/ValueType.h"
 #include "data/WString.h"
 #include "data/StringArray.h"

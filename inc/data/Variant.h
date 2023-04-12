@@ -16,6 +16,7 @@
 #include "data/DateTime.h"
 #include "data/Convert.h"
 #include "data/ByteArray.h"
+#include "data/Dictionary.h"
 
 namespace Data {
     struct Variant

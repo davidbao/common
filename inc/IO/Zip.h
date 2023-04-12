@@ -13,6 +13,8 @@
 #include "data/String.h"
 #include "data/StringArray.h"
 
+using namespace Data;
+
 namespace Xml {
     class XmlTextReader;
 }

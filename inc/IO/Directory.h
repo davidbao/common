@@ -11,6 +11,7 @@
 
 #include "data/StringArray.h"
 #include "data/String.h"
+#include "data/DateTime.h"
 
 namespace IO {
     enum SearchOption {

@@ -24,14 +24,14 @@
 //#pragma comment (lib, "Advapi32.lib")
 #else
 
-#include <limits.h>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/wait.h>
-#include <signal.h>
+#include <csignal>
+#include <cstdlib>
+#include <climits>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <stdlib.h>
 
 #if __APPLE__
 
@@ -86,13 +86,12 @@ namespace Diag {
         int len = -1;
         if (handle != -1) {
             const int MAX_COUNT = 512;
-            int red = 0;
             char revda[MAX_COUNT];
             int r_num = 0;
             int i;
 
             fd_set readfds;
-            struct timeval tv_timeout;
+            struct timeval tv_timeout{};
 
             tv_timeout.tv_sec = timeout / 1000;
             tv_timeout.tv_usec = 1000 * (timeout % 1000);
@@ -101,7 +100,7 @@ namespace Diag {
                 FD_ZERO (&readfds);
                 FD_SET (handle, &readfds);
 
-                red = select(handle + 1, &readfds, nullptr, nullptr, &tv_timeout);
+                int red = select(handle + 1, &readfds, nullptr, nullptr, &tv_timeout);
                 if (red > 0) {
                     if (red > MAX_COUNT)
                         red = MAX_COUNT;
@@ -133,7 +132,7 @@ namespace Diag {
     bool Process::start(const String &fileName, const String &arguments, Process *process) {
         if (fileName.isNullOrEmpty())
             throw ArgumentNullException("fileName");
-#if WIN32
+#ifdef WIN32
         STARTUPINFO si;
         memset(&si, 0, sizeof(si));
         si.cb = sizeof(si);
@@ -208,38 +207,6 @@ namespace Diag {
 
         return result;
 #else
-        char **argv = nullptr;
-        uint32_t len = 0;
-        if (!arguments.isNullOrEmpty()) {
-            String temp = arguments;
-            StringArray as;
-            Convert::splitStr(temp, ' ', as, '"');
-            len = as.count();
-            argv = new char *[len + 2];
-
-            size_t tempLen = strlen(fileName) + 1;
-            argv[0] = new char[tempLen];
-            memset(argv[0], 0, tempLen);
-            strcpy(argv[0], fileName);
-            for (size_t i = 1; i <= len; i++) {
-                const String &valueStr = as[i - 1];
-                size_t tempLen = valueStr.length() + 1;
-                argv[i] = new char[tempLen];
-                memset(argv[i], 0, tempLen);
-                strcpy(argv[i], valueStr.c_str());
-            }
-            argv[len + 1] = nullptr;
-
-//            for(uint32_t i=0;i<len+1;i++)
-//            {
-//                const char* str = argv[i];
-//                if(str != nullptr)
-//                {
-//                    Trace::info(String::format("argv[i = %d]: %s", i, str));
-//                }
-//            }
-        }
-
         int pipefd[2];
         pipe(pipefd);
 
@@ -267,10 +234,31 @@ namespace Diag {
 
             close(pipefd[1]);    // this descriptor is no longer needed
 
+            char **argv = nullptr;
+            size_t argc = 0;
+            if (!arguments.isNullOrEmpty()) {
+                StringArray parameters;
+                Convert::splitStr(arguments, ' ', parameters, '"');
+                argc = parameters.count() + 1;
+                argv = new char *[argc + 1];
+
+                size_t fileNameLen = fileName.length() + 1;
+                argv[0] = new char[fileNameLen];
+                memset(argv[0], 0, fileNameLen);
+                strcpy(argv[0], fileName);
+                for (size_t i = 1; i < argc; i++) {
+                    const String &paramStr = parameters[i - 1];
+                    size_t paramLen = paramStr.length() + 1;
+                    argv[i] = new char[paramLen];
+                    memset(argv[i], 0, paramLen);
+                    strcpy(argv[i], paramStr.c_str());
+                }
+                argv[argc] = nullptr;
+            }
             int result = execvp(fileName, argv);
             if (argv != nullptr) {
-                assert(len > 0);
-                for (size_t i = 0; i <= len; i++)
+                assert(argc > 0);
+                for (size_t i = 0; i < argc; i++)
                     delete[] argv[i];
                 delete[] argv;
             }
@@ -340,7 +328,7 @@ namespace Diag {
                         process->kill();
                 }
             } else {
-                if (!(argv != nullptr && strcmp(argv[len], "&") == 0)) {
+                if (arguments.find('&') < 0) {
                     int status;
                     while (waitpid(child, &status, 0) < 0) {
                         if (errno != EINTR) {

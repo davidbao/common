@@ -180,6 +180,10 @@ namespace Database {
                     public IIndexGetter<const DataCell &>,
                     public IPositionGetter<const DataCell &, const String &> {
     public:
+        using IIndexGetter<const DataCell &>::at;
+        using IIndexGetter<const DataCell &>::operator[];
+        using IPositionGetter<const DataCell &, const String &>::operator[];
+
         DataRow();
 
         explicit DataRow(const DataCells &cells);

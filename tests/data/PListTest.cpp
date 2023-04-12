@@ -337,21 +337,29 @@ bool testInsert() {
     for (int i = 0; i < count; ++i) {
         test.add(new Value(i));
     }
-    Values test2(false);
-    test2.addRange(test);
-    if (!test2.insert(6, new Value(111))) {
-        return false;
-    }
-    if (!(valueEquals(test2[6], 111) && test2.count() == test.count() + 1)) {
-        return false;
+
+    {
+        Values test2(false);
+        test2.addRange(test);
+        std::unique_ptr<Value> v(new Value(111));
+        if (!test2.insert(6, v.get())) {
+            return false;
+        }
+        if (!(valueEquals(test2[6], 111) && test2.count() == test.count() + 1)) {
+            return false;
+        }
     }
 
-    // out of range.
-    Values test3(false);
-    test3.addRange(test);
-    if (test3.insert(200, new Value(111))) {
-        return false;
+    {
+        // out of range.
+        Values test3(false);
+        test3.addRange(test);
+        std::unique_ptr<Value> v(new Value(111));
+        if (test3.insert(200, v.get())) {
+            return false;
+        }
     }
+
     return true;
 }
 
@@ -532,31 +540,42 @@ bool testSet() {
     for (int i = 0; i < count; ++i) {
         test.add(new Value(i));
     }
-    Values test2(false);
-    test2.addRange(test);
-    if (!test2.set(6, new Value(111))) {
-        return false;
-    }
-    if (!(valueEquals(test2[6], 111) && test2.count() == test.count())) {
-        return false;
+
+    {
+        Values test2(false);
+        test2.addRange(test);
+        std::unique_ptr<Value> v(new Value(111));
+        if (!test2.set(6, v.get())) {
+            return false;
+        }
+        if (!(valueEquals(test2[6], 111) && test2.count() == test.count())) {
+            return false;
+        }
     }
 
-    // out of range.
-    Values test4(false);
-    test4.addRange(test);
-    if (test4.set(200, new Value(111))) {
-        return false;
+    {
+        // out of range.
+        Values test4(false);
+        test4.addRange(test);
+        std::unique_ptr<Value> v(new Value(111));
+        if (test4.set(200, v.get())) {
+            return false;
+        }
     }
 
-    // out of range if it can be inserted empty.
-    Values test5(false);
-    test5.addRange(test);
-    if (!test5.set(200, new Value(111), true)) {
-        return false;
+    {
+        // out of range if it can be inserted empty.
+        Values test5(false);
+        test5.addRange(test);
+        std::unique_ptr<Value> v(new Value(111));
+        if (!test5.set(200, v.get(), true)) {
+            return false;
+        }
+        if (!(valueEquals(test5[200], 111) && test5.count() == 200 + 1)) {
+            return false;
+        }
     }
-    if (!(valueEquals(test5[200], 111) && test5.count() == 200 + 1)) {
-        return false;
-    }
+
     return true;
 }
 

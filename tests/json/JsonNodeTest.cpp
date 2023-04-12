@@ -1044,6 +1044,14 @@ bool testParse() {
         }
     }
 
+    {
+        JsonNode node;
+        String str = "中文, ab/cd";
+        if (JsonNode::parse(str, node)) {
+            return false;
+        }
+    }
+
     return true;
 }
 

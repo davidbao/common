@@ -43,9 +43,10 @@ namespace Data {
             addRange(array);
         }
 
-        Vector(Vector &&array) noexcept: Vector(array.capacity()) {
+        Vector(Vector &&array) noexcept {
             _array = array._array;
             _count = array._count;
+            _capacity = array._capacity;
             array._array = nullptr;
             array._count = 0;
         }
@@ -98,7 +99,7 @@ namespace Data {
             if (capacity > 0 && capacity != _capacity) {
                 if (count() == 0) {
                     _capacity = capacity;
-                    makeNull();
+                    clear();
                 } else {
                     // have data.
                     size_t size = this->size(_count, capacity);
@@ -452,6 +453,7 @@ namespace Data {
         static void copy(type *dst, const type *src, size_t count) {
             if (TypeInfo<type>::isComplex) {
                 for (size_t i = 0; i < count; i++) {
+                    dst[i].~type();
                     new(&dst[i]) type(src[i]);
                 }
             } else {

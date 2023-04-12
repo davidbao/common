@@ -222,8 +222,8 @@ namespace Json {
     JsonNode::~JsonNode() {
         if (!_attach) {
             delete _inner;
-            _inner = nullptr;
         }
+        _inner = nullptr;
     }
 
     bool JsonNode::equals(const JsonNode &other) const {

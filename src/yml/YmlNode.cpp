@@ -110,6 +110,8 @@ namespace Yml {
             delete _node->node;
             _node->node = nullptr;
         }
+        delete _node;
+        _node = nullptr;
     }
 
     bool YmlNode::equals(const YmlNode &other) const {

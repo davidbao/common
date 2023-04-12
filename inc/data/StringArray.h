@@ -9,13 +9,8 @@
 #ifndef StringArray_h
 #define StringArray_h
 
-#include "data/Vector.h"
+#include "data/List.h"
 #include "data/String.h"
-#include "data/DateTime.h"
-#include "data/TimeSpan.h"
-#include "data/Version.h"
-#include "data/Dictionary.h"
-#include "data/Uuid.h"
 
 namespace IO {
     class Stream;
@@ -23,7 +18,7 @@ namespace IO {
 using namespace IO;
 
 namespace Data {
-    class StringArray : public SortedVector<String> {
+    class StringArray : public SortedList<String> {
     public:
         enum CountLength {
             CountLength1 = 1,

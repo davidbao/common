@@ -12,6 +12,7 @@
 #include "data/DateTime.h"
 #include "data/TimeZone.h"
 #include "data/Map.h"
+#include "data/Uuid.h"
 #include "data/String.h"
 #include "data/ByteArray.h"
 #include "IO/Stream.h"

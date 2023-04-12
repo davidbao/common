@@ -45,9 +45,10 @@ namespace Data {
             addRange(array);
         }
 
-        List(List &&array) noexcept: List(array.capacity()) {
+        List(List &&array) noexcept {
             _array = array._array;
             _count = array._count;
+            _capacity = array._capacity;
             array._array = nullptr;
             array._count = 0;
         }
@@ -92,7 +93,7 @@ namespace Data {
             if (capacity > 0 && capacity != _capacity) {
                 if (count() == 0) {
                     _capacity = capacity;
-                    makeNull();
+                    clear();
                 } else {
                     // have data.
                     size_t size = this->size(_count, capacity);
@@ -160,49 +161,11 @@ namespace Data {
             if (offset + count > array.count())
                 return false;
 
-            if (count > 0) {
-                if (_count + count > this->size()) {
-                    typePtr *temp = _array;
-                    size_t size = this->size(_count + count);
-                    _array = new typePtr[size];
-                    copy(_array, temp, _count);
-                    clone(_array + _count, array._array + offset, count);
-                    zero(_array + (_count + count), size - _count - count);
-                    delete[] temp;
-                } else {
-                    if (canResize()) {
-                        autoResize();
-                    }
-                    clone(_array + _count, array._array + offset, count);
-                }
-                _count += count;
-
-                return true;
-            }
-            return false;
+            return addRangeInner(array._array + offset, count);
         }
 
         inline bool addRange(const type *array, size_t count) {
-            if (count > 0) {
-                if (_count + count > this->size()) {
-                    typePtr *temp = _array;
-                    size_t size = this->size(_count + count);
-                    _array = new typePtr[size];
-                    copy(_array, temp, _count);
-                    clone(_array + _count, array, count);
-                    zero(_array + (_count + count), size - _count - count);
-                    delete[] temp;
-                } else {
-                    if (canResize()) {
-                        autoResize();
-                    }
-                    clone(_array + _count, array, count);
-                }
-                _count += count;
-
-                return true;
-            }
-            return false;
+            return addRangeInner(array, count);
         }
 
         inline bool addRange(const type *array, off_t offset, size_t count) {
@@ -221,37 +184,11 @@ namespace Data {
             if (offset + count > array.count())
                 return false;
 
-            if (count > 0 && pos <= _count) {
-                size_t size = this->size(_count + count);
-                typePtr *temp = _array;
-                _array = new typePtr[size];
-                copy(_array, temp, pos);
-                clone(_array + pos, array._array + offset, count);
-                copy(_array + (pos + count), temp + pos, _count - pos);
-                zero(_array + (_count + pos + count), size - _count - pos - count);
-                delete[] temp;
-                _count += count;
-
-                return true;
-            }
-            return false;
+            return insertRangeInner(pos, array._array + offset, count);
         }
 
         inline bool insertRange(size_t pos, const type *array, size_t count) {
-            if (count > 0 && pos <= _count) {
-                size_t size = this->size(_count + count);
-                typePtr *temp = _array;
-                _array = new typePtr[size];
-                copy(_array, temp, pos);
-                clone(_array + pos, array, count);
-                copy(_array + (pos + count), temp + pos, _count - pos);
-                zero(_array + (_count + pos + count), size - _count - pos - count);
-                delete[] temp;
-                _count += count;
-
-                return true;
-            }
-            return false;
+            return insertRangeInner(pos, array, count);
         }
 
         inline bool insertRange(size_t pos, const type *array, off_t offset, size_t count) {
@@ -274,22 +211,11 @@ namespace Data {
             if (offset + count > array.count())
                 return false;
 
-            if (pos + count <= _count) {
-                for (size_t i = pos; i < count; i++) {
-                    delete _array[i];
-                }
-                clone(_array + pos, array._array + offset, count);
-                return true;
-            }
-            return false;
+            return setRangeInner(pos, array._array, count);
         }
 
         inline bool setRange(size_t pos, const type *array, size_t count) {
-            if (pos + count <= _count) {
-                clone(_array + pos, array, count);
-                return true;
-            }
-            return false;
+            return setRangeInner(pos, array, count);
         }
 
         inline bool setRange(size_t pos, const type *array, off_t offset, size_t count) {
@@ -491,6 +417,60 @@ namespace Data {
             return false;
         }
 
+        template<class T>
+        inline bool addRangeInner(const T *array, size_t count) {
+            if (count > 0) {
+                if (_count + count > this->size()) {
+                    typePtr *temp = _array;
+                    size_t size = this->size(_count + count);
+                    _array = new typePtr[size];
+                    copy(_array, temp, _count);
+                    clone(_array + _count, array, count);
+                    zero(_array + (_count + count), size - _count - count);
+                    delete[] temp;
+                } else {
+                    if (canResize()) {
+                        autoResize();
+                    }
+                    clone(_array + _count, array, count);
+                }
+                _count += count;
+
+                return true;
+            }
+            return false;
+        }
+
+        template<class T>
+        inline bool insertRangeInner(size_t pos, const T *array, size_t count) {
+            if (count > 0 && pos <= _count) {
+                size_t size = this->size(_count + count);
+                typePtr *temp = _array;
+                _array = new typePtr[size];
+                copy(_array, temp, pos);
+                clone(_array + pos, array, count);
+                copy(_array + (pos + count), temp + pos, _count - pos);
+                zero(_array + (_count + pos + count), size - _count - pos - count);
+                delete[] temp;
+                _count += count;
+
+                return true;
+            }
+            return false;
+        }
+
+        template<class T>
+        inline bool setRangeInner(size_t pos, const T *array, size_t count) {
+            if (pos + count <= _count) {
+                for (size_t i = pos; i < pos + count; i++) {
+                    delete _array[i];
+                }
+                clone(_array + pos, array, count);
+                return true;
+            }
+            return false;
+        }
+
         static size_t size(size_t count, size_t capacity) {
             size_t size = (count / capacity) + 1;
             return size * capacity;
@@ -547,7 +527,7 @@ namespace Data {
         SortedList(const SortedList &array) : List<type>(array) {
         }
 
-        SortedList(SortedList &&array) noexcept: List<type>(array) {
+        SortedList(SortedList &&array) noexcept: List<type>(std::move(array)) {
         }
 
         SortedList(const SortedList &array, off_t offset, size_t count) :
@@ -559,6 +539,9 @@ namespace Data {
         }
 
         SortedList(const type &value, size_t count) : List<type>(value, count) {
+        }
+
+        SortedList(std::initializer_list<type> list) : List<type>(list) {
         }
 
         SortedList &operator=(const SortedList &other) {

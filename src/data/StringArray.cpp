@@ -18,26 +18,26 @@ using namespace Json;
 namespace Data {
     const StringArray StringArray::Empty;
 
-    StringArray::StringArray(size_t capacity) : SortedVector<String>(capacity) {
+    StringArray::StringArray(size_t capacity) : SortedList<String>(capacity) {
     }
 
     StringArray::StringArray(const StringArray &array) = default;
 
-    StringArray::StringArray(StringArray &&array) noexcept: SortedVector<String>(std::move(array)) {
+    StringArray::StringArray(StringArray &&array) noexcept: SortedList<String>(std::move(array)) {
     }
 
-    StringArray::StringArray(const StringArray &array, off_t offset, size_t count) : SortedVector<String>(array, offset,
+    StringArray::StringArray(const StringArray &array, off_t offset, size_t count) : SortedList<String>(array, offset,
                                                                                                           count) {
     }
 
-    StringArray::StringArray(const String *array, size_t count, size_t capacity) : SortedVector<String>(array, count,
+    StringArray::StringArray(const String *array, size_t count, size_t capacity) : SortedList<String>(array, count,
                                                                                                         capacity) {
     }
 
-    StringArray::StringArray(const String &value, size_t count) : SortedVector<String>(value, count) {
+    StringArray::StringArray(const String &value, size_t count) : SortedList<String>(value, count) {
     }
 
-    StringArray::StringArray(std::initializer_list<String> list) : SortedVector<String>(list) {
+    StringArray::StringArray(std::initializer_list<String> list) : SortedList<String>(list) {
     }
 
     void StringArray::addArray(const char *item, ...) {
@@ -53,7 +53,7 @@ namespace Data {
 
     bool StringArray::contains(const String &str, bool ignoreCase) const {
         for (size_t i = 0; i < count(); i++) {
-            if (String::equals(data()[i], str, ignoreCase)) {
+            if (String::equals(*data()[i], str, ignoreCase)) {
                 return true;
             }
         }
@@ -62,7 +62,7 @@ namespace Data {
 
     bool StringArray::remove(const String &str, bool ignoreCase) {
         for (ssize_t i = count() - 1; i >= 0; i--) {
-            if (String::equals(data()[i], str, ignoreCase)) {
+            if (String::equals(*data()[i], str, ignoreCase)) {
                 return removeAt(i);
             }
         }

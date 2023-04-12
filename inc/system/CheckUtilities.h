@@ -4,6 +4,8 @@
 #include "data/Convert.h"
 #include "data/ByteArray.h"
 
+using namespace Data;
+
 namespace System {
     // Block Check Character
     class BccUtilities {
