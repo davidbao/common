@@ -55,9 +55,11 @@ namespace Data {
             Float32 = 10,
             Float64 = 11,
             Text = 12,
-            Date = 13,
-            Timestamp = 14,
-            Blob = 15
+            Date = 13,          // only date.
+            Time = 14,          // only time
+            Timestamp = 15,     // date + time
+            Interval = 16,      // timespan
+            Blob = 17
         };
 
         union Value {
@@ -73,8 +75,10 @@ namespace Data {
             float fValue;
             double dValue;
             char *strValue;
-            uint64_t dateValue;    // 100-nanosecond ticks
-            int64_t timeValue;     // 100-nanosecond ticks
+            uint64_t dateValue;     // 100-nanosecond ticks
+            uint64_t timeValue;     // 100-nanosecond ticks
+            uint64_t dtValue;       // 100-nanosecond ticks
+            int64_t tsValue;        // 100-nanosecond ticks
             uint8_t *blobValue;
 
             Value() : lValue(0) {

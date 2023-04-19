@@ -96,14 +96,14 @@ namespace Json {
                 _inner = new JSONNode(name.c_str(), v.dValue);
                 break;
             case Variant::Text: {
-                String value = v.strValue;
-                if (value.find('{') == 0 ||
-                    value.find('[') == 0) {
+                String str = v.strValue;
+                if (str.find('{') == 0 ||
+                        str.find('[') == 0) {
                     _inner = new JSONNode(JSON_NODE);
-                    JsonNode::parse(value, *this);
+                    JsonNode::parse(str, *this);
                     _inner->set_name(name.c_str());
                 } else {
-                    _inner = new JSONNode(name.c_str(), value);
+                    _inner = new JSONNode(name.c_str(), str);
                 }
             }
                 break;

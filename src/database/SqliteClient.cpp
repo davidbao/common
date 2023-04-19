@@ -442,8 +442,12 @@ namespace Database {
             valueType = DbValue::Text;
         } else if (temp.find("date") >= 0) {
             valueType = DbValue::Date;
+        } else if (temp.find("time") >= 0) {
+            valueType = DbValue::Time;
         } else if (temp.find("timestamp") >= 0) {
             valueType = DbValue::Timestamp;
+        } else if (temp.find("timespan") >= 0) {
+            valueType = DbValue::Interval;
         } else if (temp.find("float") >= 0 ||
                    temp.find("number") >= 0) {
             valueType = DbValue::Float32;

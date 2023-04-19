@@ -185,7 +185,9 @@ namespace Database {
 
     String DataCell::valueStr(bool hasQuote) const {
         String valueStr = _value.valueStr();
-        if (type() == DbValue::Text || type() == DbValue::Date || type() == DbValue::Timestamp) {
+        if (type() == DbValue::Text ||
+            type() == DbValue::Date || type() == DbValue::Time ||
+            type() == DbValue::Timestamp || type() == DbValue::Interval) {
             return hasQuote ? String::convert("'%s'", valueStr.c_str()) : valueStr;
         }
         return valueStr;
@@ -456,20 +458,23 @@ namespace Database {
     }
 
     void DataTable::toJsonNode(JsonNode &node, const String &format) const {
-        String fmt = format.isNullOrEmpty() ? "g" : format;
+        String fmt = format.isNullOrEmpty() ? "g" : format.toLower();
+        if (fmt == "g") {
+            fmt = "cn";     // has column + number.
+        }
         node = JsonNode(name(), JsonNode::TypeArray);
-        if (String::equals(fmt, "g", true) || String::equals(fmt, "l", true)) {
+        if (fmt.find("c") >= 0) {
             for (size_t i = 0; i < rowCount(); i++) {
                 const DataRow &row = rows().at(i);
                 const DataCells &cells = row.cells();
                 JsonNode rowNode;
                 for (size_t j = 0; j < cells.count(); j++) {
                     const DataCell &cell = cells.at(j);
-                    rowNode.add(JsonNode(cell.columnName(), cell.value()));
+                    rowNode.add(JsonNode(cell.columnName(), fmt.find("s") >= 0 ? cell.valueStr() : cell.value()));
                 }
                 node.add(rowNode);
             }
-        } else if (String::equals(fmt, "s", true)) {
+        } else {
             for (size_t i = 0; i < rowCount(); i++) {
                 const DataRow &row = rows().at(i);
                 const DataCells &cells = row.cells();

@@ -72,8 +72,8 @@ namespace Net {
     }
 
     bool MacAddress::isEmpty() const {
-        for (int i = 0; i < Count; i++) {
-            if (address[i] != 0)
+        for (uint8_t addr : address) {
+            if (addr != 0)
                 return false;
         }
         return true;
@@ -332,8 +332,8 @@ namespace Net {
     }
 
     bool IPAddress::isEmpty() const {
-        for (int i = 0; i < Count; i++) {
-            if (this->address[i] != 0)
+        for (uint8_t addr : address) {
+            if (addr != 0)
                 return false;
         }
         return true;
@@ -502,7 +502,7 @@ namespace Net {
         return true;
     }
 
-    const Port Port::Empty;
+    const Port Port::Empty(0);
 
     Port::Port(uint16_t value) {
         if (value >= MinValue && value <= MaxValue)
@@ -723,7 +723,7 @@ namespace Net {
         return false;
     }
 
-    const Endpoint Endpoint::Empty;
+    const Endpoint Endpoint::Empty("", 0);
 
     Endpoint::Endpoint(const String &address, uint16_t port) : Endpoint(address, Port(port)) {
     }
@@ -944,7 +944,7 @@ namespace Net {
     const char *Url::SchemeMqtt = "mqtt";
     const char *Url::SchemeMqtts = "mqtts";
     const char *Url::SchemeCoap = "coap";
-    const Url Url::Empty;
+    const Url Url::Empty("");
     const StringArray Url::Schemes = {SchemeHttp, SchemeHttps,
                                       SchemeWebSocket, SchemeWebSockets,
                                       SchemeEaseTcp, SchemeEaseTcps,

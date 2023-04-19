@@ -315,6 +315,27 @@ bool testConstructor() {
         }
     }
 
+    {
+        JsonNode test{
+                {"value", (int64_t) 7053599610567107072}
+        };
+        String str = test.toString();
+        if (str != R"({"value":7053599610567107072})") {
+            return false;
+        }
+    }
+
+    {
+        Variant value(Variant::Integer64, "7053599610567107072");
+        JsonNode valueNode("value", value);
+        JsonNode test;
+        test.add(valueNode);
+        String str = test.toString();
+        if (str != R"({"value":7053599610567107072})") {
+            return false;
+        }
+    }
+
     return true;
 }
 

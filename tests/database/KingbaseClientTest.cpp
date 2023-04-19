@@ -346,7 +346,6 @@ bool testTransaction() {
 
 bool testExecuteSql() {
     {
-
     }
 
     return true;

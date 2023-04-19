@@ -277,8 +277,6 @@ namespace Database {
             case SQLT_AFC:
             case SQLT_STR:
                 return DbType::Text;
-            case SQLT_DAT:
-                return DbType::Date;
             case SQLT_INT:
                 return DbType::Integer32;
             case SQLT_LNG:
@@ -287,14 +285,22 @@ namespace Database {
                 return DbType::Float64;
             case SQLT_FLT:
                 return DbType::Float32;
+            case SQLT_DAT:
+            case SQLT_DATE:
+                return DbType::Date;
+            case SQLT_TIME:
+            case SQLT_TIME_TZ:
+                return DbType::Time;
             case SQLT_TIMESTAMP:
             case SQLT_TIMESTAMP_TZ:
             case SQLT_TIMESTAMP_LTZ:
                 return DbType::Timestamp;
+            case SQLT_INTERVAL_YM:
+            case SQLT_INTERVAL_DS:
+                return DbType::Timestamp;
             case SQLT_BOL:
                 return DbType::Digital;
             default:
-                assert(false);
                 return DbType::Null;
         }
     }
@@ -390,7 +396,7 @@ namespace Database {
         }
 
         InnerColumns icolumns;
-        int table_columnCount = (int)table.columnCount();
+        int table_columnCount = (int) table.columnCount();
         if ((table_columnCount > 0 && table_columnCount == numcols) ||
             table_columnCount == 0) {
             OCIParam *paramhp;
@@ -436,10 +442,12 @@ namespace Database {
                 /* add one more uint8_t to store the ternimal char of String */
                 dispsize = dispsize + 1;
 
-                bool useDispSize = dataType == SQLT_DAT ||
+                bool useDispSize = dataType == SQLT_DAT || dataType == SQLT_DATE ||
+                                   dataType == SQLT_TIME || dataType == SQLT_TIME_TZ ||
                                    dataType == SQLT_TIMESTAMP ||
                                    dataType == SQLT_TIMESTAMP_TZ ||
-                                   dataType == SQLT_TIMESTAMP_LTZ;
+                                   dataType == SQLT_TIMESTAMP_LTZ ||
+                                   dataType == SQLT_INTERVAL_YM || dataType == SQLT_INTERVAL_DS;
                 InnerColumn *icolumn = new InnerColumn(dataType, useDispSize ? dispsize : dataSize);
                 icolumns.add(icolumn);
 
@@ -660,17 +668,17 @@ namespace Database {
                     value = String::Empty;
                 }
                 strcpy(values[i], value.c_str());
-                alenp[i] = (ub2)value.length();
+                alenp[i] = (ub2) value.length();
             }
 
-            result = OCIBindByPos(statement, &binds[j], _oracleDb->error, (ub4)(j + 1), (dvoid *) values[0], StrLength,
+            result = OCIBindByPos(statement, &binds[j], _oracleDb->error, (ub4) (j + 1), (dvoid *) values[0], StrLength,
                                   SQLT_CHR, 0, alenp, 0, 0, 0, OCI_DEFAULT);
             if (result) {
                 printErrorInfo("OCIBindByPos", result, sqlStr);
             }
         }
 
-        result = OCIStmtExecute(_oracleDb->context, statement, _oracleDb->error, (ub4)rowCount, 0, nullptr, nullptr,
+        result = OCIStmtExecute(_oracleDb->context, statement, _oracleDb->error, (ub4) rowCount, 0, nullptr, nullptr,
                                 OCI_BATCH_ERRORS);
         if (!(result == OCI_SUCCESS || result == OCI_SUCCESS_WITH_INFO)) {
             printErrorInfo("OCIStmtExecute", result, sqlStr);
@@ -726,7 +734,7 @@ namespace Database {
         String sql;
         for (size_t i = 0; i < rowCount; i++) {
             const DataRow &row = table.rows().at(i);
-            sql = toMergeStr(table, (DataRow*)&row);
+            sql = toMergeStr(table, (DataRow *) &row);
 
             const char *sqlStr = sql.c_str();
             result = OCIStmtPrepare(statement, _oracleDb->error, (const OraText *) sqlStr, (ub4) sql.length(),

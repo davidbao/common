@@ -458,10 +458,14 @@ namespace Database {
             case MYSQL_TYPE_NULL:
                 return DbType::Null;
             case MYSQL_TYPE_DATE:
-            case MYSQL_TYPE_TIME:
-            case MYSQL_TYPE_DATETIME:
                 return DbType::Date;
+            case MYSQL_TYPE_TIME:
+            case MYSQL_TYPE_TIME2:
+                return DbType::Time;
+            case MYSQL_TYPE_DATETIME:
+            case MYSQL_TYPE_DATETIME2:
             case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_TIMESTAMP2:
                 return DbType::Timestamp;
             case MYSQL_TYPE_BIT:
                 return DbType::Digital;
@@ -472,7 +476,6 @@ namespace Database {
             case MYSQL_TYPE_LONG_BLOB:
                 return DbType::Blob;
             default:
-                assert(false);
                 return DbType::Null;
         }
     }

@@ -408,7 +408,6 @@ namespace Database {
                         sprintf(temp, "tempCol%d", i);
                         name = temp;
                     }
-
                     table.addColumn(DataColumn(name, getColumnType((int) KCIResultGetColumnType(res, i))));
                 }
             }
@@ -419,11 +418,7 @@ namespace Database {
                     const DataColumn &column = table.columns().at(j);
                     DbType type = column.type();
                     const char *str = (const char *) KCIResultGetColumnValue(res, i, j);
-#ifdef WIN32
                     row.addCell(DataCell(column, DbValue(type, String::GBKtoUTF8(str))));
-#else
-                    row.addCell(DataCell(column, DbValue(type, str)));
-#endif
                 }
                 table.addRow(row);
             }
@@ -472,9 +467,11 @@ namespace Database {
             case KCI_TEXTOID:        /* text */
                 return DbType::Text;
             case KCI_DATEOID:      /* date */
-            case KCI_TIMEOID:      /* time */
-            case KCI_DATETIMEOID:      /* datetime */
                 return DbType::Date;
+            case KCI_TIMEOID:      /* time */
+            case KCI_TIMETZOID:      /* time with time zone */
+                return DbType::Time;
+            case KCI_DATETIMEOID:      /* datetime */
             case KCI_TIMESTAMPOID:      /* timestamp */
             case KCI_TIMESTAMPTZOID:      /* timestamp with time zone */
                 return DbType::Timestamp;
@@ -482,8 +479,7 @@ namespace Database {
  							 interval hour,interval minute,interval \
  							 month,interval second,interval year, \
  							 interval year to month */
-            case KCI_TIMETZOID:      /* time with time zone */
-                return DbType::Timestamp;
+                return DbType::Interval;
             case KCI_ZPBITOID:      /* bit */
             case KCI_VARBITOID:      /* bitvarying */
                 return DbType::Integer32;

@@ -121,10 +121,10 @@ namespace Data {
     Variant::Variant(const String &value) : Variant(Text, value) {
     }
 
-    Variant::Variant(const DateTime &value) : Variant(Date, value) {
+    Variant::Variant(const DateTime &value) : Variant(Timestamp, value) {
     }
 
-    Variant::Variant(const TimeSpan &value) : Variant(Timestamp, value) {
+    Variant::Variant(const TimeSpan &value) : Variant(Interval, value) {
     }
 
     Variant::Variant(const ByteArray &value) : Variant(Blob, value) {
@@ -677,8 +677,12 @@ namespace Data {
                 return changeValue(String(_value.strValue), type, value);
             case Date:
                 return changeValue(_value.dateValue, type, value);
-            case Timestamp:
+            case Time:
                 return changeValue(_value.timeValue, type, value);
+            case Timestamp:
+                return changeValue(_value.dtValue, type, value);
+            case Interval:
+                return changeValue(_value.tsValue, type, value);
             case Blob:
                 return changeBlobValue(_value.blobValue, type, value);
             default:
@@ -811,11 +815,19 @@ namespace Data {
                 return equalsTextValue(value.strValue, v.c_str());
             case Date: {
                 DateTime temp;
-                return DateTime::parse(v, temp) && value.dateValue == temp.ticks();
+                return DateTime::parse(v, temp) && value.dateValue == temp.date().ticks();
+            }
+            case Time: {
+                DateTime temp;
+                return DateTime::parse(v, temp) && value.dateValue == temp.timeOfDay().ticks();
             }
             case Timestamp: {
+                DateTime temp;
+                return DateTime::parse(v, temp) && value.dtValue == temp.ticks();
+            }
+            case Interval: {
                 TimeSpan temp;
-                return TimeSpan::parse(v, temp) && value.timeValue == temp.ticks();
+                return TimeSpan::parse(v, temp) && value.tsValue == temp.ticks();
             }
             case Blob:
             default:
@@ -899,8 +911,12 @@ namespace Data {
                     return changeValue(String(value.strValue), destType, destValue);
                 case Date:
                     return changeValue(DateTime(value.dateValue), destType, destValue);
+                case Time:
+                    return changeValue(DateTime(value.timeValue), destType, destValue);
                 case Timestamp:
-                    return changeValue(TimeSpan(value.timeValue), destType, destValue);
+                    return changeValue(DateTime(value.dtValue), destType, destValue);
+                case Interval:
+                    return changeValue(TimeSpan(value.tsValue), destType, destValue);
                 case Blob:
                 default:
                     return false;
@@ -962,8 +978,14 @@ namespace Data {
             case Date:
                 result = value2.dateValue == destValue.dateValue;
                 break;
-            case Timestamp:
+            case Time:
                 result = value2.timeValue == destValue.timeValue;
+                break;
+            case Timestamp:
+                result = value2.dtValue == destValue.dtValue;
+                break;
+            case Interval:
+                result = value2.tsValue == destValue.tsValue;
                 break;
             case Blob:
                 result = equalsBlobValue(value2.blobValue, destValue.blobValue);
@@ -1045,9 +1067,17 @@ namespace Data {
                 if (value1.dateValue > value2.dateValue) result = 1;
                 if (value1.dateValue < value2.dateValue) result = -1;
                 break;
-            case Timestamp:
+            case Time:
                 if (value1.timeValue > value2.timeValue) result = 1;
                 if (value1.timeValue < value2.timeValue) result = -1;
+                break;
+            case Timestamp:
+                if (value1.dtValue > value2.dtValue) result = 1;
+                if (value1.dtValue < value2.dtValue) result = -1;
+                break;
+            case Interval:
+                if (value1.tsValue > value2.tsValue) result = 1;
+                if (value1.tsValue < value2.tsValue) result = -1;
                 break;
             case Blob:
                 result = compareBlobValue(value1.blobValue, value2.blobValue);
@@ -1108,15 +1138,31 @@ namespace Data {
             case Date: {
                 DateTime time;
                 if (DateTime::parse(v, time)) {
-                    value.dateValue = time.ticks();
+                    value.dateValue = time.date().ticks();
+                    changed = true;
+                }
+                break;
+            }
+            case Time: {
+                DateTime time;
+                if (DateTime::parse(v, time)) {
+                    value.timeValue = time.timeOfDay().ticks();
                     changed = true;
                 }
                 break;
             }
             case Timestamp: {
+                DateTime time;
+                if (DateTime::parse(v, time)) {
+                    value.dtValue = time.ticks();
+                    changed = true;
+                }
+                break;
+            }
+            case Interval: {
                 TimeSpan time;
                 if (TimeSpan::parse(v, time)) {
-                    value.timeValue = time.ticks();
+                    value.tsValue = time.ticks();
                     changed = true;
                 }
                 break;
@@ -1193,8 +1239,16 @@ namespace Data {
                 value.dateValue = v.ticks();
                 changed = true;
                 break;
+            case Time:
+                value.timeValue = v.ticks();
+                changed = true;
+                break;
             case Timestamp:
-                value.timeValue = (int64_t) v.ticks();
+                value.dtValue = (int64_t) v.ticks();
+                changed = true;
+                break;
+            case Interval:
+                value.tsValue = (int64_t) v.ticks();
                 changed = true;
                 break;
             case Blob:
@@ -1261,8 +1315,16 @@ namespace Data {
                 value.dateValue = (uint64_t) v.ticks();
                 changed = true;
                 break;
+            case Time:
+                value.timeValue = (uint64_t) v.ticks();
+                changed = true;
+                break;
             case Timestamp:
-                value.timeValue = v.ticks();
+                value.dtValue = (uint64_t) v.ticks();
+                changed = true;
+                break;
+            case Interval:
+                value.tsValue = v.ticks();
                 changed = true;
                 break;
             case Blob:
@@ -1291,7 +1353,9 @@ namespace Data {
             case Float64:
             case Text:
             case Date:
+            case Time:
             case Timestamp:
+            case Interval:
                 changed = false;
                 break;
             case Blob:
@@ -1322,7 +1386,9 @@ namespace Data {
             case Float64:
             case Text:
             case Date:
+            case Time:
             case Timestamp:
+            case Interval:
                 changed = false;
                 break;
             case Blob:
@@ -1379,11 +1445,21 @@ namespace Data {
                 break;
             case Date: {
                 DateTime time(value.dateValue);
-                v = time.toString();
+                v = time.toString("D");
+                break;
+            }
+            case Time: {
+                DateTime time(value.timeValue);
+                v = time.toString("T");
                 break;
             }
             case Timestamp: {
-                TimeSpan time(value.timeValue);
+                DateTime time(value.dtValue);
+                v = time.toString();
+                break;
+            }
+            case Interval: {
+                TimeSpan time(value.tsValue);
                 v = time.toString();
                 break;
             }
@@ -1433,7 +1509,12 @@ namespace Data {
                 v = DateTime(value.dateValue);
                 changed = true;
                 break;
+            case Time:
+                v = DateTime(value.timeValue);
+                changed = true;
+                break;
             case Timestamp:
+            case Interval:
             case Blob:
             default:
                 changed = false;
@@ -1468,10 +1549,12 @@ namespace Data {
                 break;
             }
             case Date:
+            case Time:
+            case Timestamp:
                 changed = false;
                 break;
-            case Timestamp:
-                v = TimeSpan(value.timeValue);
+            case Interval:
+                v = TimeSpan(value.tsValue);
                 changed = true;
                 break;
             case Blob:
@@ -1555,9 +1638,17 @@ namespace Data {
                 DateTime date(value.dateValue);
                 date.write(stream, bigEndian);
             }
+            case Time: {
+                DateTime date(value.timeValue);
+                date.write(stream, bigEndian);
+            }
                 break;
             case Timestamp: {
-                TimeSpan time(value.timeValue);
+                DateTime time(value.dtValue);
+                time.write(stream, bigEndian);
+            }
+            case Interval: {
+                TimeSpan time(value.tsValue);
                 time.write(stream, bigEndian);
             }
                 break;
@@ -1616,11 +1707,21 @@ namespace Data {
                 time.read(stream, bigEndian);
                 value.dateValue = time.ticks();
             }
-                break;
-            case Timestamp: {
-                TimeSpan time;
+            case Time: {
+                DateTime time;
                 time.read(stream, bigEndian);
                 value.timeValue = time.ticks();
+            }
+                break;
+            case Timestamp: {
+                DateTime time;
+                time.read(stream, bigEndian);
+                value.dtValue = time.ticks();
+            }
+            case Interval: {
+                TimeSpan time;
+                time.read(stream, bigEndian);
+                value.tsValue = time.ticks();
             }
                 break;
             case Blob: {
@@ -1682,8 +1783,14 @@ namespace Data {
             case Date:
                 size = sizeof(value.dateValue);
                 break;
-            case Timestamp:
+            case Time:
                 size = sizeof(value.timeValue);
+                break;
+            case Timestamp:
+                size = sizeof(value.dtValue);
+                break;
+            case Interval:
+                size = sizeof(value.tsValue);
                 break;
             case Blob: {
                 size_t count = blobCount(value.blobValue);
@@ -1725,8 +1832,12 @@ namespace Data {
             case Text:
                 return "String";
             case Date:
-                return "DateTime";
+                return "Date";
+            case Time:
+                return "Time";
             case Timestamp:
+                return "DateTime";
+            case Interval:
                 return "TimeSpan";
             default:
                 return String::Empty;
@@ -1763,8 +1874,12 @@ namespace Data {
                 return "Text";
             case Date:
                 return "Date";
+            case Time:
+                return "Time";
             case Timestamp:
                 return "Timestamp";
+            case Interval:
+                return "Interval";
             case Blob:
                 return "Blob";
             default:
@@ -1874,7 +1989,7 @@ namespace Data {
     }
 
     bool Variant::isDateTimeValue(Type type) {
-        return (type == Variant::Date);
+        return (type == Variant::Date || type == Variant::Time || type == Variant::Timestamp);
     }
 
     void Variant::write(Stream *stream, bool bigEndian) const {
@@ -2009,7 +2124,9 @@ namespace Data {
                 setStringValue(Convert::convertStr(v), type, value);
                 break;
             case Date:
+            case Time:
             case Timestamp:
+            case Interval:
             case Blob:
             default:
                 return false;
@@ -2058,7 +2175,9 @@ namespace Data {
             case Text:
                 return Convert::parseStr(value.strValue, v);
             case Date:
+            case Time:
             case Timestamp:
+            case Interval:
             case Blob:
             default:
                 return false;
@@ -2096,7 +2215,9 @@ namespace Data {
             case Text:
                 return equalsTextValue(value.strValue, Convert::convertStr(v).c_str());
             case Date:
+            case Time:
             case Timestamp:
+            case Interval:
             case Blob:
             default:
                 return false;
