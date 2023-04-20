@@ -46,6 +46,8 @@ namespace Database {
 
         bool rollbackTransaction() override;
 
+        StringArray getColumnName(const String &tableName) override;
+
         bool abortExecuting();
 
     protected:

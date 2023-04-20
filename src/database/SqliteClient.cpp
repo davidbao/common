@@ -340,8 +340,7 @@ namespace Database {
         }
 
         if (table.name().isNullOrEmpty()) {
-            const char *name = sqlite3_column_table_name(stmt, 0);
-            table.setName(name != nullptr ? name : "temp");
+            table.setName("temp");
         }
 
 #if DEBUG
@@ -410,6 +409,23 @@ namespace Database {
 //		Debug::writeLine("sqlite: ROLLBACK TRANSACTION");
 //#endif
         return executeSqlInner("ROLLBACK TRANSACTION");
+    }
+
+    StringArray SqliteClient::getColumnName(const String &tableName) {
+        StringArray result;
+        if (!tableName.isNullOrEmpty()) {
+            String sql = String::format("SELECT name FROM PRAGMA_TABLE_INFO('%s')",
+                                        tableName.c_str());
+            // todo: FixBug, It have 3 empty name.
+            DataTable table("columns");
+            if (executeSqlQuery(sql, table) && table.rowCount() > 0) {
+                Debug::writeLine(table.toJsonString());
+                for (size_t i = 0; i < table.rowCount(); ++i) {
+                    result.add(table.rows()[i][0].valueStr());
+                }
+            }
+        }
+        return result;
     }
 
     DbType SqliteClient::getColumnType(int type) {

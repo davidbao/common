@@ -577,6 +577,44 @@ bool testIterator() {
     return true;
 }
 
+bool testIgnoreCase() {
+    {
+        StringMap test(true);
+        test.add("a", "a");
+        if (test.at("a") != "a") {
+            return false;
+        }
+        if (test.at("A") != "a") {
+            return false;
+        }
+        if (!test.contains("A")) {
+            return false;
+        }
+        if (!test.contains("A", "a")) {
+            return false;
+        }
+        if (!test.remove("A")) {
+            return false;
+        }
+        if (test.count() != 0) {
+            return false;
+        }
+    }
+
+    {
+        StringMap test(false);
+        test.add("a", "a");
+        if (test.at("a") != "a") {
+            return false;
+        }
+        if (test.at("A") == "a") {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testConstructor()) {
         return 1;
@@ -625,6 +663,9 @@ int main() {
     }
     if (!testIterator()) {
         return 16;
+    }
+    if (!testIgnoreCase()) {
+        return 17;
     }
 
     return 0;

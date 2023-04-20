@@ -53,6 +53,8 @@ namespace Database {
 
         bool rollbackTransaction() override;
 
+        StringArray getColumnName(const String &tableName) override;
+
     protected:
         DbType getColumnType(int type) override;
 

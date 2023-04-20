@@ -41,11 +41,11 @@ namespace Database {
         return name.isNullOrEmpty();
     }
 
-    SqlSelectFilter::SqlSelectFilter(int page, int pageSize) : _page(page), _pageSize(pageSize) {
+    SqlSelectFilter::SqlSelectFilter(int page, int pageSize) : _page(page), _pageSize(pageSize), _values(true) {
     }
 
     SqlSelectFilter::SqlSelectFilter(int page, int pageSize, std::initializer_list<StringMap::ValueType> list)
-            : _page(page), _pageSize(pageSize), _values(list) {
+            : _page(page), _pageSize(pageSize), _values(list, true) {
     }
 
     SqlSelectFilter::SqlSelectFilter(const SqlSelectFilter &filter) : _page(filter._page), _pageSize(filter._pageSize),
@@ -292,7 +292,7 @@ namespace Database {
             int index;
             String value, key, from, to;
             for (size_t i = 0; i < names.count(); i++) {
-                String name = names[i];
+                const String &name = names[i];
                 if (node.getAttribute(name, value)) {
                     if ((index = (int) name.toLower().find(FromStr)) > 0) {
                         from = value;
@@ -308,14 +308,14 @@ namespace Database {
                         from.empty();
                         to.empty();
 
-                        if (name == "page" || name == "pageNo") {
+                        if (String::equals(name, "page", true) || String::equals(name, "pageNo", true)) {
                             Int32::parse(value, filter._page);
                             if (filter._page <= 0)
                                 filter._page = 1;
                             offset = -1;
-                        } else if (name == "pageSize" || name == "limit") {
+                        } else if (String::equals(name, "pageSize", true) || String::equals(name, "limit", true)) {
                             Int32::parse(value, filter._pageSize);
-                        } else if (name == "offset") {
+                        } else if (String::equals(name, "offset", true)) {
                             Int32::parse(value, offset);
                         } else {
                             filter.add(key, value);

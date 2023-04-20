@@ -435,6 +435,21 @@ namespace Database {
         return mysql_query(_mysqlDb->mysqlDb, "ROLLBACK");              // mysql_rollback(_mysqlDb->mysqlDb);
     }
 
+    StringArray MysqlClient::getColumnName(const String &tableName) {
+        StringArray result;
+        if (!tableName.isNullOrEmpty()) {
+            String sql = String::format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='%s'",
+                                        tableName.c_str());
+            DataTable table("columns");
+            if (executeSqlQuery(sql, table) && table.rowCount() > 0) {
+                for (size_t i = 0; i < table.rowCount(); ++i) {
+                    result.add(table.rows()[i][0].valueStr());
+                }
+            }
+        }
+        return result;
+    }
+
     DbType MysqlClient::getColumnType(int type) {
         switch (type) {
             case MYSQL_TYPE_VARCHAR:

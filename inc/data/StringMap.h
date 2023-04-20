@@ -18,7 +18,11 @@
 #include "data/StringArray.h"
 
 namespace Data {
-    class StringMap : public Dictionary<String, String> {
+    class StringMap : public IEquatable<StringMap>,
+                      public IEvaluation<StringMap>,
+                      public IComparable<StringMap>,
+                      public PairIterator<String, String>,
+                      public IMutex {
     public:
         class KeyValue {
         public:
@@ -27,7 +31,9 @@ namespace Data {
         };
 
         typedef Vector<KeyValue> KeyValues;
-        typedef Dictionary<String, String> Parent;
+        typedef pair<const String, String> ValueType;
+        typedef ValueType &Reference;
+        typedef const ValueType &ConstReference;
 
         explicit StringMap(bool ignoreKeyCase = false);
 
@@ -36,6 +42,14 @@ namespace Data {
         StringMap(StringMap &&other) noexcept;
 
         StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase = false);
+
+        bool equals(const StringMap &other) const override;
+
+        void evaluates(const StringMap &other) override;
+
+        int compareTo(const StringMap &other) const override;
+
+        StringMap &operator=(const StringMap &other);
 
         void add(const String &key, const string &value);
 
@@ -67,8 +81,24 @@ namespace Data {
 
         template<class T>
         void add(const String &key, const T &value) {
-            Parent::add(key, value.toString());
+            if (_ignoreKeyCase) {
+                _map.add(key.toLower(), value.toString());
+            } else {
+                _map.add(key, value.toString());
+            }
         }
+
+        void addRange(const StringMap &other);
+
+        bool contains(const String &key) const;
+
+        bool contains(const String &key, const String &value) const;
+
+        void clear();
+
+        size_t count() const;
+
+        bool isEmpty() const;
 
         bool at(const String &key, string &value) const;
 
@@ -94,17 +124,11 @@ namespace Data {
 
         bool at(const String &key, double &value) const;
 
-        String &at(const String &key) override {
-            return Parent::at(key);
-        }
+        String &at(const String &key);
 
-        const String &at(const String &key) const override {
-            return Parent::at(key);
-        }
+        const String &at(const String &key) const;
 
-        bool at(const String &key, String &value) const override {
-            return Parent::at(key, value);
-        }
+        bool at(const String &key, String &value) const;
 
         template<class T>
         bool at(const String &key, T &value) const {
@@ -114,6 +138,12 @@ namespace Data {
             }
             return false;
         }
+
+        const String &operator[](const String &key) const;
+
+        String &operator[](const String &key);
+
+        bool remove(const String &key);
 
         bool set(const String &key, const string &value);
 
@@ -145,21 +175,67 @@ namespace Data {
 
         template<class T>
         bool set(const String &key, const T &value) {
-            return Parent::set(key, value.toString());
+            if (_ignoreKeyCase) {
+                return _map.set(key.toLower(), value);
+            } else {
+                return _map.set(key, value);
+            }
         }
 
-        void evaluates(const Dictionary &other) override;
+        void keys(StringArray &k) const;
 
-        StringMap &operator=(const StringMap &other);
+        void values(StringArray &v) const;
 
-        void keys(StringArray &keys) const;
+        typename PairIterator<String, String>::const_iterator begin() const override {
+            return typename PairIterator<String, String>::const_iterator(_map.begin());
+        }
 
-        void values(StringArray &values) const;
+        typename PairIterator<String, String>::const_iterator end() const override {
+            return typename PairIterator<String, String>::const_iterator(_map.end());
+        }
+
+        typename PairIterator<String, String>::iterator begin() override {
+            return typename PairIterator<String, String>::iterator(_map.begin());
+        }
+
+        typename PairIterator<String, String>::iterator end() override {
+            return typename PairIterator<String, String>::iterator(_map.end());
+        }
+
+        typename PairIterator<String, String>::const_reverse_iterator rbegin() const override {
+            return typename PairIterator<String, String>::const_reverse_iterator(_map.rbegin());
+        }
+
+        typename PairIterator<String, String>::const_reverse_iterator rend() const override {
+            return typename PairIterator<String, String>::const_reverse_iterator(_map.rend());
+        }
+
+        typename PairIterator<String, String>::reverse_iterator rbegin() override {
+            return typename PairIterator<String, String>::reverse_iterator(_map.rbegin());
+        }
+
+        typename PairIterator<String, String>::reverse_iterator rend() override {
+            return typename PairIterator<String, String>::reverse_iterator(_map.rend());
+        }
+
+        void lock() override {
+            _map.lock();
+        }
+
+        bool tryLock() override {
+            return _map.tryLock();
+        }
+
+        void unlock() override {
+            _map.unlock();
+        }
 
     public:
         static const StringMap Empty;
 
     private:
+        Dictionary<String, String> _map;
+
         bool _ignoreKeyCase;
     };
 }

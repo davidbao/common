@@ -12,19 +12,44 @@
 namespace Data {
     const StringMap StringMap::Empty;
 
-    StringMap::StringMap(bool ignoreKeyCase) : _ignoreKeyCase(ignoreKeyCase) {
+    StringMap::StringMap(bool ignoreKeyCase) :
+            _ignoreKeyCase(ignoreKeyCase) {
     }
 
-    StringMap::StringMap(const StringMap &other) : Dictionary<String, String>(other),
-                                                   _ignoreKeyCase(other._ignoreKeyCase) {
+    StringMap::StringMap(const StringMap &other) :
+            _map(other._map), _ignoreKeyCase(other._ignoreKeyCase) {
     }
 
-    StringMap::StringMap(StringMap &&other) noexcept: Dictionary<String, String>(std::move(other)),
-                                                      _ignoreKeyCase(other._ignoreKeyCase) {
+    StringMap::StringMap(StringMap &&other) noexcept:
+            _map(std::move(other._map)), _ignoreKeyCase(other._ignoreKeyCase) {
     }
 
-    StringMap::StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase) : Dictionary<String, String>(list),
-                                                                                      _ignoreKeyCase(ignoreKeyCase) {
+    StringMap::StringMap(std::initializer_list<ValueType> list, bool ignoreKeyCase) :
+            _map(list), _ignoreKeyCase(ignoreKeyCase) {
+    }
+
+    bool StringMap::equals(const StringMap &other) const {
+        return _map == other._map && _ignoreKeyCase == other._ignoreKeyCase;
+    }
+
+    void StringMap::evaluates(const StringMap &other) {
+        _map = other._map;
+        _ignoreKeyCase = other._ignoreKeyCase;
+    }
+
+    int StringMap::compareTo(const StringMap &other) const {
+        if (_map != other._map) {
+            if (_map > other._map) {
+                return 1;
+            }
+            return -1;
+        }
+        return 0;
+    }
+
+    StringMap &StringMap::operator=(const StringMap &other) {
+        evaluates(other);
+        return *this;
     }
 
     void StringMap::add(const String &key, const string &value) {
@@ -81,6 +106,40 @@ namespace Data {
 
     void StringMap::add(const String &key, const double &value) {
         add(key, Double(value).toString());
+    }
+
+    void StringMap::addRange(const StringMap &other) {
+        for (auto it = other.begin(); it != other.end(); ++it) {
+            add(it.key(), it.value());
+        }
+    }
+
+    bool StringMap::contains(const String &key) const {
+        if (_ignoreKeyCase) {
+            return _map.contains(key.toLower());
+        } else {
+            return _map.contains(key);
+        }
+    }
+
+    bool StringMap::contains(const String &key, const String &value) const {
+        if (_ignoreKeyCase) {
+            return _map.contains(key.toLower(), value);
+        } else {
+            return _map.contains(key, value);
+        }
+    }
+
+    void StringMap::clear() {
+        _map.clear();
+    }
+
+    size_t StringMap::count() const {
+        return _map.count();
+    }
+
+    bool StringMap::isEmpty() const {
+        return _map.isEmpty();
     }
 
     bool StringMap::at(const String &key, string &value) const {
@@ -180,6 +239,50 @@ namespace Data {
         return false;
     }
 
+    String &StringMap::at(const String &key) {
+        if (_ignoreKeyCase) {
+            return _map.at(key.toLower());
+        } else {
+            return _map.at(key);
+        }
+    }
+
+    const String &StringMap::at(const String &key) const {
+        if (_ignoreKeyCase) {
+            return _map.at(key.toLower());
+        } else {
+            return _map.at(key);
+        }
+    }
+
+    bool StringMap::at(const String &key, String &value) const {
+        if (_ignoreKeyCase) {
+            return _map.at(key.toLower(), value);
+        } else {
+            return _map.at(key, value);
+        }
+    }
+
+    const String &StringMap::operator[](const String &key) const {
+        return at(key);
+    }
+
+    String &StringMap::operator[](const String &key) {
+        if (_ignoreKeyCase) {
+            return _map[key.toLower()];
+        } else {
+            return _map[key];
+        }
+    }
+
+    bool StringMap::remove(const String &key) {
+        if (_ignoreKeyCase) {
+            return _map.remove(key.toLower());
+        } else {
+            return _map.remove(key);
+        }
+    }
+
     bool StringMap::set(const String &key, const string &value) {
         return set(key, String(value).toString());
     }
@@ -236,32 +339,11 @@ namespace Data {
         return set(key, Double(value).toString());
     }
 
-    void StringMap::evaluates(const Dictionary &other) {
-        Dictionary<String, String>::evaluates(other);
-        auto value = dynamic_cast<const StringMap *>(&other);
-        _ignoreKeyCase = value->_ignoreKeyCase;
+    void StringMap::keys(StringArray &k) const {
+        _map.keys(k);
     }
 
-    StringMap &StringMap::operator=(const StringMap &other) {
-        evaluates(other);
-        return *this;
-    }
-
-    void StringMap::keys(StringArray &keys) const {
-        Vector<String> texts;
-        Dictionary<String, String>::keys(texts);
-        for (size_t i = 0; i < texts.count(); i++) {
-            const String &k = texts[i];
-            keys.add(k);
-        }
-    }
-
-    void StringMap::values(StringArray &values) const {
-        Vector<String> texts;
-        Dictionary<String, String>::values(texts);
-        for (size_t i = 0; i < texts.count(); i++) {
-            const String &v = texts[i];
-            values.add(v);
-        }
+    void StringMap::values(StringArray &v) const {
+        _map.values(v);
     }
 }

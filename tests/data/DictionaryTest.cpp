@@ -95,7 +95,7 @@ public:
     }
 
     Value(const Value &value) {
-        evaluates(value);
+        Value::evaluates(value);
     }
 
     ~Value() override = default;
@@ -303,7 +303,7 @@ bool testIntCompare() {
                {8,  8},
                {9,  9},
                {10, 10}};
-    if (!(bob.compareTo(alice) > 0)) {
+    if (bob.compareTo(alice) <= 0) {
         return false;
     }
     if (!(bob > alice)) {
@@ -500,7 +500,7 @@ bool testIntKeys() {
     IntMap test{{1, 1},
                 {2, 2},
                 {3, 3}};
-    Vector<int> keys;
+    List<int> keys;
     test.keys(keys);
     if (test.count() != 3) {
         return false;
@@ -518,7 +518,7 @@ bool testIntValues() {
     IntMap test{{1, 1},
                 {2, 2},
                 {3, 3}};
-    Vector<int> values;
+    List<int> values;
     test.values(values);
     if (test.count() != 3) {
         return false;
@@ -905,7 +905,7 @@ bool testKeys() {
     ValueMap test{{Key(1), Value(1)},
                   {Key(2), Value(2)},
                   {Key(3), Value(3)}};
-    Vector<Key> keys;
+    List<Key> keys;
     test.keys(keys);
     if (test.count() != 3) {
         return false;
@@ -923,7 +923,7 @@ bool testValues() {
     ValueMap test{{Key(1), Value(1)},
                   {Key(2), Value(2)},
                   {Key(3), Value(3)}};
-    Vector<Value> values;
+    List<Value> values;
     test.values(values);
     if (test.count() != 3) {
         return false;

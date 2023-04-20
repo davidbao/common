@@ -11,7 +11,7 @@
 
 #include <cstdio>
 #include <map>
-#include "data/Vector.h"
+#include "data/List.h"
 #include "data/IEnumerable.h"
 #include "data/DataInterface.h"
 
@@ -148,7 +148,7 @@ namespace Data {
             return _map.empty();
         }
 
-        virtual inline bool at(const TKey &key, TValue &value) const {
+        inline bool at(const TKey &key, TValue &value) const {
             auto it = _map.find(key);
             if (it != _map.end()) {
                 value = it->second;
@@ -158,7 +158,7 @@ namespace Data {
             }
         }
 
-        virtual inline TValue &at(const TKey &key) {
+        inline TValue &at(const TKey &key) {
             if (contains(key)) {
                 return _map.at(key);
             } else {
@@ -167,7 +167,7 @@ namespace Data {
             }
         }
 
-        virtual inline const TValue &at(const TKey &key) const {
+        inline const TValue &at(const TKey &key) const {
             if (contains(key)) {
                 return _map.at(key);
             } else {
@@ -196,14 +196,14 @@ namespace Data {
             return _map.erase(key) > 0;
         }
 
-        inline void keys(Vector<TKey> &k) const {
+        inline void keys(List<TKey> &k) const {
             auto it = _map.begin();
             for (; it != _map.end(); ++it) {
                 k.add(it->first);
             }
         }
 
-        inline void values(Vector<TValue> &v) const {
+        inline void values(List<TValue> &v) const {
             auto it = _map.begin();
             for (; it != _map.end(); ++it) {
                 v.add(it->second);

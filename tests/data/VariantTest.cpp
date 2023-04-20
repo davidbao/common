@@ -899,6 +899,12 @@ bool testStaticMethod() {
         if (!Variant::isDateTimeValue(Variant::Date)) {
             return false;
         }
+        if (!Variant::isDateTimeValue(Variant::Time)) {
+            return false;
+        }
+        if (!Variant::isDateTimeValue(Variant::Timestamp)) {
+            return false;
+        }
         if (!Variant::isNullType(Variant())) {
             return false;
         }
@@ -921,7 +927,7 @@ bool testStaticMethod() {
     {
         StringArray array;
         Variant::getAllTypeStr(array);
-        if (array.count() != 16) {
+        if (array.count() != 18) {
             return false;
         }
     }

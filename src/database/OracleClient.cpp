@@ -766,6 +766,21 @@ namespace Database {
         return OCI_SUCCESS;
     }
 
+    StringArray OracleClient::getColumnName(const String &tableName) {
+        StringArray result;
+        if (!tableName.isNullOrEmpty()) {
+            String sql = String::format("SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME='%s'",
+                                        tableName.c_str());
+            DataTable table("columns");
+            if (executeSqlQuery(sql, table) && table.rowCount() > 0) {
+                for (size_t i = 0; i < table.rowCount(); ++i) {
+                    result.add(table.rows()[i][0].valueStr());
+                }
+            }
+        }
+        return result;
+    }
+
     bool OracleClient::isSucceed(uint32_t result) const {
         return result == OCI_SUCCESS;
     }

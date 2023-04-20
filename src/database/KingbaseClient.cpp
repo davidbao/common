@@ -446,6 +446,21 @@ namespace Database {
         return result;
     }
 
+    StringArray KingbaseClient::getColumnName(const String &tableName) {
+        StringArray result;
+        if (!tableName.isNullOrEmpty()) {
+            String sql = String::format("SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME='%s'",
+                                        tableName.toUpper().c_str());
+            DataTable table("columns");
+            if (executeSqlQuery(sql, table) && table.rowCount() > 0) {
+                for (size_t i = 0; i < table.rowCount(); ++i) {
+                    result.add(table.rows()[i][0].valueStr());
+                }
+            }
+        }
+        return result;
+    }
+
     DbType KingbaseClient::getColumnType(int type) {
         switch (type) {
             case KCI_BOOLOID:        /* bool */

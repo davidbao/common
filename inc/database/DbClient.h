@@ -42,6 +42,8 @@ namespace Database {
 
         virtual bool rollbackTransaction() = 0;
 
+        virtual StringArray getColumnName(const String &tableName) = 0;
+
     public:
         bool executeSql(const String &sql);
 

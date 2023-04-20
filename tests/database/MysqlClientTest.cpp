@@ -348,9 +348,28 @@ bool testTransaction() {
     return true;
 }
 
-bool testExecuteSql() {
+bool testGetColumnNames() {
     {
+        MysqlClient test;
+        if (!test.open(_url, _username, _password)) {
+            return false;
+        }
+        if (!test.executeSql("DROP TABLE IF EXISTS t_student;"
+                             "create table t_student(\n"
+                             "id int primary key not null,\n"
+                             "name text not null,\n"
+                             "score real\n"
+                             ");")) {
+            return false;
+        }
 
+        StringArray names = test.getColumnName("t_student");
+        if (names.count() != 3) {
+            return false;
+        }
+        if (!(names[0] == "id" && names[1] == "name" && names[2] == "score")) {
+            return false;
+        }
     }
 
     return true;
@@ -490,7 +509,7 @@ int main(int argc, const char *argv[]) {
     if (!testTransaction()) {
         result = 7;
     }
-    if(!testExecuteSql()) {
+    if(!testGetColumnNames()) {
         result = 8;
     }
 

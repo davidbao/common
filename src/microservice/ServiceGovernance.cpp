@@ -74,10 +74,6 @@ namespace Microservice {
     }
 
     void ServiceGovernanceFactory::getNames(StringArray &names) {
-        Vector<String> keys;
-        _constructors.keys(keys);
-        for (size_t i = 0; i < keys.count(); i++) {
-            names.add(keys[i]);
-        }
+        _constructors.keys(names);
     }
 }

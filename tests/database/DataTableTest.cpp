@@ -425,7 +425,26 @@ bool testDataCellConstructor() {
         }
     }
     {
+        DataColumn column("abc", DbType::Time);
+        DateTime dateTime = DateTime(2010, 1, 2, 11, 12, 13);
+        TimeSpan time = dateTime.timeOfDay();
+        DataCell test(column, time);
+        String str = time.toString();
+        TimeSpan s = test.value();
+        String str2 = s.toString();
+        if (test.value() != time) {
+            return false;
+        }
+    }
+    {
         DataColumn column("abc", DbType::Timestamp);
+        DataCell test(column, DateTime(2010, 1, 2, 11, 12, 13));
+        if (test.value() != DateTime(2010, 1, 2, 11, 12, 13)) {
+            return false;
+        }
+    }
+    {
+        DataColumn column("abc", DbType::Interval);
         DataCell test(column, TimeSpan::fromHours(1));
         if (test.value() != TimeSpan::fromHours(1)) {
             return false;

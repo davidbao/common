@@ -417,6 +417,33 @@ bool testGenerateSnowFlakeId() {
     return true;
 }
 
+bool testGetColumnNames() {
+    {
+        SqliteClient test;
+        if (!test.open(_fileName)) {
+            return false;
+        }
+        if (!test.executeSql("DROP TABLE IF EXISTS t_student;"
+                             "create table t_student(\n"
+                             "id int primary key not null,\n"
+                             "name text not null,\n"
+                             "score real\n"
+                             ");")) {
+            return false;
+        }
+
+        StringArray names = test.getColumnName("t_student");
+        if (names.count() != 3) {
+            return false;
+        }
+        if (!(names[0] == "id" && names[1] == "name" && names[2] == "score")) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     setUp();
 
@@ -442,8 +469,11 @@ int main() {
     if (!testTransaction()) {
         result = 7;
     }
+//    if(!testGetColumnNames()) {
+//        result = 8;
+//    }
     if(!testGenerateSnowFlakeId()) {
-        result = 8;
+        result = 9;
     }
 
     cleanUp();

@@ -819,7 +819,7 @@ namespace Data {
             }
             case Time: {
                 DateTime temp;
-                return DateTime::parse(v, temp) && value.dateValue == temp.timeOfDay().ticks();
+                return DateTime::parse(v, temp) && value.timeValue == temp.timeOfDay().ticks();
             }
             case Timestamp: {
                 DateTime temp;
@@ -838,7 +838,11 @@ namespace Data {
 
     bool Variant::equals(Type type, const Value &value, const DateTime &v) {
         if (type == Date) {
-            return value.dateValue == v.ticks();
+            return value.dateValue == v.date().ticks();
+        } else if (type == Time) {
+            return value.timeValue == v.timeOfDay().ticks();
+        } else if (type == Timestamp) {
+            return value.dtValue == v.ticks();
         } else if (type == Text) {
             DateTime time;
             if (DateTime::parse(value.strValue, time)) {
@@ -849,7 +853,9 @@ namespace Data {
     }
 
     bool Variant::equals(Type type, const Value &value, const TimeSpan &v) {
-        if (type == Timestamp) {
+        if (type == Interval) {
+            return value.tsValue == v.ticks();
+        } else if (type == Time) {
             return value.timeValue == v.ticks();
         } else if (type == Text) {
             TimeSpan time;
@@ -1236,15 +1242,15 @@ namespace Data {
                 changed = true;
                 break;
             case Date:
-                value.dateValue = v.ticks();
+                value.dateValue = v.date().ticks();
                 changed = true;
                 break;
             case Time:
-                value.timeValue = v.ticks();
+                value.timeValue = v.timeOfDay().ticks();
                 changed = true;
                 break;
             case Timestamp:
-                value.dtValue = (int64_t) v.ticks();
+                value.dtValue = v.ticks();
                 changed = true;
                 break;
             case Interval:
@@ -1312,16 +1318,14 @@ namespace Data {
                 changed = true;
                 break;
             case Date:
-                value.dateValue = (uint64_t) v.ticks();
-                changed = true;
+                changed = false;
                 break;
             case Time:
-                value.timeValue = (uint64_t) v.ticks();
+                value.timeValue = v.ticks();
                 changed = true;
                 break;
             case Timestamp:
-                value.dtValue = (uint64_t) v.ticks();
-                changed = true;
+                changed = false;
                 break;
             case Interval:
                 value.tsValue = v.ticks();
@@ -1514,6 +1518,9 @@ namespace Data {
                 changed = true;
                 break;
             case Timestamp:
+                v = DateTime(value.dtValue);
+                changed = true;
+                break;
             case Interval:
             case Blob:
             default:
@@ -1549,7 +1556,12 @@ namespace Data {
                 break;
             }
             case Date:
+                changed = false;
+                break;
             case Time:
+                v = TimeSpan(value.timeValue);
+                changed = true;
+                break;
             case Timestamp:
                 changed = false;
                 break;
@@ -1942,12 +1954,16 @@ namespace Data {
                    String::equals(str, "vstring", true) ||
                    String::equals(str, "nvarchar", true)) {
             return Type::Text;
-        } else if (String::equals(str, "Date", true) ||
-                   String::equals(str, "DateTime", true) ||
-                   String::equals(str, "Time", true)) {
+        } else if (String::equals(str, "Date", true)) {
             return Type::Date;
-        } else if (String::equals(str, "Timestamp", true)) {
+        } else if (String::equals(str, "Time", true)) {
+            return Type::Time;
+        } else if (String::equals(str, "DateTime", true) ||
+                   String::equals(str, "Timestamp", true)) {
             return Type::Timestamp;
+        } else if (String::equals(str, "Interval", true) ||
+                   String::equals(str, "TimeSpan", true)) {
+            return Type::Interval;
         } else if (String::equals(str, "Blob", true) ||
                    String::equals(str, "ByteArray", true) ||
                    String::equals(str, "Bytes", true)) {
@@ -1958,7 +1974,7 @@ namespace Data {
 
     void Variant::getAllTypeStr(StringArray &array) {
         array = {"Null", "Digital", "Integer8", "UInteger8", "Integer16", "UInteger16", "Integer32", "UInteger32",
-                 "Integer64", "UInteger64", "Float32", "Float64", "Text", "Date", "Timestamp", "Blob"};
+                 "Integer64", "UInteger64", "Float32", "Float64", "Text", "Date", "Time", "Timestamp", "Interval", "Blob"};
     }
 
     bool Variant::isNullType(Type type) {

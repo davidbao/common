@@ -76,7 +76,7 @@ namespace Data {
             double dValue;
             char *strValue;
             uint64_t dateValue;     // 100-nanosecond ticks
-            uint64_t timeValue;     // 100-nanosecond ticks
+            int64_t timeValue;     // 100-nanosecond ticks
             uint64_t dtValue;       // 100-nanosecond ticks
             int64_t tsValue;        // 100-nanosecond ticks
             uint8_t *blobValue;
