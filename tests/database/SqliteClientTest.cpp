@@ -469,9 +469,9 @@ int main() {
     if (!testTransaction()) {
         result = 7;
     }
-//    if(!testGetColumnNames()) {
-//        result = 8;
-//    }
+    if(!testGetColumnNames()) {
+        result = 8;
+    }
     if(!testGenerateSnowFlakeId()) {
         result = 9;
     }

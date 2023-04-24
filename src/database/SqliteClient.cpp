@@ -364,7 +364,7 @@ namespace Database {
                     }
 
                     const char *typeStr = sqlite3_column_decltype(stmt, i);
-                    String type = typeStr != nullptr ? typeStr : "null";
+                    String type = typeStr != nullptr ? typeStr : "text";
                     table.addColumn(DataColumn(name, getColumnType(type)));
                 }
             }
@@ -416,10 +416,8 @@ namespace Database {
         if (!tableName.isNullOrEmpty()) {
             String sql = String::format("SELECT name FROM PRAGMA_TABLE_INFO('%s')",
                                         tableName.c_str());
-            // todo: FixBug, It have 3 empty name.
             DataTable table("columns");
             if (executeSqlQuery(sql, table) && table.rowCount() > 0) {
-                Debug::writeLine(table.toJsonString());
                 for (size_t i = 0; i < table.rowCount(); ++i) {
                     result.add(table.rows()[i][0].valueStr());
                 }
