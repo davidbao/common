@@ -18,6 +18,7 @@ using namespace Net;
 
 namespace Database {
     class KingbaseInner;
+    class ResultInner;
 
     class KingbaseClient : public DbClient {
     public:
@@ -73,7 +74,8 @@ namespace Database {
 
         int rollbackTransactionInner();
 
-        void printErrorInfo(const String &methodName, const String &sql = String::Empty);
+        void printErrorInfo(const String &methodName, const String &sql = String::Empty,
+                            const ResultInner *result = nullptr);
 
         static bool isSucceed(int result);
 

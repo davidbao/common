@@ -27,6 +27,14 @@ namespace Database {
         }
     };
 
+    class ResultInner {
+    public:
+        KCIResult *res;
+
+        ResultInner(KCIResult *res = nullptr) : res(res) {
+        }
+    };
+
     KingbaseClient::KingbaseClient() {
         _kingbaseDb = new KingbaseInner();
     }
@@ -223,7 +231,8 @@ namespace Database {
         KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
         KCIExecuteStatus result = KCIResultGetStatusCode(res);
         if (!isSucceed(result)) {
-            printErrorInfo("kingbase_execute", sql);
+            auto r = ResultInner(res);
+            printErrorInfo("kingbase_execute", sql, &r);
             KCIResultDealloc(res);
             return result;
         }
@@ -366,7 +375,8 @@ namespace Database {
         KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
         KCIExecuteStatus result = KCIResultGetStatusCode(res);
         if (!isSucceed(result)) {
-            printErrorInfo("kingbase_execute", sql);
+            auto r = ResultInner(res);
+            printErrorInfo("kingbase_execute", sql, &r);
             KCIResultDealloc(res);
             return result;
         }
@@ -527,7 +537,7 @@ namespace Database {
         return result == EXECUTE_COMMAND_OK || result == EXECUTE_TUPLES_OK;
     }
 
-    void KingbaseClient::printErrorInfo(const String &methodName, const String &sql) {
+    void KingbaseClient::printErrorInfo(const String &methodName, const String &sql, const ResultInner *result) {
 #ifdef DEBUG
         if (!sql.isNullOrEmpty()) {
             String path = Path::combine(Application::instance()->rootPath(), "errorSql");
@@ -539,6 +549,13 @@ namespace Database {
             fs.close();
         }
 #endif
-        DbClient::printErrorInfo(methodName, sql, getErrorMsg());
+
+        String error;
+        if (result != nullptr && result->res != nullptr) {
+            error = KCIResultGetErrorString(result->res);
+        } else {
+            error = getErrorMsg();
+        }
+        DbClient::printErrorInfo(methodName, sql, error);
     }
 }
