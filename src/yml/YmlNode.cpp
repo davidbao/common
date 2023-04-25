@@ -316,8 +316,8 @@ namespace Yml {
         for (; it != node.node->end(); ++it) {
             tempLevelStr = levelStr;
 
-            const YAML::Node &key = it->first;
-            const YAML::Node &value = it->second;
+            const YAML::Node key = it->first;
+            const YAML::Node value = it->second;
             if (key.Type() == YAML::NodeType::Scalar) {
                 // This should be true; do something here with the scalar key.
                 if (!levelStr.isNullOrEmpty())
