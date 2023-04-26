@@ -7,7 +7,6 @@
 //
 
 #include "microservice/ServiceRegister.h"
-#include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
 
 using namespace Config;

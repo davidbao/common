@@ -12,7 +12,7 @@
 #include "diag/Trace.h"
 #include "thread/Timer.h"
 #include "thread/TickTimeout.h"
-#include "microservice/SummerApplication.h"
+#include "system/Application.h"
 #include "configuration/ConfigService.h"
 
 using namespace Config;

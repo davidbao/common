@@ -9,7 +9,7 @@
 #include "microservice/ConsulService.h"
 #include "json/JsonNode.h"
 #include "diag/Trace.h"
-#include "microservice/SummerApplication.h"
+#include "system/Application.h"
 #include "configuration/ConfigService.h"
 
 using namespace Config;

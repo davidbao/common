@@ -21,7 +21,7 @@
 #endif
 
 #include "configuration/ConfigService.h"
-#include "microservice/SummerApplication.h"
+#include "system/Application.h"
 
 using namespace Config;
 

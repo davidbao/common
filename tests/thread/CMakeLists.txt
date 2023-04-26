@@ -17,12 +17,11 @@ set(THREAD_SRC
 #        Mutex.cpp
 #        Process.cpp
 #        ProcessMutex.cpp
-        TaskTimerTest.cpp
 #        TickTimeout.cpp
         TimerTest.cpp
         )
 if (NOT WEB_OS)
-    set(THREAD_SRC ${THREAD_SRC} TaskTest.cpp ThreadTest.cpp)
+    set(THREAD_SRC ${THREAD_SRC} TaskTest.cpp TaskTimerTest.cpp ThreadTest.cpp)
 endif ()
 
 foreach (item ${THREAD_SRC})

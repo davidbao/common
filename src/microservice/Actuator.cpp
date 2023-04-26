@@ -14,7 +14,7 @@
 #include "system/Environment.h"
 #include "system/ServiceFactory.h"
 #include "configuration/ConfigService.h"
-#include "microservice/SummerApplication.h"
+#include "system/Application.h"
 #include "microservice/ServiceRegister.h"
 
 namespace Microservice {

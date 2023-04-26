@@ -8,7 +8,6 @@
 
 #include "diag/Trace.h"
 #include "microservice/ServiceDiscovery.h"
-#include "microservice/SummerApplication.h"
 #include "configuration/ConfigService.h"
 
 using namespace Config;

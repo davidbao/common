@@ -8,7 +8,6 @@
 
 #include "microservice/SummerApplication.h"
 #include "IO/Path.h"
-#include "IO/Directory.h"
 #include "diag/FileTraceListener.h"
 
 using namespace Data;
