@@ -37,9 +37,21 @@ namespace Crypto {
 
         static bool decryptFromBase64(const String &data, String &out, KeySize size = KeySize::Default);
 
+        static bool encryptByPubKeyFile(const String &pemFileName, const ByteArray &data, ByteArray &out);
+
+        static bool decryptByPriKeyFile(const String &pemFileName, const ByteArray &data, ByteArray &out);
+
         static bool encryptByPubKeyFile(const String &pemFileName, const String &data, String &out);
 
         static bool decryptByPriKeyFile(const String &pemFileName, const String &data, String &out);
+
+        static bool encryptByPubKey(const String &key, const ByteArray &data, ByteArray &out);
+
+        static bool decryptByPriKey(const String &key, const ByteArray &data, ByteArray &out);
+
+        static bool encryptByPubKey(const String &key, const String &data, String &out);
+
+        static bool decryptByPriKey(const String &key, const String &data, String &out);
 
     private:
         static const char *defaultPubKey(KeySize size);

@@ -582,14 +582,13 @@ namespace Crypto {
             return false;
         }
         auto out = (uint8_t *) malloc(((data.count() >> 4) + 1) << 4);
-        int len = 0;
         int currentLen = 0;
         if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             free(out);
             return false;
         }
-        len = currentLen;
+        int len = currentLen;
         if (!EVP_EncryptFinal_ex(ctx, out + len, &currentLen)) {
             EVP_CIPHER_CTX_free(ctx);
             free(out);
@@ -633,13 +632,12 @@ namespace Crypto {
             return false;
         }
         uint8_t out[1024 + EVP_MAX_BLOCK_LENGTH];
-        int len = 0;
         int currentLen = 0;
         if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
             EVP_CIPHER_CTX_free(ctx);
             return false;
         }
-        len = currentLen;
+        int len = currentLen;
         if (!EVP_DecryptFinal_ex(ctx, out + len, &currentLen)) {
             EVP_CIPHER_CTX_free(ctx);
             return false;

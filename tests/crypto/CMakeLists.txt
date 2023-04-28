@@ -12,10 +12,11 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(CRYPTO_SRC
-#        DESProvider.cpp
+        AESProviderTest.cpp
+        DESProviderTest.cpp
         Md5ProviderTest.cpp
-#        RSAProvider.cpp
-#        SHAProvider.cpp
+        RSAProviderTest.cpp
+        SHAProviderTest.cpp
         SmProviderTest.cpp
         )
 

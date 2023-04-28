@@ -11,10 +11,8 @@
 #include "yml/YmlNode.h"
 #include "IO/Path.h"
 #include "IO/File.h"
-#include "IO/Directory.h"
 #include "net/Dns.h"
 #include "diag/Trace.h"
-#include "crypto/RSAProvider.h"
 #include "crypto/SmProvider.h"
 #include "net/NetInterface.h"
 #include "system/Application.h"
@@ -399,11 +397,6 @@ namespace Config {
         if (sm4.encryptToBase64(plainText, sm4CypherText)) {
             return sm4CypherText;
         }
-
-        // Use Rsa if sm4 failed.
-        String rsaCypherText;
-        if (RSAProvider::encryptToBase64(plainText, rsaCypherText, RSAProvider::Key256))
-            return rsaCypherText;
         return String::Empty;
     }
 
@@ -413,11 +406,6 @@ namespace Config {
         if (sm4.decryptFromBase64(cypherText, sm4PlainText)) {
             return sm4PlainText;
         }
-
-        // Use Rsa if sm4 failed.
-        String rsaPlainText;
-        if (RSAProvider::decryptFromBase64(cypherText, rsaPlainText, RSAProvider::Key256))
-            return rsaPlainText;
         return String::Empty;
     }
 
@@ -478,7 +466,7 @@ namespace Config {
     bool ConfigService::updateConfigFile(const YmlNode::Properties &properties) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool result;

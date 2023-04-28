@@ -12,6 +12,8 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(CRYPTO_SRC
+        AESProvider.cpp
+        Algorithm.cpp
         DESProvider.cpp
         Md5Provider.cpp
         RSAProvider.cpp

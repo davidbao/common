@@ -9,32 +9,29 @@
 #ifndef SHAProvider_h
 #define SHAProvider_h
 
-#include "data/ByteArray.h"
-#include "data/String.h"
-
-using namespace Data;
+#include "crypto/Algorithm.h"
 
 namespace Crypto {
-    class SHAProvider {
+    class SHAProvider : public HashAlgorithm {
     public:
         enum KeySize {
-            Key1 = 1,
-            Key224 = 2,
-            Key256 = 3,
-            Key384 = 4,
-            Key512 = 5,
-            Default = Key1
+            Key1 = 0,
+            Key224 = 1,
+            Key256 = 2,
+            Key384 = 3,
+            Key512 = 4,
+            Default = Key256
         };
 
-        static bool computeHash(const String &src, ByteArray &output, KeySize size = KeySize::Default);
+        SHAProvider(KeySize keySize = Default);
 
-        static bool computeHash(const ByteArray &src, ByteArray &output, KeySize size = KeySize::Default);
+        int hashSize() const override;
 
-        static bool computeHash(const String &src, String &output, KeySize size = KeySize::Default);
+    protected:
+        const EVP_MD *type() const override;
 
     private:
-        static bool
-        computeHash(const uint8_t *src, size_t length, ByteArray &output, KeySize size = KeySize::Default);
+        KeySize _keySize;
     };
 }
 

@@ -1,85 +1,54 @@
-//---------------------------------------------------------------------------
-#ifndef DESProvider_H
-#define DESProvider_H
-//---------------------------------------------------------------------------
+//
+//  DESProvider.h
+//  common
+//
+//  Created by baowei on 2015/7/15.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
+#ifndef DESProvider_h
+#define DESProvider_h
+
+#include "crypto/Algorithm.h"
 
 namespace Crypto {
-    class DESProvider {
+    class DESProvider : public SymmetricAlgorithm {
     public:
-        // length of k is 16, length of in is 8, length of out is 8.
-        static void encrypt(unsigned char *k, unsigned char *in, unsigned char *out);
+        DESProvider();
 
-        // length of k is 16, length of in is 8, length of out is 8.
-        static void decrypt(unsigned char *k, unsigned char *in, unsigned char *out);
+        explicit DESProvider(const ByteArray &key, const ByteArray &iv = ByteArray::Empty);
+
+        explicit DESProvider(const String &key, const ByteArray &iv = ByteArray::Empty);
+
+        int keySize() const override;
+
+        int blockSize() const override;
+
+    protected:
+        const EVP_CIPHER *cipher(CypherMode mode) const override;
 
     private:
-        typedef struct {
-            unsigned long esk[32];     /*!< DES encryption subkeys */
-            unsigned long dsk[32];     /*!< DES decryption subkeys */
-        } des_context;
+        void initKeySizes();
+    };
 
-        typedef struct {
-            unsigned long esk[96];     /*!< Triple-DES encryption subkeys */
-            unsigned long dsk[96];     /*!< Triple-DES decryption subkeys */
-        } des3_context;
+    class TripleDESProvider : public SymmetricAlgorithm {
+    public:
+        TripleDESProvider();
 
-        static void des_set_key(des_context *ctx, unsigned char key[8]);
+        explicit TripleDESProvider(const ByteArray &key, const ByteArray &iv = ByteArray::Empty);
 
-        static void des_encrypt(des_context *ctx,
-                                unsigned char input[8],
-                                unsigned char output[8]);
+        explicit TripleDESProvider(const String &key, const ByteArray &iv = ByteArray::Empty);
 
-        static void des_decrypt(des_context *ctx,
-                                unsigned char input[8],
-                                unsigned char output[8]);
+        int keySize() const override;
 
-        static void des_cbc_encrypt(des_context *ctx,
-                                    unsigned char iv[8],
-                                    unsigned char *input,
-                                    unsigned char *output,
-                                    int len);
+        int blockSize() const override;
 
-        static void des_cbc_decrypt(des_context *ctx,
-                                    unsigned char iv[8],
-                                    unsigned char *input,
-                                    unsigned char *output,
-                                    int len);
+    protected:
+        const EVP_CIPHER *cipher(CypherMode mode) const override;
 
-        static void des3_set_2keys(des3_context *ctx, unsigned char key[16]);
-
-        static void des3_set_3keys(des3_context *ctx, unsigned char key[24]);
-
-        static void des3_encrypt(des3_context *ctx,
-                                 unsigned char input[8],
-                                 unsigned char output[8]);
-
-        static void des3_decrypt(des3_context *ctx,
-                                 unsigned char input[8],
-                                 unsigned char output[8]);
-
-        static void des3_cbc_encrypt(des3_context *ctx,
-                                     unsigned char iv[8],
-                                     unsigned char *input,
-                                     unsigned char *output,
-                                     int len);
-
-        static void des3_cbc_decrypt(des3_context *ctx,
-                                     unsigned char iv[8],
-                                     unsigned char *input,
-                                     unsigned char *output,
-                                     int len);
-
-        static void des_crypt(unsigned long SK[32],
-                              unsigned char input[8],
-                              unsigned char output[8]);
-
-        static void des_main_ks(unsigned long SK[32], unsigned char key[8]);
-
-        static void des3_crypt(unsigned long SK[96],
-                               unsigned char input[8],
-                               unsigned char output[8]);
-
-        //---------------------------------------------------------------------------
+    private:
+        void initKeySizes();
     };
 }
-#endif    // DESProvider_H
+
+#endif // DESProvider_h

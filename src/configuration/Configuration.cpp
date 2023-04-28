@@ -302,16 +302,17 @@ namespace Config {
             return false;
         }
 
+        Md5Provider md5;
         if (_file.isZip()) {
             ByteArray output;
-            Md5Provider::computeFileHash(_file.zip->fileName(), output);
+            md5.computeFileHash(_file.zip->fileName(), output);
             str = output.toString("%02X", String::Empty);
             return true;
         } else if (_file.isFile()) {
             const String fullFileName = this->fullFileName();
             if (File::exists(fullFileName)) {
                 ByteArray output;
-                Md5Provider::computeFileHash(fullFileName, output);
+                md5.computeFileHash(fullFileName, output);
                 str = output.toString("%02X", String::Empty);
                 return true;
             } else {
@@ -319,7 +320,7 @@ namespace Config {
             }
         } else if (_file.isText()) {
             ByteArray output;
-            Md5Provider::computeHash(_file.text, output);
+            md5.computeHash(_file.text, output);
             str = output.toString("%02X", String::Empty);
             return true;
         }

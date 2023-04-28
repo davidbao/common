@@ -178,15 +178,6 @@ bool testCypher() {
         return false;
     }
 
-    String cypherText2 = "bmEs3naJgYaJBhSuxQWGu2yOzvjPzV6+JbaRAne8U7s=";    // RSA cypher.
-    String plainText3 = ConfigService::computePlainText(cypherText2);
-    if(plainText3.isNullOrEmpty()) {
-        return false;
-    }
-    if(plainText3 != "123.com") {
-        return false;
-    }
-
     String cypherText3 = "UiBeBtjan2CUXufGSzSlUg==";    // sm4 cypher.
     String plainText4 = ConfigService::computePlainText(cypherText3);
     if(plainText4.isNullOrEmpty()) {

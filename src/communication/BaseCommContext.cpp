@@ -187,7 +187,10 @@ namespace Communication {
     bool FileHeader::update() {
         String fileName = fullFileName();
         if (File::exists(fileName)) {
-            if (Md5Provider::computeFileHash(fileName, filemd5)) {
+            Md5Provider md5;
+            ByteArray output;
+            if (md5.computeFileHash(fileName, output)) {
+                memcpy(filemd5, output.data(), MD5_COUNT);
                 FileStream fs(fileName.c_str(), FileMode::FileOpen, FileAccess::FileRead);
                 if (!fs.isOpen())
                     return false;
@@ -203,9 +206,9 @@ namespace Communication {
     }
 
     bool FileHeader::checkmd5(const String &filename) const {
-        uint8_t buffer[MD5_COUNT];
-        memset(buffer, 0, sizeof(buffer));
-        bool result = Md5Provider::computeFileHash(filename, buffer);
+        Md5Provider md5;
+        ByteArray buffer;
+        bool result = md5.computeFileHash(filename, buffer);
         if (result) {
             for (size_t i = 0; i < MD5_COUNT; i++) {
                 if (buffer[i] != filemd5[i]) {

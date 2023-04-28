@@ -109,7 +109,7 @@ namespace Config {
         bool setProperty(const String &key, const String &value) override;
 
     private:
-        bool updateConfigFile(const YmlNode::Properties &properties) override final;
+        bool updateConfigFile(const YmlNode::Properties &properties) final;
 
         String fileName() const;
 
