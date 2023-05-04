@@ -7,12 +7,13 @@
 //
 
 #include "crypto/Md5Provider.h"
+#include <openssl/md5.h>
 
 namespace Crypto {
     Md5Provider::Md5Provider() = default;
 
     int Md5Provider::hashSize() const {
-        return 128;
+        return MD5_DIGEST_LENGTH * 8;
     }
 
     const EVP_MD *Md5Provider::type() const {

@@ -147,7 +147,7 @@ namespace Config {
         StringMap _systemVariables;
 
     private:
-        static const uint8_t Sm4Key[];
+        static const ByteArray Sm4Key;
     };
 }
 

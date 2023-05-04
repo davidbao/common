@@ -196,7 +196,7 @@ namespace Crypto {
     }
 
     bool SymmetricAlgorithm::validKeySize(int bitLength) const {
-        const KeySizes &validSizes = _legalKeySizes;
+        const Vector<KeySizes> &validSizes = _legalKeySizes;
         size_t i, j;
 
         if (validSizes.isEmpty())
@@ -223,25 +223,11 @@ namespace Crypto {
     }
 
     void SymmetricAlgorithm::generateKey() {
-        int keySize = this->keySize() / 8;
-        String time = DateTime::now().toString();
-        RAND_seed(time, (int) time.length());
-
-        auto sBufOut = new uint8_t[keySize];
-        RAND_bytes(sBufOut, keySize);
-        _key = ByteArray(sBufOut, keySize);
-        delete[] sBufOut;
+        generateKey(_key);
     }
 
     void SymmetricAlgorithm::generateIV() {
-        int IVSize = this->blockSize() / 8;
-        String time = DateTime::now().toString();
-        RAND_seed(time, (int) time.length());
-
-        auto sBufOut = new uint8_t[IVSize];
-        RAND_bytes(sBufOut, IVSize);
-        _iv = ByteArray(sBufOut, IVSize);
-        delete[] sBufOut;
+        generateIV(_iv);
     }
 
     CypherMode SymmetricAlgorithm::mode() const {
@@ -258,6 +244,28 @@ namespace Crypto {
 
     void SymmetricAlgorithm::setPaddingMode(PaddingMode padding) {
         _padding = padding;
+    }
+
+    void SymmetricAlgorithm::generateKey(ByteArray &key) {
+        int keySize = this->keySize() / 8;
+        String time = DateTime::now().toString();
+        RAND_seed(time, (int) time.length());
+
+        auto sBufOut = new uint8_t[keySize];
+        RAND_bytes(sBufOut, keySize);
+        key = ByteArray(sBufOut, keySize);
+        delete[] sBufOut;
+    }
+
+    void SymmetricAlgorithm::generateIV(ByteArray &iv) {
+        int IVSize = this->blockSize() / 8;
+        String time = DateTime::now().toString();
+        RAND_seed(time, (int) time.length());
+
+        auto sBufOut = new uint8_t[IVSize];
+        RAND_bytes(sBufOut, IVSize);
+        iv = ByteArray(sBufOut, IVSize);
+        delete[] sBufOut;
     }
 
     HashAlgorithm::HashAlgorithm() {

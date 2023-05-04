@@ -10,15 +10,15 @@
 //#include <openssl/aes.h>
 
 namespace Crypto {
-    AESProvider::AESProvider(Bits bits) : SymmetricAlgorithm(), _keySize(256) {
-        initKeySizes(bits);
+    AESProvider::AESProvider(KeySize keySize) : SymmetricAlgorithm(), _keySize(256) {
+        initKeySizes(keySize);
 
         generateKey();
         generateIV();
     }
 
-    AESProvider::AESProvider(Bits bits, const ByteArray &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
-        initKeySizes(bits);
+    AESProvider::AESProvider(KeySize keySize, const ByteArray &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
+        initKeySizes(keySize);
 
         if (!validKeySize((int) key.count() * 8)) {
             generateKey();
@@ -32,8 +32,8 @@ namespace Crypto {
         }
     }
 
-    AESProvider::AESProvider(Bits bits, const String &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
-        initKeySizes(bits);
+    AESProvider::AESProvider(KeySize keySize, const String &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
+        initKeySizes(keySize);
 
         if (key.isNullOrEmpty()) {
             generateKey();
@@ -78,8 +78,8 @@ namespace Crypto {
         }
     }
 
-    void AESProvider::initKeySizes(Bits bits) {
-        switch (bits) {
+    void AESProvider::initKeySizes(KeySize keySize) {
+        switch (keySize) {
             case Aes128:
                 _keySize = 128;
                 break;
@@ -92,9 +92,9 @@ namespace Crypto {
                 break;
         }
 
-        static KeySizes s_legalBlockSizes{KeySize(128, 128, 0)};
+        static Vector<KeySizes> s_legalBlockSizes{KeySizes(128, 128, 0)};
         _legalBlockSizes = s_legalBlockSizes;
-        static KeySizes s_legalKeySizes{KeySize(128, 256, 64)};
+        static Vector<KeySizes> s_legalKeySizes{KeySizes(128, 256, 64)};
         _legalKeySizes = s_legalKeySizes;
     }
 }

@@ -8,8 +8,6 @@
 
 #include "crypto/SmProvider.h"
 #include "system/Math.h"
-#include "system/Random.h"
-#include <openssl/ec.h>
 
 using namespace System;
 
@@ -416,327 +414,71 @@ namespace Crypto {
         return true;
     }
 
-    bool Sm3Provider::computeHash(const String &data, ByteArray &output) {
-        ByteArray array((uint8_t *) data.c_str(), data.length());
-        return computeHash(array, output);
+    Sm3Provider::Sm3Provider() = default;
+
+    int Sm3Provider::hashSize() const {
+        return 32 * 8;
     }
 
-    bool Sm3Provider::computeHash(const ByteArray &data, ByteArray &output) {
-        EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-        uint8_t out[64] = {0};
-        unsigned int out_size = 0;
-        int result = EVP_Digest(data.data(), data.count(), out, &out_size, EVP_sm3(), nullptr);
-        EVP_MD_CTX_free(ctx);
-        if (result) {
-            output = ByteArray(out, out_size);
-            return true;
+    const EVP_MD *Sm3Provider::type() const {
+        return EVP_sm3();
+    }
+
+    Sm4Provider::Sm4Provider() : SymmetricAlgorithm() {
+        initKeySizes();
+
+        generateKey();
+        generateIV();
+    }
+
+    Sm4Provider::Sm4Provider(const ByteArray &key, const ByteArray &iv) : SymmetricAlgorithm() {
+        initKeySizes();
+
+        if (!validKeySize((int) key.count() * 8)) {
+            generateKey();
+        } else {
+            _key = key;
         }
-        return false;
-    }
-
-    bool Sm3Provider::computeHash(const String &data, String &output) {
-        ByteArray array;
-        if (computeHash(data, array)) {
-            output = array.toString("%02X", String::Empty);
-            return true;
-        }
-        return false;
-    }
-
-    bool Sm3Provider::computeFileHash(const String &path, uint8_t output[Length]) {
-        FILE *f;
-        size_t n;
-        EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-        unsigned char buf[1024];
-
-        if ((f = fopen(path, "rb")) == nullptr)
-            return false;
-
-        EVP_DigestInit(ctx, EVP_sm3());
-
-        while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
-            EVP_DigestUpdate(ctx, buf, n);
-
-        uint32_t len;
-        EVP_DigestFinal(ctx, output, &len);
-        EVP_MD_CTX_free(ctx);
-
-        if (ferror(f) != 0) {
-            fclose(f);
-            return false;
-        }
-
-        fclose(f);
-        return true;
-    }
-
-    bool Sm3Provider::computeFileHash(const String &path, ByteArray &output) {
-        uint8_t buffer[Length];
-        bool result = computeFileHash(path, buffer);
-        if (result) {
-            output = ByteArray(buffer, Length);
-        }
-        return result;
-    }
-
-    bool Sm3Provider::computeFileHash(const String &path, String &output) {
-        ByteArray array;
-        if (computeFileHash(path, array)) {
-            output = array.toString("%02X", String::Empty);
-            return true;
-        }
-        return false;
-    }
-
-    Sm4Provider::Sm4Provider(const uint8_t key[Length], CypherMode mode) : _mode(mode) {
-        memcpy(_key, key, Length);
-        generateKey(_iv);
-    }
-
-    Sm4Provider::Sm4Provider(const uint8_t key[Length], const uint8_t iv[Length], CypherMode mode) : _mode(mode) {
-        memcpy(_key, key, Length);
-        memcpy(_iv, iv, Length);
-    }
-
-    Sm4Provider::Sm4Provider(const ByteArray &key, CypherMode mode) : _mode(mode) {
-        memset(_key, 0, Length);
-        memcpy(_key, key.data(), Math::min(Length, (int) key.count()));
-        generateKey(_iv);
-    }
-
-    Sm4Provider::Sm4Provider(const ByteArray &key, const ByteArray &iv, CypherMode mode) : _mode(mode) {
-        memset(_key, 0, Length);
-        memcpy(_key, key.data(), Math::min(Length, (int) key.count()));
-        memset(_iv, 0, Length);
-        memcpy(_iv, key.data(), Math::min(Length, (int) iv.count()));
-    }
-
-    Sm4Provider::Sm4Provider(const String &key, CypherMode mode) : _mode(mode) {
-        ByteArray keyArray;
-        ByteArray::parseHexString(key, keyArray);
-        memset(_key, 0, Length);
-        memcpy(_key, keyArray.data(), Math::min(Length, (int) keyArray.count()));
-        generateKey(_iv);
-    }
-
-    Sm4Provider::Sm4Provider(const String &key, const String &iv, CypherMode mode) : _mode(mode) {
-        ByteArray keyArray;
-        ByteArray::parseHexString(key, keyArray);
-        memset(_key, 0, Length);
-        memcpy(_key, keyArray.data(), Math::min(Length, (int) keyArray.count()));
-        ByteArray ivArray;
-        ByteArray::parseHexString(iv, ivArray);
-        memset(_iv, 0, Length);
-        memcpy(_iv, ivArray.data(), Math::min(Length, (int) ivArray.count()));
-    }
-
-    bool Sm4Provider::encrypt(const ByteArray &data, ByteArray &output) {
-        return encrypt(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::decrypt(const ByteArray &data, ByteArray &output) {
-        return decrypt(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::encrypt(const String &data, String &output) {
-        return encrypt(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::decrypt(const String &data, String &output) {
-        return decrypt(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::encryptToBase64(const String &data, String &output) {
-        return encryptToBase64(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::decryptFromBase64(const String &data, String &output) {
-        return decryptFromBase64(_key, _iv, data, output, _mode);
-    }
-
-    bool Sm4Provider::encrypt(const uint8_t key[Length], const ByteArray &data, ByteArray &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return encrypt(key, iv, data, output, mode);
-    }
-
-    bool
-    Sm4Provider::encrypt(const uint8_t key[Length], const uint8_t iv[Length], const ByteArray &data, ByteArray &output,
-                         CypherMode mode) {
-        static const EVP_CIPHER *ciphers[] = {EVP_sm4_ecb(), EVP_sm4_cbc(), EVP_sm4_ofb(), EVP_sm4_ctr()};
-        const EVP_CIPHER *cipher = ciphers[mode];
-
-        EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-        if (!ctx) {
-            return false;
-        }
-        if (!EVP_CIPHER_CTX_init(ctx)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        if (!EVP_EncryptInit_ex(ctx, cipher, nullptr, key, iv)) {
-            return false;
-        }
-        if (!EVP_CIPHER_CTX_set_padding(ctx, 1)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        auto out = (uint8_t *) malloc(((data.count() >> 4) + 1) << 4);
-        int currentLen = 0;
-        if (!EVP_EncryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
-            EVP_CIPHER_CTX_free(ctx);
-            free(out);
-            return false;
-        }
-        int len = currentLen;
-        if (!EVP_EncryptFinal_ex(ctx, out + len, &currentLen)) {
-            EVP_CIPHER_CTX_free(ctx);
-            free(out);
-            return false;
-        }
-        len += currentLen;
-
-        output = ByteArray(out, len);
-        free(out);
-        EVP_CIPHER_CTX_free(ctx);
-
-        return true;
-    }
-
-    bool Sm4Provider::decrypt(const uint8_t key[Length], const ByteArray &data, ByteArray &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return decrypt(key, iv, data, output, mode);
-    }
-
-    bool
-    Sm4Provider::decrypt(const uint8_t key[Length], const uint8_t iv[Length], const ByteArray &data, ByteArray &output,
-                         CypherMode mode) {
-        static const EVP_CIPHER *ciphers[] = {EVP_sm4_ecb(), EVP_sm4_cbc(), EVP_sm4_ofb(), EVP_sm4_ctr()};
-        const EVP_CIPHER *cipher = ciphers[mode];
-
-        EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-        if (!ctx) {
-            return false;
-        }
-        if (!EVP_CIPHER_CTX_init(ctx)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        if (!EVP_DecryptInit_ex(ctx, cipher, nullptr, key, iv)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        if (!EVP_CIPHER_CTX_set_padding(ctx, 1)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        uint8_t out[1024 + EVP_MAX_BLOCK_LENGTH];
-        int currentLen = 0;
-        if (!EVP_DecryptUpdate(ctx, out, &currentLen, data.data(), (int) data.count())) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        int len = currentLen;
-        if (!EVP_DecryptFinal_ex(ctx, out + len, &currentLen)) {
-            EVP_CIPHER_CTX_free(ctx);
-            return false;
-        }
-        len += currentLen;
-
-        output = ByteArray(out, len);
-        EVP_CIPHER_CTX_free(ctx);
-
-        return true;
-    }
-
-    bool Sm4Provider::encrypt(const uint8_t key[Length], const String &data, String &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return encrypt(key, iv, data, output, mode);
-    }
-
-    bool Sm4Provider::encrypt(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                              CypherMode mode) {
-        ByteArray in((uint8_t *) data.c_str(), data.length());
-        ByteArray out;
-        if (encrypt(key, iv, in, out, mode)) {
-            output = out.toString(ByteArray::HexFormat, String::Empty);
-            return true;
-        }
-        return false;
-    }
-
-    bool Sm4Provider::decrypt(const uint8_t key[Length], const String &data, String &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return decrypt(key, iv, data, output, mode);
-    }
-
-    bool Sm4Provider::decrypt(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                              CypherMode mode) {
-        ByteArray in;
-        if (ByteArray::parse(data, in, String::Empty)) {
-            ByteArray out;
-            if (decrypt(key, iv, in, out, mode)) {
-                output = String((const char *) out.data(), out.count());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool Sm4Provider::encryptToBase64(const uint8_t key[Length], const String &data, String &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return encryptToBase64(key, iv, data, output, mode);
-    }
-
-    bool Sm4Provider::encryptToBase64(const uint8_t key[Length], const uint8_t iv[Length], const String &data,
-                                      String &output, CypherMode mode) {
-        ByteArray array((uint8_t *) data.c_str(), data.length());
-        ByteArray buffer;
-        if (encrypt(key, iv, array, buffer, mode)) {
-            output = String::toBase64(buffer.data(), 0, buffer.count());
-            return true;
-        }
-        return false;
-    }
-
-    bool
-    Sm4Provider::decryptFromBase64(const uint8_t key[Length], const String &data, String &output, CypherMode mode) {
-        uint8_t iv[EVP_MAX_IV_LENGTH] = {0};
-        generateKey(iv);
-        return decryptFromBase64(key, iv, data, output, mode);
-    }
-
-    bool
-    Sm4Provider::decryptFromBase64(const uint8_t key[Length], const uint8_t iv[Length], const String &data,
-                                   String &output, CypherMode mode) {
-        ByteArray in;
-        if (String::fromBase64(data, in)) {
-            ByteArray out;
-            if (decrypt(key, iv, in, out, mode)) {
-                output = String((const char *) out.data(), out.count());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void Sm4Provider::generateKey(uint8_t key[Length]) {
-        ByteArray values;
-        Random::getRandValues(Length, values);
-        if (values.count() == Length) {
-            memcpy(key, values.data(), Length);
+        if (!validIVSize((int) iv.count() * 8)) {
+            generateIV();
+        } else {
+            _iv = iv;
         }
     }
 
-    void Sm4Provider::generateKey(ByteArray &key) {
-        ByteArray values;
-        Random::getRandValues(Length, values);
-        if (values.count() == Length) {
-            key = values;
+    Sm4Provider::Sm4Provider(const String &key, const ByteArray &iv) : SymmetricAlgorithm() {
+        initKeySizes();
+
+        if (key.isNullOrEmpty()) {
+            generateKey();
+        } else {
+            _key = ByteArray((const uint8_t *) key.c_str(), key.length());
         }
+
+        if (!validIVSize((int) iv.count() * 8)) {
+            generateIV();
+        } else {
+            _iv = iv;
+        }
+    }
+
+    int Sm4Provider::keySize() const {
+        return 16 * 8;
+    }
+
+    int Sm4Provider::blockSize() const {
+        return 16 * 8;
+    }
+
+    const EVP_CIPHER *Sm4Provider::cipher(CypherMode mode) const {
+        static const EVP_CIPHER *ciphers[] = {EVP_sm4_cbc(), EVP_sm4_ecb(), EVP_sm4_ofb(), EVP_sm4_cfb(), EVP_sm4_ctr()};
+        return ciphers[mode];
+    }
+
+    void Sm4Provider::initKeySizes() {
+        static Vector<KeySizes> s_legalBlockSizes{KeySizes(128, 128, 0)};
+        _legalBlockSizes = s_legalBlockSizes;
+        static Vector<KeySizes> s_legalKeySizes{KeySizes(128, 128, 0)};
+        _legalKeySizes = s_legalKeySizes;
     }
 }

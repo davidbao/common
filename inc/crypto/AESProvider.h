@@ -14,17 +14,17 @@
 namespace Crypto {
     class AESProvider : public SymmetricAlgorithm {
     public:
-        enum Bits {
+        enum KeySize {
             Aes128 = 0,
             Aes192,
             Aes256
         };
 
-        explicit AESProvider(Bits bits = Aes256);
+        explicit AESProvider(KeySize keySize = Aes256);
 
-        explicit AESProvider(Bits bits, const ByteArray &key, const ByteArray &iv = ByteArray::Empty);
+        explicit AESProvider(KeySize keySize, const ByteArray &key, const ByteArray &iv = ByteArray::Empty);
 
-        explicit AESProvider(Bits bits, const String &key, const ByteArray &iv = ByteArray::Empty);
+        explicit AESProvider(KeySize keySize, const String &key, const ByteArray &iv = ByteArray::Empty);
 
         int keySize() const override;
 
@@ -36,7 +36,7 @@ namespace Crypto {
         const EVP_CIPHER *cipher(CypherMode mode) const override;
 
     private:
-        void initKeySizes(Bits bits);
+        void initKeySizes(KeySize keySize);
 
     private:
         int _keySize;

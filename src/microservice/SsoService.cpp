@@ -42,17 +42,15 @@ namespace Microservice {
 //        int a = 0;
     }
 
-    SsoService::~SsoService() {
-
-    }
+    SsoService::~SsoService() = default;
 
     bool SsoService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
-        IHttpRegister *hs = factory->getService<IHttpRegister>();
+        auto hs = factory->getService<IHttpRegister>();
         assert(hs);
 #define BasePath "v1/auth/users"
         hs->registerMapping(HttpMethod::Get, BasePath "/encrypt",
@@ -66,7 +64,7 @@ namespace Microservice {
         // session.
         bool sessionEnabled = false;
         if (cs->getProperty("server.http.session.enabled", sessionEnabled) && sessionEnabled) {
-            IHttpSession *hss = factory->getService<IHttpSession>();
+            auto hss = factory->getService<IHttpSession>();
             assert(hss);
             hss->registerTokenId(AccessTokenId);
         }
@@ -88,7 +86,7 @@ namespace Microservice {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
 
-        IHttpRegister *hs = factory->getService<IHttpRegister>();
+        auto hs = factory->getService<IHttpRegister>();
         assert(hs);
         hs->removeMapping(this);
 
@@ -98,7 +96,8 @@ namespace Microservice {
     HttpStatus SsoService::onEncrypt(const HttpRequest &request, HttpResponse &response) {
         JsonNode data("data"), result;
         ByteArray key, publicKey, privateKey;
-        Sm4Provider::generateKey(key);
+        Sm4Provider sm4;
+        sm4.generateKey(key);
         Sm2Provider::generateKey(publicKey, privateKey);
 
 //        // for test
@@ -161,7 +160,7 @@ namespace Microservice {
 
                         ServiceFactory *factory = ServiceFactory::instance();
                         assert(factory);
-                        IHttpSession *hs = factory->getService<IHttpSession>();
+                        auto hs = factory->getService<IHttpSession>();
                         assert(hs);
                         String token = hs->addSession(name);
                         result.add(JsonNode(AccessTokenId, token));
@@ -194,7 +193,7 @@ namespace Microservice {
 
                         ServiceFactory *factory = ServiceFactory::instance();
                         assert(factory);
-                        IHttpSession *hs = factory->getService<IHttpSession>();
+                        auto hs = factory->getService<IHttpSession>();
                         assert(hs);
                         String token = hs->addSession(name);
                         result.add(JsonNode(AccessTokenId, token));
@@ -238,7 +237,7 @@ namespace Microservice {
                 // Logout successfully.
                 ServiceFactory *factory = ServiceFactory::instance();
                 assert(factory);
-                IHttpSession *hs = factory->getService<IHttpSession>();
+                auto hs = factory->getService<IHttpSession>();
                 assert(hs);
                 hs->removeSession(request);
 
@@ -306,7 +305,7 @@ namespace Microservice {
         } else {
             ServiceFactory *factory = ServiceFactory::instance();
             assert(factory);
-            IConfigService *cs = factory->getService<IConfigService>();
+            auto cs = factory->getService<IConfigService>();
             assert(cs);
 
             JsonNode node, result;
@@ -421,11 +420,12 @@ namespace Microservice {
 
             // check hash.
             String sm3Hash;
-            Sm3Provider::computeHash(data, sm3Hash);
+            Sm3Provider sm3;
+            sm3.computeHash(data, sm3Hash);
             sm3Hash = sm3Hash.toLower();
 //            Trace::writeFormatLine("SM3 hash str: %s", sm3Hash.c_str());
             if (sign != sm3Hash) {
-                // The request prarmeters hash error.
+                // The request parameters hash error.
                 return ErrorCode::HashError;
             }
 
@@ -472,7 +472,7 @@ namespace Microservice {
     bool SsoService::checkByYml(const String &name, const String &password) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         String oname, opassword;
@@ -500,7 +500,7 @@ namespace Microservice {
     bool SsoService::checkByYml(const String &name) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         String oname, opassword;
@@ -526,7 +526,7 @@ namespace Microservice {
     bool SsoService::modifyPasswordByYml(const String &name, const String &oldPassword, const String &newPassword) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         String oname, opassword, key;

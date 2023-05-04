@@ -188,7 +188,7 @@ namespace Config {
         return setProperty(key, Double(value).toString());
     }
 
-    const uint8_t ConfigService::Sm4Key[] = {0x81, 0x50, 0xD4, 0xB6, 0x68, 0xAA, 0xD8, 0xCC, 0x7E, 0x35, 0xFB, 0xA6,
+    const ByteArray ConfigService::Sm4Key = {0x81, 0x50, 0xD4, 0xB6, 0x68, 0xAA, 0xD8, 0xCC, 0x7E, 0x35, 0xFB, 0xA6,
                                              0x5D, 0x4C, 0x83, 0xB0};
 
     ConfigService::ConfigService() {
@@ -393,6 +393,7 @@ namespace Config {
 
     String ConfigService::computeCypherText(const String &plainText) {
         Sm4Provider sm4(Sm4Key);
+        sm4.setMode(CypherMode::ECB);
         String sm4CypherText;
         if (sm4.encryptToBase64(plainText, sm4CypherText)) {
             return sm4CypherText;
@@ -402,6 +403,7 @@ namespace Config {
 
     String ConfigService::computePlainText(const String &cypherText) {
         Sm4Provider sm4(Sm4Key);
+        sm4.setMode(CypherMode::ECB);
         String sm4PlainText;
         if (sm4.decryptFromBase64(cypherText, sm4PlainText)) {
             return sm4PlainText;

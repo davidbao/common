@@ -60,9 +60,9 @@ namespace Crypto {
     }
 
     void DESProvider::initKeySizes() {
-        static KeySizes s_legalBlockSizes{KeySize(64, 64, 0)};
+        static Vector<KeySizes> s_legalBlockSizes{KeySizes(64, 64, 0)};
         _legalBlockSizes = s_legalBlockSizes;
-        static KeySizes s_legalKeySizes{KeySize(64, 64, 0)};
+        static Vector<KeySizes> s_legalKeySizes{KeySizes(64, 64, 0)};
         _legalKeySizes = s_legalKeySizes;
     }
 
@@ -118,9 +118,9 @@ namespace Crypto {
     }
 
     void TripleDESProvider::initKeySizes() {
-        static KeySizes s_legalBlockSizes{KeySize(64, 64, 0)};
+        static Vector<KeySizes> s_legalBlockSizes{KeySizes(64, 64, 0)};
         _legalBlockSizes = s_legalBlockSizes;
-        static KeySizes s_legalKeySizes{KeySize(2 * 64, 3 * 64, 64)};
+        static Vector<KeySizes> s_legalKeySizes{KeySizes(2 * 64, 3 * 64, 64)};
         _legalKeySizes = s_legalKeySizes;
     }
 }

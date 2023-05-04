@@ -30,9 +30,9 @@ static const ByteArray AES_Keys[3] = {
 static const ByteArray AES_IV = {0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF,
                                  0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22};
 
-bool testAES_StringKey(AESProvider::Bits bits) {
+bool testAES_StringKey(AESProvider::KeySize keySizes) {
     {
-        AESProvider test(bits, _password);
+        AESProvider test(keySizes, _password);
         test.setMode(CypherMode::ECB);
         test.setPaddingMode(PaddingMode::PKCS7);
 
@@ -51,12 +51,12 @@ bool testAES_StringKey(AESProvider::Bits bits) {
     return true;
 }
 
-bool testAES_Modes(AESProvider::Bits bits) {
+bool testAES_Modes(AESProvider::KeySize keySizes) {
     static const CypherMode modes[] = {CypherMode::CBC, CypherMode::ECB,
                                        CypherMode::OFB, CypherMode::CFB};
     for (auto mode: modes) {
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setMode(mode);
 
             String data;
@@ -73,7 +73,7 @@ bool testAES_Modes(AESProvider::Bits bits) {
         }
 
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setMode(mode);
 
             ByteArray data;
@@ -90,7 +90,7 @@ bool testAES_Modes(AESProvider::Bits bits) {
         }
 
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setMode(mode);
 
             String data;
@@ -110,7 +110,7 @@ bool testAES_Modes(AESProvider::Bits bits) {
     return true;
 }
 
-bool testAES_Paddings(AESProvider::Bits bits) {
+bool testAES_Paddings(AESProvider::KeySize keySizes) {
     static const PaddingMode paddings[] = {
                                            PaddingMode::PKCS7,
                                            PaddingMode::ISO7816_4,
@@ -119,7 +119,7 @@ bool testAES_Paddings(AESProvider::Bits bits) {
                                            PaddingMode::ZERO};
     for (auto padding: paddings) {
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setPaddingMode(padding);
 
             String data;
@@ -136,7 +136,7 @@ bool testAES_Paddings(AESProvider::Bits bits) {
         }
 
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setPaddingMode(padding);
 
             ByteArray data;
@@ -153,7 +153,7 @@ bool testAES_Paddings(AESProvider::Bits bits) {
         }
 
         {
-            AESProvider test(bits, AES_Keys[bits], AES_IV);
+            AESProvider test(keySizes, AES_Keys[keySizes], AES_IV);
             test.setPaddingMode(padding);
 
             String data;
@@ -173,9 +173,9 @@ bool testAES_Paddings(AESProvider::Bits bits) {
     return true;
 }
 
-bool testAES_Base64(AESProvider::Bits bits) {
+bool testAES_Base64(AESProvider::KeySize keySizes) {
     {
-        AESProvider test(bits, _password);
+        AESProvider test(keySizes, _password);
         test.setMode(CypherMode::ECB);
         test.setPaddingMode(PaddingMode::PKCS7);
 
@@ -195,21 +195,21 @@ bool testAES_Base64(AESProvider::Bits bits) {
 }
 
 int main() {
-    static const AESProvider::Bits bits[] = {
+    static const AESProvider::KeySize keySizes[] = {
             AESProvider::Aes128,
             AESProvider::Aes192,
             AESProvider::Aes256};
-    for (auto bit: bits) {
-        if (!testAES_StringKey(bit)) {
+    for (auto keySize: keySizes) {
+        if (!testAES_StringKey(keySize)) {
             return 1;
         }
-        if (!testAES_Modes(bit)) {
+        if (!testAES_Modes(keySize)) {
             return 2;
         }
-        if (!testAES_Paddings(bit)) {
+        if (!testAES_Paddings(keySize)) {
             return 3;
         }
-        if (!testAES_Base64(bit)) {
+        if (!testAES_Base64(keySize)) {
             return 4;
         }
     }

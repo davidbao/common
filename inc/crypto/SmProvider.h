@@ -9,9 +9,7 @@
 #ifndef SmProvider_h
 #define SmProvider_h
 
-#include "data/ByteArray.h"
-#include "data/String.h"
-#include <openssl/evp.h>
+#include "crypto/Algorithm.h"
 
 using namespace Data;
 
@@ -77,108 +75,33 @@ namespace Crypto {
         uint8_t _publicKey[PublicKeyLength];
     };
 
-    class Sm3Provider {
+    class Sm3Provider : public HashAlgorithm {
     public:
-        static const int Length = 32;
+        Sm3Provider();
 
-        Sm3Provider() = default;
+        int hashSize() const override;
 
-        static bool computeHash(const String &data, ByteArray &output);
-
-        static bool computeHash(const ByteArray &data, ByteArray &output);
-
-        static bool computeHash(const String &data, String &output);
-
-        static bool computeFileHash(const String &path, uint8_t output[Length]);
-
-        static bool computeFileHash(const String &path, ByteArray &output);
-
-        static bool computeFileHash(const String &path, String &output);
+    protected:
+        const EVP_MD *type() const override;
     };
 
-    class Sm4Provider {
+    class Sm4Provider : public SymmetricAlgorithm {
     public:
-        enum CypherMode {
-            Ecb = 0,
-            Cbc = 1,
-            Ofb = 2,
-            Ctr = 3
-        };
-        static const int Length = 16;
+        Sm4Provider();
 
-        explicit Sm4Provider(const uint8_t key[Length], CypherMode mode = CypherMode::Ecb);
+        explicit Sm4Provider(const ByteArray &key, const ByteArray &iv = ByteArray::Empty);
 
-        Sm4Provider(const uint8_t key[Length], const uint8_t iv[Length], CypherMode mode = CypherMode::Ecb);
+        explicit Sm4Provider(const String &key, const ByteArray &iv = ByteArray::Empty);
 
-        explicit Sm4Provider(const ByteArray &key, CypherMode mode = CypherMode::Ecb);
+        int keySize() const override;
 
-        Sm4Provider(const ByteArray &key, const ByteArray &iv, CypherMode mode = CypherMode::Ecb);
+        int blockSize() const override;
 
-        explicit Sm4Provider(const String &key, CypherMode mode = CypherMode::Ecb);
-
-        Sm4Provider(const String &key, const String &iv, CypherMode mode = CypherMode::Ecb);
-
-        bool encrypt(const ByteArray &data, ByteArray &output);
-
-        bool decrypt(const ByteArray &data, ByteArray &output);
-
-        bool encrypt(const String &data, String &output);
-
-        bool decrypt(const String &data, String &output);
-
-        bool encryptToBase64(const String &data, String &output);
-
-        bool decryptFromBase64(const String &data, String &output);
-
-    public:
-        static bool
-        encrypt(const uint8_t key[Length], const ByteArray &data, ByteArray &output, CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        encrypt(const uint8_t key[Length], const uint8_t iv[Length], const ByteArray &data, ByteArray &output,
-                CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        decrypt(const uint8_t key[Length], const ByteArray &data, ByteArray &output, CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        decrypt(const uint8_t key[Length], const uint8_t iv[Length], const ByteArray &data, ByteArray &output,
-                CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        encrypt(const uint8_t key[Length], const String &data, String &output, CypherMode mode = CypherMode::Ecb);
-
-        static bool encrypt(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                            CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        decrypt(const uint8_t key[Length], const String &data, String &output, CypherMode mode = CypherMode::Ecb);
-
-        static bool decrypt(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                            CypherMode mode = CypherMode::Ecb);
-
-        static bool encryptToBase64(const uint8_t key[Length], const String &data, String &output,
-                                    CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        encryptToBase64(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                        CypherMode mode = CypherMode::Ecb);
-
-        static bool decryptFromBase64(const uint8_t key[Length], const String &data, String &output,
-                                      CypherMode mode = CypherMode::Ecb);
-
-        static bool
-        decryptFromBase64(const uint8_t key[Length], const uint8_t iv[Length], const String &data, String &output,
-                          CypherMode mode = CypherMode::Ecb);
-
-        static void generateKey(uint8_t key[Length]);
-
-        static void generateKey(ByteArray &key);
+    protected:
+        const EVP_CIPHER *cipher(CypherMode mode) const override;
 
     private:
-        uint8_t _key[Length];
-        uint8_t _iv[Length];
-        CypherMode _mode;
+        void initKeySizes();
     };
 }
 

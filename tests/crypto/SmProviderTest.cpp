@@ -77,7 +77,8 @@ bool testSm2_generatePublicKey() {
 
 bool testSm3() {
     String cypherText;
-    Sm3Provider::computeHash(_plainText, cypherText);
+    Sm3Provider sm3;
+    sm3.computeHash(_plainText, cypherText);
     String expect = "44E82DDE406154A6F3AC0C9348D72E0977FAE7DDAA62B74FF2ABA06B551F9579";
     if(cypherText != expect) {
         return false;
@@ -94,7 +95,8 @@ bool testSm3_file() {
     }
     fs.close();
     String cypherText;
-    Sm3Provider::computeFileHash(fileName, cypherText);
+    Sm3Provider sm3;
+    sm3.computeFileHash(fileName, cypherText);
     File::deleteFile(fileName);
     String expect = "139A691C9692E8770D680960C2B17477E4F847C19334D63C894DE6ABB8D2CBBA";
     if(cypherText != expect) {
@@ -106,9 +108,13 @@ bool testSm3_file() {
 bool testSm4_ecb() {
     // encrypt & decrypt by random key.
     ByteArray key;
-    Sm4Provider::generateKey(key);
+    {
+        Sm4Provider sm4;
+        sm4.generateKey(key);
+    }
     String str = key.toString();
-    Sm4Provider sm4(key, Sm4Provider::Ecb);
+    Sm4Provider sm4(key);
+    sm4.setMode(CypherMode::ECB);
     String cypherText;
     if(!sm4.encrypt(_plainText, cypherText)) {
         return false;
@@ -122,8 +128,9 @@ bool testSm4_ecb() {
     }
 
     // encrypt & decrypt by the specified key.
-    static const uint8_t Key[] = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
-    Sm4Provider sm4_2(Key, Sm4Provider::Ecb);
+    static const ByteArray Key = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
+    Sm4Provider sm4_2(Key);
+    sm4_2.setMode(CypherMode::ECB);
     String plainText3, cypherText3;
     if(!sm4_2.encrypt(_plainText, cypherText3)) {
         return false;
@@ -147,11 +154,13 @@ bool testSm4_ecb() {
 
     // It has the same cypher in every time.
     String cypherText5, cypherText6;
-    Sm4Provider sm4_3(Key, Sm4Provider::Cbc);
+    Sm4Provider sm4_3(Key);
+    sm4_3.setMode(CypherMode::CBC);
     if(!sm4_3.encrypt(_plainText, cypherText5)) {
         return false;
     }
-    Sm4Provider sm4_3_2(Key, Sm4Provider::Cbc);
+    Sm4Provider sm4_3_2(Key);
+    sm4_3_2.setMode(CypherMode::CBC);
     if(!sm4_3_2.encrypt(_plainText, cypherText6)) {
         return false;
     }
@@ -165,9 +174,13 @@ bool testSm4_ecb() {
 bool testSm4_cbc() {
     // encrypt & decrypt by random key.
     ByteArray key;
-    Sm4Provider::generateKey(key);
+    {
+        Sm4Provider sm4;
+        sm4.generateKey(key);
+    }
     String str = key.toString();
-    Sm4Provider sm4(key, Sm4Provider::Cbc);
+    Sm4Provider sm4(key);
+    sm4.setMode(CypherMode::CBC);
     String cypherText;
     if(!sm4.encrypt(_plainText, cypherText)) {
         return false;
@@ -181,8 +194,10 @@ bool testSm4_cbc() {
     }
 
     // encrypt & decrypt by the specified key.
-    static const uint8_t Key[] = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
-    Sm4Provider sm4_2(Key, Sm4Provider::Cbc);
+    static const ByteArray Key = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
+    static const ByteArray Iv = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
+    Sm4Provider sm4_2(Key, Iv);
+    sm4_2.setMode(CypherMode::CBC);
     String plainText3, cypherText3;
     if(!sm4_2.encrypt(_plainText, cypherText3)) {
         return false;
@@ -197,8 +212,9 @@ bool testSm4_cbc() {
     // decrypt by the specified key and cypher.
     String plainText4;
     String cypherText4 = "FC8817E28F9F4CCD5735AA9A3D8FE50FC7E8C8B70DE69C5CD3242891EC214119";
-    static const uint8_t Iv[] = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
-    if(!Sm4Provider::decrypt(Key, Iv, cypherText4, plainText4, Sm4Provider::Cbc)) {
+    Sm4Provider sm4_2_2(Key, Iv);
+    sm4_2_2.setMode(CypherMode::CBC);
+    if(!sm4_2_2.decrypt(cypherText4, plainText4)) {
         return false;
     }
     if(_plainText != plainText4) {
@@ -207,11 +223,13 @@ bool testSm4_cbc() {
 
     // It has not the same cypher in every time.
     String cypherText5, cypherText6;
-    Sm4Provider sm4_3(Key, Sm4Provider::Cbc);
+    Sm4Provider sm4_3(Key);
+    sm4_3.setMode(CypherMode::CBC);
     if(!sm4_3.encrypt(_plainText, cypherText5)) {
         return false;
     }
-    Sm4Provider sm4_3_2(Key, Sm4Provider::Cbc);
+    Sm4Provider sm4_3_2(Key);
+    sm4_3_2.setMode(CypherMode::CBC);
     if(!sm4_3_2.encrypt(_plainText, cypherText6)) {
         return false;
     }
@@ -224,9 +242,13 @@ bool testSm4_cbc() {
 bool testSm4_ofb() {
     // encrypt & decrypt by random key.
     ByteArray key;
-    Sm4Provider::generateKey(key);
+    {
+        Sm4Provider sm4;
+        sm4.generateKey(key);
+    }
     String str = key.toString();
-    Sm4Provider sm4(key, Sm4Provider::Ofb);
+    Sm4Provider sm4(key);
+    sm4.setMode(CypherMode::OFB);
     String cypherText;
     if(!sm4.encrypt(_plainText, cypherText)) {
         return false;
@@ -240,8 +262,9 @@ bool testSm4_ofb() {
     }
 
     // encrypt & decrypt by the specified key.
-    static const uint8_t Key[] = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
-    Sm4Provider sm4_2(Key, Sm4Provider::Ofb);
+    static const ByteArray Key = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
+    Sm4Provider sm4_2(Key);
+    sm4_2.setMode(CypherMode::OFB);
     String plainText3, cypherText3;
     if(!sm4_2.encrypt(_plainText, cypherText3)) {
         return false;
@@ -259,9 +282,13 @@ bool testSm4_ofb() {
 bool testSm4_ctr() {
     // encrypt & decrypt by random key.
     ByteArray key;
-    Sm4Provider::generateKey(key);
+    {
+        Sm4Provider sm4;
+        sm4.generateKey(key);
+    }
     String str = key.toString();
-    Sm4Provider sm4(key, Sm4Provider::Ctr);
+    Sm4Provider sm4(key);
+    sm4.setMode(CypherMode::CTR);
     String cypherText;
     if(!sm4.encrypt(_plainText, cypherText)) {
         return false;
@@ -275,8 +302,9 @@ bool testSm4_ctr() {
     }
 
     // encrypt & decrypt by the specified key.
-    static const uint8_t Key[] = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
-    Sm4Provider sm4_2(Key, Sm4Provider::Ctr);
+    static const ByteArray Key = {0xEB, 0xDE, 0x20, 0x20, 0x63, 0xCC, 0x63, 0x22, 0x66, 0x7A, 0xDF, 0x3F, 0xD9, 0xB2, 0xF8, 0xBF};
+    Sm4Provider sm4_2(Key);
+    sm4_2.setMode(CypherMode::CTR);
     String plainText3, cypherText3;
     if(!sm4_2.encrypt(_plainText, cypherText3)) {
         return false;

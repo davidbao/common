@@ -34,26 +34,24 @@ namespace Crypto {
         ZERO = EVP_PADDING_ZERO
     };
 
-    struct KeySize : IEquatable<KeySize> {
+    struct KeySizes : IEquatable<KeySizes> {
         int minSize;
         int maxSize;
         int skipSize;
 
-        KeySize() : KeySize(0, 0, 0) {
+        KeySizes() : KeySizes(0, 0, 0) {
         }
 
-        KeySize(int minSize, int maxSize, int skipSize) : minSize(minSize), maxSize(maxSize), skipSize(skipSize) {
+        KeySizes(int minSize, int maxSize, int skipSize) : minSize(minSize), maxSize(maxSize), skipSize(skipSize) {
         }
 
-        KeySize(const KeySize &other) : minSize(other.minSize), maxSize(other.maxSize), skipSize(other.skipSize) {
+        KeySizes(const KeySizes &other) : minSize(other.minSize), maxSize(other.maxSize), skipSize(other.skipSize) {
         }
 
-        bool equals(const KeySize &other) const override {
+        bool equals(const KeySizes &other) const override {
             return minSize == other.minSize && maxSize == other.maxSize && skipSize == other.skipSize;
         }
     };
-
-    typedef Vector<KeySize> KeySizes;
 
     class SymmetricAlgorithm {
     public:
@@ -89,6 +87,10 @@ namespace Crypto {
         PaddingMode padding() const;
 
         void setPaddingMode(PaddingMode padding);
+
+        void generateKey(ByteArray &key);
+
+        void generateIV(ByteArray &iv);
 
     protected:
         virtual const EVP_CIPHER *cipher(CypherMode mode) const = 0;
@@ -129,8 +131,8 @@ namespace Crypto {
         CypherMode _mode;
         PaddingMode _padding;
 
-        KeySizes _legalBlockSizes;
-        KeySizes _legalKeySizes;
+        Vector<KeySizes> _legalBlockSizes;
+        Vector<KeySizes> _legalKeySizes;
     };
 
     class AsymmetricAlgorithm {
