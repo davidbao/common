@@ -46,7 +46,9 @@ namespace Microservice {
     public:
         typedef void (*ProcessAction)();
 
-        SummerStarter(int argc = 0, const char *argv[] = nullptr);
+        SummerStarter(int argc = 0, const char *argv[] = nullptr,
+                      const String &rootPath = String::Empty,
+                      const TraceListenerContexts &contexts = TraceListenerContexts::Empty);
 
         virtual ~SummerStarter();
 

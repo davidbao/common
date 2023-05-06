@@ -384,7 +384,7 @@ namespace Microservice {
         cs->getProperty("server.http.session.kickout", kickout);
 
         String token = Uuid::generate().toString().replace("-", "").toLower();
-        auto *session = new HttpSession(token, name, timeout, kickout);
+        auto session = new HttpSession(token, name, timeout, kickout);
         Locker locker(&_sessionsMutex);
         _sessions.add(token, session);
         return token;

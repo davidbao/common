@@ -64,83 +64,67 @@ namespace Http {
         HttpVersionNotSupported = 505
     };
 
-    class HttpHeader {
+    class HttpHeader : public IEquatable<HttpHeader>, public IEvaluation<HttpHeader> {
     public:
         String name;
         String value;
 
-        HttpHeader(const String &name = String::Empty, const String &value = String::Empty);
+        explicit HttpHeader(const String &name = String::Empty, const String &value = String::Empty);
 
-        HttpHeader(const HttpHeader &value);
+        HttpHeader(const HttpHeader &other);
 
-        void copyFrom(const HttpHeader *value);
+        ~HttpHeader() override;
 
-        void operator=(const HttpHeader &value);
+        bool equals(const HttpHeader &other) const override;
 
-        bool operator==(const HttpHeader &value) const;
+        void evaluates(const HttpHeader &other) override;
 
-        bool operator!=(const HttpHeader &value) const;
+        HttpHeader &operator=(const HttpHeader &other);
 
         String toString() const;
     };
 
-    class HttpHeaders : public IIndexGetter<HttpHeader *> {
+    class HttpHeaders : public List<HttpHeader> {
     public:
-        HttpHeaders();
+        using List::at;
+        using List::add;
+        using List::contains;
 
-        HttpHeaders(const HttpHeader *item, ...);
+        explicit HttpHeaders(size_t capacity = DefaultCapacity);
 
-        HttpHeaders(const HttpHeaders &value);
+        HttpHeaders(const HttpHeaders &array);
 
-        template<class T>
-        bool getValue(const String &name, T &value) const {
-            String valueStr = getValueStr(name);
-            return T::parse(valueStr, value);
-        }
+        HttpHeaders(HttpHeaders &&array) noexcept;
+
+        HttpHeaders(const HttpHeaders &array, off_t offset, size_t count);
+
+        HttpHeaders(const HttpHeader *array, size_t count, size_t capacity = DefaultCapacity);
+
+        HttpHeaders(std::initializer_list<HttpHeader> list);
+
+        ~HttpHeaders() override;
+
+        HttpHeaders &operator=(const HttpHeaders &other);
 
         bool getValue(const String &name, String &value) const;
-
-        size_t count() const;
 
         bool contains(const String &name) const;
 
         void add(const String &name, const String &value);
 
-        void add(const HttpHeader &header);
-
-        void addRange(const HttpHeaders &headers);
-
-        void clear();
-
         String at(const String &name) const;
-
-        HttpHeader *at(size_t pos) const override;
-
-        void operator=(const HttpHeaders &value);
-
-        bool operator==(const HttpHeaders &value) const;
-
-        bool operator!=(const HttpHeaders &value) const;
 
         bool isTextContent() const;
 
     public:
         static bool parse(const String &str, HttpHeaders &headers);
 
-    private:
-        void addInner(HttpHeader *header);
-
-        String getValueStr(const String &name) const;
-
-    private:
-        CopyPList<HttpHeader> _values;
-
     public:
         static const HttpHeaders JsonTypeHeaders;
     };
 
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
-    class HttpCookie {
+    class HttpCookie : public IEquatable<HttpCookie>, public IEvaluation<HttpCookie> {
     public:
         enum SameSites {
             None,
@@ -150,13 +134,25 @@ namespace Http {
 
         HttpCookie();
 
+        HttpCookie(const HttpCookie &other);
+
+        ~HttpCookie() override;
+
+        bool equals(const HttpCookie &other) const override;
+
+        void evaluates(const HttpCookie &other) override;
+
+        HttpCookie &operator=(const HttpCookie &other);
+
         void add(const String &name, const String &value);
 
-        bool at(const String &name, String &value) const;
+        bool getValue(const String &name, String &value) const;
+
+        String at(const String &name) const;
 
         bool isEmpty() const;
 
-        const String toString() const;
+        String toString() const;
 
         const String &domain() const;
 
@@ -213,15 +209,25 @@ namespace Http {
         int _maxAge;
         bool _secure;
         bool _httpOnly;
-        // Controls whether or not a cookie is sent with cross-origin requests,
+        // Controls whether a cookie is sent with cross-origin requests,
         // providing some protection against cross-site request forgery attacks (CSRF).
         SameSites _sameSite;
     };
 
-    class HttpSession {
+    class HttpSession : public IEquatable<HttpSession>, public IEvaluation<HttpSession> {
     public:
-        HttpSession(const String &token, const String &name, const TimeSpan &expiredTime = TimeSpan::Zero,
-                    bool kickout = false);
+        HttpSession(const String &token, const String &name,
+                    const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false);
+
+        HttpSession(const HttpSession &other);
+
+        ~HttpSession() override;
+
+        bool equals(const HttpSession &other) const override;
+
+        void evaluates(const HttpSession &other) override;
+
+        HttpSession &operator=(const HttpSession &other);
 
         const String &token() const;
 
@@ -246,7 +252,7 @@ namespace Http {
 
     class HttpSessions {
     public:
-        HttpSessions();
+        HttpSessions() = default;
 
         void add(const String &token, HttpSession *session);
 
@@ -262,12 +268,15 @@ namespace Http {
 
         void update(const String &token);
 
+        size_t count() const;
+
     private:
         Map<String, HttpSession> _sessions;
     };
 
-    class HttpContent
-            : public IEquatable<HttpContent>, public IEvaluation<HttpContent>, public ICloneable<HttpContent> {
+    class HttpContent : public IEquatable<HttpContent>,
+                        public IEvaluation<HttpContent>,
+                        public ICloneable<HttpContent> {
     public:
         HttpContent();
 
@@ -275,11 +284,22 @@ namespace Http {
 
         virtual void write(void *buffer, size_t size, size_t nmemb) = 0;
 
-        virtual int64_t read(void *buffer, size_t size, size_t nmemb) = 0;
+        virtual ssize_t read(void *buffer, size_t size, size_t nmemb) = 0;
 
-        virtual int64_t size() = 0;
+        virtual size_t size() = 0;
 
     public:
+//        #       %23
+//        %       %25
+//        &       %26
+//        +       %2B
+//        /       %2F
+//        \       %5C
+//        =       %3D
+//        ?       %3F
+//        Space   %20
+//        .       %2E
+//        :       %3A
         static String escape(const String &str);
 
         static String unescape(const String &str);
@@ -289,7 +309,7 @@ namespace Http {
     public:
         HttpStringContent();
 
-        HttpStringContent(const String &value);
+        explicit HttpStringContent(const String &value);
 
         HttpStringContent(const HttpStringContent &content);
 
@@ -301,9 +321,9 @@ namespace Http {
 
         void write(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t read(void *buffer, size_t size, size_t nmemb) override;
+        ssize_t read(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t size() override;
+        size_t size() override;
 
         HttpContent *clone() const override;
 
@@ -320,9 +340,9 @@ namespace Http {
     public:
         HttpJsonContent();
 
-        HttpJsonContent(const String &value);
+        explicit HttpJsonContent(const String &value);
 
-        HttpJsonContent(const JsonNode &value);
+        explicit HttpJsonContent(const JsonNode &value);
 
         HttpJsonContent(const HttpJsonContent &content);
 
@@ -335,7 +355,7 @@ namespace Http {
     public:
         HttpByteArrayContent();
 
-        HttpByteArrayContent(const ByteArray &value);
+        explicit HttpByteArrayContent(const ByteArray &value);
 
         HttpByteArrayContent(const HttpByteArrayContent &content);
 
@@ -347,9 +367,9 @@ namespace Http {
 
         void write(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t read(void *buffer, size_t size, size_t nmemb) override;
+        ssize_t read(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t size() override;
+        size_t size() override;
 
         HttpContent *clone() const override;
 
@@ -364,7 +384,7 @@ namespace Http {
     public:
         HttpStreamContent();
 
-        HttpStreamContent(Stream *stream);
+        explicit HttpStreamContent(Stream *stream);
 
         HttpStreamContent(const HttpStreamContent &content);
 
@@ -376,9 +396,9 @@ namespace Http {
 
         void write(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t read(void *buffer, size_t size, size_t nmemb) override;
+        ssize_t read(void *buffer, size_t size, size_t nmemb) override;
 
-        int64_t size() override;
+        size_t size() override;
 
         HttpContent *clone() const override;
 
@@ -393,7 +413,7 @@ namespace Http {
 
     class HttpMethod : public IEquatable<HttpMethod>, public IEvaluation<HttpMethod> {
     public:
-        HttpMethod(const String &method);
+        explicit HttpMethod(const String &method);
 
         HttpMethod(const HttpMethod &method);
 
@@ -490,7 +510,7 @@ namespace Http {
     public:
         HttpProperties();
 
-        HttpProperties(const StringMap &properties);
+        explicit HttpProperties(const StringMap &properties);
 
         HttpProperties(const HttpProperties &properties);
 
@@ -499,6 +519,10 @@ namespace Http {
         void evaluates(const HttpProperties &other) override;
 
         void evaluates(const StringMap &other) override;
+
+        HttpProperties &operator=(const HttpProperties &other);
+
+        HttpProperties &operator=(const StringMap &other);
 
         template<class T>
         void add(const String &key, const T &value) {
@@ -566,11 +590,11 @@ namespace Http {
     public:
         HttpRequest(const Url &url, const HttpMethod &method);
 
-        HttpRequest(const Url &url, const HttpMethod &method, const HttpHeaders &headers,
-                    HttpContent *content = nullptr);
+        HttpRequest(const Url &url, const HttpMethod &method,
+                    const HttpHeaders &headers, HttpContent *content = nullptr);
 
-        HttpRequest(const Url &url, const HttpMethod &method, const HttpHeaders &headers, const StringMap &properties,
-                    HttpContent *content = nullptr);
+        HttpRequest(const Url &url, const HttpMethod &method,
+                    const HttpHeaders &headers, const StringMap &properties, HttpContent *content = nullptr);
 
         HttpRequest(const HttpRequest &request);
 
@@ -580,7 +604,7 @@ namespace Http {
 
         void evaluates(const HttpRequest &other) override;
 
-        int64_t contentSize() const;
+        size_t contentSize() const;
 
         const String &text() const;
 
@@ -618,7 +642,7 @@ namespace Http {
 
     class HttpResponse {
     public:
-        HttpResponse(HttpContent *content = nullptr);
+        explicit HttpResponse(HttpContent *content = nullptr);
 
         ~HttpResponse();
 

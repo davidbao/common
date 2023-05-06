@@ -41,8 +41,11 @@ namespace Microservice {
         }
     } InitializeSummerApplication;
 
-    SummerApplication::SummerApplication(int argc, const char *argv[]) : Application(argc, argv, __Summer_homePath,
-                                                                                     __Summer_traceContexts) {
+    SummerApplication::SummerApplication(int argc, const char *argv[],
+                                         const String &rootPath, const TraceListenerContexts &contexts) :
+                                         Application(argc, argv,
+                                                     !rootPath.isNullOrEmpty() ? rootPath : __Summer_homePath,
+                                                     !contexts.isEmpty() ? contexts : __Summer_traceContexts) {
 #ifdef WIN32
         Trace::enableConsoleOutput();
         Trace::enableFlushConsoleOutput();

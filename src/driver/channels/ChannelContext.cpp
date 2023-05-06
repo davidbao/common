@@ -8,8 +8,7 @@ namespace Drivers
     {
     }
     ChannelContext::~ChannelContext()
-    {
-    }
+    = default;
 
     bool ChannelContext::useReceiveTimeout() const
     {
@@ -45,7 +44,7 @@ namespace Drivers
             case InteractiveType::ITSender:
                 return "Sender";
             case InteractiveType::ITReceiver:
-                return "Sender";
+                return "Receiver";
             case InteractiveType::ITSenderAndReceiver:
                 return "SenderAndReceiver";
             default:

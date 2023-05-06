@@ -99,7 +99,7 @@ namespace Drivers
         Instruction* getInstruction(const String& instructionName);
         Instruction* getInstruction(const InstructionDescription* id);
         
-        Instruction* matchInstruction(Instructions* instructions, const ByteArray& buffer);
+        Instruction* matchInstruction(Instructions* instructions, const ByteArray& buffer) const;
         
         void clearDynamicInstructionsInner();
         

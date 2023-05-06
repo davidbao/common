@@ -9,7 +9,6 @@
 #include "http/HttpContent.h"
 #include "thread/TickTimeout.h"
 #include "diag/Trace.h"
-#include <stdarg.h>
 #include "curl/curl.h"
 
 using namespace Diag;
@@ -18,52 +17,59 @@ namespace Http {
     HttpHeader::HttpHeader(const String &name, const String &value) : name(name), value(value) {
     }
 
-    HttpHeader::HttpHeader(const HttpHeader &value) {
-        this->operator=(value);
+    HttpHeader::HttpHeader(const HttpHeader &other) {
+        HttpHeader::evaluates(other);
     }
 
-    void HttpHeader::copyFrom(const HttpHeader *value) {
-        this->operator=(*value);
+    HttpHeader::~HttpHeader() = default;
+
+    bool HttpHeader::equals(const HttpHeader &other) const {
+        return this->name == other.name && this->value == other.value;
     }
 
-    void HttpHeader::operator=(const HttpHeader &value) {
-        this->name = value.name;
-        this->value = value.value;
+    void HttpHeader::evaluates(const HttpHeader &other) {
+        this->name = other.name;
+        this->value = other.value;
     }
 
-    bool HttpHeader::operator==(const HttpHeader &value) const {
-        return this->name == value.name && this->value == value.value;
-    }
-
-    bool HttpHeader::operator!=(const HttpHeader &value) const {
-        return !operator==(value);
+    HttpHeader &HttpHeader::operator=(const HttpHeader &other) {
+        if (this != &other) {
+            HttpHeader::evaluates(other);
+        }
+        return *this;
     }
 
     String HttpHeader::toString() const {
         return String::format("%s:%s", name.c_str(), value.c_str());
     }
 
-    const HttpHeaders HttpHeaders::JsonTypeHeaders(new HttpHeader("Content-Type", "application/json"), nullptr);
+    const HttpHeaders HttpHeaders::JsonTypeHeaders({HttpHeader("Content-Type", "application/json")});
 
-    HttpHeaders::HttpHeaders() {
+    HttpHeaders::HttpHeaders(size_t capacity) : List(capacity) {
     }
 
-    HttpHeaders::HttpHeaders(const HttpHeader *item, ...) : HttpHeaders() {
-        const HttpHeader *header = item;
-        va_list ap;
-        va_start(ap, item);
-        while (header != NULL) {
-            if (header != NULL) {
-                HttpHeader *newHeader = new HttpHeader(header->name, header->value);
-                addInner(newHeader);
-            }
-            header = va_arg(ap, const HttpHeader*);
+    HttpHeaders::HttpHeaders(const HttpHeaders &array) = default;
+
+    HttpHeaders::HttpHeaders(HttpHeaders &&array) noexcept = default;
+
+    HttpHeaders::HttpHeaders(const HttpHeaders &array, off_t offset, size_t count) :
+            List(array, offset, count) {
+    }
+
+    HttpHeaders::HttpHeaders(const HttpHeader *array, size_t count, size_t capacity) :
+            List(array, count, capacity) {
+    }
+
+    HttpHeaders::HttpHeaders(std::initializer_list<HttpHeader> list) : List(list) {
+    }
+
+    HttpHeaders::~HttpHeaders() = default;
+
+    HttpHeaders &HttpHeaders::operator=(const HttpHeaders &other) {
+        if (this != &other) {
+            HttpHeaders::evaluates(other);
         }
-        va_end(ap);
-    }
-
-    HttpHeaders::HttpHeaders(const HttpHeaders &value) {
-        this->operator=(value);
+        return *this;
     }
 
     bool HttpHeaders::parse(const String &str, HttpHeaders &headers) {
@@ -78,11 +84,11 @@ namespace Http {
                 if (line.isNullOrEmpty())
                     break;
 
-                int index;
+                ssize_t index;
                 if ((index = line.find(':')) > 0) {
                     String name = line.substr(0, index).trim(' ');
                     String value = line.substr(index + 1, line.length() - index - 1).trim(' ');
-                    headers.addInner(new HttpHeader(name, value));
+                    headers.add(name, value);
                 }
             }
             return true;
@@ -90,96 +96,39 @@ namespace Http {
         return false;
     }
 
-    String HttpHeaders::getValueStr(const String &name) const {
-        String value;
-        getValue(name, value);
-        return value;
-    }
-
     bool HttpHeaders::getValue(const String &name, String &value) const {
-        for (size_t i = 0; i < _values.count(); i++) {
-            const HttpHeader *header = _values[i];
-            if (header->name == name) {
-                value = header->value;
+        for (size_t i = 0; i < count(); i++) {
+            const HttpHeader &header = at(i);
+            if (header.name == name) {
+                value = header.value;
                 return true;
             }
         }
         return false;
-    }
-
-    size_t HttpHeaders::count() const {
-        return _values.count();
     }
 
     bool HttpHeaders::contains(const String &name) const {
-        for (size_t i = 0; i < _values.count(); i++) {
-            const HttpHeader *header = _values[i];
-            if (name == header->name)
+        for (size_t i = 0; i < count(); i++) {
+            const HttpHeader &header = at(i);
+            if (name == header.name)
                 return true;
         }
         return false;
     }
 
-    void HttpHeaders::addInner(HttpHeader *header) {
-        bool found = false;
-        for (size_t i = 0; i < _values.count(); i++) {
-            HttpHeader *item = _values[i];
-            if (item->name == header->name) {
-                found = true;
-                item->value = header->value;
-                delete header;
-                break;
-            }
-        }
-
-        if (!found) {
-            _values.add(header);
-        }
-    }
-
     void HttpHeaders::add(const String &name, const String &value) {
-        addInner(new HttpHeader(name, value));
-    }
-
-    void HttpHeaders::add(const HttpHeader &header) {
-        add(header.name, header.value);
-    }
-
-    void HttpHeaders::addRange(const HttpHeaders &headers) {
-        for (size_t i = 0; i < headers.count(); i++) {
-            const HttpHeader *header = headers[i];
-            add(header->name, header->value);
+        if (!contains(name)) {
+            List::add(HttpHeader(name, value));
         }
-    }
-
-    void HttpHeaders::clear() {
-        _values.clear();
     }
 
     String HttpHeaders::at(const String &name) const {
-        return this->getValueStr(name);
-    }
-
-    HttpHeader *HttpHeaders::at(size_t pos) const {
-        return _values.at(pos);
-    }
-
-    void HttpHeaders::operator=(const HttpHeaders &value) {
-        _values.copyFrom(&value._values);
-    }
-
-    bool HttpHeaders::operator==(const HttpHeaders &value) const {
-        if (_values.count() != value.count())
-            return false;
-        for (size_t i = 0; i < _values.count(); i++) {
-            if (_values[i]->operator!=(*value._values[i]))
-                return false;
+        for (size_t i = 0; i < count(); i++) {
+            const HttpHeader &header = at(i);
+            if (name == header.name)
+                return header.value;
         }
-        return true;
-    }
-
-    bool HttpHeaders::operator!=(const HttpHeaders &value) const {
-        return !operator==(value);
+        return String::Empty;
     }
 
     bool HttpHeaders::isTextContent() const {
@@ -199,19 +148,61 @@ namespace Http {
     HttpCookie::HttpCookie() : _maxAge(0), _secure(false), _httpOnly(false), _sameSite(SameSites::None) {
     }
 
+    HttpCookie::HttpCookie(const HttpCookie &other) :
+            _maxAge(0), _secure(false), _httpOnly(false), _sameSite(SameSites::None) {
+        HttpCookie::evaluates(other);
+    }
+
+    HttpCookie::~HttpCookie() = default;
+
+    bool HttpCookie::equals(const HttpCookie &other) const {
+        return this->_values == other._values &&
+               this->_domain == other._domain &&
+               this->_path == other._path &&
+               this->_expires == other._expires &&
+               this->_maxAge == other._maxAge &&
+               this->_secure == other._secure &&
+               this->_httpOnly == other._httpOnly &&
+               this->_sameSite == other._sameSite;
+    }
+
+    void HttpCookie::evaluates(const HttpCookie &other) {
+        this->_values = other._values;
+        this->_domain = other._domain;
+        this->_path = other._path;
+        this->_expires = other._expires;
+        this->_maxAge = other._maxAge;
+        this->_secure = other._secure;
+        this->_httpOnly = other._httpOnly;
+        this->_sameSite = other._sameSite;
+    }
+
+    HttpCookie &HttpCookie::operator=(const HttpCookie &other) {
+        if (this != &other) {
+            HttpCookie::evaluates(other);
+        }
+        return *this;
+    }
+
     void HttpCookie::add(const String &name, const String &value) {
         _values.add(name, value);
     }
 
-    bool HttpCookie::at(const String &name, String &value) const {
+    bool HttpCookie::getValue(const String &name, String &value) const {
         return _values.at(name, value);
+    }
+
+    String HttpCookie::at(const String &name) const {
+        String value;
+        getValue(name, value);
+        return value;
     }
 
     bool HttpCookie::isEmpty() const {
         return _values.count() == 0;
     }
 
-    const String HttpCookie::toString() const {
+    String HttpCookie::toString() const {
         if (_values.count() == 0)
             return String::Empty;
 
@@ -382,9 +373,39 @@ namespace Http {
         }
     }
 
-    HttpSession::HttpSession(const String &token, const String &name, const TimeSpan &expiredTime, bool kickout)
-            : _token(token), _name(name), _expiredTime(expiredTime), _kickout(kickout) {
+    HttpSession::HttpSession(const String &token, const String &name, const TimeSpan &expiredTime, bool kickout) :
+            _token(token), _name(name), _expiredTime(expiredTime), _kickout(kickout), _start(0) {
         update();
+    }
+
+    HttpSession::HttpSession(const HttpSession &other) :
+            _kickout(false), _start(0) {
+        HttpSession::evaluates(other);
+    }
+
+    HttpSession::~HttpSession() = default;
+
+    bool HttpSession::equals(const HttpSession &other) const {
+        return this->_token == other._token &&
+               this->_name == other._name &&
+               this->_expiredTime == other._expiredTime &&
+               this->_kickout == other._kickout &&
+               this->_start == other._start;
+    }
+
+    void HttpSession::evaluates(const HttpSession &other) {
+        this->_token = other._token;
+        this->_name = other._name;
+        this->_expiredTime = other._expiredTime;
+        this->_kickout = other._kickout;
+        this->_start = other._start;
+    }
+
+    HttpSession &HttpSession::operator=(const HttpSession &other) {
+        if (this != &other) {
+            HttpSession::evaluates(other);
+        }
+        return *this;
     }
 
     const String &HttpSession::token() const {
@@ -418,11 +439,8 @@ namespace Http {
             return TickTimeout::isTimeout(_start, _expiredTime);
     }
 
-    HttpSessions::HttpSessions() {
-    }
-
     void HttpSessions::add(const String &token, HttpSession *session) {
-        HttpSession *sameName = atByName(session->name());
+        const HttpSession *sameName = atByName(session->name());
         if (sameName != nullptr && sameName->kickout())
             _sessions.remove(sameName->token());
         _sessions.add(token, session);
@@ -492,11 +510,13 @@ namespace Http {
             session->update();
     }
 
-    HttpContent::HttpContent() {
+    size_t HttpSessions::count() const {
+        return _sessions.count();
     }
 
-    HttpContent::~HttpContent() {
-    }
+    HttpContent::HttpContent() = default;
+
+    HttpContent::~HttpContent() = default;
 
     String HttpContent::escape(const String &str) {
         String result;
@@ -543,8 +563,8 @@ namespace Http {
         _stream = new MemoryStream((const uint8_t *) value.c_str(), value.length());
     }
 
-    HttpStringContent::HttpStringContent(const HttpStringContent &content) {
-        evaluates(content);
+    HttpStringContent::HttpStringContent(const HttpStringContent &content) : _stream(nullptr) {
+        HttpStringContent::evaluates(content);
     }
 
     HttpStringContent::~HttpStringContent() {
@@ -553,12 +573,12 @@ namespace Http {
     }
 
     bool HttpStringContent::equals(const HttpContent &other) const {
-        const HttpStringContent *content = dynamic_cast<const HttpStringContent *>(&other);
-        return content != nullptr ? _value == content->_value : false;
+        auto content = dynamic_cast<const HttpStringContent *>(&other);
+        return content != nullptr && _value == content->_value;
     }
 
     void HttpStringContent::evaluates(const HttpContent &other) {
-        const HttpStringContent *content = dynamic_cast<const HttpStringContent *>(&other);
+        auto content = dynamic_cast<const HttpStringContent *>(&other);
         if (content != nullptr) {
             _value = content->_value;
             _stream = new MemoryStream((const uint8_t *) _value.c_str(), _value.length());
@@ -569,11 +589,11 @@ namespace Http {
         _value.append(String((const char *) buffer, (uint32_t) (size * nmemb)));
     }
 
-    int64_t HttpStringContent::read(void *buffer, size_t size, size_t nmemb) {
+    ssize_t HttpStringContent::read(void *buffer, size_t size, size_t nmemb) {
         return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
-    int64_t HttpStringContent::size() {
+    size_t HttpStringContent::size() {
         return _value.length();
     }
 
@@ -585,8 +605,7 @@ namespace Http {
         return _value;
     }
 
-    HttpJsonContent::HttpJsonContent() {
-    }
+    HttpJsonContent::HttpJsonContent() = default;
 
     HttpJsonContent::HttpJsonContent(const String &value) : HttpStringContent(value) {
     }
@@ -595,7 +614,7 @@ namespace Http {
     }
 
     HttpJsonContent::HttpJsonContent(const HttpJsonContent &content) {
-        evaluates(content);
+        HttpJsonContent::evaluates(content);
     }
 
     JsonNode HttpJsonContent::node() const {
@@ -616,8 +635,8 @@ namespace Http {
         _stream = new MemoryStream(&_value, false);
     }
 
-    HttpByteArrayContent::HttpByteArrayContent(const HttpByteArrayContent &content) {
-        evaluates(content);
+    HttpByteArrayContent::HttpByteArrayContent(const HttpByteArrayContent &content) : _stream(nullptr) {
+        HttpByteArrayContent::evaluates(content);
     }
 
     HttpByteArrayContent::~HttpByteArrayContent() {
@@ -626,12 +645,12 @@ namespace Http {
     }
 
     bool HttpByteArrayContent::equals(const HttpContent &other) const {
-        const HttpByteArrayContent *content = dynamic_cast<const HttpByteArrayContent *>(&other);
-        return content != nullptr ? _value == content->_value : false;
+        auto content = dynamic_cast<const HttpByteArrayContent *>(&other);
+        return content != nullptr && _value == content->_value;
     }
 
     void HttpByteArrayContent::evaluates(const HttpContent &other) {
-        const HttpByteArrayContent *content = dynamic_cast<const HttpByteArrayContent *>(&other);
+        auto content = dynamic_cast<const HttpByteArrayContent *>(&other);
         if (content != nullptr) {
             _value = content->_value;
         }
@@ -641,11 +660,11 @@ namespace Http {
         _value.addRange((const unsigned char *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
-    int64_t HttpByteArrayContent::read(void *buffer, size_t size, size_t nmemb) {
+    ssize_t HttpByteArrayContent::read(void *buffer, size_t size, size_t nmemb) {
         return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
-    int64_t HttpByteArrayContent::size() {
+    size_t HttpByteArrayContent::size() {
         return _value.count();
     }
 
@@ -664,8 +683,8 @@ namespace Http {
     HttpStreamContent::HttpStreamContent(Stream *stream) : _stream(stream) {
     }
 
-    HttpStreamContent::HttpStreamContent(const HttpStreamContent &content) {
-        evaluates(content);
+    HttpStreamContent::HttpStreamContent(const HttpStreamContent &content) : _stream(nullptr) {
+        HttpStreamContent::evaluates(content);
     }
 
     HttpStreamContent::~HttpStreamContent() {
@@ -673,12 +692,12 @@ namespace Http {
     }
 
     bool HttpStreamContent::equals(const HttpContent &other) const {
-        const HttpStreamContent *content = dynamic_cast<const HttpStreamContent *>(&other);
-        return content != nullptr ? _stream == content->_stream : false;
+        auto content = dynamic_cast<const HttpStreamContent *>(&other);
+        return content != nullptr && _stream == content->_stream;
     }
 
     void HttpStreamContent::evaluates(const HttpContent &other) {
-        const HttpStreamContent *content = dynamic_cast<const HttpStreamContent *>(&other);
+        auto content = dynamic_cast<const HttpStreamContent *>(&other);
         if (content != nullptr) {
             _stream = content->_stream;
         }
@@ -689,13 +708,13 @@ namespace Http {
             _stream->write((const uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
     }
 
-    int64_t HttpStreamContent::read(void *buffer, size_t size, size_t nmemb) {
+    ssize_t HttpStreamContent::read(void *buffer, size_t size, size_t nmemb) {
         if (_stream != nullptr)
             return _stream->read((uint8_t *) buffer, 0, (uint32_t) (size * nmemb));
         return 0;
     }
 
-    int64_t HttpStreamContent::size() {
+    size_t HttpStreamContent::size() {
         return _stream != nullptr ? _stream->length() : 0;
     }
 
@@ -748,7 +767,7 @@ namespace Http {
     }
 
     HttpProperties::HttpProperties(const HttpProperties &properties) {
-        evaluates(properties);
+        HttpProperties::evaluates(properties);
     }
 
     bool HttpProperties::equals(const HttpProperties &other) const {
@@ -761,6 +780,18 @@ namespace Http {
 
     void HttpProperties::evaluates(const StringMap &other) {
         _values = other;
+    }
+
+    HttpProperties &HttpProperties::operator=(const HttpProperties &other) {
+        if (this != &other) {
+            HttpProperties::evaluates(other);
+        }
+        return *this;
+    }
+
+    HttpProperties &HttpProperties::operator=(const StringMap &other) {
+        HttpProperties::evaluates(other);
+        return *this;
     }
 
     void HttpProperties::add(const String &key, const String &value) {
@@ -840,8 +871,8 @@ namespace Http {
         this->properties = properties;
     }
 
-    HttpRequest::HttpRequest(const HttpRequest &request) : method(request.method) {
-        evaluates(request);
+    HttpRequest::HttpRequest(const HttpRequest &request) : method(request.method), content(nullptr), verb(false) {
+        HttpRequest::evaluates(request);
     }
 
     HttpRequest::~HttpRequest() {
@@ -874,12 +905,12 @@ namespace Http {
         verb = other.verb;
     }
 
-    int64_t HttpRequest::contentSize() const {
+    size_t HttpRequest::contentSize() const {
         return content != nullptr ? content->size() : 0;
     }
 
     const String &HttpRequest::text() const {
-        HttpStringContent *sc = dynamic_cast<HttpStringContent *>(this->content);
+        auto sc = dynamic_cast<const HttpStringContent *>(this->content);
         return sc != nullptr ? sc->value() : String::Empty;
     }
 
@@ -920,10 +951,10 @@ namespace Http {
     }
 
     bool HttpRequest::parseVarName(const String &value, String &varName) {
-        int start = value.find("{");
+        ssize_t start = value.find("{");
         if (start >= 0)  // has variables
         {
-            int end = value.find("}");
+            ssize_t end = value.find("}");
             if (end > start) {
                 varName = value.substr(start + 1, end - start - 1);
                 return true;
@@ -1012,8 +1043,7 @@ namespace Http {
     HttpCode::Item::Item(int code, const String &msg) : code(code), msg(msg) {
     }
 
-    HttpCode::Item::Item(const Item &item) : code(item.code), msg(item.msg) {
-    }
+    HttpCode::Item::Item(const Item &item) = default;
 
     Dictionary<int, String> HttpCode::_codes;
 

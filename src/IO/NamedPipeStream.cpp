@@ -1,3 +1,11 @@
+//
+//  NamedPipeStream.cpp
+//  common
+//
+//  Created by baowei on 2015/7/21.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
 #if WIN32
 
 #include <io.h>

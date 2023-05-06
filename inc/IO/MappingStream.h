@@ -61,7 +61,7 @@ namespace IO {
 
         MappingStream(const String &fileName, size_t fileSize);
 
-        MappingStream(const String &fileName);
+        explicit MappingStream(const String &fileName);
 
         ~MappingStream() override;
 

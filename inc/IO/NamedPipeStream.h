@@ -1,5 +1,13 @@
-#ifndef NAMEDPIPESTREAM_H
-#define NAMEDPIPESTREAM_H
+//
+//  NamedPipeStream.h
+//  common
+//
+//  Created by baowei on 2015/7/21.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
+#ifndef NamedPipeStream_h
+#define NamedPipeStream_h
 
 #ifdef WIN32
 #else
@@ -78,4 +86,4 @@ namespace IO {
     };
 }
 
-#endif // NAMEDPIPESTREAM_H
+#endif // NamedPipeStream_h

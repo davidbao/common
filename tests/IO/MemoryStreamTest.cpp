@@ -134,6 +134,56 @@ bool testSeek() {
         }
     }
 
+    {
+        ByteArray buffer = {1, 2, 3, 4, 5, 6, 7, 8};
+        MemoryStream ms;
+        ms.writeBytes(buffer);
+        off_t position = ms.seek(0, SeekOrigin::SeekEnd);
+        if (position != 8) {
+            return false;
+        }
+    }
+
+    {
+        ByteArray buffer = {1, 2, 3, 4, 5, 6, 7, 8};
+        MemoryStream ms;
+        ms.writeBytes(buffer);
+        off_t position = ms.seek(-2, SeekOrigin::SeekEnd);
+        if (position != 6) {
+            return false;
+        }
+    }
+
+    {
+        ByteArray buffer = {1, 2, 3, 4, 5, 6, 7, 8};
+        MemoryStream ms;
+        ms.writeBytes(buffer);
+        off_t position = ms.seek(2, SeekOrigin::SeekEnd);
+        if (position != -1) {
+            return false;
+        }
+    }
+
+    {
+        ByteArray buffer = {1, 2, 3, 4, 5, 6, 7, 8};
+        MemoryStream ms;
+        ms.writeBytes(buffer);
+        off_t position = ms.seek(-2, SeekOrigin::SeekCurrent);
+        if (position != 6) {
+            return false;
+        }
+    }
+
+    {
+        ByteArray buffer = {1, 2, 3, 4, 5, 6, 7, 8};
+        MemoryStream ms;
+        ms.writeBytes(buffer);
+        off_t position = ms.seek(2, SeekOrigin::SeekCurrent);
+        if (position != -1) {
+            return false;
+        }
+    }
+
     return true;
 }
 

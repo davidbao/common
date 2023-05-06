@@ -233,7 +233,7 @@ namespace Drivers {
             Channel *channel = getChannel();
             if (channel != nullptr && channel->connected()) {
 //#ifdef DEBUG
-//				Debug::writeFormatLine("Execute a instruction, device name: %s, instruction name: %s.",
+//				Debug::writeFormatLine("Execute an instruction, device name: %s, instruction name: %s.",
 //					name().c_str(), instruction->description()->name().c_str());
 //#endif
                 instruction->_isExecuting = true;
@@ -270,7 +270,7 @@ namespace Drivers {
             Channel *channel = getChannel();
             if (channel != nullptr && channel->connected()) {
                 //#ifdef DEBUG
-                //                Debug::writeFormatLine("Execute a instruction, device name: %s, instruction name: %s.",
+                //                Debug::writeFormatLine("Execute an instruction, device name: %s, instruction name: %s.",
                 //                    name().c_str(), instruction->description()->name().c_str());
                 //#endif
                 instruction->_isExecuting = true;
@@ -286,7 +286,7 @@ namespace Drivers {
     }
 
     void Device::deviceReceived(void *owner, void *sender, EventArgs *args) {
-        Device *device = static_cast<Device *>(owner);
+        auto device = static_cast<Device *>(owner);
         if (device != nullptr) {
             device->_receivedDelegates.invoke(sender, args);
         }
@@ -383,7 +383,7 @@ namespace Drivers {
         return nullptr;
     }
 
-    Instruction *Device::matchInstruction(Instructions *instructions, const ByteArray &buffer) {
+    Instruction *Device::matchInstruction(Instructions *instructions, const ByteArray &buffer) const {
         for (size_t i = 0; i < instructions->count(); i++) {
             Instruction *instruction = instructions->at(i);
             if (instruction->match(&buffer, description())) {
@@ -442,6 +442,5 @@ namespace Drivers {
         this->newStatus = args.newStatus;
     }
 
-    DeviceStatusEventArgs::~DeviceStatusEventArgs() {
-    }
+    DeviceStatusEventArgs::~DeviceStatusEventArgs() = default;
 }

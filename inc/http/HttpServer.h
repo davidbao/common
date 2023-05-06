@@ -103,9 +103,6 @@ namespace Http {
 
         static bool getFileName(struct evhttp_request *req, String &fileName);
 
-//        static Uuid
-//        addSession(const String &userName, const TimeSpan &expiredTime = TimeSpan::Zero, bool kickout = false);
-
     private:
         bool startHttpServer(const Context &context);
 

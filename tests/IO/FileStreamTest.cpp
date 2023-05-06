@@ -252,7 +252,7 @@ bool testSeek() {
             return false;
         }
 
-        if (!fs2.seek(-2, SeekOrigin::SeekEnd)) {
+        if (fs2.seek(-2, SeekOrigin::SeekEnd) == -1) {
             return false;
         }
         if (!fs2.readToEnd(actual)) {

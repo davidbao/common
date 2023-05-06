@@ -170,8 +170,8 @@ namespace Http {
             struct curl_slist *headerList = nullptr;
             if (request.headers.count() > 0) {
                 for (size_t i = 0; i < request.headers.count(); i++) {
-                    const HttpHeader *header = request.headers[i];
-                    headerList = curl_slist_append(headerList, header->toString().c_str());
+                    const HttpHeader &header = request.headers[i];
+                    headerList = curl_slist_append(headerList, header.toString().c_str());
                 }
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
             }

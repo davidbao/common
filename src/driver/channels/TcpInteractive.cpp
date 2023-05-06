@@ -4,9 +4,8 @@
 #include "driver/channels/Channel.h"
 #include "driver/channels/TcpChannelContext.h"
 #include "driver/channels/TcpInteractive.h"
-#include "driver/channels/ChannelDescription.h"
 #include "driver/DriverManager.h"
-#include <assert.h>
+#include <cassert>
 
 #if __APPLE__
 #define HAS_KEVENT 1
@@ -31,8 +30,7 @@ namespace Drivers {
                                                                                                   _receiver(receiver) {
     }
 
-    TcpMultiPlexingReceiver::Client::~Client() {
-    }
+    TcpMultiPlexingReceiver::Client::~Client() = default;
 
     TcpClient *TcpMultiPlexingReceiver::Client::tcpClient() const {
         return _client;
@@ -47,11 +45,9 @@ namespace Drivers {
         return result;
     }
 
-    TcpMultiPlexingReceiver::Clients::Clients() {
-    }
+    TcpMultiPlexingReceiver::Clients::Clients() = default;
 
-    TcpMultiPlexingReceiver::Clients::~Clients() {
-    }
+    TcpMultiPlexingReceiver::Clients::~Clients() = default;
 
     void TcpMultiPlexingReceiver::Clients::add(TcpClient *client, TcpBackgroundReceiver *receiver) {
         Locker locker(&_clientsMutex);
@@ -113,11 +109,9 @@ namespace Drivers {
     TcpMultiPlexingReceiver::Clients TcpMultiPlexingReceiver::_clients;
     int TcpMultiPlexingReceiver::_exitSockets[2] = {0, 0};
 
-    TcpMultiPlexingReceiver::TcpMultiPlexingReceiver() {
-    }
+    TcpMultiPlexingReceiver::TcpMultiPlexingReceiver() = default;
 
-    TcpMultiPlexingReceiver::~TcpMultiPlexingReceiver() {
-    }
+    TcpMultiPlexingReceiver::~TcpMultiPlexingReceiver() = default;
 
     void TcpMultiPlexingReceiver::addClient(TcpClient *client, TcpBackgroundReceiver *receiver) {
         open(receiver);
@@ -128,9 +122,9 @@ namespace Drivers {
             return;
 
 #ifdef HAS_KEVENT
-        struct kevent ev;
-        EV_SET(&ev, client->socketId(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-        int ret = kevent(_fd, &ev, 1, NULL, 0, NULL);
+        struct kevent ev{};
+        EV_SET(&ev, client->socketId(), EVFILT_READ, EV_ADD, 0, 0, nullptr);
+        int ret = kevent(_fd, &ev, 1, nullptr, 0, nullptr);
         if (ret == -1) {
             Debug::writeFormatLine("kevent failed:%d", errno);
         }
@@ -153,9 +147,9 @@ namespace Drivers {
             return;
 
 #ifdef HAS_KEVENT
-        struct kevent ev;
-        EV_SET(&ev, client->socketId(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
-        kevent(_fd, &ev, 1, NULL, 0, NULL);
+        struct kevent ev{};
+        EV_SET(&ev, client->socketId(), EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+        kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
         struct epoll_event ev;
         memset(&ev.data, 0, sizeof(ev.data));
@@ -198,9 +192,9 @@ namespace Drivers {
         if (_fd != -1) {
             // for exit proc.
 #ifdef HAS_KEVENT
-            struct kevent ev;
-            EV_SET(&ev, 0, EVFILT_USER, EV_ENABLE, NOTE_FFCOPY | NOTE_TRIGGER | 0x1, 0, NULL);
-            kevent(_fd, &ev, 1, NULL, 0, NULL);
+            struct kevent ev{};
+            EV_SET(&ev, 0, EVFILT_USER, EV_ENABLE, NOTE_FFCOPY | NOTE_TRIGGER | 0x1, 0, nullptr);
+            kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
             uint8_t dummy[1] = {0};
             ::write(0, dummy, sizeof(dummy));
@@ -220,7 +214,7 @@ namespace Drivers {
     }
 
     void TcpMultiPlexingReceiver::multiplexingProcInner(void *parameter) {
-        TcpBackgroundReceiver *receiver = (TcpBackgroundReceiver *) parameter;
+        auto receiver = (TcpBackgroundReceiver *) parameter;
         assert(receiver);
         multiplexingProc(receiver->context());
     }
@@ -237,9 +231,9 @@ namespace Drivers {
         int receiveBufferSize = context->receiveBufferSize();
 
         // for exit.
-        struct kevent ev;
-        EV_SET(&ev, 0, EVFILT_USER, EV_ADD, NOTE_FFCOPY, 0, NULL);
-        kevent(kq, &ev, 1, NULL, 0, NULL);
+        struct kevent ev{};
+        EV_SET(&ev, 0, EVFILT_USER, EV_ADD, NOTE_FFCOPY, 0, nullptr);
+        kevent(kq, &ev, 1, nullptr, 0, nullptr);
 
         _multiplexingLoop = true;
 //        static const TimeSpan timeout = TimeSpan::fromMilliseconds(100);
@@ -247,9 +241,9 @@ namespace Drivers {
 //        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
 //        ts.tv_sec = waitms / 1000;
 //        ts.tv_nsec = (waitms % 1000) * 1000 * 1000;
-        struct kevent *eventlist = new struct kevent[maxCount];
+        auto eventlist = new struct kevent[maxCount];
         while (_multiplexingLoop) {
-            ret = kevent(kq, NULL, 0, eventlist, maxCount, nullptr);
+            ret = kevent(kq, nullptr, 0, eventlist, maxCount, nullptr);
             if (ret <= 0)
                 continue;
 
@@ -262,12 +256,12 @@ namespace Drivers {
 
                 if (flags & EV_ERROR) {
                     Debug::writeFormatLine("socket broken, error:%ld", data);
-                    EV_SET(&ev, sockfd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-                    kevent(kq, &ev, 1, NULL, 0, NULL);
+                    EV_SET(&ev, sockfd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+                    kevent(kq, &ev, 1, nullptr, 0, nullptr);
                 } else if (sockfd > 0 && filter == EVFILT_READ) {
                     // read from socket, length = data, can not use data if used ssl.
                     if (receiveBufferSize > 0) {
-                        _clients.process(sockfd, receiveBufferSize);
+                        _clients.process((int) sockfd, receiveBufferSize);
                     }
                 }
             }
@@ -345,7 +339,7 @@ namespace Drivers {
     }
 
     TcpInteractive::~TcpInteractive() {
-        close();
+        TcpInteractive::close();
     }
 
     bool TcpInteractive::open() {
@@ -452,7 +446,7 @@ namespace Drivers {
 //        if(_tcpClient != nullptr)
 //            Debug::writeFormatLine("TcpInteractive::connected, socketId: %d, connected: %s", _tcpClient->socketId(), _tcpClient->connected() ? "true" : "false");
 //#endif
-        return _tcpClient != nullptr ? _tcpClient->connected() : false;
+        return _tcpClient != nullptr && _tcpClient->connected();
     }
 
     bool TcpInteractive::connected() {
@@ -551,11 +545,10 @@ namespace Drivers {
     TcpSSLInteractive::TcpSSLInteractive(DriverManager *dm, Channel *channel) : TcpInteractive(dm, channel) {
     }
 
-    TcpSSLInteractive::~TcpSSLInteractive() {
-    }
+    TcpSSLInteractive::~TcpSSLInteractive() = default;
 
     SSLVersion TcpSSLInteractive::sslVersion() const {
-        TcpSSLClient *sc = dynamic_cast<TcpSSLClient *>(_tcpClient);
+        auto sc = dynamic_cast<TcpSSLClient *>(_tcpClient);
         return sc != nullptr ? sc->sslVersion() : SSLVersion::SSLNone;
     }
 

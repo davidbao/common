@@ -29,7 +29,7 @@ namespace Microservice {
     bool ServiceRegister::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         ServiceGovernanceFactory *sgfactory = ServiceGovernanceFactory::instance();

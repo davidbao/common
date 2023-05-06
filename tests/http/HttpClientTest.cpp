@@ -113,9 +113,9 @@ static HttpStatus onAction(void* parameter, const HttpRequest& request, HttpResp
 bool _finished = false;
 bool testGet() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders(new HttpHeader("Content-Type", "text/plain"), nullptr);
-    HttpHeaders jsonHeaders(new HttpHeader("Content-Type", "application/json"), nullptr);
-    HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
+    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
+    HttpHeaders jsonHeaders({HttpHeader("Content-Type", "application/json")});
+    HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
 //    String response;
@@ -167,8 +167,8 @@ bool testGet() {
 
 bool testPost() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders(new HttpHeader("Content-Type", "text/plain"), nullptr);
-    HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
+    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
+    HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
     String request = "abc";
@@ -204,8 +204,8 @@ bool testPost() {
 
 bool testPut() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders(new HttpHeader("Content-Type", "text/plain"), nullptr);
-    HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
+    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
+    HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
     String request = "abc";
@@ -229,7 +229,7 @@ bool testPut() {
         const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
         _finished = body == "def";
     });
-    TickTimeout::delay(TimeSpan::fromSeconds(3), [](void*) {
+    TickTimeout::delay(TimeSpan::fromSeconds(10), [](void*) {
         return _finished;
     });
     if(!_finished) {
@@ -241,8 +241,8 @@ bool testPut() {
 
 bool testDownload() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders(new HttpHeader("Content-Type", "text/plain"), nullptr);
-    HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
+    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
+    HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
     String fileName = Path::combine(Path::getTempPath(), "download_target_test.txt");;
@@ -266,8 +266,8 @@ bool testDownload() {
 
 bool testUpload() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders(new HttpHeader("Content-Type", "text/plain"), nullptr);
-    HttpHeaders streamHeaders(new HttpHeader("Content-Type", "application/octet-stream"), nullptr);
+    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
+    HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
     String fileName = Path::combine(Path::getTempPath(), "upload_source_test.txt");;

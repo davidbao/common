@@ -13,7 +13,7 @@
 #include "microservice/LoadBalancerClient.h"
 
 namespace Microservice {
-    const HttpHeaders RestTemplate::DefaultHeaders(new HttpHeader("Content-Type", "application/json"), nullptr);
+    const HttpHeaders RestTemplate::DefaultHeaders({HttpHeader("Content-Type", "application/json")});
 
     RestTemplate::RestTemplate() {
     }

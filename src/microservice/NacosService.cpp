@@ -26,7 +26,7 @@ namespace Microservice {
     const char *NacosService::ClusterNodesUrl = "nacos/v1/core/cluster/nodes";
     const char *NacosService::LoginUrl = "nacos/v1/auth/users/login";
 
-    const HttpHeaders NacosService::DefaultHeaders(new HttpHeader("Content-Type", "application/json"), nullptr);
+    const HttpHeaders NacosService::DefaultHeaders({HttpHeader("Content-Type", "application/json")});
 
     const char *NacosService::DefaultClusterName = "DEFAULT";
     const char *NacosService::DefaultGroupName = "DEFAULT_GROUP";

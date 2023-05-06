@@ -44,7 +44,7 @@ namespace IO {
         if (isValid()) {
             memcpy((uint8_t *) _accessor + position, array + offset, count);
 
-            return count;
+            return (ssize_t) count;
         }
 
         return 0;
@@ -55,7 +55,7 @@ namespace IO {
 
         if (isValid()) {
             memcpy(array + offset, (uint8_t *) _accessor + position, count);
-            return count;
+            return (ssize_t) count;
         }
 
         return 0;
@@ -150,12 +150,12 @@ namespace IO {
 
     MappingStream::MappingStream(const String &fileName, size_t fileSize) {
         if (fileName.isNullOrEmpty()) {
-            throw new ArgumentNullException("fileName");
+            throw ArgumentNullException("fileName");
         }
         if (fileSize <= 0) {
             throw ArgumentOutOfRangeException("fileSize", "fileSize must be greater than or equal to zero.");
         }
-        if (fileSize > (int64_t) 2 * 1024 * 1024 * 1024)    // 2G
+        if (fileSize > (size_t) 2 * 1024 * 1024 * 1024L)    // 2G
         {
             // 2G is the largest.
             throw ArgumentOutOfRangeException("fileSize", "fileSize must be less than 2G.");
@@ -193,10 +193,10 @@ namespace IO {
 
     MappingStream::MappingStream(const String &fileName) {
         if (fileName.isNullOrEmpty()) {
-            throw new ArgumentNullException("fileName");
+            throw ArgumentNullException("fileName");
         }
         if (!File::exists(fileName)) {
-            throw new FileNotFoundException("fileName");
+            throw FileNotFoundException("fileName");
         }
         FileAccess access = FileAccess::FileRead;
         size_t fileSize = 0;
@@ -267,7 +267,7 @@ namespace IO {
                     break;
             }
         }
-        return length;
+        return (ssize_t) length;
     }
 
     ssize_t MappingStream::read(uint8_t *array, off_t offset, size_t count) {
@@ -295,7 +295,8 @@ namespace IO {
             View *view = _views[i];
             size += view->size;
             if ((off_t) size > position()) {
-                length += view->read(position() - view->offset, array, offset + (off_t)length, count - length);
+                size_t readCount = Math::min(count - (size_t) length, size - (size_t) _position);
+                length += view->read(position() - view->offset, array, offset + (off_t)length, readCount);
                 pos += (off_t)length;
                 seek(pos, SeekOrigin::SeekBegin);
                 if (length >= (ssize_t)count)
@@ -330,21 +331,36 @@ namespace IO {
             throw NotSupportedException("Stream does not support seeking.");
         }
 
-        switch (origin) {
-            case SeekOrigin::SeekBegin:
-                break;
-            case SeekOrigin::SeekCurrent:
-                offset += position();
-                break;
-            case SeekOrigin::SeekEnd:
-                offset = (off_t)length() - offset;
-                break;
-            default:
-                break;
+        off_t pos = 0;
+        if (origin == SeekOrigin::SeekBegin) {
+            pos = offset;
+        } else if (origin == SeekOrigin::SeekCurrent) {
+            pos = _position + offset;
+        } else if (origin == SeekOrigin::SeekEnd) {
+            pos = (off_t) length() + offset;
         }
 
-        _position = offset;
-        return _position;
+        if (pos >= 0 && pos <= (off_t) length()) {
+            _position = pos;
+            return _position;
+        }
+        return -1;
+
+//        switch (origin) {
+//            case SeekOrigin::SeekBegin:
+//                break;
+//            case SeekOrigin::SeekCurrent:
+//                offset += position();
+//                break;
+//            case SeekOrigin::SeekEnd:
+//                offset = (off_t)length() - offset;
+//                break;
+//            default:
+//                break;
+//        }
+//
+//        _position = offset;
+//        return _position;
     }
 
     bool MappingStream::canWrite() const {

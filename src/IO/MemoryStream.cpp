@@ -51,21 +51,18 @@ namespace IO {
     }
 
     off_t MemoryStream::seek(off_t offset, SeekOrigin origin) {
+        off_t pos = 0;
         if (origin == SeekOrigin::SeekBegin) {
-            if (offset >= 0 && offset <= (off_t) _buffer->count()) {
-                _position = offset;
-                return _position;
-            }
+            pos = offset;
         } else if (origin == SeekOrigin::SeekCurrent) {
-            if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
-                _position += offset;
-                return _position;
-            }
+            pos = _position + offset;
         } else if (origin == SeekOrigin::SeekEnd) {
-            if (offset >= 0 && offset <= (off_t) _buffer->count() - _position) {
-                _position = (off_t) _buffer->count() - offset;
-                return _position;
-            }
+            pos = (off_t) length() + offset;
+        }
+
+        if (pos >= 0 && pos <= (off_t) length()) {
+            _position = pos;
+            return _position;
         }
         return -1;
     }

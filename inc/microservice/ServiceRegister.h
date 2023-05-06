@@ -15,36 +15,37 @@
 
 using namespace Data;
 
-namespace Microservice
-{
-    class IServiceRegister : public IService
-    {
+namespace Microservice {
+    class IServiceRegister : public IService {
     public:
-        virtual bool getServiceIds(StringArray& serviceIds) = 0;
-        virtual bool getHealthNode(JsonNode& node) const = 0;
+        virtual bool getServiceIds(StringArray &serviceIds) = 0;
+
+        virtual bool getHealthNode(JsonNode &node) const = 0;
     };
 
-    class ServiceRegister : public IServiceRegister
-    {
+    class ServiceRegister : public IServiceRegister {
     public:
         ServiceRegister();
+
         ~ServiceRegister() override;
-        
+
         bool initialize();
+
         bool unInitialize();
-        
-        bool getServiceIds(StringArray& serviceIds) override;
-        bool getHealthNode(JsonNode& node) const override;
-        
+
+        bool getServiceIds(StringArray &serviceIds) override;
+
+        bool getHealthNode(JsonNode &node) const override;
+
     private:
         void registerProc();
-        
+
     private:
         bool _registered;
-        Timer* _registerTimer;
-        
+        Timer *_registerTimer;
+
         String _name;
-        IServiceGovernance* _service;
+        IServiceGovernance *_service;
     };
 }
 

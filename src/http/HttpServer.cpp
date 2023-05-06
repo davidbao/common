@@ -53,9 +53,11 @@ namespace Http {
     }
 
     HttpServer::Actions &HttpServer::Actions::operator=(const Actions &value) {
-        this->owner = value.owner;
-        this->processAction = value.processAction;
-        this->action = value.action;
+        if (this != &value) {
+            this->owner = value.owner;
+            this->processAction = value.processAction;
+            this->action = value.action;
+        }
         return *this;
     }
 
@@ -85,9 +87,11 @@ namespace Http {
     }
 
     HttpServer::Context &HttpServer::Context::operator=(const Context &value) {
-        this->endpoint = value.endpoint;
-        this->secure = value.secure;
-        this->timeout = value.timeout;
+        if (this != &value) {
+            this->endpoint = value.endpoint;
+            this->secure = value.secure;
+            this->timeout = value.timeout;
+        }
         return *this;
     }
 
@@ -636,10 +640,10 @@ namespace Http {
 
             bool hasContentType = false;
             for (size_t i = 0; i < response.headers.count(); i++) {
-                const HttpHeader *h = response.headers[i];
-                if (h->name == "Content-Type")
+                const HttpHeader &h = response.headers[i];
+                if (h.name == "Content-Type")
                     hasContentType = true;
-                evhttp_add_header(req->output_headers, h->name, h->value);
+                evhttp_add_header(req->output_headers, h.name, h.value);
             }
 
             if (!hasContentType) {
@@ -684,7 +688,7 @@ namespace Http {
                     if (fstat(fd, &st) < 0) {
                         evhttp_send_error(req, HttpStatus::HttpNotFound, "Document was not found");
                     } else {
-                        evbuffer_add_file(evb, fd, 0, st.st_size);
+                        evbuffer_add_file(evb, fd, 0, (int32_t) st.st_size);
                         evhttp_send_reply(req, code, reason, evb);
                     }
                 } else if (streamContent->stream() != nullptr) {

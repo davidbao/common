@@ -24,8 +24,9 @@
 #endif
 
 namespace Microservice {
-    SummerStarter::SummerStarter(int argc, const char *argv[]) {
-        _app = new SummerApplication(argc, argv);
+    SummerStarter::SummerStarter(int argc, const char *argv[],
+                                 const String &rootPath, const TraceListenerContexts &contexts) {
+        _app = new SummerApplication(argc, argv, rootPath, contexts);
         _config = new ConfigService();
         _register = new ServiceRegister();
         _discovery = new ServiceDiscovery();

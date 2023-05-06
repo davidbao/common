@@ -23,7 +23,7 @@ namespace Microservice {
     const char *ConsulService::CheckServiceHealthUrl = "v1/agent/checks?filter=%s";
     const char *ConsulService::GetLeaderUrl = "v1/status/leader";
 
-    const HttpHeaders ConsulService::DefaultHeaders(new HttpHeader("Content-Type", "application/json"), nullptr);
+    const HttpHeaders ConsulService::DefaultHeaders({HttpHeader("Content-Type", "application/json")});
 
     ConsulService::ConsulService() {
     }

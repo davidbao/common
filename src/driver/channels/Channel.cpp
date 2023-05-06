@@ -92,7 +92,7 @@ namespace Drivers {
 
     bool Channel::connected() {
         Interactive *i = interactive();
-        return i != nullptr ? i->connected() : false;
+        return i != nullptr && i->connected();
     }
 
     bool Channel::useReceiveTimeout() const {
@@ -150,7 +150,7 @@ namespace Drivers {
     }
 
     bool Channel::isOpened(void *parameter) {
-        Channel *channel = (Channel *) parameter;
+        auto channel = (Channel *) parameter;
         return !channel->_opening;
     }
 

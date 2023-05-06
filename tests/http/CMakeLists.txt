@@ -12,19 +12,21 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(HTTP_SRC
-#        HttpContentTest.cpp
         )
 if (COMMON_BUILD_HTTPCLIENT AND COMMON_BUILD_HTTPSERVER)
     set(HTTP_SRC ${HTTP_SRC}
+            HttpContentTest.cpp
             HttpClientTest.cpp
 #            HttpServer.cpp
             )
 elseif (COMMON_BUILD_HTTPCLIENT)
     set(HTTP_SRC ${HTTP_SRC}
+            HttpContentTest.cpp
             HttpClientTest.cpp
             )
 elseif (COMMON_BUILD_HTTPSERVER)
     set(HTTP_SRC ${HTTP_SRC}
+            HttpContentTest.cpp
 #            HttpServer.cpp
             )
 else ()

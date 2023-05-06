@@ -19,7 +19,7 @@ include_directories(${EXTERNALS_PATH}/include)
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
 # object settings
-set(COMMON_BASE_SRC configuration crypto data diag exception http IO json net system thread xml yml)
+set(COMMON_BASE_SRC configuration crypto data diag exception IO json net system thread xml yml)
 if (COMMON_BUILD_COMMUNICATION)
     set(COMMON_BASE_SRC ${COMMON_BASE_SRC} communication)
 endif ()
@@ -33,6 +33,9 @@ if (COMMON_BUILD_MICROSERVICE)
     set(COMMON_BASE_SRC ${COMMON_BASE_SRC} microservice)
     set(COMMON_BASE_SRC ${COMMON_BASE_SRC} rpc)
 endif ()
+if (COMMON_BUILD_HTTPCLIENT OR COMMON_BUILD_HTTPSERVER)
+    set(COMMON_BASE_SRC ${COMMON_BASE_SRC} http)
+endif()
 
 set(COMMON_OBJECTS)
 foreach (SRC ${COMMON_BASE_SRC})

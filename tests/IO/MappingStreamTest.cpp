@@ -6,109 +6,1253 @@
 //  Copyright (c) 2022 com. All rights reserved.
 //
 
-#include <stdio.h>
-#include <stdint.h>
-//#include <Windows.h>
+#include "IO/MappingStream.h"
+#include "IO/Path.h"
+#include "IO/File.h"
+#include "IO/Directory.h"
+#include "exception/Exception.h"
+#include "data/ValueType.h"
 
-//class MappingPosition {
-//public:
-//    MappingPosition(const char* fileName) : _file(nullptr), _mapFile(nullptr), _fileSize(0), _accessor(nullptr) {
-//        _file = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
-//        if(_file != nullptr) {
-//            _mapFile = CreateFileMapping(_file, nullptr, PAGE_READONLY, 0, (DWORD) _fileSize, nullptr);
-//
-//            LARGE_INTEGER li;
-//            GetFileSizeEx(_file, &li);
-//            _fileSize = li.QuadPart;
-//
-//            if((_accessor = MapViewOfFile(_mapFile, FILE_MAP_READ, 0, (DWORD)0, (SIZE_T)_fileSize)) == nullptr)
-//            {
-//                LPVOID lpMsgBuf;
-//                DWORD dw = GetLastError();
-//
-//                FormatMessage(
-//                        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-//                        FORMAT_MESSAGE_FROM_SYSTEM |
-//                        FORMAT_MESSAGE_IGNORE_INSERTS,
-//                        nullptr,
-//                        dw,
-//                        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//                        (LPTSTR)&lpMsgBuf,
-//                        0, nullptr);
-//
-//                printf("mmap wrong!, reason: %s\n", (LPTSTR)lpMsgBuf);
-//                LocalFree(lpMsgBuf);
-//            }
-//        }
-//    }
-//
-//    ~MappingPosition() {
-//        if(_accessor != nullptr) {
-//            UnmapViewOfFile(_accessor);
-//        }
-//        if(_file != nullptr) {
-//            CloseHandle(_file);
-//        }
-//        if(_mapFile != nullptr) {
-//            CloseHandle(_mapFile);
-//        }
-//    }
-//
-//    bool isValid() {
-//        return _accessor != nullptr;
-//    }
-//
-//    size_t read(size_t position, uint8_t *array, size_t offset, size_t count) {
-//        if(isValid()) {
-//            memcpy(array + offset, (uint8_t *) _accessor + position, count);
-//            return count;
-//        }
-//        return 0;
-//    }
-//
-//    float operator[](size_t pos) {
-//        if(isValid()) {
-//            size_t offset = HeaderLength + pos * 4;
-//            if(offset + sizeof(float) >= size() ) {
-//                return 0.0f;
-//            }
-//
-//            union data {
-//                uint8_t buffer[sizeof(float)];
-//                float value;
-//            };
-//            data d;
-//            size_t length = read(offset, (uint8_t*)&d, 0, sizeof(d));
-//            if(length == sizeof(float)) {
-//                return d.value;
-//            }
-//        }
-//        return 0.0f;
-//    }
-//
-//    size_t size() {
-//        if(isValid()) {
-//            return (_fileSize - HeaderLength) / 4;
-//        }
-//        return 0;
-//    }
-//
-//private:
-//    HANDLE _file;
-//    HANDLE _mapFile;
-//    size_t _fileSize;
-//    LPVOID _accessor;
-//
-//    static const size_t HeaderLength = 4096;
-//};
+using namespace IO;
+using namespace System;
+
+static const String _path = Path::combine(Path::getTempPath(), "mapping_stream_test");
+static const String _fileName = "test.bin";
+static const String _fullFileName = Path::combine(_path, _fileName);
+#ifdef PC_OS
+static const int64_t _fileSize = 257L * 1024 * 1024 + 1;
+#else
+static const int64_t _fileSize = 1L * 1024 * 1024;
+#endif // PC_OS
+
+void cleanUp() {
+    if (Directory::exists(_path)) {
+        Directory::deleteDirectory(_path);
+    }
+}
+
+void setUp() {
+    cleanUp();
+
+    if (!Directory::exists(_path)) {
+        Directory::createDirectory(_path);
+    }
+}
+
+bool testConstructor() {
+    {
+        MappingStream stream(_fullFileName, _fileSize);
+        if (!stream.isOpen()) {
+            return false;
+        }
+    }
+
+    {
+        MappingStream stream(_fullFileName);
+        if (!stream.isOpen()) {
+            return false;
+        }
+    }
+
+#ifndef __EMSCRIPTEN__
+    {
+        try {
+            MappingStream stream(String::Empty);
+            return false;
+        } catch (const ArgumentNullException&) {
+        }
+    }
+
+    {
+        try {
+            MappingStream stream("abc");
+            return false;
+        } catch (const FileNotFoundException&) {
+        }
+    }
+
+    {
+        try {
+            MappingStream stream(String::Empty, 0);
+            return false;
+        } catch (const ArgumentNullException&) {
+        }
+    }
+
+    {
+        try {
+            MappingStream stream("abc", 0);
+            return false;
+        } catch (const ArgumentOutOfRangeException&) {
+        }
+    }
+
+    {
+        try {
+            MappingStream stream("abc", 2UL * 1024 * 1024 * 1024L + 1);
+            return false;
+        } catch (const ArgumentOutOfRangeException&) {
+        }
+    }
+#endif  // __EMSCRIPTEN__
+
+    return true;
+}
+
+bool testPositionAndLength() {
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeText(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        if (ms2.length() != _fileSize) {
+            return false;
+        }
+        ms2.seek(1);
+
+        String actual;
+        if (!ms2.readToEnd(actual)) {
+            return false;
+        }
+        ms2.close();
+
+        if (actual != "bc") {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testSeek() {
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeText(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual;
+        if (!ms2.seek(2)) {
+            return false;
+        }
+        if (!ms2.readToEnd(actual)) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+        if (actual != "c") {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        if (ms2.seek(1 - _fileSize, SeekOrigin::SeekEnd) == -1) {
+            return false;
+        }
+        if (!ms2.readToEnd(actual)) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+        if (actual != "bc") {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        ms2.seek(0);
+        ms2.seek(2, SeekOrigin::SeekCurrent);
+        if (!ms2.readToEnd(actual)) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+        if (actual != "c") {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        ms2.close();
+        File::deleteFile(fileName);
+    }
+
+    return true;
+}
+
+bool testProperties() {
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        if (ms2.isEnd()) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+        String actual;
+        if (!ms2.readToEnd(actual)) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+        if (!ms2.isEnd()) {
+            ms2.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        ms.close();
+        File::deleteFile(fileName);
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeText(expect);
+
+        ms.setVersion("1.2");
+        if (ms.version() != "1.2") {
+            ms.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        ms.close();
+        File::deleteFile(fileName);
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeText(expect);
+
+        Mutex *mutex = ms.mutex();
+        if (mutex == nullptr) {
+            return false;
+        }
+
+        ms.close();
+        File::deleteFile(fileName);
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeText(expect);
+
+        if (!ms.canWrite()) {
+            ms.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        if (!ms.canRead()) {
+            ms.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        if (!ms.canSeek()) {
+            ms.close();
+            File::deleteFile(fileName);
+            return false;
+        }
+
+        ms.close();
+        File::deleteFile(fileName);
+    }
+
+    return true;
+}
+
+bool testReadWrite() {
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeStr(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual = ms2.readStr();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeStr(expect, String::StreamLength2);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual = ms2.readStr(String::StreamLength2);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeStr(expect, String::StreamLength4);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual = ms2.readStr(String::StreamLength4);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        String expect = "abc";
+        ms.writeFixedLengthStr(expect, 3);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual = ms2.readFixedLengthStr(3);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = true;
+        ms.writeBoolean(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readBoolean();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 3.1415926f;
+        ms.writeFloat(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readFloat();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 3.1415926f;
+        ms.writeFloat(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readFloat(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 3.1415926;
+        ms.writeDouble(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readDouble();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 3.1415926;
+        ms.writeDouble(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readDouble(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeInt64(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt64();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeInt64(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt64(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeInt48(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt48();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeInt48(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt48(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeUInt64(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt64();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeUInt64(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt64(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeUInt48(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt48();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234L;
+        ms.writeUInt48(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt48(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt32(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt32();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt32(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt32(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt24(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt24();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt24(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt24(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt16(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt16();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeInt16(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt16(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt16(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt16(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12;
+        ms.writeInt8(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt8();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12;
+        ms.writeUInt8(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt8();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12;
+        ms.writeByte(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readByte();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12;
+        ms.writeByte(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readByte();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeBCDInt32(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt32();
+        ms2.close();
+
+        if (actual != 0x1234) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt32(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt32();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt32(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt32(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt24(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt24();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt24(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt24(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt24(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt24(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt16(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16();
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeUInt16(expect, false);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16(false);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeBCDUInt32(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt32();
+        ms2.close();
+
+        if (actual != 0x1234) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeBCDUInt16(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16();
+        ms2.close();
+
+        if (actual != 0x1234) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 1234;
+        ms.writeBCDUInt16(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readUInt16();
+        ms2.close();
+
+        if (actual != 0x1234) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12;
+        ms.writeBCDByte(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readByte();
+        ms2.close();
+
+        if (actual != 0x12) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = 12345678;
+        ms.writeBCDValue(expect, 8);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        auto actual = ms2.readInt64();
+        ms2.close();
+
+        if (actual != 0x12345678) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = ByteArray{1, 2, 3, 4, 5, 6, 7, 8};
+        ms.writeBytes(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        ByteArray actual = ms2.readBytes(8);
+        ms2.seek(0);
+        ByteArray actual2 = ms2.readBytes(8, 3);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+        if (actual2 != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        auto expect = String("12345678中文Abc");
+        ms.writeText(expect);
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual = ms2.readText((int) expect.length());
+        ms2.seek(0);
+        String actual2 = ms2.readText((int) expect.length(), 3);
+        ms2.close();
+
+        if (actual != expect) {
+            return false;
+        }
+        if (actual2 != expect) {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        for (int i = 1; i <= 8; ++i) {
+            ms.writeLine(Int32(i).toString());
+        }
+        ms.close();
+
+        MappingStream ms2(fileName);
+        String actual;
+        for (int i = 0; i < 8; ++i) {
+            actual.append(ms2.readLine());
+        }
+        ms2.close();
+
+        if (actual != "12345678") {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    {
+        String fileName = Path::combine(_path, "test.bin");
+        MappingStream ms(fileName, _fileSize);
+        ms.seek(256L * 1024 * 1024 - 1);
+        for (int i = 1; i <= 8; ++i) {
+            ms.writeLine(Int32(i).toString());
+        }
+        ms.close();
+
+        MappingStream ms2(fileName);
+        ms2.seek(256L * 1024 * 1024 - 1);
+        String actual;
+        for (int i = 0; i < 8; ++i) {
+            actual.append(ms2.readLine());
+        }
+        ms2.close();
+
+        if (actual != "12345678") {
+            return false;
+        }
+
+        if (!File::deleteFile(fileName)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 int main() {
-//    MappingPosition mp("W:\\1820_ch01_20221002_030728.dat");
-//    if(mp.isValid()) {
-//        float v1 = mp[0];
-//        float v2 = mp[10];
-//        float vend = mp[mp.size() - 1];
-//        printf("v1: %g, v2: %g, vend: %g\n", v1, v2, vend);
-//    }
+    setUp();
+
+    if (!testConstructor()) {
+        cleanUp();
+        return 1;
+    }
+
+    if (!testPositionAndLength()) {
+        cleanUp();
+        return 2;
+    }
+
+    if (!testSeek()) {
+        cleanUp();
+        return 3;
+    }
+
+    if (!testProperties()) {
+        cleanUp();
+        return 4;
+    }
+
+    if (!testReadWrite()) {
+        cleanUp();
+        return 5;
+    }
+
+    cleanUp();
+
     return 0;
 }
