@@ -165,26 +165,46 @@ bool testSystemVariables() {
 }
 
 bool testCypher() {
-    String plainText = "abc123,)_";
-    String cypherText = ConfigService::computeCypherText(plainText);
-    if(cypherText.isNullOrEmpty()) {
-        return false;
-    }
-    String plainText2 = ConfigService::computePlainText(cypherText);
-    if(plainText2.isNullOrEmpty()) {
-        return false;
-    }
-    if(plainText2 != plainText) {
-        return false;
+    {
+        String plainText = "abc123,)_";
+        String cypherText = ConfigService::computeCypherText(plainText);
+        if (cypherText.isNullOrEmpty()) {
+            return false;
+        }
+        String plainText2 = ConfigService::computePlainText(cypherText);
+        if (plainText2.isNullOrEmpty()) {
+            return false;
+        }
+        if (plainText2 != plainText) {
+            return false;
+        }
     }
 
-    String cypherText3 = "UiBeBtjan2CUXufGSzSlUg==";    // sm4 cypher.
-    String plainText4 = ConfigService::computePlainText(cypherText3);
-    if(plainText4.isNullOrEmpty()) {
-        return false;
+    {
+        String cypherText3 = "UiBeBtjan2CUXufGSzSlUg==";    // sm4 cypher.
+        String plainText4 = ConfigService::computePlainText(cypherText3);
+        if (plainText4.isNullOrEmpty()) {
+            return false;
+        }
+        if (plainText4 != "123.com") {
+            return false;
+        }
     }
-    if(plainText4 != "123.com") {
-        return false;
+
+    {
+        String plainText, cypherText;
+        plainText = "user";
+        cypherText = ConfigService::computeCypherText(plainText);
+        Trace::verb(String::format("plain: '%s', cypher: '%s'", plainText.c_str(), cypherText.c_str()));
+        plainText = "admin";
+        cypherText = ConfigService::computeCypherText(plainText);
+        Trace::verb(String::format("plain: '%s', cypher: '%s'", plainText.c_str(), cypherText.c_str()));
+        plainText = "123.com";
+        cypherText = ConfigService::computeCypherText(plainText);
+        Trace::verb(String::format("plain: '%s', cypher: '%s'", plainText.c_str(), cypherText.c_str()));
+        plainText = "admin.com";
+        cypherText = ConfigService::computeCypherText(plainText);
+        Trace::verb(String::format("plain: '%s', cypher: '%s'", plainText.c_str(), cypherText.c_str()));
     }
 
     return true;

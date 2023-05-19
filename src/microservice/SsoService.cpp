@@ -97,6 +97,7 @@ namespace Microservice {
         JsonNode data("data"), result;
         ByteArray key, publicKey, privateKey;
         Sm4Provider sm4;
+        sm4.setMode(CypherMode::ECB);
         sm4.generateKey(key);
         Sm2Provider::generateKey(publicKey, privateKey);
 
@@ -113,6 +114,7 @@ namespace Microservice {
 //        JsonNode node(kvs);
 //        String sm4Encode;
 //        Sm4Provider sm4(key);
+//        sm4.setMode(CypherMode::ECB);
 //        sm4.encrypt(node.toString(), sm4Encode);
 //        sm4Encode = sm4Encode.toLower();
 //        Trace::writeFormatLine("SM4 key: %s", key.toHexString().c_str());
@@ -430,6 +432,7 @@ namespace Microservice {
             }
 
             Sm4Provider sm4(code);
+            sm4.setMode(CypherMode::ECB);
             if (sm4.decrypt(data, content)) {
                 JsonNode contentNode;
                 if (JsonNode::parse(content, contentNode)) {
