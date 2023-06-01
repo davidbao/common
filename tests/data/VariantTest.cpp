@@ -540,6 +540,33 @@ bool testValue() {
             return false;
         }
     }
+    {
+        Variant test(Variant::Decimal);
+        if (!test.setValue(1)) {
+            return false;
+        }
+        if (test.toString() != "1") {
+            return false;
+        }
+    }
+    {
+        Variant test(Variant::Decimal);
+        if (!test.setValue((uint64_t)113715892637925384)) {
+            return false;
+        }
+        if (test.toString() != "113715892637925384") {
+            return false;
+        }
+    }
+    {
+        Variant test(Variant::Decimal);
+        if (!test.setValue("113715892637925384")) {
+            return false;
+        }
+        if (test.toString() != "113715892637925384") {
+            return false;
+        }
+    }
 
     return true;
 }
@@ -927,7 +954,7 @@ bool testStaticMethod() {
     {
         StringArray array;
         Variant::getAllTypeStr(array);
-        if (array.count() != 18) {
+        if (array.count() != 19) {
             return false;
         }
     }

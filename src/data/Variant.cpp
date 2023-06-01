@@ -430,6 +430,20 @@ namespace Data {
         return v;
     }
 
+    bool Variant::setDecimalValue(const String &str) {
+        return setDecimalValue(str, _type, _value);
+    }
+
+    bool Variant::setDecimalValue(const String &str, Type type, Value &value) {
+        if (type == Decimal) {
+            delete[] value.decValue;
+            value.decValue = new char[str.length() + 1];
+            strcpy(value.decValue, str);
+            return true;
+        }
+        return false;
+    }
+
     bool Variant::setStringValue(const String &str) {
         return setStringValue(str, _type, _value);
     }
@@ -608,6 +622,8 @@ namespace Data {
     void Variant::setValueInner(const Value &value) {
         if (_type == Text) {
             setStringValue(value.strValue);
+        } else if (_type == Decimal) {
+            setDecimalValue(value.decValue);
         } else if (_type == Blob) {
             setByteArrayValue(value.blobValue);
         } else {
@@ -673,6 +689,8 @@ namespace Data {
                 return changeValue<float>(_value.fValue, type, value);
             case Float64:
                 return changeValue<double>(_value.dValue, type, value);
+            case Decimal:
+                return changeValue(String(_value.decValue), type, value);
             case Text:
                 return changeValue(String(_value.strValue), type, value);
             case Date:
@@ -811,6 +829,8 @@ namespace Data {
                 double temp;
                 return Double::parse(v, temp) && value.dValue == temp;
             }
+            case Decimal:
+                return equalsTextValue(value.decValue, v.c_str());
             case Text:
                 return equalsTextValue(value.strValue, v.c_str());
             case Date: {
@@ -881,6 +901,8 @@ namespace Data {
         if (type == destType) {
             if (type == Text) {
                 setStringValue(value.strValue, destType, destValue);
+            } else if (type == Decimal) {
+                setDecimalValue(value.decValue, destType, destValue);
             } else if (type == Blob) {
                 setByteArrayValue(value.blobValue, destType, destValue);
             } else {
@@ -913,6 +935,8 @@ namespace Data {
                     return changeValue<float>(value.fValue, destType, destValue);
                 case Float64:
                     return changeValue<double>(value.dValue, destType, destValue);
+                case Decimal:
+                    return changeValue(String(value.decValue), destType, destValue);
                 case Text:
                     return changeValue(String(value.strValue), destType, destValue);
                 case Date:
@@ -977,6 +1001,9 @@ namespace Data {
                 break;
             case Float64:
                 result = value2.dValue == destValue.dValue;
+                break;
+            case Decimal:
+                result = equalsTextValue(value2.decValue, destValue.decValue);
                 break;
             case Text:
                 result = equalsTextValue(value2.strValue, destValue.strValue);
@@ -1066,6 +1093,9 @@ namespace Data {
                 if (value1.dValue > value2.dValue) result = 1;
                 if (value1.dValue < value2.dValue) result = -1;
                 break;
+            case Decimal:
+                result = compareTextValue(value1.decValue, value2.decValue);
+                break;
             case Text:
                 result = compareTextValue(value1.strValue, value2.strValue);
                 break;
@@ -1137,6 +1167,9 @@ namespace Data {
                 break;
             case Float64:
                 changed = Double::parse(v, value.dValue);
+                break;
+            case Decimal:
+                changed = setDecimalValue(v, type, value);
                 break;
             case Text:
                 changed = setStringValue(v, type, value);
@@ -1237,6 +1270,10 @@ namespace Data {
                 value.dValue = (double) v.ticks();
                 changed = true;
                 break;
+            case Decimal:
+                setDecimalValue(v.toString(), type, value);
+                changed = true;
+                break;
             case Text:
                 setStringValue(v.toString(), type, value);
                 changed = true;
@@ -1313,6 +1350,10 @@ namespace Data {
                 value.dValue = (double) v.ticks();
                 changed = true;
                 break;
+            case Decimal:
+                setDecimalValue(v.toString(), type, value);
+                changed = true;
+                break;
             case Text:
                 setStringValue(v.toString(), type, value);
                 changed = true;
@@ -1355,6 +1396,7 @@ namespace Data {
             case UInteger64:
             case Float32:
             case Float64:
+            case Decimal:
             case Text:
             case Date:
             case Time:
@@ -1388,6 +1430,7 @@ namespace Data {
             case UInteger64:
             case Float32:
             case Float64:
+            case Decimal:
             case Text:
             case Date:
             case Time:
@@ -1444,6 +1487,9 @@ namespace Data {
             case Float64:
                 v = Convert::convertStr(value.dValue);
                 break;
+            case Decimal:
+                v = value.decValue;
+                break;
             case Text:
                 v = value.strValue;
                 break;
@@ -1499,6 +1545,7 @@ namespace Data {
             case UInteger64:
             case Float32:
             case Float64:
+            case Decimal:
                 changed = false;
                 break;
             case Text: {
@@ -1545,6 +1592,7 @@ namespace Data {
             case UInteger64:
             case Float32:
             case Float64:
+            case Decimal:
                 changed = false;
                 break;
             case Text: {
@@ -1643,6 +1691,9 @@ namespace Data {
             case Float64:
                 stream->writeDouble(value.dValue, bigEndian);
                 break;
+            case Decimal:
+                stream->writeStr(value.decValue, String::StreamLength4);
+                break;
             case Text:
                 stream->writeStr(value.strValue, String::StreamLength4);
                 break;
@@ -1710,6 +1761,9 @@ namespace Data {
                 break;
             case Float64:
                 value.dValue = stream->readDouble(bigEndian);
+                break;
+            case Decimal:
+                setDecimalValue(stream->readStr(String::StreamLength4), type, value);
                 break;
             case Text:
                 setStringValue(stream->readStr(String::StreamLength4), type, value);
@@ -1789,6 +1843,9 @@ namespace Data {
             case Float64:
                 size = sizeof(value.dValue);
                 break;
+            case Decimal:
+                size = 4 + strlen(value.strValue);
+                break;
             case Text:
                 size = 4 + strlen(value.strValue);
                 break;
@@ -1841,6 +1898,8 @@ namespace Data {
                 return "float";
             case Float64:
                 return "double";
+            case Decimal:
+                return "Decimal";
             case Text:
                 return "String";
             case Date:
@@ -1882,6 +1941,8 @@ namespace Data {
                 return "Float32";
             case Float64:
                 return "Float64";
+            case Decimal:
+                return "Decimal";
             case Text:
                 return "Text";
             case Date:
@@ -1948,6 +2009,10 @@ namespace Data {
                    String::equals(str, "Double", true) ||
                    String::equals(str, "Real", true)) {
             return Type::Float64;
+        } else if (String::equals(str, "Decimal", true) ||
+                   String::equals(str, "Numeric", true) ||
+                   String::equals(str, "Number", true)) {
+            return Type::Decimal;
         } else if (String::equals(str, "Text", true) ||
                    String::equals(str, "String", true) ||
                    String::equals(str, "varchar", true) ||
@@ -1974,7 +2039,8 @@ namespace Data {
 
     void Variant::getAllTypeStr(StringArray &array) {
         array = {"Null", "Digital", "Integer8", "UInteger8", "Integer16", "UInteger16", "Integer32", "UInteger32",
-                 "Integer64", "UInteger64", "Float32", "Float64", "Text", "Date", "Time", "Timestamp", "Interval", "Blob"};
+                 "Integer64", "UInteger64", "Float32", "Float64", "Decimal", "Text", "Date", "Time", "Timestamp",
+                 "Interval", "Blob"};
     }
 
     bool Variant::isNullType(Type type) {
@@ -2092,6 +2158,9 @@ namespace Data {
         if (type == Text) {
             delete[] value.strValue;
             value.strValue = nullptr;
+        } else if (type == Decimal) {
+            delete[] value.decValue;
+            value.decValue = nullptr;
         } else if (type == Blob) {
             delete[] value.blobValue;
             value.blobValue = nullptr;
@@ -2135,6 +2204,9 @@ namespace Data {
                 break;
             case Float64:
                 value.dValue = (double) v;
+                break;
+            case Decimal:
+                setDecimalValue(Convert::convertStr(v), type, value);
                 break;
             case Text:
                 setStringValue(Convert::convertStr(v), type, value);
@@ -2188,6 +2260,8 @@ namespace Data {
             case Float64:
                 v = (T) value.dValue;
                 break;
+            case Decimal:
+                return Convert::parseStr(value.decValue, v);
             case Text:
                 return Convert::parseStr(value.strValue, v);
             case Date:
@@ -2228,6 +2302,8 @@ namespace Data {
                 return value.fValue == (float) v;
             case Float64:
                 return value.dValue == (double) v;
+            case Decimal:
+                return equalsTextValue(value.decValue, Convert::convertStr(v).c_str());
             case Text:
                 return equalsTextValue(value.strValue, Convert::convertStr(v).c_str());
             case Date:

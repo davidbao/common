@@ -468,8 +468,9 @@ namespace Database {
             case MYSQL_TYPE_FLOAT:
                 return DbType::Float32;
             case MYSQL_TYPE_DOUBLE:
-            case MYSQL_TYPE_DECIMAL:
                 return DbType::Float64;
+            case MYSQL_TYPE_DECIMAL:
+                return DbType::Decimal;
             case MYSQL_TYPE_NULL:
                 return DbType::Null;
             case MYSQL_TYPE_DATE:

@@ -54,12 +54,13 @@ namespace Data {
             UInteger64 = 9,
             Float32 = 10,
             Float64 = 11,
-            Text = 12,
-            Date = 13,          // only date.
-            Time = 14,          // only time
-            Timestamp = 15,     // date + time
-            Interval = 16,      // timespan
-            Blob = 17
+            Decimal = 12,
+            Text = 13,
+            Date = 14,          // only date.
+            Time = 15,          // only time
+            Timestamp = 16,     // date + time
+            Interval = 17,      // timespan
+            Blob = 18
         };
 
         union Value {
@@ -74,9 +75,10 @@ namespace Data {
             uint64_t ulValue;
             float fValue;
             double dValue;
+            char *decValue;
             char *strValue;
             uint64_t dateValue;     // 100-nanosecond ticks
-            int64_t timeValue;     // 100-nanosecond ticks
+            int64_t timeValue;      // 100-nanosecond ticks
             uint64_t dtValue;       // 100-nanosecond ticks
             int64_t tsValue;        // 100-nanosecond ticks
             uint8_t *blobValue;
@@ -463,6 +465,8 @@ namespace Data {
 
         void setValue(const Value &v);
 
+        bool setDecimalValue(const String &str);
+
         bool setStringValue(const String &str);
 
         void setByteArrayValue(const uint8_t *buffer);
@@ -506,6 +510,8 @@ namespace Data {
         static bool equals(Type type, const Value &value, const TimeSpan &v);
 
         static bool equals(Type type, const Value &value, const ByteArray &v);
+
+        static bool setDecimalValue(const String &str, Type type, Value &value);
 
         static bool setStringValue(const String &str, Type type, Value &value);
 

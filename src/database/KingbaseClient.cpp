@@ -485,8 +485,9 @@ namespace Database {
             case KCI_FLOAT4OID:       /* real */
                 return DbType::Float32;
             case KCI_FLOAT8OID:       /* double，float(default) */
-            case KCI_NUMERICOID:      /* numeric,decimal */
                 return DbType::Float64;
+            case KCI_NUMERICOID:      /* numeric,decimal */
+                return DbType::Decimal;
             case KCI_BPCHAROID:      /* char */
             case KCI_VARCHAROID:      /* varchar */
             case KCI_TEXTOID:        /* text */
