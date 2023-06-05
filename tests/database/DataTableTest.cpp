@@ -1585,19 +1585,123 @@ bool testSort() {
         if (test.rowCount() != 5) {
             return false;
         }
-        if (test.rows()[0].cells()["score"].valueStr() != "78") {
+        auto cells = test.rows()[0].cells();
+        if (!(cells["id"].valueStr() == "5" &&
+            cells["name"].valueStr() == "Ai" &&
+            cells["score"].valueStr() == "78")) {
             return false;
         }
-        if (test.rows()[1].cells()["score"].valueStr() != "78") {
+        cells = test.rows()[1].cells();
+        if (!(cells["id"].valueStr() == "4" &&
+              cells["name"].valueStr() == "Zh" &&
+              cells["score"].valueStr() == "78")) {
             return false;
         }
-        if (test.rows()[2].cells()["score"].valueStr() != "78") {
+        cells = test.rows()[2].cells();
+        if (!(cells["id"].valueStr() == "3" &&
+              cells["name"].valueStr() == "Yu" &&
+              cells["score"].valueStr() == "78")) {
             return false;
         }
-        if (test.rows()[3].cells()["score"].valueStr() != "86") {
+        cells = test.rows()[3].cells();
+        if (!(cells["id"].valueStr() == "1" &&
+              cells["name"].valueStr() == "Xu" &&
+              cells["score"].valueStr() == "86")) {
             return false;
         }
-        if (test.rows()[4].cells()["score"].valueStr() != "91") {
+        cells = test.rows()[4].cells();
+        if (!(cells["id"].valueStr() == "2" &&
+              cells["name"].valueStr() == "Hu" &&
+              cells["score"].valueStr() == "91")) {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "线路1"),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "线路2"),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "线路3"),
+                                     })
+                     });
+        test.sort("name asc");
+        if (test.rowCount() != 3) {
+            return false;
+        }
+        auto cells = test.rows()[0].cells();
+        if (!(cells["id"].valueStr() == "1" &&
+              cells["name"].valueStr() == "线路1")) {
+            return false;
+        }
+        cells = test.rows()[1].cells();
+        if (!(cells["id"].valueStr() == "2" &&
+              cells["name"].valueStr() == "线路2")) {
+            return false;
+        }
+        cells = test.rows()[2].cells();
+        if (!(cells["id"].valueStr() == "3" &&
+              cells["name"].valueStr() == "线路3")) {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", DbType::Text, true),
+                                DataColumn("l_id", DbType::Text, false),
+                                DataColumn("name", DbType::Text, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], "1"),
+                                             DataCell(test.columns()[1], "113715892637925388"),
+                                             DataCell(test.columns()[2], "线路1"),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], "2"),
+                                             DataCell(test.columns()[1], "113715892637925388"),
+                                             DataCell(test.columns()[2], "线路2"),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], "3"),
+                                             DataCell(test.columns()[1], "113715892637925388"),
+                                             DataCell(test.columns()[2], "线路3"),
+                                     })
+                     });
+        test.sort("name asc");
+        if (test.rowCount() != 3) {
+            return false;
+        }
+        auto cells = test.rows()[0].cells();
+        if (!(cells["id"].valueStr() == "1" &&
+              cells["l_id"].valueStr() == "113715892637925388" &&
+              cells["name"].valueStr() == "线路1")) {
+            return false;
+        }
+        cells = test.rows()[1].cells();
+        if (!(cells["id"].valueStr() == "2" &&
+              cells["l_id"].valueStr() == "113715892637925388" &&
+              cells["name"].valueStr() == "线路2")) {
+            return false;
+        }
+        cells = test.rows()[2].cells();
+        if (!(cells["id"].valueStr() == "3" &&
+              cells["l_id"].valueStr() == "113715892637925388" &&
+              cells["name"].valueStr() == "线路3")) {
             return false;
         }
     }
