@@ -283,6 +283,7 @@ namespace Config {
             YmlNode::Properties properties;
             if (loadFile(fileName, properties)) {
                 _properties.addRange(properties);
+                Trace::info(String::format("Load profile'%s' successfully.", profile.c_str()));
             } else {
                 Trace::error(String::format("Can not find profile yaml file'%s'.", fileName.c_str()));
             }

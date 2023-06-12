@@ -68,6 +68,10 @@ namespace Database {
     bool KingbaseClient::open(const StringMap &values) {
         Locker locker(&_dbMutex);
 
+        return openInner(values);
+    }
+
+    bool KingbaseClient::openInner(const StringMap &values) {
         String connStr;
         static const char *fmt = "%s='%s' ";
         connStr.appendFormat(fmt, "host", values["host"].c_str());
@@ -78,6 +82,7 @@ namespace Database {
         connStr.appendFormat(fmt, "connect_timeout", values["connect_timeout"].c_str());
         KCIConnection *conn = KCIConnectionCreate(connStr);
         if (KCIConnectionGetStatus(conn) == CONNECTION_OK) {
+            _connectionParams = values;
             _kingbaseDb->kingbaseDb = conn;
             return true;
         } else {
@@ -104,6 +109,14 @@ namespace Database {
             return open(values);
         }
         return false;
+    }
+
+    bool KingbaseClient::reopen() {
+        Trace::info("Reopen the kingbase client!");
+        if (_kingbaseDb->kingbaseDb != nullptr) {
+            KCIConnectionDestory(_kingbaseDb->kingbaseDb);
+        }
+        return openInner(_connectionParams);
     }
 
     bool KingbaseClient::close() {
@@ -231,10 +244,12 @@ namespace Database {
         KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
         KCIExecuteStatus result = KCIResultGetStatusCode(res);
         if (!isSucceed(result)) {
-            auto r = ResultInner(res);
-            printErrorInfo("kingbase_execute", sql, &r);
-            KCIResultDealloc(res);
-            return result;
+            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
+                reopen();
+            } else {
+                auto r = ResultInner(res);
+                printErrorInfo("kingbase_execute", sql, &r);
+            }
         }
         KCIResultDealloc(res);
         return result;
@@ -375,16 +390,17 @@ namespace Database {
         KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
         KCIExecuteStatus result = KCIResultGetStatusCode(res);
         if (!isSucceed(result)) {
-            auto r = ResultInner(res);
-            printErrorInfo("kingbase_execute", sql, &r);
+            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
+                reopen();
+            } else {
+                auto r = ResultInner(res);
+                printErrorInfo("kingbase_execute", sql, &r);
+                KCIResultDealloc(res);
+            }
+        } else {
+            updateDataTable(res, table);
             KCIResultDealloc(res);
-            return result;
         }
-
-        updateDataTable(res, table);
-
-        KCIResultDealloc(res);
-
         return result;
     }
 
@@ -558,5 +574,14 @@ namespace Database {
             error = getErrorMsg();
         }
         DbClient::printErrorInfo(methodName, sql, error);
+    }
+
+    bool KingbaseClient::isConnected() const {
+        if (_kingbaseDb->kingbaseDb != nullptr &&
+            KCIConnectionGetStatus(_kingbaseDb->kingbaseDb) == CONNECTION_OK) {
+            int sock = KCIConnectionGetSocket(_kingbaseDb->kingbaseDb);
+            return sock >= 0;
+        }
+        return false;
     }
 }

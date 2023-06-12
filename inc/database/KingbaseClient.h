@@ -60,6 +60,10 @@ namespace Database {
         DbType getColumnType(int type) override;
 
     private:
+        bool openInner(const StringMap &values);
+
+        bool reopen();
+
         int executeSqlInner(const String &sql);
 
         int executeSqlInsertInner(const DataTable &table, bool replace = false);
@@ -77,6 +81,8 @@ namespace Database {
         void printErrorInfo(const String &methodName, const String &sql = String::Empty,
                             const ResultInner *result = nullptr);
 
+        bool isConnected() const;
+
         static bool isSucceed(int result);
 
         static String toInsertStr(const DataTable &table, const DataRow &row);
@@ -85,6 +91,8 @@ namespace Database {
 
     private:
         KingbaseInner *_kingbaseDb;
+
+        StringMap _connectionParams;
     };
 }
 
