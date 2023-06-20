@@ -90,12 +90,12 @@ namespace Microservice {
         factory->addService<IHttpSession>(this);
         factory->addService<IHttpInterceptor>(this);
 
-        _httpHeaders.add("Cache-Control", "no-cache");
-        _httpHeaders.add("Strict-Transport-Security", "max-age=63072000; includeSubdomains; preload");
-        _httpHeaders.add("Content-Security-Policy",
-                         "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'self' data:;");
-        _httpHeaders.add("X-Content-Type-Options", "nosniff");
-        _httpHeaders.add("X-XSS-Protection", "1; mode=block");
+//        _httpHeaders.add("Cache-Control", "no-cache");
+//        _httpHeaders.add("Strict-Transport-Security", "max-age=63072000; includeSubdomains; preload");
+//        _httpHeaders.add("Content-Security-Policy",
+//                         "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'self' data:;");
+//        _httpHeaders.add("X-Content-Type-Options", "nosniff");
+//        _httpHeaders.add("X-XSS-Protection", "1; mode=block");
     }
 
     HttpService::~HttpService() {

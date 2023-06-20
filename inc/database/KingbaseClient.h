@@ -64,6 +64,8 @@ namespace Database {
 
         bool reopen();
 
+        int executeInner(const String &sql, ResultInner &result);
+
         int executeSqlInner(const String &sql);
 
         int executeSqlInsertInner(const DataTable &table, bool replace = false);

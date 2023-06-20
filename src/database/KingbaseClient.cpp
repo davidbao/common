@@ -127,6 +127,35 @@ namespace Database {
         return true;
     }
 
+    int KingbaseClient::executeInner(const String &sql, ResultInner &result) {
+        KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
+        KCIExecuteStatus status = KCIResultGetStatusCode(res);
+        if (!isSucceed(status)) {
+            if (status == EXECUTE_FATAL_ERROR && !isConnected()) {
+                KCIResultDealloc(res);
+
+                reopen();
+
+                // re-execute again.
+                res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
+                status = KCIResultGetStatusCode(res);
+                if (!isSucceed(status)) {
+                    KCIResultDealloc(res);
+                    return status;
+                } else {
+                    result.res = res;
+                }
+            } else {
+                auto r = ResultInner(res);
+                printErrorInfo("kingbase_execute", sql, &r);
+                KCIResultDealloc(res);
+            }
+        } else {
+            result.res = res;
+        }
+        return status;
+    }
+
     bool KingbaseClient::executeSql(const String &sql, bool transaction) {
         Locker locker(&_dbMutex);
 
@@ -241,18 +270,24 @@ namespace Database {
         Stopwatch sw(info, 500);
 #endif
 
-        KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
-        KCIExecuteStatus result = KCIResultGetStatusCode(res);
-        if (!isSucceed(result)) {
-            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
-                reopen();
-            } else {
-                auto r = ResultInner(res);
-                printErrorInfo("kingbase_execute", sql, &r);
-            }
+        ResultInner result;
+        int status = executeInner(sql, result);
+        if (isSucceed(status)) {
+            KCIResultDealloc(result.res);
         }
-        KCIResultDealloc(res);
-        return result;
+        return status;
+//        KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
+//        KCIExecuteStatus result = KCIResultGetStatusCode(res);
+//        if (!isSucceed(result)) {
+//            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
+//                reopen();
+//            } else {
+//                auto r = ResultInner(res);
+//                printErrorInfo("kingbase_execute", sql, &r);
+//            }
+//        }
+//        KCIResultDealloc(res);
+//        return result;
     }
 
     String KingbaseClient::toInsertStr(const DataTable &table, const DataRow &row) {
@@ -387,21 +422,28 @@ namespace Database {
         Stopwatch sw(info, 100);
 #endif
 
-        KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
-        KCIExecuteStatus result = KCIResultGetStatusCode(res);
-        if (!isSucceed(result)) {
-            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
-                reopen();
-            } else {
-                auto r = ResultInner(res);
-                printErrorInfo("kingbase_execute", sql, &r);
-                KCIResultDealloc(res);
-            }
-        } else {
-            updateDataTable(res, table);
-            KCIResultDealloc(res);
+        ResultInner result;
+        int status = executeInner(sql, result);
+        if (isSucceed(status)) {
+            updateDataTable(result.res, table);
+            KCIResultDealloc(result.res);
         }
-        return result;
+        return status;
+//        KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
+//        KCIExecuteStatus result = KCIResultGetStatusCode(res);
+//        if (!isSucceed(result)) {
+//            if (result == EXECUTE_FATAL_ERROR && !isConnected()) {
+//                reopen();
+//            } else {
+//                auto r = ResultInner(res);
+//                printErrorInfo("kingbase_execute", sql, &r);
+//                KCIResultDealloc(res);
+//            }
+//        } else {
+//            updateDataTable(res, table);
+//            KCIResultDealloc(res);
+//        }
+//        return result;
     }
 
     void KingbaseClient::updateDataTable(void *tag, DataTable &table) {

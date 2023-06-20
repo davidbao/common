@@ -14,7 +14,7 @@ using namespace Diag;
 using namespace Database;
 using namespace System;
 
-static String _baseUrl("kingbase://192.166.1.19:54321");
+static String _baseUrl("kingbase://192.166.1.3:54321");
 static String _database = "KINGBASECLIENTTEST_DB";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "SYSTEM";
