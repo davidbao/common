@@ -12,7 +12,9 @@
 #include "thread/Locker.h"
 #include "system/Application.h"
 #include "IO/FileStream.h"
+#ifdef DEBUG
 #include "IO/Directory.h"
+#endif
 #include "IO/Path.h"
 #include "kci/libkci.h"
 
@@ -31,7 +33,7 @@ namespace Database {
     public:
         KCIResult *res;
 
-        ResultInner(KCIResult *res = nullptr) : res(res) {
+        explicit ResultInner(KCIResult *res = nullptr) : res(res) {
         }
     };
 

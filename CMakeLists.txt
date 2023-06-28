@@ -32,6 +32,8 @@ option(COMMON_BUILD_REDISCLIENT "Option for build with redis client(use hiredis)
 option(COMMON_BUILD_MQTTCLIENT "Option for build with mqtt client(use paho.mqtt.c)" ON)
 option(COMMON_BUILD_OPCUACLIENT "Option for build with opcua client(use open62541)" ON)
 option(COMMON_BUILD_IOPORT "Option for build with IO port" ON)
+option(COMMON_BUILD_RPCCLIENT "Option for build with rpc client" ON)
+option(COMMON_BUILD_RPCSERVER "Option for build with rpc server" ON)
 
 ## build settings
 set(COMMON_VERSION_MAJOR 3)
@@ -86,6 +88,8 @@ if (WEB_OS)
     set(COMMON_BUILD_HTTPSERVER OFF)
     set(COMMON_BUILD_REDISCLIENT OFF)
     set(COMMON_BUILD_IOPORT OFF)
+    set(COMMON_BUILD_RPCCLIENT OFF)
+    set(COMMON_BUILD_RPCSERVER OFF)
 endif ()
 
 # Disable some options on android.
@@ -125,6 +129,8 @@ message(STATUS "COMMON_BUILD_REDISCLIENT: " ${COMMON_BUILD_REDISCLIENT})
 message(STATUS "COMMON_BUILD_MQTTCLIENT: " ${COMMON_BUILD_MQTTCLIENT})
 message(STATUS "COMMON_BUILD_OPCUACLIENT: " ${COMMON_BUILD_OPCUACLIENT})
 message(STATUS "COMMON_BUILD_IOPORT: " ${COMMON_BUILD_IOPORT})
+message(STATUS "COMMON_BUILD_RPCCLIENT: " ${COMMON_BUILD_RPCCLIENT})
+message(STATUS "COMMON_BUILD_RPCSERVER: " ${COMMON_BUILD_RPCSERVER})
 
 # set externals path.
 set(EXTERNALS_PATH ${CMAKE_SOURCE_DIR}/externals)

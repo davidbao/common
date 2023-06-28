@@ -69,11 +69,9 @@ namespace Rpc {
         action = nullptr;
     }
 
-    RpcMethods::RpcMethods() {
-    }
+    RpcMethods::RpcMethods() = default;
 
-    RpcMethods::~RpcMethods() {
-    }
+    RpcMethods::~RpcMethods() = default;
 
     void RpcMethods::add(RpcMethod *method) {
         if (method == nullptr)
@@ -111,17 +109,14 @@ namespace Rpc {
         return false;
     }
 
-    IRpcSenderEvent::IRpcSenderEvent() {
-    }
+    IRpcSenderEvent::IRpcSenderEvent() = default;
 
-    IRpcSenderEvent::~IRpcSenderEvent() {
-    }
+    IRpcSenderEvent::~IRpcSenderEvent() = default;
 
     RpcSender::RpcSender() : _asyncElements(true) {
     }
 
-    RpcSender::~RpcSender() {
-    }
+    RpcSender::~RpcSender() = default;
 
     RpcStatus RpcSender::invoke(const RpcMethodContext &context, const IRpcSyncRequestData &request,
                                 IRpcSyncResponseData &response) {
@@ -159,6 +154,11 @@ namespace Rpc {
         return RpcStatus(RpcStatus::Disconnected);
     }
 
+    RpcStatus RpcSender::invokeAsync(const RpcMethodContext &context, const IRpcAsyncRequestData &request,
+                          const IRpcAsyncResponseData &response, async_callback action) {
+        return invokeAsync(context, request, response, action, nullptr);
+    }
+
     RpcStatus RpcSender::notify(const RpcMethodContext &context, const IRpcNotifyInfo &info) {
         if (connected()) {
             RpcNotifyInfo rinfo(context, &info);
@@ -192,17 +192,14 @@ namespace Rpc {
         return false;
     }
 
-    IRpcReceiverEvent::IRpcReceiverEvent() {
-    }
+    IRpcReceiverEvent::IRpcReceiverEvent() = default;
 
-    IRpcReceiverEvent::~IRpcReceiverEvent() {
-    }
+    IRpcReceiverEvent::~IRpcReceiverEvent() = default;
 
     RpcReceiver::RpcReceiver() : _methods() {
     }
 
-    RpcReceiver::~RpcReceiver() {
-    }
+    RpcReceiver::~RpcReceiver() = default;
 
     void RpcReceiver::registerMethod(RpcMethod *method) {
         _methods.add(method);
@@ -211,7 +208,7 @@ namespace Rpc {
     bool RpcReceiver::onSyncSetValue(const RpcMethodContext &context, Stream *stream, IRpcSyncRequestData *request,
                                      IRpcSyncResponseData *&response) {
         RpcMethod *m = nullptr;
-        RpcSyncMethod *method = nullptr;
+        RpcSyncMethod *method;
         if (_methods.at(context.name, m) && (method = dynamic_cast<RpcSyncMethod *>(m)) != nullptr) {
             sync_callback action = method->action;
             if (action != nullptr) {
@@ -227,14 +224,14 @@ namespace Rpc {
     bool RpcReceiver::onAsyncRequestSetValue(const RpcMethodContext &context, Stream *stream, const Uuid &token,
                                              const Endpoint &peerEndpoint) {
         RpcMethod *m = nullptr;
-        RpcAsyncMethod *method = nullptr;
+        RpcAsyncMethod *method;
         if (_methods.at(context.name, m) && (method = dynamic_cast<RpcAsyncMethod *>(m)) != nullptr) {
             async_callback action = method->action;
             if (action != nullptr) {
                 method->request->read(stream);
                 action(method->owner, method->request, method->response);
 
-                // send async reponse.
+                // send async response.
                 if (connected()) {
                     RpcAsyncResponse response(context, token, method->response);
                     return sendAsync(peerEndpoint, response, "RpcAsyncResponse");
@@ -247,7 +244,7 @@ namespace Rpc {
 
     bool RpcReceiver::onNotifySetValue(const RpcMethodContext &context, Stream *stream, IRpcNotifyInfo *info) {
         RpcMethod *m = nullptr;
-        RpcNotifyMethod *method = nullptr;
+        RpcNotifyMethod *method;
         if (_methods.at(context.name, m) && (method = dynamic_cast<RpcNotifyMethod *>(m)) != nullptr) {
             notify_callback action = method->action;
             if (action != nullptr) {

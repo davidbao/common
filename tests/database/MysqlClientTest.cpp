@@ -13,11 +13,11 @@
 using namespace Database;
 using namespace System;
 
-static String _baseUrl("mysql://192.167.0.6:3306");
+static String _baseUrl("mysql://192.166.1.3:3306");
 static String _database = "MysqlClientTest_db";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "root";
-static String _password = "123456.com";
+static String _password = "123.com";
 
 void setUp() {
     MysqlClient test;
@@ -421,12 +421,12 @@ bool parseArguments(const Application &app) {
     }
 
     _baseUrl = String::format("mysql://%s:%s",
-                              !host.isNullOrEmpty() ? host.c_str() : "localhost",
+                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.3",
                               !port.isEmpty() ? port.toString().c_str() : "3306");
-    _database = !database.isNullOrEmpty() ? database : "MysqlClientTest_db";
+    _database = !database.isNullOrEmpty() ? database : _database;
     _url = _baseUrl + "/" + _database;
-    _username = !userName.isNullOrEmpty() ? userName : "root";
-    _password = !password.isNullOrEmpty() ? password : "123456.com";
+    _username = !userName.isNullOrEmpty() ? userName : _username;
+    _password = !password.isNullOrEmpty() ? password : _password;
 
     return true;
 }

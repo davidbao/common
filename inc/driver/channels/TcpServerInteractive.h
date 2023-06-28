@@ -18,7 +18,7 @@
 using namespace Data;
 
 namespace Drivers {
-    typedef void (*client_accpet_callback)(const Endpoint &);
+    typedef void (*client_accept_callback)(const Endpoint &);
 
     typedef void(*client_close_callback)(const Endpoint &);
 
@@ -26,7 +26,7 @@ namespace Drivers {
     public:
         Endpoint endpoint;
 
-        TcpClientEventArgs(const Endpoint &endpoint);
+        explicit TcpClientEventArgs(const Endpoint &endpoint);
 
         ~TcpClientEventArgs() override;
     };
@@ -105,6 +105,8 @@ namespace Drivers {
             void clear();
 
             bool process(int socketId, int bufferLength);
+
+            bool process(int socketId, const ByteArray &buffer);
 
             bool getUnusedClients(PList<Client> &clients);
 
@@ -190,6 +192,8 @@ namespace Drivers {
         virtual void updateContext(const TcpServerChannelContext *tcc);
 
     private:
+        TcpClient *accept();
+
         void acceptProc();
 
         void closeProc();
@@ -205,6 +209,8 @@ namespace Drivers {
         void openClient(TcpClient *tc);
 
         void closeClient(Client *client);
+
+        bool hasMultiplexing() const;
 
     protected:
         TcpServer *_tcpServer;
@@ -242,11 +248,6 @@ namespace Drivers {
         TcpServer *createServer() override;
 
         void updateContext(const TcpServerChannelContext *tcc) override;
-
-    private:
-        inline TcpSSLServerChannelContext *getChannelContext() const {
-            return (TcpSSLServerChannelContext *) (_channel->description()->context());
-        }
     };
 
     class WebSocketServerInteractive : public TcpServerInteractive {
@@ -269,11 +270,6 @@ namespace Drivers {
         TcpServer *createServer() override;
 
         void updateContext(const TcpServerChannelContext *tcc) override;
-
-    private:
-        inline TcpSSLServerChannelContext *getChannelContext() const {
-            return (TcpSSLServerChannelContext *) (_channel->description()->context());
-        }
     };
 
 #endif

@@ -10,7 +10,6 @@
 #include "rpc/RpcContext.h"
 #include "RpcInstruction.h"
 #include "rpc/RpcInstructionContext.h"
-#include "RpcInstruction.h"
 #include "communication/ServerService.h"
 
 namespace Rpc {
@@ -18,28 +17,21 @@ namespace Rpc {
                                                                                          secure(secure) {
     }
 
-    RpcServerContext::RpcServerContext(const RpcServerContext &value) {
-        this->operator=(value);
+    RpcServerContext::RpcServerContext(const RpcServerContext &other) : RpcServerContext(other.endpoint, other.secure) {
     }
 
-    void RpcServerContext::operator=(const RpcServerContext &value) {
-        this->endpoint = value.endpoint;
-        this->secure = value.secure;
+    bool RpcServerContext::equals(const RpcServerContext &other) const {
+        return this->endpoint == other.endpoint && this->secure == other.secure;
     }
 
-    bool RpcServerContext::operator==(const RpcServerContext &value) const {
-        return this->endpoint == value.endpoint && this->secure == value.secure;
+    void RpcServerContext::evaluates(const RpcServerContext &other) {
+        this->endpoint = other.endpoint;
+        this->secure = other.secure;
     }
 
-    bool RpcServerContext::operator!=(const RpcServerContext &value) const {
-        return !operator==(value);
-    }
+    IRpcServerEvent::IRpcServerEvent() = default;
 
-    IRpcServerEvent::IRpcServerEvent() {
-    }
-
-    IRpcServerEvent::~IRpcServerEvent() {
-    }
+    IRpcServerEvent::~IRpcServerEvent() = default;
 
     RpcServer::RpcServer(const RpcServerContext &context) : _context(context), _service(nullptr) {
     }
@@ -140,7 +132,7 @@ namespace Rpc {
     }
 
     void RpcServer::generateInstructions(void *owner, Instructions *instructions) {
-        RpcServer *cs = static_cast<RpcServer *>(owner);
+        auto cs = static_cast<RpcServer *>(owner);
         assert(cs);
 
         // receiver's instructions.
@@ -173,17 +165,17 @@ namespace Rpc {
     }
 
     void RpcServer::clientCloseEventHandler(void *owner, void *sender, EventArgs *args) {
-        RpcServer *cs = static_cast<RpcServer *>(owner);
+        auto cs = static_cast<RpcServer *>(owner);
         assert(cs);
-        TcpClientEventArgs *e = dynamic_cast<TcpClientEventArgs *>(args);
+        auto e = dynamic_cast<TcpClientEventArgs *>(args);
         assert(e);
         cs->onClientClosed(e->endpoint);
     }
 
     void RpcServer::clientAcceptEventHandler(void *owner, void *sender, EventArgs *args) {
-        RpcServer *cs = static_cast<RpcServer *>(owner);
+        auto cs = static_cast<RpcServer *>(owner);
         assert(cs);
-        TcpClientEventArgs *e = dynamic_cast<TcpClientEventArgs *>(args);
+        auto e = dynamic_cast<TcpClientEventArgs *>(args);
         assert(e);
         cs->onClientOpened(e->endpoint);
     }

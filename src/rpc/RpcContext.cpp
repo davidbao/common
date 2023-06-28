@@ -21,11 +21,9 @@ namespace Rpc {
         return _status;
     }
 
-    IRpcData::IRpcData() {
-    }
+    IRpcData::IRpcData() = default;
 
-    IRpcData::~IRpcData() {
-    }
+    IRpcData::~IRpcData() = default;
 
     const RpcMethodContext RpcMethodContext::Empty = RpcMethodContext();
 
@@ -33,14 +31,12 @@ namespace Rpc {
                                                                                             tryCount) {
     }
 
-    RpcMethodContext::RpcMethodContext(const String &name, const Endpoint &endpoint, int tryCount) : name(name),
-                                                                                                     endpoint(endpoint),
-                                                                                                     tryCount(
-                                                                                                             tryCount) {
+    RpcMethodContext::RpcMethodContext(const String &name, const Endpoint &endpoint, int tryCount) :
+            name(name), endpoint(endpoint), tryCount(tryCount) {
     }
 
-    RpcMethodContext::RpcMethodContext(const RpcMethodContext &context) {
-        this->copyFrom(&context);
+    RpcMethodContext::RpcMethodContext(const RpcMethodContext &context) :
+        name(context.name), endpoint(context.endpoint), tryCount(context.tryCount) {
     }
 
     void RpcMethodContext::write(Stream *stream) const {

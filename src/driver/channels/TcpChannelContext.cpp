@@ -2,263 +2,234 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-    TcpChannelContext::TcpChannelContext() : TcpChannelContext(Endpoint::Empty)
-    {
-    }
-    TcpChannelContext::TcpChannelContext(const Endpoint& endpoint) : EthernetContext(endpoint)
-    {
-        _recvBufferSize = 0;
-        _sendBufferSize = 0;
-        
-        _noDelay = false;
-        
-        _reuseAddress = false;
-        _blocking = false;
-        
-        _receiverType = Types::MultiPlexing;
-        _senderType = Types::MultiPlexing;
-        _backgroundReceiver = true;
-    }
-    TcpChannelContext::~TcpChannelContext()
-    {
+namespace Drivers {
+    TcpChannelContext::TcpChannelContext() : TcpChannelContext(Endpoint::Empty) {
     }
 
-    int TcpChannelContext::sendBufferSize() const
-    {
+    TcpChannelContext::TcpChannelContext(const Endpoint &endpoint) : EthernetContext(endpoint) {
+        _recvBufferSize = 0;
+        _sendBufferSize = 0;
+
+        _noDelay = false;
+
+        _reuseAddress = false;
+        _blocking = false;
+
+        _receiverType = Types::Multiplexing;
+        _senderType = Types::Multiplexing;
+        _backgroundReceiver = true;
+    }
+
+    TcpChannelContext::~TcpChannelContext() = default;
+
+    int TcpChannelContext::sendBufferSize() const {
         return _sendBufferSize;
     }
-    void TcpChannelContext::setSendBufferSize(int bufferSize)
-    {
+
+    void TcpChannelContext::setSendBufferSize(int bufferSize) {
         _sendBufferSize = bufferSize;
     }
-    int TcpChannelContext::receiveBufferSize() const
-    {
+
+    int TcpChannelContext::receiveBufferSize() const {
         return _recvBufferSize;
     }
-    void TcpChannelContext::setReceiveBufferSize(int bufferSize)
-    {
+
+    void TcpChannelContext::setReceiveBufferSize(int bufferSize) {
         _recvBufferSize = bufferSize;
     }
 
-    const TimeSpan& TcpChannelContext::sendTimeout() const
-    {
+    const TimeSpan &TcpChannelContext::sendTimeout() const {
         return _sendTimeout;
     }
-    void TcpChannelContext::setSendTimeout(uint32_t timeout)
-    {
-        if(timeout > 0)
-        {
+
+    void TcpChannelContext::setSendTimeout(uint32_t timeout) {
+        if (timeout > 0) {
             _sendTimeout = TimeSpan::fromMilliseconds(timeout);
         }
     }
-    void TcpChannelContext::setSendTimeout(TimeSpan timeout)
-    {
-        if(timeout != TimeSpan::Zero)
-        {
+
+    void TcpChannelContext::setSendTimeout(TimeSpan timeout) {
+        if (timeout != TimeSpan::Zero) {
             _sendTimeout = timeout;
         }
     }
 
-    const TimeSpan& TcpChannelContext::receiveTimeout() const
-    {
+    const TimeSpan &TcpChannelContext::receiveTimeout() const {
         return _recvTimeout;
     }
-    void TcpChannelContext::setReceiveTimeout(uint32_t timeout)
-    {
-        if(timeout > 0)
-        {
+
+    void TcpChannelContext::setReceiveTimeout(uint32_t timeout) {
+        if (timeout > 0) {
             _recvTimeout = TimeSpan::fromMilliseconds(timeout);
         }
     }
-    void TcpChannelContext::setReceiveTimeout(TimeSpan timeout)
-    {
-        if(timeout != TimeSpan::Zero)
-        {
+
+    void TcpChannelContext::setReceiveTimeout(TimeSpan timeout) {
+        if (timeout != TimeSpan::Zero) {
             _recvTimeout = timeout;
         }
     }
 
-    bool TcpChannelContext::noDelay() const
-    {
+    bool TcpChannelContext::noDelay() const {
         return _noDelay;
     }
-    void TcpChannelContext::setNoDelay(bool noDelay)
-    {
+
+    void TcpChannelContext::setNoDelay(bool noDelay) {
         _noDelay = noDelay;
     }
-    
-    bool TcpChannelContext::reuseAddress() const
-    {
+
+    bool TcpChannelContext::reuseAddress() const {
         return _reuseAddress;
     }
-    void TcpChannelContext::setReuseAddress(bool reuseAddress)
-    {
+
+    void TcpChannelContext::setReuseAddress(bool reuseAddress) {
         _reuseAddress = reuseAddress;
     }
-    
-    bool TcpChannelContext::isBlocking() const
-    {
+
+    bool TcpChannelContext::isBlocking() const {
         return _blocking;
     }
-    void TcpChannelContext::setBlocking(bool blocking)
-    {
+
+    void TcpChannelContext::setBlocking(bool blocking) {
         _blocking = blocking;
     }
-    
-    void TcpChannelContext::copyFrom(const TcpChannelContext* context)
-    {
+
+    void TcpChannelContext::copyFrom(const TcpChannelContext *context) {
         _useReceiveTimeout = context->_useReceiveTimeout;
         _reopened = context->_reopened;
-        
+
         _endpoint = context->_endpoint;
-        
+
         _recvBufferSize = context->_recvBufferSize;
         _sendBufferSize = context->_sendBufferSize;
-        
+
         _sendTimeout = context->_sendTimeout;
         _recvTimeout = context->_recvTimeout;
-        
+
         _noDelay = context->_noDelay;
-        
+
         _reuseAddress = context->_reuseAddress;
         _blocking = context->_blocking;
-        
+
         _receiverType = context->_receiverType;
         _senderType = context->_senderType;
         _backgroundReceiver = context->_backgroundReceiver;
     }
-    
-    bool TcpChannelContext::asyncReceiver() const
-    {
+
+    bool TcpChannelContext::asyncReceiver() const {
         return _receiverType == Types::Async;
     }
-    bool TcpChannelContext::syncReceiver() const
-    {
+
+    bool TcpChannelContext::syncReceiver() const {
         return _receiverType == Types::Sync;
     }
-    bool TcpChannelContext::multiPlexingReceiver() const
-    {
-        return _receiverType == Types::MultiPlexing;
+
+    bool TcpChannelContext::multiplexingReceiver() const {
+        return _receiverType == Types::Multiplexing;
     }
-    void TcpChannelContext::setReceiverType(Types type)
-    {
+
+    void TcpChannelContext::setReceiverType(Types type) {
         _receiverType = type;
     }
-    
-    bool TcpChannelContext::asyncSender() const
-    {
+
+    bool TcpChannelContext::asyncSender() const {
         return _senderType == Types::Async;
     }
-    bool TcpChannelContext::syncSender() const
-    {
+
+    bool TcpChannelContext::syncSender() const {
         return _senderType == Types::Sync;
     }
-    bool TcpChannelContext::multiPlexingSender() const
-    {
-        return _senderType == Types::MultiPlexing;
+
+    bool TcpChannelContext::multiplexingSender() const {
+        return _senderType == Types::Multiplexing;
     }
-    void TcpChannelContext::setSenderType(Types type)
-    {
+
+    void TcpChannelContext::setSenderType(Types type) {
         _senderType = type;
     }
 
-    bool TcpChannelContext::backgroundReceiver() const
-    {
+    bool TcpChannelContext::backgroundReceiver() const {
         return asyncReceiver() || _backgroundReceiver;
     }
-    void TcpChannelContext::setBackgroundReceiver(bool backgroundReceiver)
-    {
+
+    void TcpChannelContext::setBackgroundReceiver(bool backgroundReceiver) {
         _backgroundReceiver = backgroundReceiver;
     }
 
-    TcpChannelContext::Types TcpChannelContext::parseTypeStr(const String& str)
-    {
-        if(String::equals(str, "async", true))
+    TcpChannelContext::Types TcpChannelContext::parseTypeStr(const String &str) {
+        if (String::equals(str, "async", true))
             return Async;
-        else if(String::equals(str, "sync", true))
+        else if (String::equals(str, "sync", true))
             return Sync;
-        else if(String::equals(str, "multiplexing", true))
-            return MultiPlexing;
+        else if (String::equals(str, "multiplexing", true))
+            return Multiplexing;
         else
-            return MultiPlexing;
+            return Multiplexing;
     }
-    String TcpChannelContext::toTypeStr(Types type)
-    {
-        switch (type)
-        {
+
+    String TcpChannelContext::toTypeStr(Types type) {
+        switch (type) {
             case Async:
                 return "async";
             case Sync:
                 return "sync";
-            case MultiPlexing:
+            case Multiplexing:
                 return "multiplexing";
             default:
                 return "multiplexing";
         }
     }
 
-    TcpClientChannelContext::TcpClientChannelContext() : TcpChannelContext()
-    {
+    TcpClientChannelContext::TcpClientChannelContext() : TcpChannelContext() {
         _openTimeout = TimeSpan::fromMilliseconds(3);
-    }
-    TcpClientChannelContext::TcpClientChannelContext(const Endpoint& endpoint) : TcpChannelContext(endpoint)
-    {
-        _openTimeout = TimeSpan::fromMilliseconds(3);
-    }
-    TcpClientChannelContext::~TcpClientChannelContext()
-    {
     }
 
-    const TimeSpan& TcpClientChannelContext::closeTimeout() const
-    {
+    TcpClientChannelContext::TcpClientChannelContext(const Endpoint &endpoint) : TcpChannelContext(endpoint) {
+        _openTimeout = TimeSpan::fromMilliseconds(3);
+    }
+
+    TcpClientChannelContext::~TcpClientChannelContext() = default;
+
+    const TimeSpan &TcpClientChannelContext::closeTimeout() const {
         return receiveTimeout();
     }
-    
-    const TimeSpan& TcpClientChannelContext::openTimeout() const
-    {
+
+    const TimeSpan &TcpClientChannelContext::openTimeout() const {
         return _openTimeout;
     }
-    void TcpClientChannelContext::setOpenTimeout(uint32_t timeout)
-    {
-        if(timeout > 0)
-        {
+
+    void TcpClientChannelContext::setOpenTimeout(uint32_t timeout) {
+        if (timeout > 0) {
             _openTimeout = TimeSpan::fromMilliseconds(timeout);
         }
     }
-    void TcpClientChannelContext::setOpenTimeout(TimeSpan timeout)
-    {
-        if(timeout != TimeSpan::Zero)
-        {
+
+    void TcpClientChannelContext::setOpenTimeout(TimeSpan timeout) {
+        if (timeout != TimeSpan::Zero) {
             _openTimeout = timeout;
         }
     }
-    
-    void TcpClientChannelContext::copyFrom(const TcpChannelContext* context)
-    {
+
+    void TcpClientChannelContext::copyFrom(const TcpChannelContext *context) {
         TcpChannelContext::copyFrom(context);
-        
-        const TcpClientChannelContext* tc = (const TcpClientChannelContext*)context;
+
+        auto tc = (const TcpClientChannelContext *) context;
         _openTimeout = tc->_openTimeout;
     }
 
-    SSLChannelContext::SSLChannelContext() : TcpClientChannelContext(), _peek(false)
-    {
+    SSLChannelContext::SSLChannelContext() : TcpClientChannelContext(), _peek(false) {
     }
-    SSLChannelContext::SSLChannelContext(const Endpoint& endpoint) : TcpClientChannelContext(endpoint), _peek(false)
-    {
+
+    SSLChannelContext::SSLChannelContext(const Endpoint &endpoint) : TcpClientChannelContext(endpoint), _peek(false) {
     }
-    SSLChannelContext::~SSLChannelContext()
-    {
-    }
-    
-    const bool SSLChannelContext::peek() const
-    {
+
+    SSLChannelContext::~SSLChannelContext() = default;
+
+    bool SSLChannelContext::peek() const {
         return _peek;
     }
-    void SSLChannelContext::setPeek(bool peek)
-    {
+
+    void SSLChannelContext::setPeek(bool peek) {
         _peek = peek;
     }
 }

@@ -20,6 +20,9 @@
 namespace Net {
     class TcpClient : public Sender, public Receiver {
     public:
+        using Sender::send;
+        using Receiver::receive;
+
         enum IPVersion {
             IPV4 = 0,
             IPV6 = 1

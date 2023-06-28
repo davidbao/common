@@ -17,21 +17,16 @@ namespace Rpc {
                                                                                          secure(secure) {
     }
 
-    RpcClientContext::RpcClientContext(const RpcClientContext &value) {
-        this->operator=(value);
+    RpcClientContext::RpcClientContext(const RpcClientContext &other) : RpcClientContext(other.endpoint, other.secure) {
     }
 
-    void RpcClientContext::operator=(const RpcClientContext &value) {
-        this->endpoint = value.endpoint;
-        this->secure = value.secure;
+    bool RpcClientContext::equals(const RpcClientContext &other) const {
+        return this->endpoint == other.endpoint && this->secure == other.secure;
     }
 
-    bool RpcClientContext::operator==(const RpcClientContext &value) const {
-        return this->endpoint == value.endpoint && this->secure == value.secure;
-    }
-
-    bool RpcClientContext::operator!=(const RpcClientContext &value) const {
-        return !operator==(value);
+    void RpcClientContext::evaluates(const RpcClientContext &other) {
+        this->endpoint = other.endpoint;
+        this->secure = other.secure;
     }
 
     RpcClient::RpcClient(const RpcClientContext &context) : _context(context), _service(nullptr) {
@@ -160,7 +155,7 @@ namespace Rpc {
     }
 
     void RpcClient::generateInstructions(void *owner, Instructions *instructions) {
-        RpcClient *cs = static_cast<RpcClient *>(owner);
+        auto cs = static_cast<RpcClient *>(owner);
         assert(cs);
 
         // sender's instructions.
@@ -195,9 +190,9 @@ namespace Rpc {
     }
 
     void RpcClient::samplerStatusEventHandler(void *owner, void *sender, EventArgs *args) {
-        RpcClient *cs = static_cast<RpcClient *>(owner);
+        auto cs = static_cast<RpcClient *>(owner);
         assert(cs);
-        DeviceStatusEventArgs *e = dynamic_cast<DeviceStatusEventArgs *>(args);
+        auto e = dynamic_cast<DeviceStatusEventArgs *>(args);
         assert(e);
         cs->onServerStatusChanged(e->newStatus == Device::Status::Online);
     }

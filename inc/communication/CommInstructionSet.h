@@ -14,77 +14,76 @@
 
 using namespace Data;
 
-namespace Communication
-{
-    typedef void(*instructions_callback)(void*, Instructions*);
-    
-    class TcpInstructionSet : public InstructionSet
-    {
+namespace Communication {
+    typedef void(*instructions_callback)(void *, Instructions *);
+
+    class TcpInstructionSet : public InstructionSet {
     public:
-        TcpInstructionSet(void* owner, instructions_callback action);
+        using InstructionSet::receive;
+
+        TcpInstructionSet(void *owner, instructions_callback action);
+
         ~TcpInstructionSet() override;
 
-        void generateInstructions(Instructions* instructions) override;
-        
-        bool receive(Device* device, Channel* channel, ByteArray* buffer, int order = 0) override;
-        
-        bool recombine(const ByteArray& buffer, PList<ByteArray>& buffers) override;
-        
-        InstructionSet* clone() const override
-        {
+        void generateInstructions(Instructions *instructions) override;
+
+        bool receive(Device *device, Channel *channel, ByteArray *buffer, int order) override;
+
+        bool recombine(const ByteArray &buffer, PList<ByteArray> &buffers) override;
+
+        InstructionSet *clone() const override {
             return new TcpInstructionSet(_owner, _instructionsCallback);
         }
-        
+
     protected:
-        bool receiveWS(Device* device, Channel* channel, ByteArray* buffer, int order = 0);
-        bool receiveInner(Device* device, Channel* channel, ByteArray* buffer, int order = 0);
-        
+        bool receiveWS(Device *device, Channel *channel, ByteArray *buffer, int order = 0);
+
+        bool receiveInner(Device *device, Channel *channel, ByteArray *buffer, int order = 0);
+
     protected:
         instructions_callback _instructionsCallback;
-        void* _owner;
-        
+        void *_owner;
+
         Mutex _bufferMutex;
         ByteArray _buffer;
     };
 
-	class SerialInstructionSet : public InstructionSet
-	{
-	public:
-		SerialInstructionSet(void* owner, instructions_callback action);
-		~SerialInstructionSet() override;
-
-		void generateInstructions(Instructions* instructions) override;
-
-		bool receive(Device* device, Channel* channel, ByteArray* buffer, int order = 0) override;
-
-		InstructionSet* clone() const override
-		{
-			return new SerialInstructionSet(_owner, _instructionsCallback);
-		}
-
-	private:
-		instructions_callback _instructionsCallback;
-		void* _owner;
-	};
-    
-    class UdpInstructionSet : public InstructionSet
-    {
+    class SerialInstructionSet : public InstructionSet {
     public:
-        UdpInstructionSet(void* owner, instructions_callback action);
-        ~UdpInstructionSet() override;
-        
-        void generateInstructions(Instructions* instructions) override;
-        
-        bool receive(Device* device, Channel* channel, ByteArray* buffer, int order = 0) override;
-        
-        InstructionSet* clone() const override
-        {
-            return new UdpInstructionSet(_owner, _instructionsCallback);
+        SerialInstructionSet(void *owner, instructions_callback action);
+
+        ~SerialInstructionSet() override;
+
+        void generateInstructions(Instructions *instructions) override;
+
+        bool receive(Device *device, Channel *channel, ByteArray *buffer, int order) override;
+
+        InstructionSet *clone() const override {
+            return new SerialInstructionSet(_owner, _instructionsCallback);
         }
-        
+
     private:
         instructions_callback _instructionsCallback;
-        void* _owner;
+        void *_owner;
+    };
+
+    class UdpInstructionSet : public InstructionSet {
+    public:
+        UdpInstructionSet(void *owner, instructions_callback action);
+
+        ~UdpInstructionSet() override;
+
+        void generateInstructions(Instructions *instructions) override;
+
+        bool receive(Device *device, Channel *channel, ByteArray *buffer, int order) override;
+
+        InstructionSet *clone() const override {
+            return new UdpInstructionSet(_owner, _instructionsCallback);
+        }
+
+    private:
+        instructions_callback _instructionsCallback;
+        void *_owner;
     };
 }
 #endif // CommInstructionSet_h

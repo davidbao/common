@@ -122,7 +122,10 @@ namespace Rpc {
 
         virtual RpcStatus invokeAsync(const RpcMethodContext &context, const IRpcAsyncRequestData &request,
                                       const IRpcAsyncResponseData &response, async_callback action,
-                                      void *owner = nullptr);
+                                      void *owner);
+
+        RpcStatus invokeAsync(const RpcMethodContext &context, const IRpcAsyncRequestData &request,
+                                      const IRpcAsyncResponseData &response, async_callback action);
 
         virtual RpcStatus notify(const RpcMethodContext &context, const IRpcNotifyInfo &info);
 
@@ -134,7 +137,7 @@ namespace Rpc {
 
         virtual bool sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) = 0;
 
-        bool onAsyncResponseSetValue(const RpcMethodContext &context, Stream *stream, const Uuid &token) override final;
+        bool onAsyncResponseSetValue(const RpcMethodContext &context, Stream *stream, const Uuid &token) final;
 
     private:
         Mutex _asyncElementsMutex;
@@ -176,12 +179,12 @@ namespace Rpc {
         virtual bool sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) = 0;
 
         bool onSyncSetValue(const RpcMethodContext &context, Stream *stream, IRpcSyncRequestData *request,
-                            IRpcSyncResponseData *&response) override final;
+                            IRpcSyncResponseData *&response) final;
 
         bool onAsyncRequestSetValue(const RpcMethodContext &context, Stream *stream, const Uuid &token,
-                                    const Endpoint &peerEndpoint) override final;
+                                    const Endpoint &peerEndpoint) final;
 
-        bool onNotifySetValue(const RpcMethodContext &context, Stream *stream, IRpcNotifyInfo *info) override final;
+        bool onNotifySetValue(const RpcMethodContext &context, Stream *stream, IRpcNotifyInfo *info) final;
 
     private:
         Mutex _methodsMutex;

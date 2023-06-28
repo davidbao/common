@@ -244,8 +244,8 @@ namespace Net {
 
     TcpServerInfo::TcpServerInfo() : TcpInfo() {
         maxConnections = 1024;
-        receiverType = TcpChannelContext::Types::MultiPlexing;
-        senderType = TcpChannelContext::Types::MultiPlexing;
+        receiverType = TcpChannelContext::Types::Multiplexing;
+        senderType = TcpChannelContext::Types::Multiplexing;
         timeout.close = TimeSpan::fromSeconds(30);
     }
 

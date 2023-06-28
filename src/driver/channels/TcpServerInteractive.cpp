@@ -1,24 +1,46 @@
-#include <assert.h>
+#include <cassert>
 #include "diag/Stopwatch.h"
 #include "thread/Locker.h"
 #include "thread/Thread.h"
 #include "diag/Process.h"
 #include "diag/Trace.h"
-#include "system/Math.h"
 #include "driver/DriverManager.h"
 #include "driver/devices/Device.h"
 #include "driver/channels/TcpServerInteractive.h"
 #include "system/Resources.h"
 
 #if __APPLE__
+
 #define HAS_KEVENT 1
 
 #include <sys/event.h>
 
 #elif __linux__ || __arm_linux__ || __ANDROID__
+
 #define HAS_EPOLL 1
+
 #include <sys/epoll.h>
 #include <sys/socket.h>
+
+#elif WIN32
+#define HAS_IOCP 1
+
+#include <winsock2.h>
+
+#define BUFFER_SIZE 1024
+typedef struct {
+    SOCKET s;
+    SOCKADDR_IN addr;
+} PER_HANDLE_DATA, *PPER_HANDLE_DATA;
+
+typedef struct {
+    OVERLAPPED ol;
+    char buf[BUFFER_SIZE];
+    int nOperationType;
+#define OP_READ 1
+#define OP_WRITE 2
+} PER_IO_DATA, *PPER_IO_DATA;
+
 #else
 #define HAS_ONLY_ASYNC 1
 #endif
@@ -31,11 +53,10 @@ namespace Drivers {
         this->endpoint = endpoint;
     }
 
-    TcpClientEventArgs::~TcpClientEventArgs() {
-    }
+    TcpClientEventArgs::~TcpClientEventArgs() = default;
 
     TcpServerInteractive::Client::Client(DriverManager *dm, Channel *channel, TcpClient *client) {
-        TcpServerChannelContext *tcc = (TcpServerChannelContext *) (channel->description()->context());
+        auto tcc = (TcpServerChannelContext *) (channel->description()->context());
         assert(tcc);
 
 #ifdef HAS_ONLY_ASYNC
@@ -51,7 +72,7 @@ namespace Drivers {
         } else if (tcc->syncReceiver()) {
             Trace::info("Start a tcp server receiver(sync).");
             _receiver = new TcpServerSyncReceiver(dm, channel, client);
-        } else if (tcc->multiPlexingReceiver()) {
+        } else if (tcc->multiplexingReceiver()) {
             Trace::info("Start a tcp server receiver(multiplexing).");
             _receiver = new TcpServerSyncReceiver(dm, channel, client);
         }
@@ -62,7 +83,7 @@ namespace Drivers {
         } else if (tcc->syncSender()) {
             Trace::info("Start a tcp server sender(sync).");
             _sender = new TcpServerSyncSender(dm, channel, client, _receiver);
-        } else if (tcc->multiPlexingSender()) {
+        } else if (tcc->multiplexingSender()) {
             Trace::info("Start a tcp server sender(multiplexing).");
             _sender = new TcpServerSyncSender(dm, channel, client, _receiver);
         }
@@ -162,16 +183,14 @@ namespace Drivers {
         return _receiver->processBuffer(buffer);
     }
 
-    TcpServerInteractive::Clients::Clients() {
-    }
+    TcpServerInteractive::Clients::Clients() = default;
 
-    TcpServerInteractive::Clients::~Clients() {
-    }
+    TcpServerInteractive::Clients::~Clients() = default;
 
     TcpServerInteractive::Client *
     TcpServerInteractive::Clients::add(DriverManager *dm, Channel *channel, TcpClient *client) {
         Locker locker(&_clientsMutex);
-        Client *c = new Client(dm, channel, client);
+        auto c = new Client(dm, channel, client);
         c->start();
         _clients.add(c);
 
@@ -207,7 +226,7 @@ namespace Drivers {
             Client *client = at(socketId);
             if (client != nullptr) {
                 ByteArray buffer;
-                client->tcpClient()->Receiver::receive(bufferLength, buffer);
+                client->tcpClient()->receive(bufferLength, buffer);
                 if (buffer.count() > 0) {
 //                    Debug::writeFormatLine("TcpServerInteractive.received expect: %d, actual: %d", bufferLength, buffer.count());
                     result = client->processReceivedBuffer(buffer);
@@ -217,8 +236,23 @@ namespace Drivers {
         return result;
     }
 
+    bool TcpServerInteractive::Clients::process(int socketId, const ByteArray &buffer) {
+#ifdef DEBUG
+        Stopwatch sw("TcpServerInteractive::Clients::process", 1000);
+#endif
+        bool result = false;
+        if (buffer.count() > 0) {
+            Locker locker(&_clientsMutex);
+            Client *client = at(socketId);
+            if (client != nullptr) {
+                result = client->processReceivedBuffer(buffer);
+            }
+        }
+        return result;
+    }
+
     bool TcpServerInteractive::Clients::containsPeerEndpoint(const Endpoint &peerEndpoint) {
-        for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+        for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
         {
             Client *client = _clients.at(i);
             if (client != nullptr && peerEndpoint == client->peerEndpoint()) {
@@ -229,7 +263,7 @@ namespace Drivers {
     }
 
     Device *TcpServerInteractive::Clients::getReceiverDevice(const Endpoint &peerEndpoint) {
-        for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+        for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
         {
             Client *client = _clients.at(i);
             if (client != nullptr && peerEndpoint == client->peerEndpoint()) {
@@ -240,7 +274,7 @@ namespace Drivers {
     }
 
     Device *TcpServerInteractive::Clients::getSenderDevice(const Endpoint &peerEndpoint) {
-        for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+        for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
         {
             Client *client = _clients.at(i);
             if (client != nullptr && peerEndpoint == client->peerEndpoint()) {
@@ -252,7 +286,7 @@ namespace Drivers {
 
     InstructionPool *TcpServerInteractive::Clients::getClientPool(const Endpoint &endpoint) {
 //        Locker locker(&_clientsMutex);
-        for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+        for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
         {
             Client *client = _clients.at(i);
             if (client != nullptr && client->isOnline() &&
@@ -267,7 +301,7 @@ namespace Drivers {
 //        Locker locker(&_clientsMutex);
         ips.setAutoDelete(false);
         if (_clients.count() > 0) {
-            for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+            for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
             {
                 Client *client = _clients.at(i);
                 if (client != nullptr && client->isOnline()) {
@@ -281,12 +315,12 @@ namespace Drivers {
 //        Locker locker(&_clientsMutex);
         ips.setAutoDelete(false);
         if (_clients.count() > 0) {
-            for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+            for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
             {
                 Client *client = _clients.at(i);
                 if (client != nullptr && client->isOnline()) {
                     for (size_t j = 0; j < endpoints.count(); j++) {
-                        const Endpoint endpoint = endpoints[j];
+                        Endpoint endpoint = endpoints[j];
                         if (endpoint.isEmpty() || endpoint == client->peerEndpoint()) {
                             ips.add(client->senderInstructionPool());
                             break;
@@ -301,12 +335,12 @@ namespace Drivers {
 //        Locker locker(&_clientsMutex);
         ips.setAutoDelete(false);
         if (_clients.count() > 0) {
-            for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+            for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
             {
                 Client *client = _clients.at(i);
                 if (client != nullptr && client->isOnline()) {
                     for (size_t j = 0; j < endpoints.count(); j++) {
-                        const Endpoint endpoint = endpoints[j];
+                        Endpoint endpoint = endpoints[j];
                         if (endpoint.isEmpty() || endpoint != client->peerEndpoint()) {
                             ips.add(client->senderInstructionPool());
                             break;
@@ -318,7 +352,7 @@ namespace Drivers {
     }
 
     TcpServerInteractive::Client *TcpServerInteractive::Clients::getClient(const Endpoint &peerEndpoint) {
-        for (ssize_t i = _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
+        for (int i = (int) _clients.count() - 1; i >= 0; i--)   // be careful of zombie client
         {
             Client *client = _clients.at(i);
             if (client != nullptr && client->peerEndpoint() == peerEndpoint) {
@@ -376,12 +410,13 @@ namespace Drivers {
                                                                                       _acceptTimer(nullptr),
                                                                                       _closeTimer(nullptr),
                                                                                       _multiplexingThread(nullptr),
-                                                                                      _multiplexingLoop(false), _fd(-1),
+                                                                                      _multiplexingLoop(false),
+                                                                                      _fd(-1),
                                                                                       _exitSockets{0, 0} {
     }
 
     TcpServerInteractive::~TcpServerInteractive() {
-        close();
+        TcpServerInteractive::close();
     }
 
     bool TcpServerInteractive::open() {
@@ -404,11 +439,12 @@ namespace Drivers {
         TcpServerChannelContext *tcc = getChannelContext();
         updateContext(tcc);
 
+        String message;
 #ifdef DEBUG
-        String message = String::convert("listen a socket, address = %s, port = %d, max connections = %d",
-                                         !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
-                                         tcc->port(),
-                                         tcc->maxConnections());
+        message = String::convert("listen a socket, address = %s, port = %d, max connections = %d",
+                                  !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
+                                  tcc->port(),
+                                  tcc->maxConnections());
         Stopwatch sw(message, 1000);
 #endif
 
@@ -442,7 +478,7 @@ namespace Drivers {
                 } else if (tcc->syncReceiver()) {
                     Trace::info("Start a tcp server receiver(sync).");
                     _acceptTimer = new Timer("acceptProc", 1, &TcpServerInteractive::acceptProc, this);
-                } else if (tcc->multiPlexingReceiver()) {
+                } else if (tcc->multiplexingReceiver()) {
                     Trace::info("Start a tcp server receiver(multiplexing).");
                     _multiplexingThread = new Thread("server.multiplexingProc",
                                                      &TcpServerInteractive::multiplexingProc, this);
@@ -452,9 +488,9 @@ namespace Drivers {
 
                 _closeTimer = new Timer("server.closeProc", 1000, &TcpServerInteractive::closeProc, this);
 
-                String message = String::convert("listen a socket, address = %s, port = %d, max connections: %d",
-                                                 !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
-                                                 tcc->port(), tcc->maxConnections());
+                message = String::convert("listen a socket, address = %s, port = %d, max connections: %d",
+                                          !tcc->address().isNullOrEmpty() ? tcc->address().c_str() : "any",
+                                          tcc->port(), tcc->maxConnections());
                 Trace::info(message);
 
                 return true;
@@ -466,10 +502,10 @@ namespace Drivers {
                     Thread::msleep(MaxDelayTime);
                     return rebind();
                 } else {
-                    String message = String::convert(Resources::getString("SocketListenFailed").c_str(),
-                                                     tcc->address().c_str(), tcc->port());
-                    Trace::writeLine(message.c_str(), Trace::Error);
-                    throw BindingException(message.c_str());
+                    message = String::convert(Resources::getString("SocketListenFailed").c_str(),
+                                              tcc->address().c_str(), tcc->port());
+                    Trace::writeLine(message, Trace::Error);
+                    throw BindingException(message);
                 }
             }
         } else {
@@ -481,8 +517,8 @@ namespace Drivers {
                 Thread::msleep(MaxDelayTime);
                 return rebind();
             } else {
-                String message = String::convert(Resources::getString("SocketBindingFailed").c_str(),
-                                                 tcc->address().c_str(), tcc->port());
+                message = String::convert(Resources::getString("SocketBindingFailed").c_str(),
+                                          tcc->address().c_str(), tcc->port());
                 Trace::writeLine(message.c_str(), Trace::Error);
                 throw BindingException(message.c_str());
             }
@@ -496,15 +532,16 @@ namespace Drivers {
 
     void TcpServerInteractive::close() {
         _multiplexingLoop = false;
-        if (_fd != -1) {
+        if (hasMultiplexing()) {
             // for exit proc.
 #ifdef HAS_KEVENT
-            struct kevent ev;
-            EV_SET(&ev, 0, EVFILT_USER, EV_ENABLE, NOTE_FFCOPY | NOTE_TRIGGER | 0x1, 0, NULL);
-            kevent(_fd, &ev, 1, NULL, 0, NULL);
+            struct kevent ev{};
+            EV_SET(&ev, 0, EVFILT_USER, EV_ENABLE, NOTE_FFCOPY | NOTE_TRIGGER | 0x1, 0, nullptr);
+            kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
             uint8_t dummy[1] = {0};
             ::write(_exitSockets[0], dummy, sizeof(dummy));
+#elif HAS_IOCP
 #endif
         }
         if (_multiplexingThread != nullptr) {
@@ -604,30 +641,32 @@ namespace Drivers {
 
     void TcpServerInteractive::addDynamicInstructions(const Endpoint &peerEndpoint, Instructions *sendInstructions,
                                                       Instructions *recvInstructions) {
+        Device *device;
         if (recvInstructions != nullptr) {
-            Device *rdevice = getReceiverDevice(peerEndpoint);
-            if (rdevice != nullptr) {
-                rdevice->addDynamicInstructions(recvInstructions);
+            device = getReceiverDevice(peerEndpoint);
+            if (device != nullptr) {
+                device->addDynamicInstructions(recvInstructions);
             }
         }
 
         if (sendInstructions != nullptr) {
-            Device *sdevice = getSenderDevice(peerEndpoint);
-            if (sdevice != nullptr) {
-                sdevice->addDynamicInstructions(sendInstructions);
+            device = getSenderDevice(peerEndpoint);
+            if (device != nullptr) {
+                device->addDynamicInstructions(sendInstructions);
             }
         }
     }
 
     void TcpServerInteractive::clearDynamicInstructions(const Endpoint &peerEndpoint) {
-        Device *rdevice = getReceiverDevice(peerEndpoint);
-        if (rdevice != nullptr) {
-            rdevice->clearDynamicInstructions();
+        Device *device;
+        device = getReceiverDevice(peerEndpoint);
+        if (device != nullptr) {
+            device->clearDynamicInstructions();
         }
 
-        Device *sdevice = getSenderDevice(peerEndpoint);
-        if (sdevice != nullptr) {
-            sdevice->clearDynamicInstructions();
+        device = getSenderDevice(peerEndpoint);
+        if (device != nullptr) {
+            device->clearDynamicInstructions();
         }
     }
 
@@ -635,17 +674,23 @@ namespace Drivers {
         return new TcpServer();
     }
 
-    void TcpServerInteractive::acceptProc() {
+    TcpClient *TcpServerInteractive::accept() {
         if (_tcpServer != nullptr) {
-            bool valid = _tcpServer != nullptr ? _tcpServer->isValid() : false;
+            bool valid = _tcpServer != nullptr && _tcpServer->isValid();
             if (valid) {
                 TcpClient *client = _tcpServer->accept();
                 if (client != nullptr) {
                     Locker locker(&_tcpServerMutex);
                     openClient(client);
                 }
+                return client;
             }
         }
+        return nullptr;
+    }
+
+    void TcpServerInteractive::acceptProc() {
+        accept();
     }
 
     void TcpServerInteractive::closeProc() {
@@ -676,36 +721,31 @@ namespace Drivers {
         assert(context);
         int maxCount = context->maxConnections();
 
-        struct kevent ev;
-        uintptr_t listenfd = static_cast<uintptr_t>(_tcpServer->socketId());
-        EV_SET(&ev, listenfd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-        int ret = kevent(kq, &ev, 1, NULL, 0, NULL);
+        struct kevent ev{};
+        auto listenfd = static_cast<uintptr_t>(_tcpServer->socketId());
+        EV_SET(&ev, listenfd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
+        int ret = kevent(kq, &ev, 1, nullptr, 0, nullptr);
         if (ret == -1) {
             Debug::writeFormatLine("kevent failed:%d", errno);
             return;
         }
 
         // for exit.
-        EV_SET(&ev, 0, EVFILT_USER, EV_ADD, NOTE_FFCOPY, 0, NULL);
-        kevent(kq, &ev, 1, NULL, 0, NULL);
+        EV_SET(&ev, 0, EVFILT_USER, EV_ADD, NOTE_FFCOPY, 0, nullptr);
+        kevent(kq, &ev, 1, nullptr, 0, nullptr);
 
         _multiplexingLoop = true;
-//        static const TimeSpan timeout = TimeSpan::fromMilliseconds(100);
-//        struct timespec ts;
-//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
-//        ts.tv_sec = waitms / 1000;
-//        ts.tv_nsec = (waitms % 1000) * 1000 * 1000;
-        struct kevent *eventlist = new struct kevent[maxCount];
+        auto eventList = new struct kevent[maxCount];
         while (_multiplexingLoop) {
-            ret = kevent(kq, NULL, 0, eventlist, maxCount, nullptr);
+            ret = kevent(kq, nullptr, 0, eventList, maxCount, nullptr);
             for (int i = 0; i < ret; i++) {
-                const struct kevent &event = eventlist[i];
-                uintptr_t sockfd = event.ident;
+                const struct kevent &event = eventList[i];
+                uintptr_t sockId = event.ident;
                 int16_t filter = event.filter;
                 uint32_t flags = event.flags;
                 intptr_t data = event.data;
 
-                if (sockfd == listenfd) {
+                if (sockId == listenfd) {
                     TcpClient *client = nullptr;
                     do {
                         client = _tcpServer->accept();
@@ -713,103 +753,172 @@ namespace Drivers {
                             openClient(client);
                         }
                     } while (client != nullptr);
-                } else if (sockfd > 0 && filter == EVFILT_READ) {
+                } else if (sockId > 0 && filter == EVFILT_READ) {
                     // read from socket, length = data
                     if (data > 0) {
-                        _clients.process(sockfd, data);
+                        _clients.process((int) sockId, (int) data);
                     }
                 }
             }
         }
-        delete[] eventlist;
+        delete[] eventList;
     }
 
 #elif HAS_EPOLL
-    void TcpServerInteractive::multiplexingProc()
-    {
-        if(_tcpServer == nullptr || !_tcpServer->isListening())
-        {
+
+    void TcpServerInteractive::multiplexingProc() {
+        if (_tcpServer == nullptr || !_tcpServer->isListening()) {
             return;
         }
-        
-        TcpServerChannelContext* context = this->getChannelContext();
+
+        TcpServerChannelContext *context = this->getChannelContext();
         assert(context);
         int maxCount = context->maxConnections();
         int receiveBufferSize = context->receiveBufferSize();
-        if(receiveBufferSize <= 0)
+        if (receiveBufferSize <= 0)
             receiveBufferSize = 65535;
-        
+
         int epollfd = epoll_create(maxCount);
-        if (epollfd == -1)
-        {
+        if (epollfd == -1) {
             Debug::writeFormatLine("epoll_create failed: %d", errno);
             return;
         }
         _fd = epollfd;
-        
+
         int listenfd = _tcpServer->socketId();
-        
+
         // for listen socket
-        struct epoll_event ev;
+        struct epoll_event ev{};
         memset(&ev.data, 0, sizeof(ev.data));
         ev.events = EPOLLIN | EPOLLET;
 //        ev.events = EPOLLIN;
         ev.data.fd = listenfd;
         int ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listenfd, &ev);
-        if (ret == -1)
-        {
+        if (ret == -1) {
             Debug::writeFormatLine("epoll_ctl failed: %d", errno);
             return;
         }
-        
+
         // for exit
         socketpair(AF_UNIX, SOCK_STREAM, 0, _exitSockets);
         ev.events = EPOLLIN;
         ev.data.fd = _exitSockets[1];
         epoll_ctl(_fd, EPOLL_CTL_ADD, _exitSockets[1], &ev);
-        
+
         _multiplexingLoop = true;
-//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
-        struct epoll_event* eventlist = new struct epoll_event[maxCount];
-        while (_multiplexingLoop)
-        {
-            ret = ::epoll_wait(epollfd, eventlist, maxCount, -1);
-            for (int i=0; i<ret; i++)
-            {
-                const struct epoll_event& event = eventlist[i];
-                int sockfd = event.data.fd;
+        auto eventList = new struct epoll_event[maxCount];
+        while (_multiplexingLoop) {
+            ret = ::epoll_wait(epollfd, eventList, maxCount, -1);
+            for (int i = 0; i < ret; i++) {
+                const struct epoll_event &event = eventList[i];
+                int sockId = event.data.fd;
                 uint32_t events = event.events;
 
-                if (sockfd == listenfd)
-                {
-                    TcpClient* client = nullptr;
-                    do
-                    {
+                if (sockId == listenfd) {
+                    TcpClient *client = nullptr;
+                    do {
                         client = _tcpServer->accept();
-                        if (client != nullptr)
-                        {
+                        if (client != nullptr) {
                             openClient(client);
                         }
-                    }while (client != nullptr);
-                }
-                else if(sockfd == _exitSockets[1])
-                {
+                    } while (client != nullptr);
+                } else if (sockId == _exitSockets[1]) {
                     break;
-                }
-                else if (sockfd > 0 && (events & EPOLLIN))
-                {
+                } else if (sockId > 0 && (events & EPOLLIN)) {
                     // read from socket, length = data
-                    _clients.process(sockfd, receiveBufferSize);
+                    _clients.process(sockId, receiveBufferSize);
                 }
             }
         }
-        delete[] eventlist;
+        delete[] eventList;
     }
+
+#elif HAS_IOCP
+
+    void TcpServerInteractive::multiplexingProc() {
+        if (_tcpServer == nullptr || !_tcpServer->isListening()) {
+            return;
+        }
+
+        TcpServerChannelContext *context = this->getChannelContext();
+        assert(context);
+        int maxCount = context->maxConnections();
+        int receiveBufferSize = context->receiveBufferSize();
+        if (receiveBufferSize <= 0)
+            receiveBufferSize = 65535;
+
+        _multiplexingLoop = true;
+        HANDLE hCompletion = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+        // Start an accept timer.
+        auto acceptProc = [](TcpServerInteractive *ti, HANDLE hCompletion) {
+            TcpClient *client = ti->accept();
+            if (client != nullptr) {
+                PPER_HANDLE_DATA pPerHandle = (PPER_HANDLE_DATA) ::GlobalAlloc(GPTR, sizeof(PER_HANDLE_DATA));
+                pPerHandle->s = client->socketId();
+
+                ::CreateIoCompletionPort((HANDLE) pPerHandle->s, hCompletion, (ULONG_PTR) pPerHandle, 0);
+
+                PPER_IO_DATA pPerIO = (PPER_IO_DATA) ::GlobalAlloc(GPTR, sizeof(PER_IO_DATA));
+                pPerIO->nOperationType = OP_READ;
+                WSABUF buf;
+                buf.buf = pPerIO->buf;
+                buf.len = BUFFER_SIZE;
+                DWORD dwRecv;
+                DWORD dwFlags = 0;
+                ::WSARecv(pPerHandle->s, &buf, 1, &dwRecv, &dwFlags, &pPerIO->ol, nullptr);
+            }
+        };
+        Timer acceptTimer("accept.timer", 1000, acceptProc, this, hCompletion);
+        acceptTimer.start();
+
+        DWORD dwTrans;
+        PPER_HANDLE_DATA pPerHandle;
+        PPER_IO_DATA pPerIO;
+        while (_multiplexingLoop) {
+            BOOL bOK = ::GetQueuedCompletionStatus(hCompletion, &dwTrans, (PULONG_PTR) &pPerHandle,
+                                                   (LPOVERLAPPED *) &pPerIO, 200);
+//            if (!bOK) {
+//                ::GlobalFree(pPerHandle);
+//                ::GlobalFree(pPerIO);
+//                continue;
+//            }
+            if (bOK) {
+                if (dwTrans == 0 && (pPerIO->nOperationType == OP_READ || pPerIO->nOperationType == OP_WRITE)) {
+                    ::GlobalFree(pPerHandle);
+                    ::GlobalFree(pPerIO);
+                    continue;
+                }
+
+                if (pPerIO->nOperationType == OP_READ) {
+                    // read from socket, length = data
+                    int sockId = pPerHandle->s;
+
+                    ByteArray buffer((const uint8_t *) pPerIO->buf, dwTrans);
+//                    Trace::info(buffer.toString());
+                    _clients.process(sockId, buffer);
+
+                    WSABUF buf;
+                    buf.buf = pPerIO->buf;
+                    buf.len = BUFFER_SIZE;
+                    pPerIO->nOperationType = OP_READ;
+                    DWORD nFlags = 0;
+                    ::WSARecv(sockId, &buf, 1, &dwTrans, &nFlags, &pPerIO->ol, nullptr);
+                }
+            }
+        }
+
+        ::CloseHandle(hCompletion);
+    }
+
 #else
-    void TcpServerInteractive::multiplexingProc()
-    {
+    void TcpServerInteractive::multiplexingProc() {
     }
+
 #endif
+
+    bool TcpServerInteractive::hasMultiplexing() const {
+        return _fd != -1;
+    }
 
     void TcpServerInteractive::openClient(TcpClient *tc) {
 #ifdef DEBUG
@@ -836,18 +945,19 @@ namespace Drivers {
         TcpClientEventArgs e(tc->peerEndpoint());
         _acceptAction.invoke(this, &e);
 
-        if (_fd != -1) {
+        if (hasMultiplexing()) {
 #ifdef HAS_KEVENT
-            struct kevent ev;
-            EV_SET(&ev, tc->socketId(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-            kevent(_fd, &ev, 1, NULL, 0, NULL);
+            struct kevent ev{};
+            EV_SET(&ev, tc->socketId(), EVFILT_READ, EV_ADD, 0, 0, nullptr);
+            kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
-            struct epoll_event ev;
+            struct epoll_event ev{};
             memset(&ev.data, 0, sizeof(ev.data));
             ev.events = EPOLLIN | EPOLLET;
 //            ev.events = EPOLLIN;
             ev.data.fd = tc->socketId();
             epoll_ctl(_fd, EPOLL_CTL_ADD, tc->socketId(), &ev);
+#elif HAS_IOCP
 #endif
         }
 
@@ -871,18 +981,19 @@ namespace Drivers {
         TcpClientEventArgs e(tc->peerEndpoint());
         _closeAction.invoke(this, &e);
 
-        if (_fd != -1) {
+        if (hasMultiplexing()) {
 #ifdef HAS_KEVENT
-            struct kevent ev;
-            EV_SET(&ev, client->socketId(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
-            kevent(_fd, &ev, 1, NULL, 0, NULL);
+            struct kevent ev{};
+            EV_SET(&ev, client->socketId(), EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+            kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
-            struct epoll_event ev;
+            struct epoll_event ev{};
             memset(&ev.data, 0, sizeof(ev.data));
             ev.events = EPOLLIN | EPOLLET;
 //            ev.events = EPOLLIN;
             ev.data.fd = client->socketId();
             epoll_ctl(_fd, EPOLL_CTL_DEL, client->socketId(), &ev);
+#elif HAS_IOCP
 #endif
         }
         _clients.remove(client);
@@ -894,12 +1005,11 @@ namespace Drivers {
 
 #ifndef __EMSCRIPTEN__
 
-    TcpSSLServerInteractive::TcpSSLServerInteractive(DriverManager *dm, Channel *channel) : TcpServerInteractive(dm,
-                                                                                                                 channel) {
+    TcpSSLServerInteractive::TcpSSLServerInteractive(DriverManager *dm, Channel *channel) :
+            TcpServerInteractive(dm, channel) {
     }
 
-    TcpSSLServerInteractive::~TcpSSLServerInteractive() {
-    }
+    TcpSSLServerInteractive::~TcpSSLServerInteractive() = default;
 
     TcpServer *TcpSSLServerInteractive::createServer() {
         return new TcpSSLServer();
@@ -908,32 +1018,30 @@ namespace Drivers {
     void TcpSSLServerInteractive::updateContext(const TcpServerChannelContext *tcc) {
         TcpServerInteractive::updateContext(tcc);
 
-        const TcpSSLServerChannelContext *tscc = dynamic_cast<const TcpSSLServerChannelContext *>(tcc);
+        auto tscc = dynamic_cast<const TcpSSLServerChannelContext *>(tcc);
         assert(tscc);
-        TcpSSLServer *tss = dynamic_cast<TcpSSLServer *>(_tcpServer);
+        auto tss = dynamic_cast<TcpSSLServer *>(_tcpServer);
         assert(tss);
         tss->setKeyFile(tscc->keyFile());
         tss->setCertFile(tscc->certFile());
         tss->setCACertFile(tscc->cacertFile());
     }
 
-    WebSocketServerInteractive::WebSocketServerInteractive(DriverManager *dm, Channel *channel) : TcpServerInteractive(
-            dm, channel) {
+    WebSocketServerInteractive::WebSocketServerInteractive(DriverManager *dm, Channel *channel) :
+            TcpServerInteractive(dm, channel) {
     }
 
-    WebSocketServerInteractive::~WebSocketServerInteractive() {
-    }
+    WebSocketServerInteractive::~WebSocketServerInteractive() = default;
 
     TcpServer *WebSocketServerInteractive::createServer() {
         return new WebSocketServer();
     }
 
-    WebSocketSSLServerInteractive::WebSocketSSLServerInteractive(DriverManager *dm, Channel *channel)
-            : TcpServerInteractive(dm, channel) {
+    WebSocketSSLServerInteractive::WebSocketSSLServerInteractive(DriverManager *dm, Channel *channel) :
+            TcpServerInteractive(dm, channel) {
     }
 
-    WebSocketSSLServerInteractive::~WebSocketSSLServerInteractive() {
-    }
+    WebSocketSSLServerInteractive::~WebSocketSSLServerInteractive() = default;
 
     TcpServer *WebSocketSSLServerInteractive::createServer() {
         return new WebSocketSSLServer();
@@ -942,9 +1050,9 @@ namespace Drivers {
     void WebSocketSSLServerInteractive::updateContext(const TcpServerChannelContext *tcc) {
         TcpServerInteractive::updateContext(tcc);
 
-        const TcpSSLServerChannelContext *tscc = dynamic_cast<const TcpSSLServerChannelContext *>(tcc);
+        auto tscc = dynamic_cast<const TcpSSLServerChannelContext *>(tcc);
         assert(tscc);
-        TcpSSLServer *tss = dynamic_cast<TcpSSLServer *>(_tcpServer);
+        auto tss = dynamic_cast<TcpSSLServer *>(_tcpServer);
         assert(tss);
         tss->setKeyFile(tscc->keyFile());
         tss->setCertFile(tscc->certFile());

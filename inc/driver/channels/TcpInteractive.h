@@ -11,136 +11,159 @@
 #include "TcpBackgroundSender.h"
 #include "driver/devices/InstructionPool.h"
 
-namespace Drivers
-{
-    class TcpMultiPlexingReceiver
-    {
+namespace Drivers {
+    class TcpMultiplexingReceiver {
     public:
-        class Client
-        {
+        class Client {
         public:
-            Client(TcpClient* client, TcpBackgroundReceiver* receiver);
+            Client(TcpClient *client, TcpBackgroundReceiver *receiver);
+
             ~Client();
-            
-            TcpClient* tcpClient() const;
+
+            TcpClient *tcpClient() const;
+
             int socketId() const;
-            
-            bool processReceivedBuffer(const ByteArray& buffer);
-            
+
+            bool processReceivedBuffer(const ByteArray &buffer);
+
         private:
-            TcpClient* _client;
-            TcpBackgroundReceiver* _receiver;
+            TcpClient *_client;
+            TcpBackgroundReceiver *_receiver;
         };
-        class Clients
-        {
+
+        class Clients {
         public:
             Clients();
+
             ~Clients();
-            
-            void add(TcpClient* client, TcpBackgroundReceiver* receiver);
-            void remove(TcpClient* client);
-            
+
+            void add(TcpClient *client, TcpBackgroundReceiver *receiver);
+
+            void remove(TcpClient *client);
+
             void clear();
-            
+
             bool process(int socketId, int bufferLength);
-            
+
+            bool process(int socketId, const ByteArray &buffer);
+
         private:
-            Client* at(int socketId) const;
-            
+            Client *at(int socketId) const;
+
         private:
             PList<Client> _clients;
             Mutex _clientsMutex;
         };
-        
-        TcpMultiPlexingReceiver();
-        virtual ~TcpMultiPlexingReceiver();
-        
+
+        TcpMultiplexingReceiver();
+
+        virtual ~TcpMultiplexingReceiver();
+
     public:
-        static void addClient(TcpClient* client, TcpBackgroundReceiver* receiver);
-        static void removeClient(TcpClient* client);
-        
-        static void open(TcpBackgroundReceiver* receiver);
+        static void addClient(TcpClient *client, TcpBackgroundReceiver *receiver);
+
+        static void removeClient(TcpClient *client);
+
+        static void open(TcpBackgroundReceiver *receiver);
+
         static void close();
 
-        static void multiplexingProcInner(void* parameter);
-        static void multiplexingProc(const TcpChannelContext* context);
-        
+        static void multiplexingProcInner(void *parameter);
+
+        static void multiplexingProc(const TcpChannelContext *context);
+
     private:
+        static bool hasMultiplexing();
+
+    private:
+#ifdef WIN32
+        static void *_fd;
+#else
         static int _fd;
-        
-        static Thread* _multiplexingThread;
+#endif
+
+        static Thread *_multiplexingThread;
         static bool _multiplexingLoop;
-        
+
         static Clients _clients;
-        
+
         static int _exitSockets[2];
-        
+
         static const int MaxEventCount = 100;
     };
 
-	class TcpInteractive : public Interactive, public EthernetEndpoint, public TcpMultiPlexingReceiver
-	{
-	public:
-		TcpInteractive(DriverManager* dm, Channel* channel);
-		~TcpInteractive() override;
+    class TcpInteractive : public Interactive, public EthernetEndpoint, public TcpMultiplexingReceiver {
+    public:
+        TcpInteractive(DriverManager *dm, Channel *channel);
 
-		bool open() override;
-		void close() override;
+        ~TcpInteractive() override;
 
-		bool connected() override;
+        bool open() override;
+
+        void close() override;
+
+        bool connected() override;
+
         size_t available() override;
 
-		ssize_t send(const uint8_t* buffer, off_t offset, size_t count) override;
-		ssize_t receive(uint8_t* buffer, off_t offset, size_t count) override;
-        
-        const Endpoint& peerEndpoint() const override;
-        const Endpoint& endpoint() const override;
-        
-        void addDynamicInstructions(Instructions* sendInstructions, Instructions* recvInstructions);
-        void clearDynamicInstructions();
-        
-        bool isClosing() const override;
-        
-        TcpClientChannelContext* getChannelContext() const;
-        
-    protected:
-        virtual TcpClient* createClient();
+        ssize_t send(const uint8_t *buffer, off_t offset, size_t count) override;
 
-	private:
-        bool connectdInner() const;
-        
-        void updateTcpClient(TcpClient* tcpClient);
-        
-        Device* getReceiverDevice();
-        Device* getSenderDevice();
-        
+        ssize_t receive(uint8_t *buffer, off_t offset, size_t count) override;
+
+        const Endpoint &peerEndpoint() const override;
+
+        const Endpoint &endpoint() const override;
+
+        void addDynamicInstructions(Instructions *sendInstructions, Instructions *recvInstructions);
+
+        void clearDynamicInstructions();
+
+        bool isClosing() const override;
+
+        TcpClientChannelContext *getChannelContext() const;
+
+    protected:
+        virtual TcpClient *createClient();
+
+    private:
+        bool connectedInner() const;
+
+        void updateTcpClient(TcpClient *tcpClient);
+
+        Device *getReceiverDevice();
+
+        Device *getSenderDevice();
+
     private:
         friend class TcpBackgroundReceiver;
+
         friend class TcpBackgroundSender;
 
-	protected:
-		TcpClient* _tcpClient;
-		bool _autoDelete;
-        
-        TcpBackgroundReceiver* _receiver;
-        bool _multiplexingReceiver;
-	};
-    
-#ifndef __EMSCRIPTEN__
-    class TcpSSLInteractive : public TcpInteractive
-    {
-    public:
-        TcpSSLInteractive(DriverManager* dm, Channel* channel);
-        ~TcpSSLInteractive() override;
-        
-        SSLVersion sslVersion() const;
-        
     protected:
-        TcpClient* createClient() override;
-        
-    private:
-        SSLChannelContext* getChannelContext();
+        TcpClient *_tcpClient;
+        bool _autoDelete;
+
+        TcpBackgroundReceiver *_receiver;
+        bool _multiplexingReceiver;
     };
+
+#ifndef __EMSCRIPTEN__
+
+    class TcpSSLInteractive : public TcpInteractive {
+    public:
+        TcpSSLInteractive(DriverManager *dm, Channel *channel);
+
+        ~TcpSSLInteractive() override;
+
+        SSLVersion sslVersion() const;
+
+    protected:
+        TcpClient *createClient() override;
+
+    private:
+        SSLChannelContext *getChannelContext();
+    };
+
 #endif
 }
 #endif // TCPINTERACTIVE_H

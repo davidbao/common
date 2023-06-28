@@ -8,16 +8,37 @@
 #include <cassert>
 
 #if __APPLE__
+
 #define HAS_KEVENT 1
 
 #include <sys/event.h>
 
 #elif __linux__ || __arm_linux__ || __ANDROID__
+
 #define HAS_EPOLL 1
+
 #include <sys/epoll.h>
 #include <sys/socket.h>
+
 #elif WIN32
-#include <io.h>
+#define HAS_IOCP 1
+
+#include <winsock2.h>
+
+#define BUFFER_SIZE 1024
+typedef struct {
+    SOCKET s;
+    SOCKADDR_IN addr;
+} PER_HANDLE_DATA, *PPER_HANDLE_DATA;
+
+typedef struct {
+    OVERLAPPED ol;
+    char buf[BUFFER_SIZE];
+    int nOperationType;
+#define OP_READ 1
+#define OP_WRITE 2
+} PER_IO_DATA, *PPER_IO_DATA;
+
 #else
 #define HAS_ONLY_ASYNC 1
 #endif
@@ -26,37 +47,37 @@ using namespace Data;
 using namespace Diag;
 
 namespace Drivers {
-    TcpMultiPlexingReceiver::Client::Client(TcpClient *client, TcpBackgroundReceiver *receiver) : _client(client),
+    TcpMultiplexingReceiver::Client::Client(TcpClient *client, TcpBackgroundReceiver *receiver) : _client(client),
                                                                                                   _receiver(receiver) {
     }
 
-    TcpMultiPlexingReceiver::Client::~Client() = default;
+    TcpMultiplexingReceiver::Client::~Client() = default;
 
-    TcpClient *TcpMultiPlexingReceiver::Client::tcpClient() const {
+    TcpClient *TcpMultiplexingReceiver::Client::tcpClient() const {
         return _client;
     }
 
-    int TcpMultiPlexingReceiver::Client::socketId() const {
+    int TcpMultiplexingReceiver::Client::socketId() const {
         return _client != nullptr ? _client->socketId() : -1;
     }
 
-    bool TcpMultiPlexingReceiver::Client::processReceivedBuffer(const ByteArray &buffer) {
+    bool TcpMultiplexingReceiver::Client::processReceivedBuffer(const ByteArray &buffer) {
         bool result = _receiver->processBuffer(buffer);
         return result;
     }
 
-    TcpMultiPlexingReceiver::Clients::Clients() = default;
+    TcpMultiplexingReceiver::Clients::Clients() = default;
 
-    TcpMultiPlexingReceiver::Clients::~Clients() = default;
+    TcpMultiplexingReceiver::Clients::~Clients() = default;
 
-    void TcpMultiPlexingReceiver::Clients::add(TcpClient *client, TcpBackgroundReceiver *receiver) {
+    void TcpMultiplexingReceiver::Clients::add(TcpClient *client, TcpBackgroundReceiver *receiver) {
         Locker locker(&_clientsMutex);
         _clients.add(new Client(client, receiver));
     }
 
-    void TcpMultiPlexingReceiver::Clients::remove(TcpClient *client) {
+    void TcpMultiplexingReceiver::Clients::remove(TcpClient *client) {
 #ifdef DEBUG
-        Stopwatch sw("TcpMultiPlexingReceiver::Clients::remove", 3000);
+        Stopwatch sw("TcpMultiplexingReceiver::Clients::remove", 3000);
 #endif
         for (size_t i = 0; i < _clients.count(); i++) {
             Client *temp = _clients[i];
@@ -69,14 +90,14 @@ namespace Drivers {
         }
     }
 
-    void TcpMultiPlexingReceiver::Clients::clear() {
+    void TcpMultiplexingReceiver::Clients::clear() {
         Locker locker(&_clientsMutex);
         _clients.clear();
     }
 
-    bool TcpMultiPlexingReceiver::Clients::process(int socketId, int bufferLength) {
+    bool TcpMultiplexingReceiver::Clients::process(int socketId, int bufferLength) {
 #ifdef DEBUG
-        Stopwatch sw("TcpMultiPlexingReceiver::Clients::process", 1000);
+        Stopwatch sw("TcpMultiplexingReceiver::Clients::process", 1000);
 #endif
         bool result = false;
         if (bufferLength > 0) {
@@ -84,9 +105,9 @@ namespace Drivers {
             Client *client = at(socketId);
             if (client != nullptr) {
                 ByteArray buffer;
-                client->tcpClient()->Receiver::receive(bufferLength, buffer);
+                client->tcpClient()->receive(bufferLength, buffer);
                 if (buffer.count() > 0) {
-//                    Debug::writeFormatLine("TcpMultiPlexingReceiver.received expect: %d, actual: %d", bufferLength, buffer.count());
+//                    Debug::writeFormatLine("TcpMultiplexingReceiver.received expect: %d, actual: %d", bufferLength, buffer.count());
                     result = client->processReceivedBuffer(buffer);
                 }
             }
@@ -94,7 +115,22 @@ namespace Drivers {
         return result;
     }
 
-    TcpMultiPlexingReceiver::Client *TcpMultiPlexingReceiver::Clients::at(int socketId) const {
+    bool TcpMultiplexingReceiver::Clients::process(int socketId, const ByteArray &buffer) {
+#ifdef DEBUG
+        Stopwatch sw("TcpMultiplexingReceiver::Clients::process", 1000);
+#endif
+        bool result = false;
+        if (buffer.count() > 0) {
+            Locker locker(&_clientsMutex);
+            Client *client = at(socketId);
+            if (client != nullptr) {
+                result = client->processReceivedBuffer(buffer);
+            }
+        }
+        return result;
+    }
+
+    TcpMultiplexingReceiver::Client *TcpMultiplexingReceiver::Clients::at(int socketId) const {
         for (size_t i = 0; i < _clients.count(); i++) {
             Client *client = _clients[i];
             if (client->socketId() == socketId)
@@ -103,22 +139,26 @@ namespace Drivers {
         return nullptr;
     }
 
-    int TcpMultiPlexingReceiver::_fd = -1;
-    Thread *TcpMultiPlexingReceiver::_multiplexingThread = nullptr;
-    bool TcpMultiPlexingReceiver::_multiplexingLoop = false;
-    TcpMultiPlexingReceiver::Clients TcpMultiPlexingReceiver::_clients;
-    int TcpMultiPlexingReceiver::_exitSockets[2] = {0, 0};
+#ifdef WIN32
+    void *TcpMultiplexingReceiver::_fd = (void *) -1;
+#else
+    int TcpMultiplexingReceiver::_fd = -1;
+#endif
+    Thread *TcpMultiplexingReceiver::_multiplexingThread = nullptr;
+    bool TcpMultiplexingReceiver::_multiplexingLoop = false;
+    TcpMultiplexingReceiver::Clients TcpMultiplexingReceiver::_clients;
+    int TcpMultiplexingReceiver::_exitSockets[2] = {0, 0};
 
-    TcpMultiPlexingReceiver::TcpMultiPlexingReceiver() = default;
+    TcpMultiplexingReceiver::TcpMultiplexingReceiver() = default;
 
-    TcpMultiPlexingReceiver::~TcpMultiPlexingReceiver() = default;
+    TcpMultiplexingReceiver::~TcpMultiplexingReceiver() = default;
 
-    void TcpMultiPlexingReceiver::addClient(TcpClient *client, TcpBackgroundReceiver *receiver) {
+    void TcpMultiplexingReceiver::addClient(TcpClient *client, TcpBackgroundReceiver *receiver) {
         open(receiver);
 
         if (client == nullptr)
             return;
-        if (_fd == -1)
+        if (!hasMultiplexing())
             return;
 
 #ifdef HAS_KEVENT
@@ -129,21 +169,37 @@ namespace Drivers {
             Debug::writeFormatLine("kevent failed:%d", errno);
         }
 #elif HAS_EPOLL
-        struct epoll_event ev;
+        struct epoll_event ev{};
         memset(&ev.data, 0, sizeof(ev.data));
         ev.events = EPOLLIN | EPOLLET;
 //        ev.events = EPOLLIN;
         ev.data.fd = client->socketId();
         epoll_ctl(_fd, EPOLL_CTL_ADD, client->socketId(), &ev);
+#elif HAS_IOCP
+        HANDLE hCompletion = (HANDLE) _fd;
+
+        PPER_HANDLE_DATA pPerHandle = (PPER_HANDLE_DATA) ::GlobalAlloc(GPTR, sizeof(PER_HANDLE_DATA));
+        pPerHandle->s = client->socketId();
+
+        ::CreateIoCompletionPort((HANDLE) pPerHandle->s, hCompletion, (ULONG_PTR) pPerHandle, 0);
+
+        PPER_IO_DATA pPerIO = (PPER_IO_DATA) ::GlobalAlloc(GPTR, sizeof(PER_IO_DATA));
+        pPerIO->nOperationType = OP_READ;
+        WSABUF buf;
+        buf.buf = pPerIO->buf;
+        buf.len = BUFFER_SIZE;
+        DWORD dwRecv;
+        DWORD dwFlags = 0;
+        ::WSARecv(pPerHandle->s, &buf, 1, &dwRecv, &dwFlags, &pPerIO->ol, nullptr);
 #endif
 
         _clients.add(client, receiver);
     }
 
-    void TcpMultiPlexingReceiver::removeClient(TcpClient *client) {
+    void TcpMultiplexingReceiver::removeClient(TcpClient *client) {
         if (client == nullptr)
             return;
-        if (_fd == -1)
+        if (!hasMultiplexing())
             return;
 
 #ifdef HAS_KEVENT
@@ -151,7 +207,7 @@ namespace Drivers {
         EV_SET(&ev, client->socketId(), EVFILT_READ, EV_DELETE, 0, 0, nullptr);
         kevent(_fd, &ev, 1, nullptr, 0, nullptr);
 #elif HAS_EPOLL
-        struct epoll_event ev;
+        struct epoll_event ev{};
         memset(&ev.data, 0, sizeof(ev.data));
         ev.events = EPOLLIN | EPOLLET;
 //        ev.events = EPOLLIN;
@@ -162,7 +218,7 @@ namespace Drivers {
         _clients.remove(client);
     }
 
-    void TcpMultiPlexingReceiver::open(TcpBackgroundReceiver *receiver) {
+    void TcpMultiplexingReceiver::open(TcpBackgroundReceiver *receiver) {
         if (_multiplexingThread == nullptr) {
 #ifdef HAS_KEVENT
             int kq = kqueue();
@@ -174,12 +230,13 @@ namespace Drivers {
 #elif HAS_EPOLL
             int maxCount = MaxEventCount;
             int epollfd = epoll_create(maxCount);
-            if (epollfd == -1)
-            {
+            if (epollfd == -1) {
                 Debug::writeFormatLine("epoll_create failed: %d", errno);
                 return;
             }
             _fd = epollfd;
+#elif HAS_IOCP
+            _fd = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 #endif
 
             _multiplexingThread = new Thread("client.multiplexingProc", multiplexingProcInner, receiver);
@@ -187,9 +244,9 @@ namespace Drivers {
         }
     }
 
-    void TcpMultiPlexingReceiver::close() {
+    void TcpMultiplexingReceiver::close() {
         _multiplexingLoop = false;
-        if (_fd != -1) {
+        if (hasMultiplexing()) {
             // for exit proc.
 #ifdef HAS_KEVENT
             struct kevent ev{};
@@ -200,20 +257,34 @@ namespace Drivers {
             ::write(0, dummy, sizeof(dummy));
 #endif
         }
+
         if (_multiplexingThread != nullptr) {
             delete _multiplexingThread;
             _multiplexingThread = nullptr;
         }
 
-        if (_fd != -1) {
+        if (hasMultiplexing()) {
+#ifdef WIN32
+            CloseHandle(_fd);
+            _fd = (void *) -1;
+#else
             ::close(_fd);
             _fd = -1;
+#endif
         }
 
         _clients.clear();
     }
 
-    void TcpMultiPlexingReceiver::multiplexingProcInner(void *parameter) {
+    bool TcpMultiplexingReceiver::hasMultiplexing() {
+#ifdef WIN32
+        return _fd != (void *) -1;
+#else
+        return _fd != -1;
+#endif
+    }
+
+    void TcpMultiplexingReceiver::multiplexingProcInner(void *parameter) {
         auto receiver = (TcpBackgroundReceiver *) parameter;
         assert(receiver);
         multiplexingProc(receiver->context());
@@ -221,7 +292,7 @@ namespace Drivers {
 
 #ifdef HAS_KEVENT
 
-    void TcpMultiPlexingReceiver::multiplexingProc(const TcpChannelContext *context) {
+    void TcpMultiplexingReceiver::multiplexingProc(const TcpChannelContext *context) {
         int kq = _fd;
         if (kq == -1)
             return;
@@ -236,19 +307,14 @@ namespace Drivers {
         kevent(kq, &ev, 1, nullptr, 0, nullptr);
 
         _multiplexingLoop = true;
-//        static const TimeSpan timeout = TimeSpan::fromMilliseconds(100);
-//        struct timespec ts;
-//        uint32_t waitms = (uint32_t)timeout.totalMilliseconds();
-//        ts.tv_sec = waitms / 1000;
-//        ts.tv_nsec = (waitms % 1000) * 1000 * 1000;
-        auto eventlist = new struct kevent[maxCount];
+        auto eventLists = new struct kevent[maxCount];
         while (_multiplexingLoop) {
-            ret = kevent(kq, nullptr, 0, eventlist, maxCount, nullptr);
+            ret = kevent(kq, nullptr, 0, eventLists, maxCount, nullptr);
             if (ret <= 0)
                 continue;
 
             for (int i = 0; i < ret; i++) {
-                struct kevent event = eventlist[i];
+                struct kevent event = eventLists[i];
                 uintptr_t sockfd = event.ident;
                 int16_t filter = event.filter;
                 uint32_t flags = event.flags;
@@ -266,63 +332,102 @@ namespace Drivers {
                 }
             }
         }
-        delete[] eventlist;
+        delete[] eventLists;
     }
 
 #elif HAS_EPOLL
-    void TcpMultiPlexingReceiver::multiplexingProc(const TcpChannelContext* context)
-    {
+
+    void TcpMultiplexingReceiver::multiplexingProc(const TcpChannelContext *context) {
         int epollfd = _fd;
-        if(epollfd == -1)
+        if (epollfd == -1)
             return;
-        
+
         int ret;
         int maxCount = MaxEventCount;
         int receiveBufferSize = context->receiveBufferSize();
 
         // for exit
         socketpair(AF_UNIX, SOCK_STREAM, 0, _exitSockets);
-        struct epoll_event ev;
+        struct epoll_event ev{};
         memset(&ev.data, 0, sizeof(ev.data));
         ev.events = EPOLLIN;
         ev.data.fd = _exitSockets[1];
         epoll_ctl(epollfd, EPOLL_CTL_ADD, _exitSockets[1], &ev);
 
         _multiplexingLoop = true;
-        struct epoll_event* eventlist = new struct epoll_event[maxCount];
-        while (_multiplexingLoop)
-        {
-            ret = ::epoll_wait(epollfd, eventlist, maxCount, -1);
-            if (ret <= 0)
-            {
+        auto eventList = new struct epoll_event[maxCount];
+        while (_multiplexingLoop) {
+            ret = ::epoll_wait(epollfd, eventList, maxCount, -1);
+            if (ret <= 0) {
                 continue;
             }
 
-            for (int i=0; i<ret; i++)
-            {
-                const struct epoll_event& event = eventlist[i];
+            for (int i = 0; i < ret; i++) {
+                const struct epoll_event &event = eventList[i];
                 int sockfd = event.data.fd;
                 uint32_t events = event.events;
 
-                if(sockfd == _exitSockets[1])
-                {
+                if (sockfd == _exitSockets[1]) {
                     break;
-                }
-                else if (sockfd > 0 && (events & EPOLLIN))
-                {
+                } else if (sockfd > 0 && (events & EPOLLIN)) {
                     // read from socket
-                    if(receiveBufferSize > 0)
-                    {
+                    if (receiveBufferSize > 0) {
                         _clients.process(sockfd, receiveBufferSize);
                     }
                 }
             }
         }
-        delete[] eventlist;
+        delete[] eventList;
     }
+
+#elif HAS_IOCP
+
+    void TcpMultiplexingReceiver::multiplexingProc(const TcpChannelContext *context) {
+        if (!hasMultiplexing())
+            return;
+
+        HANDLE hCompletion = (HANDLE) _fd;
+
+        _multiplexingLoop = true;
+        DWORD dwTrans;
+        PPER_HANDLE_DATA pPerHandle;
+        PPER_IO_DATA pPerIO;
+        while (_multiplexingLoop) {
+            BOOL bOK = ::GetQueuedCompletionStatus(hCompletion, &dwTrans, (PULONG_PTR) &pPerHandle,
+                                                   (LPOVERLAPPED *) &pPerIO, 200);
+//            if (!bOK) {
+//                ::GlobalFree(pPerHandle);
+//                ::GlobalFree(pPerIO);
+//                continue;
+//            }
+            if (bOK) {
+                if (dwTrans == 0 && (pPerIO->nOperationType == OP_READ || pPerIO->nOperationType == OP_WRITE)) {
+                    ::GlobalFree(pPerHandle);
+                    ::GlobalFree(pPerIO);
+                    continue;
+                }
+
+                if (pPerIO->nOperationType == OP_READ) {
+                    // read from socket, length = data
+                    int sockId = pPerHandle->s;
+
+                    ByteArray buffer((const uint8_t *) pPerIO->buf, dwTrans);
+                    Trace::info(buffer.toString());
+                    _clients.process(sockId, buffer);
+
+                    WSABUF buf;
+                    buf.buf = pPerIO->buf;
+                    buf.len = BUFFER_SIZE;
+                    pPerIO->nOperationType = OP_READ;
+                    DWORD nFlags = 0;
+                    ::WSARecv(sockId, &buf, 1, &dwTrans, &nFlags, &pPerIO->ol, nullptr);
+                }
+            }
+        }
+    }
+
 #else
-    void TcpMultiPlexingReceiver::multiplexingProc(const TcpChannelContext*)
-    {
+    void TcpMultiplexingReceiver::multiplexingProc(const TcpChannelContext *context) {
     }
 #endif
 
@@ -400,14 +505,14 @@ namespace Drivers {
                 _receiver = new TcpClientAsyncReceiver(manager(), _channel, _tcpClient);
                 _receiver->start();
             } else if (tcc->syncReceiver()) {
-//                Trace::debug("Can not start a tcp client receiver(sync).");
-            } else if (tcc->multiPlexingReceiver()) {
-                Trace::info("Start a tcp client receiver(mulitiplexing).");
+                Trace::error("Can not start a tcp client receiver(sync).");
+            } else if (tcc->multiplexingReceiver()) {
+                Trace::info("Start a tcp client receiver(multiplexing).");
                 _multiplexingReceiver = true;
                 _receiver = new TcpClientSyncReceiver(manager(), _channel, _tcpClient);
                 _receiver->start();
 
-                TcpMultiPlexingReceiver::addClient(_tcpClient, _receiver);
+                TcpMultiplexingReceiver::addClient(_tcpClient, _receiver);
             }
 #endif
         }
@@ -417,7 +522,7 @@ namespace Drivers {
     void TcpInteractive::close() {
         if (_autoDelete) {
             if (_multiplexingReceiver) {
-                TcpMultiPlexingReceiver::removeClient(_tcpClient);
+                TcpMultiplexingReceiver::removeClient(_tcpClient);
             }
 
             if (_receiver != nullptr) {
@@ -441,7 +546,7 @@ namespace Drivers {
         _autoDelete = false;
     }
 
-    bool TcpInteractive::connectdInner() const {
+    bool TcpInteractive::connectedInner() const {
 //#ifdef DEBUG
 //        if(_tcpClient != nullptr)
 //            Debug::writeFormatLine("TcpInteractive::connected, socketId: %d, connected: %s", _tcpClient->socketId(), _tcpClient->connected() ? "true" : "false");
@@ -450,7 +555,7 @@ namespace Drivers {
     }
 
     bool TcpInteractive::connected() {
-        return connectdInner();
+        return connectedInner();
     }
 
     size_t TcpInteractive::available() {
@@ -511,17 +616,18 @@ namespace Drivers {
     }
 
     void TcpInteractive::addDynamicInstructions(Instructions *sendInstructions, Instructions *recvInstructions) {
+        Device *device;
         if (recvInstructions != nullptr) {
-            Device *rdevice = getReceiverDevice();
-            if (rdevice != nullptr) {
-                rdevice->addDynamicInstructions(recvInstructions);
+            device = getReceiverDevice();
+            if (device != nullptr) {
+                device->addDynamicInstructions(recvInstructions);
             }
         }
 
         if (sendInstructions != nullptr) {
-            Device *sdevice = getSenderDevice();
-            if (sdevice != nullptr) {
-                sdevice->addDynamicInstructions(sendInstructions);
+            device = getSenderDevice();
+            if (device != nullptr) {
+                device->addDynamicInstructions(sendInstructions);
 
                 sendInstructions->setReceiveInstruction(recvInstructions);
             }
@@ -529,14 +635,15 @@ namespace Drivers {
     }
 
     void TcpInteractive::clearDynamicInstructions() {
-        Device *rdevice = getReceiverDevice();
-        if (rdevice != nullptr) {
-            rdevice->clearDynamicInstructions();
+        Device *device;
+        device = getReceiverDevice();
+        if (device != nullptr) {
+            device->clearDynamicInstructions();
         }
 
-        Device *sdevice = getSenderDevice();
-        if (sdevice != nullptr) {
-            sdevice->clearDynamicInstructions();
+        device = getSenderDevice();
+        if (device != nullptr) {
+            device->clearDynamicInstructions();
         }
     }
 

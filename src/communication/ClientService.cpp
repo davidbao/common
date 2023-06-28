@@ -116,7 +116,7 @@ namespace Communication {
 
         dm->description()->addDevice(dd);
 
-        if (!_client.multiPlexingReceiver()) {
+        if (!_client.multiplexingReceiver()) {
             _instructionPool = new TcpMultiSampler(dm, cd, dd, _client.connection, callback.tcpSampler, callback.owner);
         } else {
             TcpSingleSampler::startSinglePool();

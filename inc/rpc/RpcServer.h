@@ -18,20 +18,18 @@ using namespace Data;
 using namespace Communication;
 
 namespace Rpc {
-    class RpcServerContext {
+    class RpcServerContext : IEvaluation<RpcServerContext>, IEquatable<RpcServerContext> {
     public:
         Endpoint endpoint;
         Secure secure;
 
-        RpcServerContext(const Endpoint &endpoint, const Secure &secure = Secure::None);
+        explicit RpcServerContext(const Endpoint &endpoint, const Secure &secure = Secure::None);
 
-        RpcServerContext(const RpcServerContext &value);
+        RpcServerContext(const RpcServerContext &other);
 
-        void operator=(const RpcServerContext &value);
+        bool equals(const RpcServerContext &other) const override;
 
-        bool operator==(const RpcServerContext &value) const;
-
-        bool operator!=(const RpcServerContext &value) const;
+        void evaluates(const RpcServerContext &other) override;
     };
 
     class RpcServerEventContainer;
@@ -50,29 +48,27 @@ namespace Rpc {
 
     class RpcServer : public RpcReceiver, public RpcSender, public IRpcServerEvent {
     public:
-        RpcServer(const RpcServerContext &context);
+        explicit RpcServer(const RpcServerContext &context);
 
         ~RpcServer() override;
 
-        bool connected() const override final;
+        bool connected() const final;
 
         bool start();
 
         bool stop();
 
     protected:
-        bool
-        sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) override final;
+        bool sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) final;
 
         bool sendSync(const RpcMethodContext &context, const RpcSyncRequest &request, RpcSyncResponse &response,
-                      const String &name) override final;
+                      const String &name) final;
 
-        bool
-        sendAsync(const RpcMethodContext &context, const RpcAsyncRequest &request, const String &name) override final;
+        bool sendAsync(const RpcMethodContext &context, const RpcAsyncRequest &request, const String &name) final;
 
-        bool sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) override final;
+        bool sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) final;
 
-        bool closeClient(const Endpoint &endpoint) override final;
+        bool closeClient(const Endpoint &endpoint) final;
 
         virtual void onClientOpened(const Endpoint &endpoint);
 

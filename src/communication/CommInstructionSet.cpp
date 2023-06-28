@@ -9,43 +9,35 @@
 #include <netinet/in.h>
 #endif
 
-namespace Communication
-{
-    TcpInstructionSet::TcpInstructionSet(void* owner, instructions_callback action) : _buffer(4096)
-    {
+namespace Communication {
+    TcpInstructionSet::TcpInstructionSet(void *owner, instructions_callback action) : _buffer(4096) {
         _owner = owner;
         _instructionsCallback = action;
     }
-    TcpInstructionSet::~TcpInstructionSet()
-    {
-    }
-    
-    void TcpInstructionSet::generateInstructions(Instructions* instructions)
-    {
-        if(_instructionsCallback != nullptr)
-        {
+
+    TcpInstructionSet::~TcpInstructionSet() = default;
+
+    void TcpInstructionSet::generateInstructions(Instructions *instructions) {
+        if (_instructionsCallback != nullptr) {
             _instructionsCallback(_owner, instructions);
         }
     }
-    
-    bool TcpInstructionSet::receive(Device* device, Channel* channel, ByteArray* buffer, int order)
-    {
-        if (channel == nullptr || !channel->connected())
-        {
+
+    bool TcpInstructionSet::receive(Device *device, Channel *channel, ByteArray *buffer, int order) {
+        if (channel == nullptr || !channel->connected()) {
             Debug::writeLine("The channel is disconnected!", Trace::Error);
             return false;
         }
-        
+
         uint32_t timeout = device->description()->receiveTimeout();
-        
-        int headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
+
+        ssize_t headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
         if (ClientContext::HeaderLength != headerLength ||
-            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header)
-        {
+            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header) {
 #ifdef DEBUG
-            TcpInteractive* ti = dynamic_cast<TcpInteractive*>(channel->interactive());
+            auto ti = dynamic_cast<TcpInteractive *>(channel->interactive());
             String address = ti != nullptr ? ti->peerEndpoint().toString() : String::Empty;
-            ByteArray messages(buffer->data(), Math::min((int)buffer->count(), 128));
+            ByteArray messages(buffer->data(), Math::min((int) buffer->count(), 128));
             Debug::writeFormatLine("tcp(%s) receive1 error: length is incorrect! expected length: %d, recv: %s",
                                    address.c_str(),
                                    ClientContext::HeaderLength,
@@ -53,14 +45,14 @@ namespace Communication
 #endif
             return false;
         }
-        
-        int validLength = (int)BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition, ClientContext::BufferBCDLength);
-        if(validLength > ClientContext::MaxValidLength)
-        {
+
+        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+                                                         ClientContext::BufferBCDLength);
+        if (validLength > ClientContext::MaxValidLength) {
 #ifdef DEBUG
-            TcpInteractive* ti = dynamic_cast<TcpInteractive*>(channel->interactive());
+            auto ti = dynamic_cast<TcpInteractive *>(channel->interactive());
             String address = ti != nullptr ? ti->peerEndpoint().toString() : String::Empty;
-            ByteArray messages(buffer->data(), Math::min((int)buffer->count(), 128));
+            ByteArray messages(buffer->data(), Math::min((int) buffer->count(), 128));
             Debug::writeFormatLine("tcp(%s) receive2 error: length is incorrect! expected length: %d, recv: %s",
                                    address.c_str(),
                                    validLength,
@@ -68,21 +60,20 @@ namespace Communication
 #endif
             return false;
         }
-        
-        int dataLen = channel->receiveBySize(buffer, validLength, timeout);
-        if (validLength != dataLen)
-        {
+
+        ssize_t dataLen = channel->receiveBySize(buffer, validLength, timeout);
+        if (validLength != dataLen) {
 #ifdef DEBUG
-            ByteArray messages(buffer->data(), Math::min((int)buffer->count(), 128));
-            Debug::writeFormatLine("tcp receive3 error: length is incorrect! expected length: %d, recv: %s", validLength, messages.toString().c_str());
+            ByteArray messages(buffer->data(), Math::min((int) buffer->count(), 128));
+            Debug::writeFormatLine("tcp receive3 error: length is incorrect! expected length: %d, recv: %s",
+                                   validLength, messages.toString().c_str());
 #endif
             return false;
         }
         return true;
     }
 
-    bool TcpInstructionSet::recombine(const ByteArray& origin, PList<ByteArray>& buffers)
-    {
+    bool TcpInstructionSet::recombine(const ByteArray &origin, PList<ByteArray> &buffers) {
 #ifdef DEBUG
         Stopwatch sw("TcpInstructionSet::recombine", 1000);
 #endif
@@ -102,200 +93,168 @@ namespace Communication
 //#endif
 
         _bufferMutex.lock();
-        MemoryStream* stream;
-        if(_buffer.count() > 0)
-        {
+        MemoryStream *stream;
+        if (_buffer.count() > 0) {
             _buffer.addRange(origin);
             stream = new MemoryStream(&_buffer, false);
-        }
-        else
-        {
+        } else {
             stream = new MemoryStream(&origin, false);
         }
 
-        const ByteArray* buffer = stream->buffer();
-        int64_t count = buffer->count();
-        int64_t length = 0;
-        do
-        {
-            int64_t postion = stream->position();
+        const ByteArray *buffer = stream->buffer();
+        auto count = (int64_t) buffer->count();
+        int64_t length;
+        do {
+            int64_t position = stream->position();
             uint8_t start = stream->readByte();
-            if(start == ClientContext::Header)
-            {
+            if (start == ClientContext::Header) {
                 stream->readByte();     // skip frame.
                 stream->readByte();     // skip status.
-                int validLength = stream->readBCDUInt32();
+                uint32_t validLength = stream->readBCDUInt32();
                 length = ClientContext::HeaderLength + validLength;
-                stream->seek(validLength, SeekOrigin::SeekCurrent);
-                if(length > count)
-                {
-                    if(_buffer.count() == 0)
+                stream->seek((off_t) validLength, SeekOrigin::SeekCurrent);
+                if (length > count) {
+                    if (_buffer.count() == 0)
                         _buffer.addRange(origin);
                     delete stream;
                     _bufferMutex.unlock();
                     return false;
-                }
-                else
-                {
-                    int64_t remain = count - postion;
-                    if(remain >= length)
-                    {
-                        ByteArray* array = new ByteArray(buffer->data() + postion, Math::min(length, count - postion), 4096);
+                } else {
+                    int64_t remain = count - position;
+                    if (remain >= length) {
+                        auto array = new ByteArray(buffer->data() + position,
+                                                   Math::min(length, count - position), 4096);
                         buffers.add(array);
-                        
-                        if(remain == length)
-                        {
+
+                        if (remain == length) {
                             _buffer.clear();
                             break;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // remain < length
-                        ByteArray array(buffer->data() + postion, remain, 4096);
+                        ByteArray array(buffer->data() + position, remain, 4096);
                         _buffer = array;
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 break;
             }
-        }while(length < count);
-        
+        } while (length < count);
+
         delete stream;
         _bufferMutex.unlock();
         return true;
     }
 
-	SerialInstructionSet::SerialInstructionSet(void* owner, instructions_callback action)
-	{
-		_owner = owner;
-		if (action == nullptr)
-			throw ArgumentException("action");
-		_instructionsCallback = action;
-	}
-	SerialInstructionSet::~SerialInstructionSet()
-	{
-	}
-
-	void SerialInstructionSet::generateInstructions(Instructions* instructions)
-	{
-		if (_instructionsCallback != nullptr)
-		{
-			_instructionsCallback(_owner, instructions);
-		}
-	}
-
-	bool SerialInstructionSet::receive(Device* device, Channel* channel, ByteArray* buffer, int order)
-	{
-		if (channel == nullptr)
-		{
-			return false;
-		}
-		if (!channel->connected())
-		{
-			return false;
-		}
-
-		uint32_t timeout = device->description()->receiveTimeout();
-
-		bool matchHeader = false;
-		do
-		{
-			int rLength = channel->receiveBySize(buffer, 1, timeout);
-			if (rLength == 1 && (*buffer)[ClientContext::HeaderPosition] == ClientContext::Header)
-			{
-				matchHeader = true;
-				break;
-			}
-			else if (rLength != 1)
-			{
-				matchHeader = false;
-				break;
-			}
-		} while (!matchHeader);
-		if (!matchHeader)
-		{
-			return false;
-		}
-
-		int headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength - 1, timeout);
-		if (ClientContext::HeaderLength - 1 != headerLength ||
-            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header)
-		{
-			return false;
-		}
-        
-		int validLength = (int)BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition, ClientContext::BufferBCDLength);
-		int dataLen = channel->receiveBySize(buffer, validLength, timeout);
-        if (validLength != dataLen)
-        {
-            ByteArray messages(buffer->data(), Math::min((int)buffer->count(), 128));
-            Debug::writeFormatLine("serial receive error: length is incorrect! expected length: %d, recv: %s", validLength, messages.toString().c_str());
-            return false;
-        }
-        
-        return true;
-	}
-    
-    UdpInstructionSet::UdpInstructionSet(void* owner, instructions_callback action)
-    {
+    SerialInstructionSet::SerialInstructionSet(void *owner, instructions_callback action) {
         _owner = owner;
-        if(action == nullptr)
+        if (action == nullptr)
             throw ArgumentException("action");
         _instructionsCallback = action;
     }
-    UdpInstructionSet::~UdpInstructionSet()
-    {
-    }
-    
-    void UdpInstructionSet::generateInstructions(Instructions* instructions)
-    {
-        if(_instructionsCallback != nullptr)
-        {
+
+    SerialInstructionSet::~SerialInstructionSet() = default;
+
+    void SerialInstructionSet::generateInstructions(Instructions *instructions) {
+        if (_instructionsCallback != nullptr) {
             _instructionsCallback(_owner, instructions);
         }
     }
-    
-    bool UdpInstructionSet::receive(Device* device, Channel* channel, ByteArray* buffer, int order)
-    {
-        if (channel == nullptr)
-        {
+
+    bool SerialInstructionSet::receive(Device *device, Channel *channel, ByteArray *buffer, int order) {
+        if (channel == nullptr) {
             return false;
         }
-        if (!channel->connected())
-        {
+        if (!channel->connected()) {
             return false;
         }
-        
-        UdpServerChannelContext* context = static_cast<UdpServerChannelContext*>(channel->context());
+
+        uint32_t timeout = device->description()->receiveTimeout();
+
+        bool matchHeader = false;
+        do {
+            ssize_t rLength = channel->receiveBySize(buffer, 1, timeout);
+            if (rLength == 1 && (*buffer)[ClientContext::HeaderPosition] == ClientContext::Header) {
+                matchHeader = true;
+                break;
+            } else if (rLength != 1) {
+                matchHeader = false;
+                break;
+            }
+        } while (!matchHeader);
+        if (!matchHeader) {
+            return false;
+        }
+
+        ssize_t headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength - 1, timeout);
+        if (ClientContext::HeaderLength - 1 != headerLength ||
+            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header) {
+            return false;
+        }
+
+        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+                                                         ClientContext::BufferBCDLength);
+        ssize_t dataLen = channel->receiveBySize(buffer, validLength, timeout);
+        if (validLength != dataLen) {
+            ByteArray messages(buffer->data(), Math::min((int) buffer->count(), 128));
+            Debug::writeFormatLine("serial receive error: length is incorrect! expected length: %d, recv: %s",
+                                   validLength, messages.toString().c_str());
+            return false;
+        }
+
+        return true;
+    }
+
+    UdpInstructionSet::UdpInstructionSet(void *owner, instructions_callback action) {
+        _owner = owner;
+        if (action == nullptr)
+            throw ArgumentException("action");
+        _instructionsCallback = action;
+    }
+
+    UdpInstructionSet::~UdpInstructionSet() = default;
+
+    void UdpInstructionSet::generateInstructions(Instructions *instructions) {
+        if (_instructionsCallback != nullptr) {
+            _instructionsCallback(_owner, instructions);
+        }
+    }
+
+    bool UdpInstructionSet::receive(Device *device, Channel *channel, ByteArray *buffer, int order) {
+        if (channel == nullptr) {
+            return false;
+        }
+        if (!channel->connected()) {
+            return false;
+        }
+
+        auto context = dynamic_cast<UdpServerChannelContext *>(channel->context());
         assert(context != nullptr);
         context->setPeek(true);
-        
+
         uint32_t timeout = device->description()->receiveTimeout();
-        
-        int headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
+
+        ssize_t headerLength = channel->receiveBySize(buffer, ClientContext::HeaderLength, timeout);
         if (ClientContext::HeaderLength != headerLength ||
-            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header)
-        {
+            (*buffer)[ClientContext::HeaderPosition] != ClientContext::Header) {
             return false;
         }
-        
+
         context->setPeek(false);
-        
-        int validLength = (int)BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition, ClientContext::BufferBCDLength);
+
+        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+                                                         ClientContext::BufferBCDLength);
         validLength += ClientContext::HeaderLength;
         buffer->clear();
-        int dataLen = channel->receiveBySize(buffer, validLength, timeout);
-        if (validLength != dataLen)
-        {
-            ByteArray messages(buffer->data(), Math::min((int)buffer->count(), 128));
-            Debug::writeFormatLine("udp receive error: length is incorrect! expected length: %d, recv: %s", validLength, messages.toString().c_str());
+        ssize_t dataLen = channel->receiveBySize(buffer, validLength, timeout);
+        if (validLength != dataLen) {
+            ByteArray messages(buffer->data(), Math::min((int) buffer->count(), 128));
+            Debug::writeFormatLine("udp receive error: length is incorrect! expected length: %d, recv: %s", validLength,
+                                   messages.toString().c_str());
             return false;
         }
-        
+
         return true;
     }
 }

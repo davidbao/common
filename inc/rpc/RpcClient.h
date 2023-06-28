@@ -18,58 +18,56 @@ using namespace Data;
 using namespace Communication;
 
 namespace Rpc {
-    class RpcClientContext {
+    class RpcClientContext : IEvaluation<RpcClientContext>, IEquatable<RpcClientContext> {
     public:
         Endpoint endpoint;
         Secure secure;
 
-        RpcClientContext(const Endpoint &endpoint, const Secure &secure = Secure::None);
+        explicit RpcClientContext(const Endpoint &endpoint, const Secure &secure = Secure::None);
 
-        RpcClientContext(const RpcClientContext &value);
+        RpcClientContext(const RpcClientContext &other);
 
-        void operator=(const RpcClientContext &value);
+        bool equals(const RpcClientContext &other) const override;
 
-        bool operator==(const RpcClientContext &value) const;
-
-        bool operator!=(const RpcClientContext &value) const;
+        void evaluates(const RpcClientContext &other) override;
     };
 
     class RpcClient : public RpcSender, public RpcReceiver {
     public:
-        RpcClient(const RpcClientContext &context);
+        using RpcSender::invokeAsync;
 
-        virtual ~RpcClient();
+        explicit RpcClient(const RpcClientContext &context);
+
+        ~RpcClient() override;
 
         bool connect(bool asyncOpen = false);
 
         bool disconnect();
 
-        bool connected() const override final;
+        bool connected() const final;
 
         const RpcClientContext &context() const;
 
         const Endpoint &endpoint() const;
 
         RpcStatus invoke(const RpcMethodContext &context, const IRpcSyncRequestData &request,
-                         IRpcSyncResponseData &response) override final;
+                         IRpcSyncResponseData &response) final;
 
         RpcStatus invokeAsync(const RpcMethodContext &context, const IRpcAsyncRequestData &request,
                               const IRpcAsyncResponseData &response, async_callback action,
-                              void *owner = nullptr) override final;
+                              void *owner) final;
 
-        RpcStatus notify(const RpcMethodContext &context, const IRpcNotifyInfo &info) override final;
+        RpcStatus notify(const RpcMethodContext &context, const IRpcNotifyInfo &info) final;
 
     protected:
         bool sendSync(const RpcMethodContext &context, const RpcSyncRequest &request, RpcSyncResponse &response,
-                      const String &name) override final;
+                      const String &name) final;
 
-        bool
-        sendAsync(const RpcMethodContext &context, const RpcAsyncRequest &request, const String &name) override final;
+        bool sendAsync(const RpcMethodContext &context, const RpcAsyncRequest &request, const String &name) final;
 
-        bool sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) override final;
+        bool sendAsync(const RpcMethodContext &context, const RpcNotifyInfo &info, const String &name) final;
 
-        bool
-        sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) override final;
+        bool sendAsync(const Endpoint &peerEndpoint, const RpcAsyncResponse &response, const String &name) final;
 
         virtual void onServerStatusChanged(bool online);
 

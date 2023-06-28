@@ -24,12 +24,27 @@ static String _schema = "SYSTEM";
 void setUp() {
     Trace::enableConsoleOutput();
     Trace::enableFlushConsoleOutput();
+
+    KingbaseClient test;
+    if (!test.open(Url(_baseUrl), _username, _password)) {
+        return;
+    }
+    test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+        return;
+    }
 }
 
 void cleanUp() {
     KingbaseClient test;
-    if (test.open(Url(_url), _username, _password)) {
-        test.executeSql(String::format("DROP SCHEMA %s CASCADE;", _schema.c_str()));
+    if (!test.open(Url(_baseUrl), _username, _password)) {
+        KingbaseClient test2;
+        if (test2.open(Url(_url), _username, _password)) {
+            test2.executeSql(String::format("DROP SCHEMA %s CASCADE;", _schema.c_str()));
+        }
+        return;
+    } else {
+        test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
     }
 }
 
@@ -424,13 +439,13 @@ bool parseArguments(const Application &app) {
     }
 
     _baseUrl = String::format("kingbase://%s:%s",
-                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.19",
+                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.3",
                               !port.isEmpty() ? port.toString().c_str() : "54321");
     _schema = !schema.isNullOrEmpty() ? schema : "SYSTEM";
-    _database = !database.isNullOrEmpty() ? database : "KINGBASECLIENTTEST_DB";
+    _database = !database.isNullOrEmpty() ? database : _database;
     _url = _baseUrl + "/" + _database;
-    _username = !userName.isNullOrEmpty() ? userName : "SYSTEM";
-    _password = !password.isNullOrEmpty() ? password : "MANAGER";
+    _username = !userName.isNullOrEmpty() ? userName : _username;
+    _password = !password.isNullOrEmpty() ? password : _password;
 
     return true;
 }

@@ -18,7 +18,7 @@ using namespace Net;
 namespace Rpc {
     struct RpcStatus {
     public:
-        RpcStatus(int status = Ok);
+        explicit RpcStatus(int status = Ok);
 
         bool isOk() const;
 
@@ -60,7 +60,7 @@ namespace Rpc {
         Endpoint endpoint;
         int tryCount;
 
-        RpcMethodContext(const String &name = String::Empty, int tryCount = -1);
+        explicit RpcMethodContext(const String &name = String::Empty, int tryCount = -1);
 
         RpcMethodContext(const String &name, const Endpoint &endpoint, int tryCount = -1);
 

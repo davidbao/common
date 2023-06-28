@@ -34,7 +34,7 @@ namespace Drivers {
 
         ssize_t receive(uint8_t *buffer, off_t offset, size_t count) override;
 
-        inline void setAcceptAction(client_accpet_callback acceptAction) {
+        inline void setAcceptAction(client_accept_callback acceptAction) {
             _acceptAction = acceptAction;
         }
 
@@ -63,7 +63,7 @@ namespace Drivers {
         Timer *_acceptTimer;
         Timer *_closeTimer;
 
-        client_accpet_callback _acceptAction;
+        client_accept_callback _acceptAction;
         client_close_callback _closeAction;
     };
 }
