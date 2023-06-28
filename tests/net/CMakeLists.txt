@@ -15,7 +15,7 @@ set(NET_SRC
 #        Dns.cpp
 #        EthernetInfo.cpp
 #        NetInterface.cpp
-#        NetTypeTest.cpp
+        NetTypeTest.cpp
 #        Receiver.cpp
 #        Sender.cpp
         TcpClientTest.cpp
