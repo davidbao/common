@@ -2,45 +2,40 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-    ChannelContext::ChannelContext() : _useReceiveTimeout(false), _reopened(true), _deviceInterval(TimeSpan::fromMilliseconds(100))
-    {
+namespace Drivers {
+    ChannelContext::ChannelContext() : _useReceiveTimeout(false), _reopened(true),
+                                       _deviceInterval(TimeSpan::fromMilliseconds(100)) {
     }
+
     ChannelContext::~ChannelContext()
     = default;
 
-    bool ChannelContext::useReceiveTimeout() const
-    {
+    bool ChannelContext::useReceiveTimeout() const {
         return _useReceiveTimeout;
     }
-    void ChannelContext::setUseReceiveTimeout(bool useReceiveTimeout)
-    {
+
+    void ChannelContext::setUseReceiveTimeout(bool useReceiveTimeout) {
         _useReceiveTimeout = useReceiveTimeout;
     }
 
-    bool ChannelContext::reopened() const
-    {
+    bool ChannelContext::reopened() const {
         return _reopened;
     }
-    void ChannelContext::setReopened(bool reopened)
-    {
+
+    void ChannelContext::setReopened(bool reopened) {
         _reopened = reopened;
     }
 
-    const TimeSpan& ChannelContext::deviceInterval() const
-    {
+    const TimeSpan &ChannelContext::deviceInterval() const {
         return _deviceInterval;
     }
-    void ChannelContext::setDeviceInterval(const TimeSpan& deviceInterval)
-    {
+
+    void ChannelContext::setDeviceInterval(const TimeSpan &deviceInterval) {
         _deviceInterval = deviceInterval;
     }
 
-    String ChannelContext::toInteractiveTypeStr(InteractiveType type)
-    {
-        switch (type)
-        {
+    String ChannelContext::toInteractiveTypeStr(InteractiveType type) {
+        switch (type) {
             case InteractiveType::ITSender:
                 return "Sender";
             case InteractiveType::ITReceiver:
@@ -51,18 +46,13 @@ namespace Drivers
                 return "Unknown";
         }
     }
-    InteractiveType ChannelContext::parseInteractiveType(const String& str)
-    {
-        if(String::equals(str, "Sender", true))
-        {
+
+    InteractiveType ChannelContext::parseInteractiveType(const String &str) {
+        if (String::equals(str, "Sender", true)) {
             return InteractiveType::ITSender;
-        }
-        else if(String::equals(str, "Receiver", true))
-        {
+        } else if (String::equals(str, "Receiver", true)) {
             return InteractiveType::ITReceiver;
-        }
-        else if(String::equals(str, "SenderAndReceiver", true))
-        {
+        } else if (String::equals(str, "SenderAndReceiver", true)) {
             return InteractiveType::ITSenderAndReceiver;
         }
         return InteractiveType::ITUnknown;

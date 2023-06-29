@@ -13,20 +13,18 @@
 #include "communication/ClientService.h"
 
 namespace Rpc {
-    RpcClientContext::RpcClientContext(const Endpoint &endpoint, const Secure &secure) : endpoint(endpoint),
-                                                                                         secure(secure) {
+    RpcClientContext::RpcClientContext(const Endpoint &endpoint) : endpoint(endpoint) {
     }
 
-    RpcClientContext::RpcClientContext(const RpcClientContext &other) : RpcClientContext(other.endpoint, other.secure) {
+    RpcClientContext::RpcClientContext(const RpcClientContext &other) : RpcClientContext(other.endpoint) {
     }
 
     bool RpcClientContext::equals(const RpcClientContext &other) const {
-        return this->endpoint == other.endpoint && this->secure == other.secure;
+        return this->endpoint == other.endpoint;
     }
 
     void RpcClientContext::evaluates(const RpcClientContext &other) {
         this->endpoint = other.endpoint;
-        this->secure = other.secure;
     }
 
     RpcClient::RpcClient(const RpcClientContext &context) : _context(context), _service(nullptr) {
@@ -104,11 +102,13 @@ namespace Rpc {
             Client client(true);
             client.address = _context.endpoint.address;
             client.port = _context.endpoint.port;
-            client.secure = _context.secure;
+            client.secure = Secure::None;
             client.sendBufferSize = 2 * 1024 * 1024;
             client.receiveBufferSize = 2 * 1024 * 1024;
             client.connection.detectionInterval = TimeSpan::fromSeconds(1);
             client.connection.resumeInterval = TimeSpan::fromSeconds(1);
+//            client.senderType = TcpChannelContext::Async;
+//            client.receiverType = TcpChannelContext::Async;
 
             _service = ClientServiceFactory::create(client);
             BaseCommService::InstructionCallback callback;

@@ -13,20 +13,18 @@
 #include "communication/ServerService.h"
 
 namespace Rpc {
-    RpcServerContext::RpcServerContext(const Endpoint &endpoint, const Secure &secure) : endpoint(endpoint),
-                                                                                         secure(secure) {
+    RpcServerContext::RpcServerContext(const Endpoint &endpoint) : endpoint(endpoint) {
     }
 
-    RpcServerContext::RpcServerContext(const RpcServerContext &other) : RpcServerContext(other.endpoint, other.secure) {
+    RpcServerContext::RpcServerContext(const RpcServerContext &other) : RpcServerContext(other.endpoint) {
     }
 
     bool RpcServerContext::equals(const RpcServerContext &other) const {
-        return this->endpoint == other.endpoint && this->secure == other.secure;
+        return this->endpoint == other.endpoint;
     }
 
     void RpcServerContext::evaluates(const RpcServerContext &other) {
         this->endpoint = other.endpoint;
-        this->secure = other.secure;
     }
 
     IRpcServerEvent::IRpcServerEvent() = default;
@@ -102,7 +100,7 @@ namespace Rpc {
             Server server(true);
             server.address = _context.endpoint.address;
             server.port = _context.endpoint.port;
-            server.secure = _context.secure;
+            server.secure = Secure::None;
             server.sendBufferSize = 2 * 1024 * 1024;
             server.receiveBufferSize = 2 * 1024 * 1024;
 

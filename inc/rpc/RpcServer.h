@@ -21,9 +21,8 @@ namespace Rpc {
     class RpcServerContext : IEvaluation<RpcServerContext>, IEquatable<RpcServerContext> {
     public:
         Endpoint endpoint;
-        Secure secure;
 
-        explicit RpcServerContext(const Endpoint &endpoint, const Secure &secure = Secure::None);
+        explicit RpcServerContext(const Endpoint &endpoint);
 
         RpcServerContext(const RpcServerContext &other);
 

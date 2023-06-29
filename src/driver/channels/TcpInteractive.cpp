@@ -412,7 +412,7 @@ namespace Drivers {
                     int sockId = pPerHandle->s;
 
                     ByteArray buffer((const uint8_t *) pPerIO->buf, dwTrans);
-                    Trace::info(buffer.toString());
+//                    Trace::info(buffer.toString());
                     _clients.process(sockId, buffer);
 
                     WSABUF buf;

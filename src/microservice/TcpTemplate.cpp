@@ -7,7 +7,7 @@
 //
 
 #include "microservice/TcpTemplate.h"
-#include "diag/Trace.h"
+//#include "diag/Trace.h"
 #include "IO/MemoryStream.h"
 #include "data/StringArray.h"
 #include "microservice/LoadBalancerClient.h"
@@ -25,18 +25,17 @@ namespace Microservice {
     }
 
     void TcpStringRequest::copyFrom(const IRpcSyncRequestData *value) {
-        TcpStringRequest *request = (TcpStringRequest *) value;
+        auto request = (TcpStringRequest *) value;
         this->body = request->body;
     }
 
     IRpcSyncRequestData *TcpStringRequest::clone() const {
-        TcpStringRequest *data = new TcpStringRequest();
+        auto data = new TcpStringRequest();
         data->copyFrom(this);
         return data;
     }
 
-    TcpStringResponse::TcpStringResponse() {
-    }
+    TcpStringResponse::TcpStringResponse() = default;
 
     void TcpStringResponse::write(Stream *stream) const {
         content.write(stream);
@@ -47,12 +46,12 @@ namespace Microservice {
     }
 
     void TcpStringResponse::copyFrom(const IRpcSyncResponseData *value) {
-        TcpStringResponse *response = (TcpStringResponse *) value;
+        auto response = (TcpStringResponse *) value;
         this->content = response->content;
     }
 
     IRpcSyncResponseData *TcpStringResponse::clone() const {
-        TcpStringResponse *data = new TcpStringResponse();
+        auto data = new TcpStringResponse();
         data->copyFrom(this);
         return data;
     }
@@ -61,8 +60,7 @@ namespace Microservice {
     RpcClients TcpTemplate::_clients;
     const char *TcpTemplate::DefaultMethodName = "ease.tcp.defaultmethod";
 
-    TcpTemplate::TcpTemplate() {
-    }
+    TcpTemplate::TcpTemplate() = default;
 
     bool TcpTemplate::get(const String &url, String &content) {
         content = getContent(url);
@@ -72,8 +70,7 @@ namespace Microservice {
     String TcpTemplate::getContent(const String &url) {
         Url rUrl(url);
         if (!rUrl.isEmpty()) {
-            String body = rUrl.relativeUrl();
-            return postContent(url, body);
+            return postContent(url, rUrl.relativeUrl());
         }
         return String::Empty;
     }
@@ -130,7 +127,7 @@ namespace Microservice {
     Url TcpTemplate::parseUrl(const String &original) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        LoadBalancerClient *service = factory->getService<LoadBalancerClient>();
+        auto service = factory->getService<LoadBalancerClient>();
         if (service != nullptr) {
             Url url = service->reconstructUrl(original);
             if (url.scheme() == Url::SchemeEaseTcp || url.scheme() == Url::SchemeEaseTcps)
@@ -151,7 +148,7 @@ namespace Microservice {
         }
 
         if (client == nullptr) {
-            RpcClientContext context(url.endpoint(), url.isSecure() ? Secure(true) : Secure::None);
+            RpcClientContext context(url.endpoint());
             client = new RpcClient(context);
             _clients.add(client);
         }

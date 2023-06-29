@@ -15,9 +15,9 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <signal.h>
+//#include <arpa/inet.h>
+//#include <netdb.h>
+//#include <csignal>
 #include <netinet/tcp.h>
 #include <fcntl.h>
 
@@ -31,7 +31,6 @@
 #include "system/Math.h"
 #include "net/Dns.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/MemoryStream.h"
 #include "diag/Stopwatch.h"
 
@@ -72,7 +71,7 @@ namespace Net {
 
     bool TcpServer::bind(const String &address, int port, bool reuseAddress) {
 //        struct hostent  *phe;		/* pointer to host information entry    */
-        struct sockaddr_in sin;     /* an Internet endpoint address  */
+        struct sockaddr_in sin{};     /* an Internet endpoint address  */
 
         memset(&sin, 0, sizeof(sin));
         sin.sin_family = AF_INET;
@@ -134,19 +133,19 @@ namespace Net {
         Stopwatch sw("TcpServer::accept", 1000);
 #endif
         if (_socket != -1) {
-            struct sockaddr_in sin;
+            struct sockaddr_in sin{};
             socklen_t clen = sizeof(sin);
             memset(&sin, 0, clen);
             sin.sin_family = AF_INET;
-            int sockfd = ::accept(_socket, (struct sockaddr *) &sin, &clen);
-            if (sockfd == -1) {
+            int sockId = ::accept(_socket, (struct sockaddr *) &sin, &clen);
+            if (sockId == -1) {
                 return nullptr;
             } else {
-                TcpClient *client = createClient(sockfd);
+                TcpClient *client = createClient(sockId);
 //#ifdef DEBUG
 //                if(client != nullptr)
 //                {
-//                    Debug::writeLine(String::format("client'%d' is %s.", sockfd, client->connected() ? "connected" : "not connected"));
+//                    Debug::writeLine(String::format("client'%d' is %s.", sockId, client->connected() ? "connected" : "not connected"));
 //                }
 //#endif
                 if (!handshaking(client, timeout)) {
@@ -223,7 +222,7 @@ namespace Net {
                 Debug::writeFormatLine("getsockopt'SO_SNDBUF' failed with error = %s", strerror(errno));
             }
         }
-        return bufferSize;
+        return (int) bufferSize;
     }
 
     void TcpServer::setSendBufferSize(int bufferSize) {
@@ -248,7 +247,7 @@ namespace Net {
                 Debug::writeFormatLine("getsockopt'SO_RCVBUF' failed with error = %s", strerror(errno));
             }
         }
-        return bufferSize;
+        return (int) bufferSize;
     }
 
     void TcpServer::setReceiveBufferSize(int bufferSize) {
@@ -273,7 +272,7 @@ namespace Net {
                 Debug::writeFormatLine("getsockopt'TCP_NODELAY' failed with error = %s", strerror(errno));
             }
         }
-        return yes == 0 ? false : false;
+        return yes != 0;
     }
 
     void TcpServer::setNoDelay(bool noDelay) {
@@ -341,8 +340,12 @@ namespace Net {
         return true;
     }
 
-    TcpClient *TcpServer::createClient(int sockfd) const {
-        return new TcpClient(sockfd);
+    bool TcpServer::handshaking(TcpClient *client) {
+        return handshaking(client, TimeSpan::fromSeconds(3));
+    }
+
+    TcpClient *TcpServer::createClient(int sockId) const {
+        return new TcpClient(sockId);
     }
 
 #ifndef __EMSCRIPTEN__
@@ -350,14 +353,13 @@ namespace Net {
     const char *TcpSSLServer::ServerCert = "-----BEGIN CERTIFICATE-----\nMIIDkjCCAnoCCQDND6EOm+CizjANBgkqhkiG9w0BAQsFADCBijELMAkGA1UEBhMC\nQ04xEDAOBgNVBAgMB0JlaWppbmcxEDAOBgNVBAcMB0JlaWppbmcxETAPBgNVBAoM\nCFBlcnNvbmFsMREwDwYDVQQLDAhQZXJzb25hbDEMMAoGA1UEAwwDTi9BMSMwIQYJ\nKoZIhvcNAQkBFhRkYXZpZGJhb0BuZXRlYXNlLmNvbTAeFw0yMTA1MjEwNTM2MjZa\nFw0zMTA1MTkwNTM2MjZaMIGKMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamlu\nZzEQMA4GA1UEBwwHQmVpamluZzERMA8GA1UECgwIUGVyc29uYWwxETAPBgNVBAsM\nCFBlcnNvbmFsMQwwCgYDVQQDDANOL0ExIzAhBgkqhkiG9w0BCQEWFGRhdmlkYmFv\nQG5ldGVhc2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApOcb\nB6rejm2jcDRFajXqBPsb8zg+HZUZk7nAnCGj5r05QDfIVB7s1FIARFpSFY7gPIoX\nUNjXWiF+docqCjwMccTOxr2Zmzf9Y+3/by4lf0bFZH6aUyv9KOZTAT08dlAfsmEV\n0pPEMQYHW7w7hu5REQTSOlkIHHbVpaT8eQviF6TW6IBobEA1G2pDggoN1P/9Oc/J\nUnvfibLvusjUQ/suHLBbVNOjUgMBoKJrGinVEjMv9vFhtxKsTZcXIUVLHZrH7rli\nzH5LI0b6P3S9WrStWcHYEQ6bdBULHdNexD3VtVylrtLWAdRg9IVE7Jk31JKNQ8mb\nVit+zgYboUplMAhPuwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAYTkkS2wKEshjc\nepGpsF7BCgUy5847HRX3146c3D7lJCZkD33NbQRHag5G0ASFYkvSvYzZNwrL3PMK\n8mCF9xCyABKeU448xvsxARXyMDvzd58zkNVy0TN6v6lh4y26XQJCuyVQyfmpdGtB\nj3HP5pJR96bDrHhHjaNt45rzyhvTL/A//9r4ZOQc6thhPl4zlqt4A05wc6Kmze7q\ntHN6zg3549lmgWcrYHbbQvY+zj+bvgXYRYkkXY3IBa/or9SD3HRRGrHCeptz3Dvz\nuYHozpFrT1mtyRTxKyb/7EaIVMz5gMCm+Qvqj0cf36d1mkPJwl/ukUUXEeNyygUY\nn6oOiLNd\n-----END CERTIFICATE-----\n";
 
     TcpSSLServer::TcpSSLServer(SSLVersion version) : TcpServer() {
-        _version = SSLv23;
+        _version = version;
 
         OpenSSL_add_ssl_algorithms();
         SSL_load_error_strings();
     }
 
-    TcpSSLServer::~TcpSSLServer() {
-    }
+    TcpSSLServer::~TcpSSLServer() = default;
 
     int TcpSSLServer::backlog() const {
         return 0;
@@ -371,8 +373,6 @@ namespace Net {
         switch (_version) {
             case SSLv3:
                 return false;
-//                meth = SSLv23_server_method();
-                break;
             case SSLv23:
                 meth = SSLv23_server_method();
                 break;
@@ -385,8 +385,14 @@ namespace Net {
             case TLSv1_2:
                 meth = TLSv1_2_server_method();
                 break;
+            case DTLSv1:
+                meth = DTLSv1_server_method();
+                break;
+            case DTLSv1_2:
+                meth = DTLSv1_2_server_method();
+                break;
             default:
-                meth = TLSv1_server_method();
+                meth = SSLv23_server_method();
                 break;
         }
         SSL_CTX *ctx = SSL_CTX_new(meth);
@@ -465,7 +471,6 @@ namespace Net {
                 int error = SSL_get_error(ssl, ret);
                 switch (error) {
                     case SSL_ERROR_NONE:
-                        break;
                     case SSL_ERROR_WANT_READ:
                     case SSL_ERROR_WANT_WRITE:
                         break;
@@ -510,7 +515,7 @@ namespace Net {
 //            return false;
 //        }
 
-        TcpSSLClient *sslClient = dynamic_cast<TcpSSLClient *>(client);
+        auto sslClient = dynamic_cast<TcpSSLClient *>(client);
         assert(sslClient);
         sslClient->setSSLContext(ctx);
         sslClient->setSSL(ssl);
@@ -530,28 +535,27 @@ namespace Net {
         _cacert = file;
     }
 
-    TcpClient *TcpSSLServer::createClient(int sockfd) const {
-        return new TcpSSLClient(_version, sockfd);
+    TcpClient *TcpSSLServer::createClient(int sockId) const {
+        return new TcpSSLClient(_version, sockId);
     }
 
     WebSocketServer::WebSocketServer() : TcpServer() {
     }
 
-    WebSocketServer::~WebSocketServer() {
-    }
+    WebSocketServer::~WebSocketServer() = default;
 
     bool WebSocketServer::handshaking(TcpClient *client, const TimeSpan &timeout) {
 #ifdef DEBUG
         Stopwatch sw("WebSocketServer::handshaking", 1000);
 #endif
-        WebSocketClient *wsc = dynamic_cast<WebSocketClient *>(client);
+        auto wsc = dynamic_cast<WebSocketClient *>(client);
         assert(wsc);
         wsc->disableDecoding();
 
         const String header = "GET";
         ByteArray buffer;
-        int length = client->receiveBySize(&buffer, (int) header.length(), timeout);
-        if (length == (int) header.length()) {
+        ssize_t length = client->receiveBySize(&buffer, header.length(), timeout);
+        if (length == (ssize_t) header.length()) {
             uint8_t key[2048];
             memset(key, 0, sizeof(key));
             static const uint8_t start[] = "Sec-WebSocket-Key:";
@@ -593,15 +597,14 @@ namespace Net {
         return false;
     }
 
-    TcpClient *WebSocketServer::createClient(int sockfd) const {
-        return new WebSocketClient(sockfd, TcpClient::IPV4, receiveTimeout());
+    TcpClient *WebSocketServer::createClient(int sockId) const {
+        return new WebSocketClient(sockId, TcpClient::IPV4, receiveTimeout());
     }
 
     WebSocketSSLServer::WebSocketSSLServer(SSLVersion version) : TcpSSLServer(version) {
     }
 
-    WebSocketSSLServer::~WebSocketSSLServer() {
-    }
+    WebSocketSSLServer::~WebSocketSSLServer() = default;
 
     bool WebSocketSSLServer::handshaking(TcpClient *client, const TimeSpan &timeout) {
 #ifdef DEBUG
@@ -610,14 +613,14 @@ namespace Net {
         if (!TcpSSLServer::handshaking(client))
             return false;
 
-        WebSocketSSLClient *wsc = dynamic_cast<WebSocketSSLClient *>(client);
+        auto wsc = dynamic_cast<WebSocketSSLClient *>(client);
         assert(wsc);
         wsc->disableDecoding();
 
         const String header = "GET";
         ByteArray buffer;
-        int length = client->receiveBySize(&buffer, (int) header.length(), timeout);
-        if (length == (int) header.length()) {
+        ssize_t length = client->receiveBySize(&buffer, header.length(), timeout);
+        if (length == (ssize_t) header.length()) {
             uint8_t key[2048];
             memset(key, 0, sizeof(key));
             static const uint8_t start[] = "Sec-WebSocket-Key:";
@@ -659,8 +662,8 @@ namespace Net {
         return false;
     }
 
-    TcpClient *WebSocketSSLServer::createClient(int sockfd) const {
-        return new WebSocketSSLClient(_version, sockfd, TcpClient::IPV4, receiveTimeout());
+    TcpClient *WebSocketSSLServer::createClient(int sockId) const {
+        return new WebSocketSSLClient(_version, sockId, TcpClient::IPV4, receiveTimeout());
     }
 
 #endif

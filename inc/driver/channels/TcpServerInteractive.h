@@ -81,7 +81,7 @@ namespace Drivers {
             TcpBackgroundReceiver *_receiver;
             TcpBackgroundSender *_sender;
 
-            TcpClient *_tcpClient;
+            TcpClient *_client;
 
             bool _closeFlag;
 

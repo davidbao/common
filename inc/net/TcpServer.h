@@ -66,9 +66,11 @@ namespace Net {
         bool setReuseAddress(bool reuseAddress = true);
 
     protected:
-        virtual bool handshaking(TcpClient *client, const TimeSpan &timeout = TimeSpan::fromSeconds(3));
+        virtual bool handshaking(TcpClient *client, const TimeSpan &timeout);
 
-        virtual TcpClient *createClient(int sockfd) const;
+        bool handshaking(TcpClient *client);
+
+        virtual TcpClient *createClient(int sockId) const;
 
         virtual int backlog() const;
 
@@ -84,7 +86,7 @@ namespace Net {
 
     class TcpSSLServer : public TcpServer {
     public:
-        TcpSSLServer(SSLVersion version = SSLVersion::TLSv1_2);
+        explicit TcpSSLServer(SSLVersion version = SSLVersion::SSLv23);
 
         ~TcpSSLServer() override;
 
@@ -95,9 +97,11 @@ namespace Net {
         void setCACertFile(const String &file);
 
     protected:
-        bool handshaking(TcpClient *client, const TimeSpan &timeout = TimeSpan::fromSeconds(3)) override;
+        using TcpServer::handshaking;
+        
+        bool handshaking(TcpClient *client, const TimeSpan &timeout) override;
 
-        TcpClient *createClient(int sockfd) const override;
+        TcpClient *createClient(int sockId) const override;
 
         int backlog() const override;
 
@@ -120,21 +124,25 @@ namespace Net {
         ~WebSocketServer() override;
 
     protected:
-        bool handshaking(TcpClient *client, const TimeSpan &timeout = TimeSpan::fromSeconds(3)) override;
+        using TcpServer::handshaking;
 
-        TcpClient *createClient(int sockfd) const override;
+        bool handshaking(TcpClient *client, const TimeSpan &timeout) override;
+
+        TcpClient *createClient(int sockId) const override;
     };
 
     class WebSocketSSLServer : public TcpSSLServer {
     public:
-        WebSocketSSLServer(SSLVersion version = SSLVersion::TLSv1_2);
+        explicit WebSocketSSLServer(SSLVersion version = SSLVersion::SSLv23);
 
         ~WebSocketSSLServer() override;
 
     protected:
-        bool handshaking(TcpClient *client, const TimeSpan &timeout = TimeSpan::fromSeconds(3)) override;
+        using TcpServer::handshaking;
 
-        TcpClient *createClient(int sockfd) const override;
+        bool handshaking(TcpClient *client, const TimeSpan &timeout) override;
+
+        TcpClient *createClient(int sockId) const override;
     };
 
 #endif

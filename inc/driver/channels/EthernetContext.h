@@ -15,42 +15,37 @@
 using namespace Data;
 using namespace Net;
 
-namespace Drivers
-{
-    class EthernetContext
-    {
+namespace Drivers {
+    class EthernetContext {
     public:
-        EthernetContext(const Endpoint& endpoint)
-        {
+        explicit EthernetContext(const Endpoint &endpoint) {
             _endpoint = endpoint;
         }
-        inline const String& address() const
-        {
+
+        inline const String &address() const {
             return _endpoint.address;
         }
-        inline void setAddress(const String& address)
-        {
+
+        inline void setAddress(const String &address) {
             _endpoint.address = address;
         }
-        
-        inline int port() const
-        {
+
+        inline int port() const {
             return _endpoint.port;
         }
-        inline void setPort(int port)
-        {
+
+        inline void setPort(int port) {
             _endpoint.port = port;
         }
-        
-        inline const Endpoint& endpoint() const
-        {
+
+        inline const Endpoint &endpoint() const {
             return _endpoint;
         }
-        inline void setPort(Endpoint endpoint)
-        {
+
+        inline void setPort(const Endpoint& endpoint) {
             _endpoint = endpoint;
         }
-        
+
     protected:
         Endpoint _endpoint;
     };

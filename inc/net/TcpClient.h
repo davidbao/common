@@ -54,11 +54,13 @@ namespace Net {
 
         virtual ssize_t read(uint8_t *data, size_t count);
 
-        virtual bool connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
+        virtual bool connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress);
 
-        bool connectToHost(const char *host, uint16_t port, TimeSpan timeout, bool reuseAddress = false);
+        bool connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000);
 
-        bool connectToHost(const Endpoint &host, TimeSpan timeout, bool reuseAddress = false);
+        bool connectToHost(const char *host, uint16_t port, const TimeSpan &timeout, bool reuseAddress = false);
+
+        bool connectToHost(const Endpoint &host, const TimeSpan &timeout, bool reuseAddress = false);
 
         virtual void close();
 
@@ -98,6 +100,8 @@ namespace Net {
 
         bool setReuseAddress(bool reuseAddress = true);
 
+        virtual bool decode(const ByteArray &buffer, ByteArray &plainBuffer);
+
     public:
         static void initializeSocket();
 
@@ -112,7 +116,7 @@ namespace Net {
 
         bool isWriteSet(const TimeSpan &timeout) const;
 
-        bool isWriteSet(int timeout) const;
+        bool isWriteSet(uint32_t timeout) const;
 
     protected:
         int _socket;
@@ -139,12 +143,11 @@ namespace Net {
 
     class TcpSSLClient : public TcpClient {
     public:
-        TcpSSLClient(SSLVersion version = SSLVersion::TLSv1_2, int sockId = -1, IPVersion ipVersion = IPVersion::IPV4);
+        explicit TcpSSLClient(SSLVersion version = SSLVersion::SSLv23, int sockId = -1, IPVersion ipVersion = IPVersion::IPV4);
 
         ~TcpSSLClient() override;
 
-        bool
-        connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false) override;
+        bool connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) override;
 
         void close() override;
 
@@ -167,6 +170,8 @@ namespace Net {
         void setKeyFile(const String &file);
 
         void setCACertFile(const String &file);
+
+//        bool decode(const ByteArray &buffer, ByteArray &plainBuffer) override;
 
     public:
         static void initializeSSL();
@@ -200,7 +205,7 @@ namespace Net {
 
     class WebSocketClient : public TcpClient {
     public:
-        WebSocketClient(int sockId = -1, IPVersion ipVersion = IPVersion::IPV4, const TimeSpan &receiveTimeout = TimeSpan::fromSeconds(1));
+        explicit WebSocketClient(int sockId = -1, IPVersion ipVersion = IPVersion::IPV4, const TimeSpan &receiveTimeout = TimeSpan::fromSeconds(1));
 
         ~WebSocketClient() override;
 
@@ -234,13 +239,14 @@ namespace Net {
         ssize_t read(uint8_t *data, size_t count) override;
 
     private:
-        FrameType getFrameLength(const ByteArray &inFrame, uint64_t &payloadLength);
-
-        bool decodeFrame(const ByteArray &inFrame, ByteArray &outMessage);
-
-        int encodeFrame(const ByteArray &inMessage, ByteArray &outFrame, FrameType frameType = WS_BINARY_FRAME);
-
         bool readFrame();
+
+    private:
+        static FrameType getFrameLength(const ByteArray &inFrame, uint64_t &payloadLength);
+
+        static bool decodeFrame(const ByteArray &inFrame, ByteArray &outMessage);
+
+        static int encodeFrame(const ByteArray &inMessage, ByteArray &outFrame, FrameType frameType = WS_BINARY_FRAME);
 
     private:
         off_t _position;
@@ -257,7 +263,7 @@ namespace Net {
 
     class WebSocketSSLClient : public TcpSSLClient {
     public:
-        WebSocketSSLClient(SSLVersion version = SSLVersion::TLSv1_2, int sockId = -1, IPVersion ipVersion = IPVersion::IPV4,
+        explicit WebSocketSSLClient(SSLVersion version = SSLVersion::SSLv23, int sockId = -1, IPVersion ipVersion = IPVersion::IPV4,
                            const TimeSpan &receiveTimeout = TimeSpan::fromSeconds(1));
 
         ~WebSocketSSLClient() override;
@@ -292,13 +298,14 @@ namespace Net {
         ssize_t read(uint8_t *data, size_t count) override;
 
     private:
-        FrameType getFrameLength(const ByteArray &inFrame, uint64_t &payloadLength);
-
-        bool decodeFrame(const ByteArray &inFrame, ByteArray &outMessage);
-
-        int encodeFrame(const ByteArray &inMessage, ByteArray &outFrame, FrameType frameType = WS_BINARY_FRAME);
-
         bool readFrame();
+
+    private:
+        static FrameType getFrameLength(const ByteArray &inFrame, uint64_t &payloadLength);
+
+        static bool decodeFrame(const ByteArray &inFrame, ByteArray &outMessage);
+
+        static int encodeFrame(const ByteArray &inMessage, ByteArray &outFrame, FrameType frameType = WS_BINARY_FRAME);
 
     private:
         off_t _position;

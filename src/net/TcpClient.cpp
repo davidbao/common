@@ -39,14 +39,20 @@
 
 #endif
 #ifdef AF_PACKET
+
 #include <netpacket/packet.h>
+
 #endif
 #endif
 
 #include <cerrno>
+#include <fcntl.h>
+
 #include "net/TcpClient.h"
 #include "diag/Trace.h"
+#ifdef DEBUG
 #include "diag/Stopwatch.h"
+#endif
 #include "system/Math.h"
 #include "data/DateTime.h"
 #include "data/ByteArray.h"
@@ -54,17 +60,18 @@
 #include "thread/TickTimeout.h"
 #include "exception/Exception.h"
 #include "net/Dns.h"
-#include "IO/File.h"
+//#include "IO/File.h"
 
-#include <openssl/rsa.h>
+//#include <openssl/rsa.h>
 #include <openssl/crypto.h>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#include <openssl/bio.h>
 
-#if WIN32
+#ifdef WIN32
 #undef errno
 #define errno WSAGetLastError()
 #define ioctl(s, cmd, argp) ioctlsocket(s, cmd, argp)
@@ -78,7 +85,9 @@
 #endif
 
 #ifdef __EMSCRIPTEN__
+
 #include <emscripten/emscripten.h>
+
 #endif
 
 using namespace Diag;
@@ -106,7 +115,7 @@ namespace Net {
     }
 
     TcpClient::~TcpClient() {
-        close();
+        TcpClient::close();
 
         _socket = -1;
     }
@@ -133,8 +142,8 @@ namespace Net {
 
     ssize_t TcpClient::receive(ByteArray *buffer, size_t count, uint32_t timeout) {
         if (timeout == 0) {
-            uint8_t *temp = new uint8_t[count];
-            int readCount = receive(temp, 0, count);
+            auto temp = new uint8_t[count];
+            ssize_t readCount = receive(temp, 0, count);
             if (readCount > 0) {
                 buffer->addRange(temp, readCount);
             }
@@ -145,7 +154,7 @@ namespace Net {
         throw NotImplementedException("Can not implement this method.");
     }
 
-    bool TcpClient::connectToHost(const char *host, uint16_t port, TimeSpan timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost(const char *host, uint16_t port, const TimeSpan &timeout, bool reuseAddress) {
         return connectToHost(host, port, (uint32_t) timeout.totalMilliseconds(), reuseAddress);
     }
 
@@ -157,13 +166,17 @@ namespace Net {
 #endif
     }
 
-    bool TcpClient::connectToHost(const Endpoint &host, TimeSpan timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost(const char *host, uint16_t port, uint32_t timeout) {
+        return connectToHost(host, port, timeout, false);
+    }
+
+    bool TcpClient::connectToHost(const Endpoint &host, const TimeSpan &timeout, bool reuseAddress) {
         return connectToHost(host.address, host.port, timeout, reuseAddress);
     }
 
     bool TcpClient::connectToHost_IPV6(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
         // Fix bug: support IPV6.
-        struct addrinfo hints, *res, *res0;
+        struct addrinfo hints{}, *res, *res0;
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = PF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -217,12 +230,9 @@ namespace Net {
 
 #ifdef __EMSCRIPTEN__
             int ret = connect(_socket, res->ai_addr, res->ai_addrlen);
-            if (ret == -1 && errno != EINPROGRESS)
-            {
+            if (ret == -1 && errno != EINPROGRESS) {
                 _connected = false;
-            }
-            else
-            {
+            } else {
                 _connected = true;
 
                 updateEndpoints(res->ai_family);
@@ -247,7 +257,7 @@ namespace Net {
     }
 
     bool TcpClient::connectToHost_IPV4(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
-        struct sockaddr_in sin;     /* an Internet endpoint address  */
+        struct sockaddr_in sin{};     /* an Internet endpoint address  */
 
         memset(&sin, 0, sizeof(sin));
         sin.sin_family = AF_INET;
@@ -281,15 +291,12 @@ namespace Net {
         }
 
 #ifdef __EMSCRIPTEN__
-        int ret = connect(_socket, (struct sockaddr *)&sin, sizeof(sin));
-        if (ret == -1 && errno != EINPROGRESS)
-        {
+        int ret = connect(_socket, (struct sockaddr *) &sin, sizeof(sin));
+        if (ret == -1 && errno != EINPROGRESS) {
             _connected = false;
-        }
-        else
-        {
+        } else {
             _connected = true;
-            
+
             updateEndpoints(AF_INET);
         }
 #else
@@ -359,20 +366,15 @@ namespace Net {
         if (_socket != -1) {
             ssize_t length = ::send(_socket, (const char *) data, (int) count, 0);
 #ifdef __EMSCRIPTEN__
-            if (length == -1)
-            {
-                if (errno == EAGAIN || errno == EDEADLK)
-                {
+            if (length == -1) {
+                if (errno == EAGAIN || errno == EDEADLK) {
                     //try again
 //                    Debug::writeLine("TcpClient::write in progress.");
                     static int count = 0;
                     count++;
-                    if(count >= 10)
-                    {
+                    if (count >= 10) {
                         count = 0;
-                    }
-                    else
-                    {
+                    } else {
                         Thread::msleep(100);
                         length = write(data, count);
                     }
@@ -443,7 +445,7 @@ namespace Net {
                 Debug::writeFormatLine("getsockopt2 function'%s' socketId'%d' failed with error code: %d, error: %s",
                                        !_peerEndpoint.isEmpty() ? _peerEndpoint.toString().c_str()
                                                                 : ((Int32) _socket).toString().c_str(),
-                                       socketId(), error, strerror(error));
+                                       socketId(), error, strerror((int) error));
             } else {
                 return true;
             }
@@ -452,15 +454,15 @@ namespace Net {
     }
 
     bool TcpClient::isWriteSet(const TimeSpan &timeout) const {
-        return isWriteSet((int) timeout.totalMilliseconds());
+        return isWriteSet((uint32_t) timeout.totalMilliseconds());
     }
 
-    bool TcpClient::isWriteSet(int timeout) const {
+    bool TcpClient::isWriteSet(uint32_t timeout) const {
         if (_socket != -1) {
-            struct pollfd pfd_write;
+            struct pollfd pfd_write{};
             pfd_write.fd = _socket;
             pfd_write.events = POLLOUT;
-            return poll(&pfd_write, 1, timeout) == 1;
+            return poll(&pfd_write, 1, (int) timeout) == 1;
         }
         return false;
     }
@@ -499,7 +501,7 @@ namespace Net {
             }
         }
 #endif  // __EMSCRIPTEN__
-        return bufferSize;
+        return (int) bufferSize;
     }
 
     void TcpClient::setSendBufferSize(int bufferSize) {
@@ -528,7 +530,7 @@ namespace Net {
             }
         }
 #endif  // __EMSCRIPTEN__
-        return bufferSize;
+        return (int) bufferSize;
     }
 
     void TcpClient::setReceiveBufferSize(int bufferSize) {
@@ -557,7 +559,7 @@ namespace Net {
             }
         }
 #endif
-        return yes == 0 ? false : false;
+        return yes != 0;
     }
 
     void TcpClient::setNoDelay(bool noDelay) {
@@ -576,23 +578,19 @@ namespace Net {
         if (_socket != -1) {
 #ifdef __EMSCRIPTEN__
             int flag = fcntl(_socket, F_GETFL, 0);
-            if(flag < 0)
-            {
+            if (flag < 0) {
                 Debug::writeFormatLine("fcntl(F_GETFL) failed with error: %d\n", flag);
                 return false;
             }
-            
-            if(blocking)
+
+            if (blocking)
                 flag &= ~O_NONBLOCK;
             else
                 flag |= O_NONBLOCK;
             int result = fcntl(_socket, F_SETFL, flag);
-            if (result != 0)
-            {
+            if (result != 0) {
                 Debug::writeFormatLine("fcntl(F_SETFL) failed with error: %d\n", result);
-            }
-            else
-            {
+            } else {
                 return true;
             }
 #else
@@ -618,7 +616,7 @@ namespace Net {
         if (_socket != -1) {
             if (ai_family == AF_INET) {
                 // Found IPv4 address.
-                struct sockaddr_in sin;
+                struct sockaddr_in sin{};
                 socklen_t clen = sizeof(sin);
                 memset(&sin, 0, clen);
                 int result = ::getpeername(_socket, (struct sockaddr *) &sin, &clen);
@@ -645,7 +643,7 @@ namespace Net {
             } else if (ai_family == AF_INET6) {
 #ifdef SUPPORT_IP6
                 // Found IPv6 address.
-                struct sockaddr_in6 sin;
+                struct sockaddr_in6 sin{};
                 socklen_t clen = sizeof(sin);
                 memset(&sin, 0, clen);
                 int result = ::getpeername(_socket, (struct sockaddr *) &sin, &clen);
@@ -723,7 +721,7 @@ namespace Net {
     void TcpClient::setSendTimeout(int timeout) {
 #ifndef __EMSCRIPTEN__
         if (_socket != -1) {
-            struct timeval tv;
+            struct timeval tv{};
             tv.tv_sec = (long) timeout / 1000;
             tv.tv_usec = 1000 * (timeout % 1000);
 
@@ -762,7 +760,7 @@ namespace Net {
     void TcpClient::setReceiveTimeout(int timeout) {
 #ifndef __EMSCRIPTEN__
         if (_socket != -1) {
-            struct timeval tv;
+            struct timeval tv{};
             tv.tv_sec = (long) timeout / 1000;
             tv.tv_usec = 1000 * (timeout % 1000);
 
@@ -776,6 +774,10 @@ namespace Net {
 
     void TcpClient::setReceiveTimeout(const TimeSpan &timeout) {
         setReceiveTimeout((int) timeout.totalMilliseconds());
+    }
+
+    bool TcpClient::decode(const ByteArray &buffer, ByteArray &plainBuffer) {
+        return false;
     }
 
 #ifndef __EMSCRIPTEN__
@@ -798,7 +800,7 @@ namespace Net {
     }
 
     TcpSSLClient::~TcpSSLClient() {
-        close();
+        TcpSSLClient::close();
     }
 
     void TcpSSLClient::initializeSSL() {
@@ -817,8 +819,6 @@ namespace Net {
         switch (_version) {
             case SSLv3:
                 return false;
-//                meth = SSLv3_client_method();
-                break;
             case SSLv23:
                 meth = SSLv23_client_method();
                 break;
@@ -831,8 +831,14 @@ namespace Net {
             case TLSv1_2:
                 meth = TLSv1_2_client_method();
                 break;
+            case DTLSv1:
+                meth = DTLSv1_client_method();
+                break;
+            case DTLSv1_2:
+                meth = DTLSv1_2_client_method();
+                break;
             default:
-                meth = TLSv1_client_method();
+                meth = SSLv23_client_method();
                 break;
         }
         SSL_CTX *ctx = SSL_CTX_new(meth);
@@ -929,7 +935,6 @@ namespace Net {
                 int error = SSL_get_error(ssl, ret);
                 switch (error) {
                     case SSL_ERROR_NONE:
-                        break;
                     case SSL_ERROR_WANT_READ:
                     case SSL_ERROR_WANT_WRITE:
                         break;
@@ -1003,7 +1008,7 @@ namespace Net {
         Stopwatch sw("TcpSSLClient::write", 1000);
 #endif
         if (_ssl != nullptr) {
-            ssize_t ires = 0, icount = 0;
+            int ires = 0, icount = 0;
             bool isCoutinue = true;
             while (isCoutinue) {
                 ires = SSL_write((SSL *) _ssl, data + icount, (int) (count - icount));
@@ -1026,7 +1031,7 @@ namespace Net {
                 }
             }
 
-            return count;
+            return (ssize_t) count;
         }
         return 0;
     }
@@ -1047,7 +1052,7 @@ namespace Net {
         Stopwatch sw("TcpSSLClient::peek", 1000);
 #endif
         if (_ssl != nullptr) {
-            ssize_t ires = 0, icount = 0;
+            int ires = 0, icount = 0;
             bool isCoutinue = true;
             while (isCoutinue) {
                 ires = SSL_peek((SSL *) _ssl, data + icount, (int) (count - icount));
@@ -1065,7 +1070,7 @@ namespace Net {
                 }
             }
 
-            return count;
+            return (ssize_t) count;
         }
         return 0;
     }
@@ -1089,7 +1094,7 @@ namespace Net {
     }
 
     bool TcpSSLClient::usePrivateKey(void *context, const char *keyStr) {
-        SSL_CTX *ctx = (SSL_CTX *) context;
+        auto ctx = (SSL_CTX *) context;
         assert(ctx);
 
         BIO *in = nullptr;
@@ -1105,7 +1110,7 @@ namespace Net {
 //            SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_SYS_LIB);
 //            return false;
 //        }
-        EVP_PKEY *pkey = PEM_read_bio_PrivateKey(in, nullptr, 0, nullptr);
+        EVP_PKEY *pkey = PEM_read_bio_PrivateKey(in, nullptr, nullptr, nullptr);
         if (pkey == nullptr) {
             if (in != nullptr)
                 BIO_free(in);
@@ -1129,7 +1134,7 @@ namespace Net {
     }
 
     bool TcpSSLClient::useCertificate(void *context, const char *certStr) {
-        SSL_CTX *ctx = (SSL_CTX *) context;
+        auto ctx = (SSL_CTX *) context;
         assert(ctx);
 
         BIO *in = nullptr;
@@ -1145,7 +1150,7 @@ namespace Net {
 //            SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_SYS_LIB);
 //            return false;
 //        }
-        X509 *x = PEM_read_bio_X509(in, nullptr, 0, nullptr);
+        X509 *x = PEM_read_bio_X509(in, nullptr, nullptr, nullptr);
         if (x == nullptr) {
             if (in != nullptr)
                 BIO_free(in);
@@ -1192,9 +1197,27 @@ namespace Net {
         _peek = peek;
     }
 
+//    bool TcpSSLClient::decode(const ByteArray &buffer, ByteArray &plainBuffer) {
+//        if (_ssl != nullptr) {
+//            BIO *rbio = BIO_new(BIO_s_mem());
+////        BIO *wbio = BIO_new(BIO_s_mem());
+//            SSL_set_bio((SSL *) _ssl, rbio, rbio);
+//
+//            int wLen = BIO_write(rbio, buffer.data(), buffer.count());
+//            uint8_t bytes[1024];
+//            int len = SSL_read((SSL *) _ssl, bytes, 1024);
+//            if (len > 0) {
+//                plainBuffer = ByteArray(bytes, len);
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
     const TimeSpan WebSocketClient::MinReceiveTimeout = TimeSpan::fromSeconds(1);
 
-    WebSocketClient::WebSocketClient(int sockfd, IPVersion ipVersion, const TimeSpan &receiveTimeout) : TcpClient(sockfd, ipVersion) {
+    WebSocketClient::WebSocketClient(int sockId, IPVersion ipVersion, const TimeSpan &receiveTimeout) : TcpClient(
+            sockId, ipVersion) {
         _position = -1;
         _decoding = true;
         _encoding = true;
@@ -1202,8 +1225,7 @@ namespace Net {
         _receiveTimeout = receiveTimeout < MinReceiveTimeout ? MinReceiveTimeout : receiveTimeout;
     }
 
-    WebSocketClient::~WebSocketClient() {
-    }
+    WebSocketClient::~WebSocketClient() = default;
 
     void WebSocketClient::disableDecoding() {
         _decoding = false;
@@ -1271,8 +1293,8 @@ namespace Net {
         }
 
         if (_position >= 0 && _position < (int) _buffer.count()) {
-            size_t bufferCount = _buffer.count() - _position;
-            if (count >= bufferCount) {
+            ssize_t bufferCount = (ssize_t) _buffer.count() - _position;
+            if ((ssize_t) count >= bufferCount) {
                 memcpy(data, _buffer.data() + _position, bufferCount);
                 _buffer.clear();
                 _position = 0;
@@ -1280,7 +1302,7 @@ namespace Net {
             } else {
                 memcpy(data, _buffer.data() + _position, count);
                 _position += (off_t) count;
-                return count;
+                return (ssize_t) count;
             }
         }
         return -1;
@@ -1299,7 +1321,7 @@ namespace Net {
 
         ByteArray original;
         static const int wsHeaderLength = 2;
-        int headerLength = this->receiveBySize(&original, wsHeaderLength, _receiveTimeout);
+        ssize_t headerLength = this->receiveBySize(&original, wsHeaderLength, _receiveTimeout);
         if (wsHeaderLength != headerLength) {
 #ifdef DEBUG
             ByteArray messages(original.data(), Math::min((int) original.count(), 128));
@@ -1386,7 +1408,7 @@ namespace Net {
         }
 
         uint8_t payloadFieldExtraBytes = 0;
-        uint8_t opcode = (uint8_t) (frameData[0] & 0x0f);
+        auto opcode = (uint8_t) (frameData[0] & 0x0f);
         if (opcode == WS_BINARY_FRAME || opcode == WS_TEXT_FRAME) {
             payloadLength = static_cast<uint16_t>(frameData[1] & 0x7f);
             if (payloadLength == 0x7e) {
@@ -1437,7 +1459,7 @@ namespace Net {
 
         uint64_t payloadLength = 0;
         uint8_t payloadFieldExtraBytes = 0;
-        uint8_t opcode = (uint8_t) (frameData[0] & 0x0f);
+        auto opcode = (uint8_t) (frameData[0] & 0x0f);
         if (opcode == WS_BINARY_FRAME || opcode == WS_TEXT_FRAME) {
             payloadLength = static_cast<uint64_t>(frameData[1] & 0x7f);
             if (payloadLength == 0x7e) {
@@ -1464,7 +1486,7 @@ namespace Net {
         if ((ret != WS_ERROR_FRAME) && (payloadLength > 0)) {
             // header: 2 bytes, masking key: 4 bytes
             const uint8_t *maskingKey = &frameData[2 + payloadFieldExtraBytes];
-            uint8_t *payloadData = new uint8_t[payloadLength];
+            auto payloadData = new uint8_t[payloadLength];
             memset(payloadData, 0, payloadLength);
             memcpy(payloadData, &frameData[2 + payloadFieldExtraBytes + 4], payloadLength);
             for (uint64_t i = 0; i < payloadLength; i++) {
@@ -1497,7 +1519,7 @@ namespace Net {
             payloadFieldExtraBytes = 8;
         }
         uint8_t frameHeaderSize = 2 + payloadFieldExtraBytes;
-        uint8_t *frameHeader = new uint8_t[frameHeaderSize];
+        auto frameHeader = new uint8_t[frameHeaderSize];
         memset(frameHeader, 0, frameHeaderSize);
         frameHeader[0] = static_cast<uint8_t>(0x80 | frameType);
 
@@ -1513,7 +1535,7 @@ namespace Net {
         }
 
         size_t frameSize = frameHeaderSize + messageLength;
-        uint8_t *frame = new uint8_t[frameSize];
+        auto frame = new uint8_t[frameSize];
         memcpy(frame, frameHeader, frameHeaderSize);
         memcpy(frame + frameHeaderSize, inMessage.data(), messageLength);
         outFrame.addRange(frame, frameSize);
@@ -1525,8 +1547,9 @@ namespace Net {
 
     const TimeSpan WebSocketSSLClient::MinReceiveTimeout = TimeSpan::fromSeconds(1);
 
-    WebSocketSSLClient::WebSocketSSLClient(SSLVersion version, int sockfd, IPVersion ipVersion, const TimeSpan &receiveTimeout)
-            : TcpSSLClient(version, sockfd, ipVersion) {
+    WebSocketSSLClient::WebSocketSSLClient(SSLVersion version, int sockId, IPVersion ipVersion,
+                                           const TimeSpan &receiveTimeout)
+            : TcpSSLClient(version, sockId, ipVersion) {
         _position = -1;
         _decoding = true;
         _encoding = true;
@@ -1534,8 +1557,7 @@ namespace Net {
         _receiveTimeout = receiveTimeout < MinReceiveTimeout ? MinReceiveTimeout : receiveTimeout;
     }
 
-    WebSocketSSLClient::~WebSocketSSLClient() {
-    }
+    WebSocketSSLClient::~WebSocketSSLClient() = default;
 
     void WebSocketSSLClient::disableDecoding() {
         _decoding = false;
@@ -1603,8 +1625,8 @@ namespace Net {
         }
 
         if (_position >= 0 && _position < (int) _buffer.count()) {
-            size_t bufferCount = _buffer.count() - _position;
-            if (count >= bufferCount) {
+            ssize_t bufferCount = (ssize_t) _buffer.count() - _position;
+            if ((ssize_t) count >= bufferCount) {
                 memcpy(data, _buffer.data() + _position, bufferCount);
                 _buffer.clear();
                 _position = 0;
@@ -1616,7 +1638,7 @@ namespace Net {
                 //                ByteArray messages(data, maxlen);
                 //                Debug::writeFormatLine("tcp receive once, recv: %s", messages.toString().c_str());
                 //#endif
-                return count;
+                return (ssize_t) count;
             }
         }
         return -1;
@@ -1635,7 +1657,7 @@ namespace Net {
 
         ByteArray original;
         static const int wsHeaderLength = 2;
-        int headerLength = this->receiveBySize(&original, wsHeaderLength, _receiveTimeout);
+        ssize_t headerLength = this->receiveBySize(&original, wsHeaderLength, _receiveTimeout);
         if (wsHeaderLength != headerLength) {
 #ifdef DEBUG
             ByteArray messages(original.data(), Math::min((int) original.count(), 128));
@@ -1724,7 +1746,7 @@ namespace Net {
         }
 
         uint8_t payloadFieldExtraBytes = 0;
-        uint8_t opcode = (uint8_t) (frameData[0] & 0x0f);
+        auto opcode = (uint8_t) (frameData[0] & 0x0f);
         if (opcode == WS_BINARY_FRAME || opcode == WS_TEXT_FRAME) {
             payloadLength = static_cast<uint16_t>(frameData[1] & 0x7f);
             if (payloadLength == 0x7e) {
@@ -1775,7 +1797,7 @@ namespace Net {
 
         uint64_t payloadLength = 0;
         uint8_t payloadFieldExtraBytes = 0;
-        uint8_t opcode = (uint8_t) (frameData[0] & 0x0f);
+        auto opcode = (uint8_t) (frameData[0] & 0x0f);
         if (opcode == WS_BINARY_FRAME || opcode == WS_TEXT_FRAME) {
             payloadLength = static_cast<uint64_t>(frameData[1] & 0x7f);
             if (payloadLength == 0x7e) {
@@ -1802,7 +1824,7 @@ namespace Net {
         if ((ret != WS_ERROR_FRAME) && (payloadLength > 0)) {
             // header: 2 bytes, masking key: 4 bytes
             const uint8_t *maskingKey = &frameData[2 + payloadFieldExtraBytes];
-            uint8_t *payloadData = new uint8_t[payloadLength];
+            auto payloadData = new uint8_t[payloadLength];
             memset(payloadData, 0, payloadLength);
             memcpy(payloadData, &frameData[2 + payloadFieldExtraBytes + 4], payloadLength);
             for (uint64_t i = 0; i < payloadLength; i++) {
@@ -1835,7 +1857,7 @@ namespace Net {
             payloadFieldExtraBytes = 8;
         }
         uint8_t frameHeaderSize = 2 + payloadFieldExtraBytes;
-        uint8_t *frameHeader = new uint8_t[frameHeaderSize];
+        auto frameHeader = new uint8_t[frameHeaderSize];
         memset(frameHeader, 0, frameHeaderSize);
         frameHeader[0] = static_cast<uint8_t>(0x80 | frameType);
 
@@ -1851,7 +1873,7 @@ namespace Net {
         }
 
         size_t frameSize = frameHeaderSize + messageLength;
-        uint8_t *frame = new uint8_t[frameSize];
+        auto frame = new uint8_t[frameSize];
         memcpy(frame, frameHeader, frameHeaderSize);
         memcpy(frame + frameHeaderSize, inMessage.data(), messageLength);
         outFrame.addRange(frame, frameSize);

@@ -89,7 +89,7 @@ namespace Drivers {
         }
 #endif
 
-        _tcpClient = client;
+        _client = client;
         _closeFlag = false;
         _deleteFlag = false;
         _deleteStart = 0;
@@ -101,8 +101,8 @@ namespace Drivers {
         delete _sender;
         _sender = nullptr;
 
-        delete _tcpClient;
-        _tcpClient = nullptr;
+        delete _client;
+        _client = nullptr;
     }
 
     bool TcpServerInteractive::Client::connected() const {
@@ -115,11 +115,11 @@ namespace Drivers {
     }
 
     const Endpoint &TcpServerInteractive::Client::peerEndpoint() const {
-        return _tcpClient->peerEndpoint();
+        return _client->peerEndpoint();
     }
 
     const Endpoint &TcpServerInteractive::Client::endpoint() const {
-        return _tcpClient->endpoint();
+        return _client->endpoint();
     }
 
     Device *TcpServerInteractive::Client::receiverDevice() const {
@@ -135,11 +135,11 @@ namespace Drivers {
     }
 
     TcpClient *TcpServerInteractive::Client::tcpClient() const {
-        return _tcpClient;
+        return _client;
     }
 
     int TcpServerInteractive::Client::socketId() const {
-        return _tcpClient->socketId();
+        return _client->socketId();
     }
 
     void TcpServerInteractive::Client::start() {

@@ -18,6 +18,9 @@ typedef Vector<int> IntArray;
 static const int g_port = 11459;
 static const Endpoint _endpoint("127.0.0.1", g_port);
 
+static const int g_ssl_port = 11460;
+static const Endpoint _ssl_endpoint("127.0.0.1", g_ssl_port);
+
 class HelloRequest : public IRpcSyncRequestData {
 public:
     String user;
@@ -420,12 +423,12 @@ int main() {
     TestRpcServer server((RpcServerContext(Endpoint("any", g_port))));
     server.start();
 
-//    if (!testConstructor()) {
-//        return 1;
-//    }
-//    if (!testConnect()) {
-//        return 2;
-//    }
+    if (!testConstructor()) {
+        return 1;
+    }
+    if (!testConnect()) {
+        return 2;
+    }
     if (!testInvoke()) {
         return 3;
     }

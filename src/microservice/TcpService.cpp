@@ -57,7 +57,7 @@ namespace Microservice {
             return false;
         }
 
-        RpcServerContext context(Endpoint("any", serverPort), Secure::None);
+        RpcServerContext context(Endpoint("any", serverPort));
         _server = new RpcServer(context);
         registerMethod(new RpcSyncMethod(TcpTemplate::DefaultMethodName, TcpStringRequest(), TcpStringResponse(),
                                          onStringResponse, this));

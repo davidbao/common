@@ -6,41 +6,42 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-    enum InteractiveType
-    {
+namespace Drivers {
+    enum InteractiveType {
         ITUnknown = 0,
         ITSender = 1,
         ITReceiver = 2,
         ITSenderAndReceiver = ITSender | ITReceiver
     };
 
-	class ChannelContext : public Context
-	{
-	public:
+    class ChannelContext : public Context {
+    public:
         ChannelContext();
+
         ~ChannelContext() override;
-        
+
         virtual void setReopened(bool reopened);
-        virtual void setDeviceInterval(const TimeSpan& deviceInterval);
+
+        virtual void setDeviceInterval(const TimeSpan &deviceInterval);
 
         bool useReceiveTimeout() const;
+
         void setUseReceiveTimeout(bool useReceiveTimeout);
-        
+
         bool reopened() const;
-        
-        const TimeSpan& deviceInterval() const;
-        
+
+        const TimeSpan &deviceInterval() const;
+
     public:
         static String toInteractiveTypeStr(InteractiveType type);
-        static InteractiveType parseInteractiveType(const String& str);
 
-	protected:
-		bool _useReceiveTimeout;
-		bool _reopened;
+        static InteractiveType parseInteractiveType(const String &str);
+
+    protected:
+        bool _useReceiveTimeout;
+        bool _reopened;
         TimeSpan _deviceInterval;
-	};
+    };
 }
 
 #endif // CHANNELCONTEXT_H
