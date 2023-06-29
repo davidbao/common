@@ -24,7 +24,7 @@ namespace Microservice {
     public:
         String body;
 
-        TcpStringRequest(const String &body = String::Empty);
+        explicit TcpStringRequest(const String &body = String::Empty);
 
         void write(Stream *stream) const override;
 
@@ -78,9 +78,10 @@ namespace Microservice {
 
         String postContent(const String &url, const String &body);
 
-        Url parseUrl(const String &original);
+    private:
+        static Url parseUrl(const String &original);
 
-        RpcClient *getOrNewClient(const Url &url);
+        static RpcClient *getOrNewClient(const Url &url);
 
     private:
         static Mutex _clientsMutex;
