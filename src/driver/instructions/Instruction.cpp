@@ -75,11 +75,9 @@ namespace Drivers {
         return true;
     }
 
-    InstructionSet::InstructionSet() {
-    }
+    InstructionSet::InstructionSet() = default;
 
-    InstructionSet::~InstructionSet() {
-    }
+    InstructionSet::~InstructionSet() = default;
 
     bool InstructionSet::receive(Device *device, Channel *channel, ByteArray *buffer, int order) {
         return false;
@@ -133,11 +131,10 @@ namespace Drivers {
     }
 
     Instruction::LogContext::LogContext(const LogContext &value) {
-        evaluates(value);
+        Instruction::LogContext::evaluates(value);
     }
 
-    Instruction::LogContext::~LogContext() {
-    }
+    Instruction::LogContext::~LogContext() = default;
 
     bool Instruction::LogContext::equals(const LogContext &other) const {
         return allowInformation == other.allowInformation &&
@@ -284,6 +281,10 @@ namespace Drivers {
 
             Trace::debug(info);
         }
+    }
+
+    InstructionContext *Instruction::execute(Interactive *interactive, Device *device, InstructionContext *context) {
+        return execute(interactive, device, context, nullptr);
     }
 
     InstructionContext *

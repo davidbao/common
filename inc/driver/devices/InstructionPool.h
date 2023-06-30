@@ -25,7 +25,7 @@ namespace Drivers {
                 PacketOnly = 2
             };
 
-            Packet(InstructionDescription *id, AutoDelete autoDelete = PacketAndInstruction, uint8_t priority = 0);
+            explicit Packet(InstructionDescription *id, AutoDelete autoDelete = PacketAndInstruction, uint8_t priority = 0);
 
             Packet(DeviceDescription *dd, InstructionDescription *id, AutoDelete autoDelete = PacketAndInstruction,
                    uint8_t priority = 0);
@@ -62,7 +62,7 @@ namespace Drivers {
 //		typedef LoopPList<Packet> LoopInstructions;
         class LoopInstructions : public LoopPList<Packet> {
         public:
-            LoopInstructions(int maxLength = 512, bool autoDelete = true, bool hasPriority = false);
+            explicit LoopInstructions(int maxLength = 512, bool autoDelete = true, bool hasPriority = false);
 
             void copyTo(Packet **value);
 

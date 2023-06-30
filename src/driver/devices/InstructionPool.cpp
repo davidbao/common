@@ -113,7 +113,7 @@ namespace Drivers {
     }
 
     InstructionPool::~InstructionPool() {
-        stop();
+        InstructionPool::stop();
 
         _cd = nullptr;
         _dd = nullptr;
@@ -164,7 +164,7 @@ namespace Drivers {
     }
 
     bool InstructionPool::channelConnected() const {
-        return _channel != nullptr ? _channel->connected() : false;
+        return _channel != nullptr && _channel->connected();
     }
 
     InstructionPool::Packet *
@@ -221,7 +221,7 @@ namespace Drivers {
     InstructionPool::Packet *
     InstructionPool::addInstructionInner(InstructionDescription *id, Packet::AutoDelete autoDelete, uint8_t priority) {
         if (id != nullptr && id->allowExecution() && _instructions != nullptr) {
-            Packet *packet = new Packet(id, autoDelete, priority);
+            auto packet = new Packet(id, autoDelete, priority);
             Locker locker(&_instructionsMutex);
             _instructions->enqueue(packet);
             return packet;
@@ -240,7 +240,7 @@ namespace Drivers {
     InstructionPool::Packet *InstructionPool::addInstructionInner(DeviceDescription *dd, InstructionDescription *id,
                                                                   Packet::AutoDelete autoDelete, uint8_t priority) {
         if (id != nullptr && id->allowExecution() && _instructions != nullptr) {
-            Packet *packet = new Packet(dd, id, autoDelete, priority);
+            auto packet = new Packet(dd, id, autoDelete, priority);
             Locker locker(&_instructionsMutex);
             _instructions->enqueue(packet);
             return packet;
@@ -262,7 +262,7 @@ namespace Drivers {
             _instructionsMutex.lock();
             size_t count = _instructions->count();
             if (count > 0) {
-                Packet **packets = new Packet *[count];
+                auto packets = new Packet *[count];
                 _instructions->copyTo(packets);
                 _instructions->makeNull(false);
                 _instructionsMutex.unlock();
@@ -440,7 +440,7 @@ namespace Drivers {
 
     bool InstructionPool::isPacketFinished(void *parameter) {
         if (parameter != nullptr) {
-            InstructionPool::Packet *packet = (InstructionPool::Packet *) parameter;
+            auto packet = (InstructionPool::Packet *) parameter;
             return packet->isProcessed();
         }
         return false;

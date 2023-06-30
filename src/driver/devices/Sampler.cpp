@@ -19,7 +19,7 @@ namespace Drivers {
         _showConnectedError = true;
         _isInvalidStatus = false;
         _checkOnlineFailedCount = 0;
-        _connetedFailedCount = 0;
+        _connectedFailedCount = 0;
         _sampleInterval = detectionInterval();
 
         _skipSampler = skipSampler;
@@ -136,13 +136,13 @@ namespace Drivers {
                 _isInvalidStatus = true;
 
                 _checkOnlineFailedCount = 0;
-                _connetedFailedCount++;
+                _connectedFailedCount++;
             }
         } else {
             setConnectStatus(Device::Online);
 
             _checkOnlineFailedCount = 0;
-            _connetedFailedCount = 0;
+            _connectedFailedCount = 0;
 
             _sampleInterval = detectionInterval();
         }
@@ -168,7 +168,7 @@ namespace Drivers {
 
         _isInvalidStatus = false;
         _checkOnlineFailedCount = 0;
-        _connetedFailedCount = 0;
+        _connectedFailedCount = 0;
         _sampleInterval = detectionInterval();
     }
 }

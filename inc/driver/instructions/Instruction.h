@@ -41,7 +41,7 @@ namespace Drivers {
             bool allowInformation;
             bool allowMessage;
 
-            LogContext(bool allowInformation = true, bool allowMessage = false, uint32_t logLength = DefaultLogLength);
+            explicit LogContext(bool allowInformation = true, bool allowMessage = false, uint32_t logLength = DefaultLogLength);
 
             LogContext(const LogContext &value);
 
@@ -64,7 +64,7 @@ namespace Drivers {
             static const uint32_t MaxLogLength = 128 * 1024;
         };
 
-        Instruction(InstructionDescription *id);
+        explicit Instruction(InstructionDescription *id);
 
         virtual ~Instruction();
 
@@ -75,7 +75,9 @@ namespace Drivers {
         void setContext(InstructionContext *context);
 
         virtual InstructionContext *execute(Interactive *interactive, Device *device, InstructionContext *context,
-                                            const ByteArray *buffer = NULL) = 0;
+                                            const ByteArray *buffer) = 0;
+
+        InstructionContext *execute(Interactive *interactive, Device *device, InstructionContext *context);
 
         virtual InstructionContext *executeAsync(Interactive *interactive, Device *device, InstructionContext *context);
 
@@ -130,7 +132,7 @@ namespace Drivers {
 //	typedef PList<Instruction> Instructions;
     class Instructions : public PList<Instruction> {
     public:
-        Instructions(bool autoDelete = true, uint32_t capacity = PList<Instruction>::DefaultCapacity);
+        explicit Instructions(bool autoDelete = true, uint32_t capacity = PList<Instruction>::DefaultCapacity);
 
         void setReceiveInstruction(Instructions *instructions);
     };

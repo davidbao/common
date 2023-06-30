@@ -335,7 +335,7 @@ namespace Drivers {
                     _channels->add(channel);
                 }
 
-                Device *device = new Device(dd, channel);
+                auto device = new Device(dd, channel);
                 _devices->add(device);
             }
         }
@@ -363,12 +363,12 @@ namespace Drivers {
     }
 
     void DriverManager::channelOpened(void *owner, void *sender, EventArgs *args) {
-        DriverManager *dm = (DriverManager *) owner;
+        auto dm = (DriverManager *) owner;
         dm->_channelOpenedDelegates.invoke(sender, args);
     }
 
     void DriverManager::channelClosed(void *owner, void *sender, EventArgs *args) {
-        DriverManager *dm = (DriverManager *) owner;
+        auto dm = (DriverManager *) owner;
         dm->_channelClosedDelegates.invoke(sender, args);
     }
 }
