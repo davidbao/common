@@ -19,7 +19,7 @@ namespace Drivers
 	class Channel;
     class DriverManager;
     class DeviceDescription;
-    class TcpBackgroundReceiver : public BackgroudReceiver
+    class TcpBackgroundReceiver : public BackgroundReceiver
 	{
 	public:
         TcpBackgroundReceiver(DriverManager* dm, Channel* channel, TcpClient* client);

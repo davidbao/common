@@ -1,7 +1,5 @@
 #include "diag/Trace.h"
 #include "diag/Stopwatch.h"
-#include "thread/Timer.h"
-#include "system/Application.h"
 #include "driver/DriverManager.h"
 #include "driver/devices/DeviceDescription.h"
 #include "driver/channels/ChannelDescription.h"
@@ -10,6 +8,9 @@
 #include "communication/ClientService.h"
 #include "communication/BaseCommConfig.h"
 #include "configuration/ConfigService.h"
+#ifdef PHONE_OS
+#include "system/Application.h"
+#endif
 
 namespace Communication {
 #ifdef PHONE_OS
@@ -55,7 +56,7 @@ namespace Communication {
         Channel *channel = dm->getChannel("TcpClient");
         if (channel == nullptr)
             return true;
-        TcpInteractive *ti = dynamic_cast<TcpInteractive *>(channel->interactive());
+        auto ti = dynamic_cast<TcpInteractive *>(channel->interactive());
         assert(ti);
         _ti = ti;
 
@@ -90,10 +91,10 @@ namespace Communication {
         DriverManager *dm = manager();
         assert(dm);
 
-        TcpInstructionSet *set = new TcpInstructionSet(callback.owner, callback.tcpInstructions);
-        ChannelDescription *cd = new ChannelDescription("TcpClient", interactiveName());
+        auto set = new TcpInstructionSet(callback.owner, callback.tcpInstructions);
+        auto cd = new ChannelDescription("TcpClient", interactiveName());
         cd->setEnabled(enabled);
-        TcpClientChannelContext *tc = (TcpClientChannelContext *) cd->context();
+        auto tc = (TcpClientChannelContext *) cd->context();
         tc->setAddress(_client.address);
         tc->setPort(_client.port);
         tc->setReuseAddress(_client.reuseAddress);
@@ -108,7 +109,7 @@ namespace Communication {
         tc->setReceiveTimeout(_client.timeout.receive);
 
         String ddName = String::convert("TcpClientDevice_%s:%d", _client.address.c_str(), _client.port);
-        DeviceDescription *dd = new DeviceDescription(ddName, cd, set);
+        auto dd = new DeviceDescription(ddName, cd, set);
         dd->setReceiveTimeout(_client.timeout.receive);
         dd->setSendTimeout(_client.timeout.send);
 
@@ -140,10 +141,10 @@ namespace Communication {
 
         const Client &client = _client;
 
-        UdpInstructionSet *set = new UdpInstructionSet(callback.owner, callback.udpSendInstructions);
-        ChannelDescription *cd = new ChannelDescription("UdpClient", "UdpInteractive");
-        DeviceDescription *dd = new DeviceDescription("UdpClientDevice", cd, set);
-        UdpChannelContext *uc = (UdpChannelContext *) cd->context();
+        auto set = new UdpInstructionSet(callback.owner, callback.udpSendInstructions);
+        auto cd = new ChannelDescription("UdpClient", "UdpInteractive");
+        auto dd = new DeviceDescription("UdpClientDevice", cd, set);
+        auto uc = (UdpChannelContext *) cd->context();
 
         uc->setPort(client.broadcast.sendport);
         uc->setSendBufferSize(_client.sendBufferSize);
@@ -163,10 +164,10 @@ namespace Communication {
 
         const Client &client = _client;
 
-        UdpInstructionSet *set = new UdpInstructionSet(callback.owner, callback.udpRecvInstructions);
-        ChannelDescription *cd = new ChannelDescription("UdpServer", "UdpServerInteractive");
-        DeviceDescription *dd = new DeviceDescription("UdpServerDevice", cd, set);
-        UdpServerChannelContext *uc = (UdpServerChannelContext *) cd->context();
+        auto set = new UdpInstructionSet(callback.owner, callback.udpRecvInstructions);
+        auto cd = new ChannelDescription("UdpServer", "UdpServerInteractive");
+        auto dd = new DeviceDescription("UdpServerDevice", cd, set);
+        auto uc = (UdpServerChannelContext *) cd->context();
 
         uc->setPort(client.broadcast.receiveport);
         uc->setReceiveBufferSize(_client.receiveBufferSize);
@@ -260,12 +261,12 @@ namespace Communication {
         return _ti != nullptr ? _ti->endpoint() : Endpoint::Empty;
     }
 
-    const P2PEndpoint ClientService::p2pEndpoint() const {
+    P2PEndpoint ClientService::p2pEndpoint() const {
         return _ti != nullptr ? _ti->p2pEndpoint() : P2PEndpoint::Empty;
     }
 
     bool ClientService::connected() const {
-        return _ti != nullptr ? _ti->connected() : false;
+        return _ti != nullptr && _ti->connected();
     }
 
     const Client &ClientService::client() const {
@@ -453,11 +454,10 @@ namespace Communication {
     SSLClientService::SSLClientService(const Client &client) : ClientService(client) {
     }
 
-    SSLClientService::~SSLClientService() {
-    }
+    SSLClientService::~SSLClientService() = default;
 
     uint32_t SSLClientService::maxPacketLength() const {
-        TcpSSLInteractive *si = dynamic_cast<TcpSSLInteractive *>(_ti);
+        auto si = dynamic_cast<TcpSSLInteractive *>(_ti);
         assert(si);
         SSLVersion version = si->sslVersion();
         if (version == SSLVersion::SSLv3 || version == SSLVersion::TLSv1)
@@ -514,7 +514,7 @@ namespace Communication {
     bool IClientService::hasService() const {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool enabled = false;
@@ -523,6 +523,6 @@ namespace Communication {
 
     bool IClientService::connected() const {
         ClientService *cs = clientService();
-        return cs != nullptr ? cs->connected() : false;
+        return cs != nullptr && cs->connected();
     }
 }

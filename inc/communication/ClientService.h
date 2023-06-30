@@ -49,7 +49,7 @@ namespace Communication {
 
         ClientService();
 
-        ClientService(const Client &client);
+        explicit ClientService(const Client &client);
 
         ~ClientService() override;
 
@@ -84,7 +84,7 @@ namespace Communication {
             bool invoke() override {
                 if (!canInvoke())
                     return false;
-                ClientService *cs = dynamic_cast<ClientService *>(_service);
+                auto cs = dynamic_cast<ClientService *>(_service);
                 if (cs != nullptr) {
                     cs->sendAsync<T, C>(_inputData, _name);
                     return true;
@@ -146,7 +146,7 @@ namespace Communication {
 
         protected:
             void invoke() override {
-                ClientService *cs = dynamic_cast<ClientService *>(_service);
+                auto cs = dynamic_cast<ClientService *>(_service);
                 assert(cs);
 
                 Locker locker(&_bufferMutex);
@@ -206,7 +206,7 @@ namespace Communication {
         bool addPacketSender(const String &name, const K *data) {
             Locker locker(&_packetSendersMutex);
             for (size_t i = 0; i < _packetSenders.count(); i++) {
-                PacketSender<T, K, C> *sender = dynamic_cast<PacketSender<T, K, C> *>(_packetSenders[i]);
+                auto sender = dynamic_cast<PacketSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data);
                     return true;
@@ -253,7 +253,7 @@ namespace Communication {
 
         protected:
             void invoke() override {
-                ClientService *cs = dynamic_cast<ClientService *>(_service);
+                auto cs = dynamic_cast<ClientService *>(_service);
                 assert(cs);
 
                 _bufferMutex.lock();
@@ -326,7 +326,7 @@ namespace Communication {
         bool addPacketSyncSender(const String &name, const K *data) {
             Locker locker(&_packetSendersMutex);
             for (size_t i = 0; i < _packetSenders.count(); i++) {
-                PacketSyncSender<T, K, C> *sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
+                auto sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->add(data);
                     return true;
@@ -343,7 +343,7 @@ namespace Communication {
         bool addPacketSyncSender(const String &name, const T &data) {
             Locker locker(&_packetSendersMutex);
             for (size_t i = 0; i < _packetSenders.count(); i++) {
-                PacketSyncSender<T, K, C> *sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
+                auto sender = dynamic_cast<PacketSyncSender<T, K, C> *>(_packetSenders[i]);
                 if (sender != nullptr && sender->name() == name) {
                     sender->addRange(data);
                     return true;
@@ -373,7 +373,7 @@ namespace Communication {
                 C *context = new C();
                 context->setInputData(&inputData);
                 context->setOutputData(&outputData);
-                InstructionDescription *id = new InstructionDescription(name, context);
+                auto id = new InstructionDescription(name, context);
                 C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
                 if (isSendSuccessfully(id->name(), rcontext)) {
                     result = true;
@@ -397,7 +397,7 @@ namespace Communication {
             if (sendSync<T, StatusContext, ElementSContext<T>>(inputData, status, name, trySendCount)) {
                 return status;
             }
-            return StatusContext(StatusContext::CommunicationError);
+            return {StatusContext::CommunicationError};
         }
 
         // T is input data and T is vector, C is context.
@@ -414,7 +414,7 @@ namespace Communication {
                 if (!status.isSuccessful())
                     return status;
             }
-            return StatusContext();
+            return {};
         }
 
         // T is input data, C is context.
@@ -432,7 +432,7 @@ namespace Communication {
 
             C *context = new C();
             context->setInputData(&inputData);
-            InstructionDescription *id = new InstructionDescription(name, context);
+            auto id = new InstructionDescription(name, context);
             if (!waitingForExecution)
                 return _instructionPool->addInstruction(id) != nullptr;
             else
@@ -469,7 +469,7 @@ namespace Communication {
             C *context = new C();
             context->setInputData(&inputData);
             context->transferHeader();
-            InstructionDescription *ids = new InstructionDescription(name, context);
+            auto ids = new InstructionDescription(name, context);
             C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(ids));
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
@@ -478,8 +478,8 @@ namespace Communication {
                     context->setPacketNo(i);
                     context->transferData();
                     context->outputData()->clear();
-                    InstructionDescription *id = new InstructionDescription(name, context, false);
-                    C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
+                    auto id = new InstructionDescription(name, context, false);
+                    rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
                     if (isSendSuccessfully(id->name(), rcontext)) {
                         outputData.copyFrom(rcontext->outputData(), true);
                         delete id;
@@ -514,7 +514,7 @@ namespace Communication {
                 context->setPacketNo(packetNo);
                 context->transferData();
             }
-            InstructionDescription *id = new InstructionDescription(name, context);
+            auto id = new InstructionDescription(name, context);
             return _instructionPool->addInstruction(id) != nullptr;
         }
 
@@ -538,7 +538,7 @@ namespace Communication {
             C *context = new C();
             context->setInputData(&inputData);
             context->transferHeader();
-            InstructionDescription *ids = new InstructionDescription(name, context);
+            auto ids = new InstructionDescription(name, context);
             if (timeout != TimeSpan::Zero) {
                 context->setReceiveTimeout((int) timeout.totalMilliseconds());
             }
@@ -560,13 +560,13 @@ namespace Communication {
                     result = DownloadFileResult::Succeed;
 
                     for (size_t i = 0; i < packetCount; i++) {
-                        C *context = new C();
+                        context = new C();
                         context->setInputData(&inputData);
                         context->setHeader(header);
                         context->transferData();
-                        InstructionDescription *id = new InstructionDescription(name, context);
+                        auto id = new InstructionDescription(name, context);
                         context->setPacketNo(i);
-                        C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
+                        rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
                         if (isSendSuccessfully(id->name(), rcontext)) {
                             delete id;
 
@@ -661,7 +661,7 @@ namespace Communication {
             context->setPacketLength(packetLength);
             context->transferHeader();
             context->outputData()->clear();
-            InstructionDescription *id = new InstructionDescription(name, context);
+            auto id = new InstructionDescription(name, context);
             return _instructionPool->addInstruction(id) != nullptr;
         }
 
@@ -688,7 +688,7 @@ namespace Communication {
             context->setHeader(header);
             context->transferData();
             context->setPacketNo(packetNo);
-            InstructionDescription *id = new InstructionDescription(name, context);
+            auto id = new InstructionDescription(name, context);
             return _instructionPool->addInstruction(id) != nullptr;
         }
 
@@ -714,7 +714,7 @@ namespace Communication {
             C *context = new C();
             context->setInputData(&inputData);
             context->transferHeader();
-            InstructionDescription *ids = new InstructionDescription(name, context);
+            auto ids = new InstructionDescription(name, context);
             C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(ids));
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
@@ -722,8 +722,8 @@ namespace Communication {
                 for (size_t i = 0; i < packetCount; i++) {
                     context->setPacketNo(i);
                     context->transferData();
-                    InstructionDescription *id = new InstructionDescription(name, context, false);
-                    C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
+                    auto id = new InstructionDescription(name, context, false);
+                    rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
                     if (isSendSuccessfully(id->name(), rcontext)) {
                         outputData.copyFrom(rcontext->outputData());
                         delete id;
@@ -778,16 +778,16 @@ namespace Communication {
             context->transferHeader();
             if (packetLength != (uint32_t) -1)
                 context->setPacketLength(packetLength);
-            InstructionDescription *ids = new InstructionDescription(name, context);
+            auto ids = new InstructionDescription(name, context);
             C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(ids));
             if (isSendSuccessfully(ids->name(), rcontext)) {
                 result = true;
                 uint32_t packetCount = rcontext->packetCount();
                 for (size_t i = 0; i < packetCount; i++) {
-                    InstructionDescription *id = new InstructionDescription(name, context, false);
+                    auto id = new InstructionDescription(name, context, false);
                     context->setPacketNo(i);
                     context->transferData();
-                    C *rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
+                    rcontext = dynamic_cast<C *>(_instructionPool->executeInstructionSync(id));
                     if (isSendSuccessfully(id->name(), rcontext)) {
                         delete id;
 
@@ -858,7 +858,7 @@ namespace Communication {
             context->transferHeader();
             context->setPacketLength(packetLength);
             context->setInputData(&inputData);
-            InstructionDescription *ids = new InstructionDescription(name, context);
+            auto ids = new InstructionDescription(name, context);
             _instructionPool->addInstruction(ids);
             uint32_t packetCount = context->calcPacketCount();
             for (size_t i = 0; i < packetCount; i++) {
@@ -871,7 +871,7 @@ namespace Communication {
                 context->transferData();
                 context->setInputData(&inputData);
                 context->calcPacketCount();
-                InstructionDescription *id = new InstructionDescription(name, context);
+                auto id = new InstructionDescription(name, context);
                 _instructionPool->addInstruction(id);
             }
         }
@@ -886,7 +886,7 @@ namespace Communication {
 
         const Endpoint &endpoint() const;
 
-        const P2PEndpoint p2pEndpoint() const;
+        P2PEndpoint p2pEndpoint() const;
 
         bool connected() const;
 
@@ -960,7 +960,7 @@ namespace Communication {
 
     class ClientServices : public IIndexGetter<ClientService *> {
     public:
-        ClientServices(bool autoDelete = true);
+        explicit ClientServices(bool autoDelete = true);
 
         void add(ClientService *cs);
 

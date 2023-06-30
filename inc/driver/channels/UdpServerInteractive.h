@@ -15,7 +15,7 @@ using namespace Data;
 
 namespace Drivers
 {
-	class UdpServerInteractive : public Interactive, public EthernetEndpoint, public BackgroudReceiver
+	class UdpServerInteractive : public Interactive, public EthernetEndpoint, public BackgroundReceiver
 	{
 	public:
 		UdpServerInteractive(DriverManager* dm, Channel* channel);

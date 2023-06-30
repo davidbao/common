@@ -19,7 +19,7 @@ namespace Drivers
 	class Channel;
 	class DriverManager;
     class DeviceDescription;
-    class BluetoothServerClient : public BackgroudReceiver
+    class BluetoothServerClient : public BackgroundReceiver
 	{
 	public:
 		BluetoothServerClient(DriverManager* dm, BluetoothClient* client, Channel* channel, bool autoDelete = true);

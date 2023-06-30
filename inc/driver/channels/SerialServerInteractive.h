@@ -14,7 +14,7 @@ using namespace Data;
 namespace Drivers {
     class Device;
 
-    class SerialServerInteractive : public Interactive, public BackgroudReceiver {
+    class SerialServerInteractive : public Interactive, public BackgroundReceiver {
     public:
         SerialServerInteractive(DriverManager *dm, Channel *channel);
 

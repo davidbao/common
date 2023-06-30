@@ -16,62 +16,70 @@
 using namespace Data;
 using namespace Net;
 
-namespace Drivers
-{
+namespace Drivers {
     class Device;
-	class Channel;
+
+    class Channel;
+
     class DriverManager;
-	class Interactive
-	{
-	public:
+
+    class Interactive {
+    public:
         virtual ~Interactive();
-        
-	protected:
-        Interactive(DriverManager* dm, Channel* channel = nullptr);
 
-	public:
-		virtual bool open() = 0;
-		virtual void close() = 0;
+    protected:
+        explicit Interactive(DriverManager *dm, Channel *channel = nullptr);
 
-		virtual bool connected() = 0;
-		virtual size_t available() = 0;
+    public:
+        virtual bool open() = 0;
 
-		virtual ssize_t send(const uint8_t* buffer, off_t offset, size_t count) = 0;
-		virtual ssize_t receive(uint8_t* buffer, off_t offset, size_t count) = 0;
-        virtual ssize_t receive(uint8_t* buffer, off_t offset, size_t count, uint32_t timeout);
-        virtual ssize_t receive(ByteArray* buffer, size_t count, uint32_t timeout);
-        
+        virtual void close() = 0;
+
+        virtual bool connected() = 0;
+
+        virtual size_t available() = 0;
+
+        virtual ssize_t send(const uint8_t *buffer, off_t offset, size_t count) = 0;
+
+        virtual ssize_t receive(uint8_t *buffer, off_t offset, size_t count) = 0;
+
+        virtual ssize_t receive(uint8_t *buffer, off_t offset, size_t count, uint32_t timeout);
+
+        virtual ssize_t receive(ByteArray *buffer, size_t count, uint32_t timeout);
+
         virtual bool isClosing() const;
 
-        Channel* channel() const;
-        void setChannel(Channel* channel);
-        
-    protected:
-        DriverManager* manager() const;
+        Channel *channel() const;
 
-	protected:
-		Channel* _channel;
-		bool _useReceiveTimeout;
-        
-        DriverManager* _manager;
-	};
-    
-    class EthernetEndpoint
-    {
+        void setChannel(Channel *channel);
+
+    protected:
+        DriverManager *manager() const;
+
+    protected:
+        Channel *_channel;
+        bool _useReceiveTimeout;
+
+        DriverManager *_manager;
+    };
+
+    class EthernetEndpoint {
     public:
         virtual ~EthernetEndpoint();
-        virtual const Endpoint& peerEndpoint() const = 0;
-        virtual const Endpoint& endpoint() const = 0;
-        const P2PEndpoint p2pEndpoint() const;
+
+        virtual const Endpoint &peerEndpoint() const = 0;
+
+        virtual const Endpoint &endpoint() const = 0;
+
+        P2PEndpoint p2pEndpoint() const;
     };
-    
-    class BackgroudReceiver
-    {
+
+    class BackgroundReceiver {
     public:
-        virtual ~BackgroudReceiver();
-        
+        virtual ~BackgroundReceiver();
+
     protected:
-        bool receiveFromBuffer(Device* device);
+        bool receiveFromBuffer(Device *device);
     };
 }
 

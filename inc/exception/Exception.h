@@ -12,6 +12,8 @@ namespace System {
 
         Exception(const Exception &e) noexcept;
 
+        Exception& operator=(const Exception& e) noexcept;
+
         ~Exception() noexcept override;
 
         const char *what() const noexcept override;
@@ -30,7 +32,7 @@ namespace System {
     private:
         static void showExceptionInfo(const Exception *exception) noexcept;
 
-    private:
+    protected:
         String _message;
         const Exception *_innerException;
     };
@@ -40,6 +42,8 @@ namespace System {
         explicit MessageException(const String &message, const Exception *innerException = nullptr) noexcept;
 
         MessageException(const MessageException &e) noexcept;
+
+        MessageException& operator=(const MessageException& e) noexcept;
 
         ~MessageException() noexcept override;
 
@@ -53,6 +57,8 @@ namespace System {
 
         BindingException(const BindingException &e) noexcept;
 
+        BindingException& operator=(const BindingException& e) noexcept;
+
         ~BindingException() noexcept override;
 
     protected:
@@ -64,6 +70,8 @@ namespace System {
         explicit OverflowException(const String &message, const Exception *innerException = nullptr) noexcept;
 
         OverflowException(const OverflowException &e) noexcept;
+
+        OverflowException& operator=(const OverflowException& e) noexcept;
 
         ~OverflowException() noexcept override;
 
@@ -77,6 +85,8 @@ namespace System {
 
         StreamException(const StreamException &e) noexcept;
 
+        StreamException& operator=(const StreamException& e) noexcept;
+
         ~StreamException() noexcept override;
 
     protected:
@@ -88,6 +98,8 @@ namespace System {
         explicit IOException(const String &message, const Exception *innerException = nullptr) noexcept;
 
         IOException(const IOException &e) noexcept;
+
+        IOException& operator=(const IOException& e) noexcept;
 
         ~IOException() noexcept override;
 
@@ -104,6 +116,8 @@ namespace System {
 
         ArgumentException(const ArgumentException &e) noexcept;
 
+        ArgumentException& operator=(const ArgumentException& e) noexcept;
+
         ~ArgumentException() noexcept override;
 
         const String &paramName() const noexcept;
@@ -111,7 +125,7 @@ namespace System {
     protected:
         void showMessage() const noexcept override;
 
-    private:
+    protected:
         String _paramName;
     };
 
@@ -120,6 +134,8 @@ namespace System {
         explicit ArgumentNullException(const String &paramName) noexcept;
 
         ArgumentNullException(const ArgumentNullException &e) noexcept;
+
+        ArgumentNullException& operator=(const ArgumentNullException& e) noexcept;
 
         ~ArgumentNullException() noexcept override;
 
@@ -140,6 +156,8 @@ namespace System {
 
         ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e) noexcept;
 
+        ArgumentOutOfRangeException& operator=(const ArgumentOutOfRangeException& e) noexcept;
+
         ~ArgumentOutOfRangeException() noexcept override;
 
     protected:
@@ -151,6 +169,8 @@ namespace System {
         explicit TimeoutException(const String &message, const Exception *innerException = nullptr) noexcept;
 
         TimeoutException(const TimeoutException &e) noexcept;
+
+        TimeoutException& operator=(const TimeoutException& e) noexcept;
 
         ~TimeoutException() noexcept override;
 
@@ -164,6 +184,8 @@ namespace System {
 
         NotImplementedException(const NotImplementedException &e) noexcept;
 
+        NotImplementedException& operator=(const NotImplementedException& e) noexcept;
+
         ~NotImplementedException() noexcept override;
 
     protected:
@@ -176,6 +198,8 @@ namespace System {
 
         NotSupportedException(const NotSupportedException &e) noexcept;
 
+        NotSupportedException& operator=(const NotSupportedException& e) noexcept;
+
         ~NotSupportedException() noexcept override;
 
     protected:
@@ -187,6 +211,8 @@ namespace System {
         explicit FileNotFoundException(const String &fileName, const Exception *innerException = nullptr) noexcept;
 
         FileNotFoundException(const FileNotFoundException &e) noexcept;
+
+        FileNotFoundException& operator=(const FileNotFoundException& e) noexcept;
 
         ~FileNotFoundException() noexcept override;
 
@@ -201,6 +227,8 @@ namespace System {
         explicit PathNotFoundException(const String &path, const Exception *innerException = nullptr) noexcept;
 
         PathNotFoundException(const PathNotFoundException &e) noexcept;
+
+        PathNotFoundException& operator=(const PathNotFoundException& e) noexcept;
 
         ~PathNotFoundException() noexcept override;
 

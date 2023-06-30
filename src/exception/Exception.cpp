@@ -20,6 +20,14 @@ namespace System {
         _innerException = e._innerException;
     }
 
+    Exception& Exception::operator=(const Exception& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
+
     Exception::~Exception() noexcept {
         _innerException = nullptr;
     }
@@ -67,91 +75,151 @@ namespace System {
     MessageException::MessageException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
+        
     }
 
-    MessageException::MessageException(const MessageException &e) noexcept = default;
+    MessageException::MessageException(const MessageException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    MessageException& MessageException::operator=(const MessageException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     MessageException::~MessageException() noexcept = default;
 
     void MessageException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a message exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a message exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     BindingException::BindingException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
     }
 
-    BindingException::BindingException(const BindingException &e) noexcept = default;
+    BindingException::BindingException(const BindingException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    BindingException& BindingException::operator=(const BindingException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     BindingException::~BindingException() noexcept = default;
 
     void BindingException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a binding exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a binding exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     OverflowException::OverflowException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
     }
 
-    OverflowException::OverflowException(const OverflowException &e) noexcept = default;
+    OverflowException::OverflowException(const OverflowException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    OverflowException& OverflowException::operator=(const OverflowException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     OverflowException::~OverflowException() noexcept = default;
 
     void OverflowException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw an overflow exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw an overflow exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     StreamException::StreamException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
     }
 
-    StreamException::StreamException(const StreamException &e) noexcept = default;
+    StreamException::StreamException(const StreamException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    StreamException& StreamException::operator=(const StreamException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     StreamException::~StreamException() noexcept = default;
 
     void StreamException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a stream exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a stream exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
-    IOException::IOException(const String &message, const Exception *innerException) noexcept: Exception(message,
-                                                                                                         innerException) {
-        showExceptionInfo();
+    IOException::IOException(const String &message, const Exception *innerException) noexcept: Exception(
+            message, innerException) {
     }
 
-    IOException::IOException(const IOException &e) noexcept = default;
+    IOException::IOException(const IOException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    IOException& IOException::operator=(const IOException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     IOException::~IOException() noexcept = default;
 
     void IOException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw an IO exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw an IO exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     ArgumentException::ArgumentException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
+        
     }
 
     ArgumentException::ArgumentException(const String &message, const String &paramName,
                                          const Exception *innerException) noexcept: Exception(message, innerException) {
         _paramName = paramName;
-        showExceptionInfo();
+        
     }
 
     ArgumentException::ArgumentException(const ArgumentException &e) noexcept: Exception(e) {
         _paramName = e._paramName;
+    }
+
+    ArgumentException& ArgumentException::operator=(const ArgumentException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+            _paramName = e._paramName;
+        }
+        return *this;
     }
 
     ArgumentException::~ArgumentException() noexcept = default;
@@ -161,7 +229,7 @@ namespace System {
     }
 
     void ArgumentException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw an argument exception, message: %s, paramName: %s",
+        Trace::writeFormatLine("throw an argument exception, message: '%s', paramName: '%s'",
                                message().c_str(), _paramName.c_str());
         print_stacktrace();
     }
@@ -171,15 +239,27 @@ namespace System {
     ArgumentNullException::ArgumentNullException(const String &paramName) noexcept: ArgumentException(
             ArgumentNull_Generic,
             paramName) {
-        showExceptionInfo();
     }
 
-    ArgumentNullException::ArgumentNullException(const ArgumentNullException &e) noexcept = default;
+    ArgumentNullException::ArgumentNullException(const ArgumentNullException &e) noexcept : ArgumentException(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+        _paramName = e._paramName;
+    }
+
+    ArgumentNullException& ArgumentNullException::operator=(const ArgumentNullException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+            _paramName = e._paramName;
+        }
+        return *this;
+    }
 
     ArgumentNullException::~ArgumentNullException() noexcept = default;
 
     void ArgumentNullException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw an argument null exception, message: %s, paramName: %s",
+        Trace::writeFormatLine("throw an argument null exception, message: '%s', paramName: '%s'",
                                message().c_str(), paramName().c_str());
         print_stacktrace();
     }
@@ -187,22 +267,35 @@ namespace System {
     ArgumentOutOfRangeException::ArgumentOutOfRangeException(const String &message,
                                                              const Exception *innerException) noexcept
             : ArgumentException(message, innerException) {
-        showExceptionInfo();
+        
     }
 
     ArgumentOutOfRangeException::ArgumentOutOfRangeException(const String &message, const String &paramName,
-                                                             const Exception *innerException) noexcept
-            : ArgumentException(
-            message, paramName, innerException) {
-        showExceptionInfo();
+                                                             const Exception *innerException) noexcept :
+                                                             ArgumentException(message, paramName, innerException) {
+        
     }
 
-    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e) noexcept = default;
+    ArgumentOutOfRangeException::ArgumentOutOfRangeException(const ArgumentOutOfRangeException &e) noexcept :
+        ArgumentException(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+        _paramName = e._paramName;
+    }
+
+    ArgumentOutOfRangeException& ArgumentOutOfRangeException::operator=(const ArgumentOutOfRangeException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+            _paramName = e._paramName;
+        }
+        return *this;
+    }
 
     ArgumentOutOfRangeException::~ArgumentOutOfRangeException() noexcept = default;
 
     void ArgumentOutOfRangeException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw an argument out of range exception, message: %s, paramName: %s",
+        Trace::writeFormatLine("throw an argument out of range exception, message: '%s', paramName: '%s'",
                                message().c_str(), paramName().c_str());
         print_stacktrace();
     }
@@ -210,82 +303,132 @@ namespace System {
     TimeoutException::TimeoutException(const String &message, const Exception *innerException) noexcept: Exception(
             message,
             innerException) {
-        showExceptionInfo();
     }
 
-    TimeoutException::TimeoutException(const TimeoutException &e) noexcept = default;
+    TimeoutException::TimeoutException(const TimeoutException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    TimeoutException& TimeoutException::operator=(const TimeoutException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     TimeoutException::~TimeoutException() noexcept = default;
 
     void TimeoutException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a timeout exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a timeout exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     NotImplementedException::NotImplementedException(const String &message, const Exception *innerException) noexcept
             : Exception(message, innerException) {
-        showExceptionInfo();
+        
     }
 
-    NotImplementedException::NotImplementedException(const NotImplementedException &e) noexcept = default;
+    NotImplementedException::NotImplementedException(const NotImplementedException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    NotImplementedException& NotImplementedException::operator=(const NotImplementedException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     NotImplementedException::~NotImplementedException() noexcept = default;
 
     void NotImplementedException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a not implemented exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a not implemented exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     NotSupportedException::NotSupportedException(const String &message, const Exception *innerException) noexcept
             : Exception(
             message, innerException) {
-        showExceptionInfo();
     }
 
-    NotSupportedException::NotSupportedException(const NotSupportedException &e) noexcept = default;
+    NotSupportedException::NotSupportedException(const NotSupportedException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    NotSupportedException& NotSupportedException::operator=(const NotSupportedException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
+    }
 
     NotSupportedException::~NotSupportedException() noexcept = default;
 
     void NotSupportedException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a not supported exception, message: %s", message().c_str());
+        Trace::writeFormatLine("throw a not supported exception, message: '%s'", message().c_str());
         print_stacktrace();
     }
 
     FileNotFoundException::FileNotFoundException(const String &fileName, const Exception *innerException) noexcept
             : Exception(
             fileName, innerException) {
-        showExceptionInfo();
+    }
+
+    FileNotFoundException::FileNotFoundException(const FileNotFoundException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
+
+    FileNotFoundException& FileNotFoundException::operator=(const FileNotFoundException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
     }
 
     FileNotFoundException::~FileNotFoundException() noexcept = default;
-
-    FileNotFoundException::FileNotFoundException(const FileNotFoundException &e) noexcept = default;
 
     const String &FileNotFoundException::fileName() const noexcept {
         return message();
     }
 
     void FileNotFoundException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a file not found exception, file name: %s", fileName().c_str());
+        Trace::writeFormatLine("throw a file not found exception, file name: '%s'", fileName().c_str());
         print_stacktrace();
     }
 
     PathNotFoundException::PathNotFoundException(const String &path, const Exception *innerException) noexcept
-            : Exception(
-            path, innerException) {
-        showExceptionInfo();
+            : Exception(path, innerException) {
+    }
+
+    PathNotFoundException& PathNotFoundException::operator=(const PathNotFoundException& e) noexcept {
+        if (&e != this) {
+            _message = e._message;
+            _innerException = e._innerException;
+        }
+        return *this;
     }
 
     PathNotFoundException::~PathNotFoundException() noexcept = default;
 
-    PathNotFoundException::PathNotFoundException(const PathNotFoundException &e) noexcept = default;
+    PathNotFoundException::PathNotFoundException(const PathNotFoundException &e) noexcept : Exception(e) {
+        _message = e._message;
+        _innerException = e._innerException;
+    }
 
     const String &PathNotFoundException::path() const noexcept {
         return message();
     }
 
     void PathNotFoundException::showMessage() const noexcept {
-        Trace::writeFormatLine("throw a path not found exception, file name: %s", path().c_str());
+        Trace::writeFormatLine("throw a path not found exception, file name: '%s'", path().c_str());
         print_stacktrace();
     }
 }

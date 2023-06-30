@@ -59,7 +59,8 @@ bool testConstructor() {
         try {
             MappingStream stream(String::Empty);
             return false;
-        } catch (const ArgumentNullException&) {
+        } catch (const ArgumentNullException& e) {
+            printf("exception: %s\n", e.message().c_str());
         }
     }
 
@@ -67,7 +68,8 @@ bool testConstructor() {
         try {
             MappingStream stream("abc");
             return false;
-        } catch (const FileNotFoundException&) {
+        } catch (const FileNotFoundException& e) {
+            printf("exception: %s\n", e.message().c_str());
         }
     }
 
@@ -75,7 +77,8 @@ bool testConstructor() {
         try {
             MappingStream stream(String::Empty, 0);
             return false;
-        } catch (const ArgumentNullException&) {
+        } catch (const ArgumentNullException& e) {
+            printf("exception: %s\n", e.message().c_str());
         }
     }
 
@@ -83,7 +86,8 @@ bool testConstructor() {
         try {
             MappingStream stream("abc", 0);
             return false;
-        } catch (const ArgumentOutOfRangeException&) {
+        } catch (const ArgumentOutOfRangeException& e) {
+            printf("exception: %s\n", e.message().c_str());
         }
     }
 
@@ -91,7 +95,8 @@ bool testConstructor() {
         try {
             MappingStream stream("abc", 2UL * 1024 * 1024 * 1024L + 1);
             return false;
-        } catch (const ArgumentOutOfRangeException&) {
+        } catch (const ArgumentOutOfRangeException& e) {
+            printf("exception: %s\n", e.message().c_str());
         }
     }
 #endif  // __EMSCRIPTEN__
