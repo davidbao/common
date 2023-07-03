@@ -18,11 +18,9 @@
 #include "microservice/ServiceRegister.h"
 
 namespace Microservice {
-    IActuator::IActuator() {
-    }
+    IActuator::IActuator() = default;
 
-    IActuator::~IActuator() {
-    }
+    IActuator::~IActuator() = default;
 
     HttpStatus IActuator::onActuator(const HttpRequest &request, HttpResponse &response) {
         if (request.method == HttpMethod::Options)
@@ -904,13 +902,11 @@ namespace Microservice {
     }
 
     const HttpHeader Actuator::ContentTypeHeader("Content-Type",
-                                                 "application/vnd.summer-boot.actuator.v2+json;charset=UTF-8");
+                                                 "application/vnd.spring-boot.actuator.v2+json;charset=UTF-8");
 
-    Actuator::Actuator() {
-    }
+    Actuator::Actuator() = default;
 
-    Actuator::~Actuator() {
-    }
+    Actuator::~Actuator() = default;
 
     bool Actuator::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();

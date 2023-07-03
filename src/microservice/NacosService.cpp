@@ -41,7 +41,7 @@ namespace Microservice {
         }
     }
 
-    const String NacosService::serviceName() const {
+    String NacosService::serviceName() const {
         String serviceName;
         _instanceInfo.at("serviceName", serviceName);
         return serviceName;
@@ -149,11 +149,11 @@ namespace Microservice {
                 instance->setAlive(false);
             }
 
-            const HttpJsonContent *content = dynamic_cast<const HttpJsonContent *>(response.content);
+            auto content = dynamic_cast<const HttpJsonContent *>(response.content);
             assert(content);
             JsonNode node;
             if (content->node().at("hosts", node)) {
-                ServiceInstance *instance = nullptr;
+                ServiceInstance *instance;
                 for (size_t i = 0; i < node.count(); i++) {
                     JsonNode serviceNode;
                     if (node.at(i, serviceNode)) {
@@ -173,10 +173,10 @@ namespace Microservice {
                             StringMap meta;
                             StringArray names;
                             metaNode.getAttributeNames(names);
-                            for (size_t i = 0; i < names.count(); i++) {
+                            for (size_t j = 0; j < names.count(); j++) {
                                 String value;
-                                if (metaNode.getAttribute(names[i], value))
-                                    meta.add(names[i], value);
+                                if (metaNode.getAttribute(names[j], value))
+                                    meta.add(names[j], value);
                             }
                             instance->setMeta(meta);
                         }
@@ -205,7 +205,7 @@ namespace Microservice {
     }
 
     bool NacosService::isFirstEndpoint() const {
-        return _endpoints.count() > 0 ? _current == _endpoints[0] : false;
+        return _endpoints.count() > 0 && _current == _endpoints[0];
     }
 
     bool NacosService::getHealthNode(JsonNode &node) {
@@ -334,17 +334,17 @@ namespace Microservice {
                 const String &text = texts[i];
                 StringArray texts2;
                 StringArray::parse(text, texts2, '=');
-                String key, value;
+                String k, v;
                 if (texts2.count() == 2) {
-                    key = texts2[0].trim();
-                    value = texts2[1].trim();
+                    k = texts2[0].trim();
+                    v = texts2[1].trim();
                 } else if (texts2.count() == 1) {
-                    key = texts2[0].trim();
-                    value = String::Empty;
+                    k = texts2[0].trim();
+                    v = String::Empty;
                 }
 
-                if (!key.isNullOrEmpty()) {
-                    node.add(JsonNode(key, value));
+                if (!k.isNullOrEmpty()) {
+                    node.add(JsonNode(k, v));
                 }
             }
             return true;
@@ -352,7 +352,7 @@ namespace Microservice {
         return false;
     }
 
-    void NacosService::createInstanceProperties(StringMap &properties, const String &serviceName, Port servicePort) {
+    void NacosService::createInstanceProperties(StringMap &properties, const String &serviceName, const Port &servicePort) {
         Application *app = Application::instance();
         assert(app);
         String name = app->name();

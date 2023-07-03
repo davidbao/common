@@ -15,8 +15,7 @@
 namespace Microservice {
     const HttpHeaders RestTemplate::DefaultHeaders({HttpHeader("Content-Type", "application/json")});
 
-    RestTemplate::RestTemplate() {
-    }
+    RestTemplate::RestTemplate() = default;
 
     bool RestTemplate::get(const String &url, String &result, const HttpHeaders &headers) {
         Locker locker(&_clientMutex);
@@ -55,7 +54,7 @@ namespace Microservice {
     Url RestTemplate::parseUrl(const String &original) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        LoadBalancerClient *service = factory->getService<LoadBalancerClient>();
+        auto service = factory->getService<LoadBalancerClient>();
         if (service != nullptr) {
             Url url = service->reconstructUrl(original);
             if (!url.isEmpty() && (url.scheme() == Url::SchemeHttp || url.scheme() == Url::SchemeHttps))

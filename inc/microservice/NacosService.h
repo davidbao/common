@@ -23,7 +23,7 @@ namespace Microservice
         NacosService();
         ~NacosService() override;
         
-        const String serviceName() const;
+        String serviceName() const;
         
         const Url& baseUrl() const;
         
@@ -42,7 +42,7 @@ namespace Microservice
         
     private:
         Url createRegisterUrl();
-        void createInstanceProperties(StringMap& properties, const String& serviceName = String::Empty, Port servicePort = Port::Empty);
+        void createInstanceProperties(StringMap& properties, const String& serviceName = String::Empty, const Port& servicePort = Port::Empty);
         bool registerService(const StringMap& properties);
         bool deregisterService(const StringMap& properties);
         bool checkServiceHealth(const StringMap& properties);
