@@ -585,6 +585,55 @@ namespace Database {
         }
     }
 
+    String DataTable::toInsertStr(const DataRow &row) const {
+        // such like '"INSERT INTO users(name, age) VALUES (.....),(.....),(.....),(.....)";'
+        String columnsStr;
+        String valuesStr;
+        for (size_t i = 0; i < columnCount(); ++i) {
+            if (columnsStr.length() > 0) {
+                columnsStr += ", ";
+            }
+            columnsStr += _columns[i].name();
+
+            if (valuesStr.length() > 0) {
+                valuesStr += ", ";
+            }
+            valuesStr += row.cells()[i].valueStr(true);
+        }
+        static const char *insertStr = "INSERT INTO %s(%s) VALUES (%s);";
+        return String::format(insertStr, _name.c_str(), columnsStr.c_str(), valuesStr.c_str());
+    }
+
+    String DataTable::toInsertStr() const {
+        String sql;
+        for (size_t i = 0; i < rowCount(); ++i) {
+            const DataRow &row = _rows[i];
+            sql += toInsertStr(row);
+            sql += "\n";
+        }
+        return sql;
+    }
+
+    String DataTable::toUpdateStr(const DataRow &row, const String &whereStr) const {
+        //  such like '"UPDATE users SET (NAME, AGE)=('TEST', 11) WHERE ID=1";'
+        String columnsStr;
+        String valuesStr;
+        for (size_t i = 0; i < columnCount(); ++i) {
+            if (columnsStr.length() > 0) {
+                columnsStr += ", ";
+            }
+            columnsStr += _columns[i].name();
+
+            if (valuesStr.length() > 0) {
+                valuesStr += ", ";
+            }
+            valuesStr += row.cells()[i].valueStr(true);
+        }
+        static const char *updateStr = "UPDATE %s SET(%s)=(%s) %s;";
+        String where = !whereStr.isNullOrEmpty() ? String::format("WHERE %s", whereStr.c_str()) : String::Empty;
+        return String::format(updateStr, _name.c_str(), columnsStr.c_str(), valuesStr.c_str(), where.c_str());
+    }
+
     DataTables::DataTables(size_t capacity) : List<DataTable>(capacity) {
     }
 

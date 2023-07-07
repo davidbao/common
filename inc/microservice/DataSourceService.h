@@ -54,6 +54,10 @@ namespace Microservice {
         static DbClient * openKingbase(const Url &url, const String &userName, const String &password);
 #endif
 
+#ifdef HAS_DB_DM6
+        static DbClient * openDm6(const Url &url, const String &userName, const String &password);
+#endif
+
     private:
         DbClient *_dbClient;
     };

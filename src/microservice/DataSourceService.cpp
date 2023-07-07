@@ -19,6 +19,9 @@
 #ifdef HAS_DB_KINGBASE
 #include "database/KingbaseClient.h"
 #endif
+#ifdef HAS_DB_DM6
+#include "database/Dm6Client.h"
+#endif
 
 #include "configuration/ConfigService.h"
 #include "system/Application.h"
@@ -90,6 +93,10 @@ namespace Microservice {
             } else if (url.scheme() == "kingbase") {
 #ifdef HAS_DB_KINGBASE
                 return openKingbase(url, userName, password);
+#endif
+            } else if (url.scheme() == "dm6") {
+#ifdef HAS_DB_DM6
+                return openDm6(url, userName, password);
 #endif
             }
             return nullptr;
@@ -199,6 +206,27 @@ namespace Microservice {
         } else {
             Trace::debug(String::format(
                     "Failed to open kingbase. host: %s, port: %d, database: %s, user name: %s, reason: '%s'",
+                    host.c_str(), port, database.c_str(), userName.c_str(),
+                    client->getErrorMsg().c_str()));
+            delete client;
+            return nullptr;
+        }
+    }
+#endif
+
+#ifdef HAS_DB_DM6
+    DbClient* DataSourceService::openDm6(const Url &url, const String &userName, const String &password) {
+        String host = url.address();
+        int port = url.port();
+        String database = url.relativeUrl();
+        auto *client = new Dm6Client();
+        if (client->open(url, userName, password)) {
+            Trace::debug(String::format("Open dm6 successfully. host: %s, port: %d, database: %s, user name: %s",
+                                        host.c_str(), port, database.c_str(), userName.c_str()));
+            return client;
+        } else {
+            Trace::debug(String::format(
+                    "Failed to open dm6. host: %s, port: %d, database: %s, user name: %s, reason: '%s'",
                     host.c_str(), port, database.c_str(), userName.c_str(),
                     client->getErrorMsg().c_str()));
             delete client;

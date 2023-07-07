@@ -34,5 +34,9 @@ if (${COMMON_BUILD_DATABASE})
         set(DATABASE_SRC ${DATABASE_SRC} KingbaseClient.cpp)
     endif ()
 
+    if (${COMMON_BUILD_DM6})
+        set(DATABASE_SRC ${DATABASE_SRC} Dm6Client.cpp)
+    endif ()
+
     add_library(database OBJECT ${DATABASE_SRC})
 endif ()

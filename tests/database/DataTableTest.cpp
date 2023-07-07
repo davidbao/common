@@ -2002,6 +2002,88 @@ bool testSort() {
     return true;
 }
 
+bool testSql() {
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
+                        });
+        String sql = test.toInsertStr(DataRow({
+                                                      DataCell(test.columns()[0], 1),
+                                                      DataCell(test.columns()[1], "Xu"),
+                                                      DataCell(test.columns()[2], 86),
+                                              }));
+        String expect = "INSERT INTO abc(id, name, score) VALUES (1, 'Xu', 86);";
+        if (!String::equals(sql, expect, true)) {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
+                        });
+        String sql = test.toUpdateStr(DataRow({
+                                                      DataCell(test.columns()[0], 1),
+                                                      DataCell(test.columns()[1], "Xu"),
+                                                      DataCell(test.columns()[2], 86),
+                                              }), "id=1");
+        String expect = "UPDATE abc SET(id, name, score)=(1, 'Xu', 86) WHERE id=1;";
+        if (!String::equals(sql, expect, true)) {
+            return false;
+        }
+    }
+
+    {
+        DataTable test("abc");
+        test.addColumns({
+                                DataColumn("id", DbType::Integer32, true),
+                                DataColumn("name", DbType::Text, false),
+                                DataColumn("score", DbType::Float64, false),
+                        });
+        test.addRows({
+                             DataRow({
+                                             DataCell(test.columns()[0], 1),
+                                             DataCell(test.columns()[1], "Xu"),
+                                             DataCell(test.columns()[2], 86),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 2),
+                                             DataCell(test.columns()[1], "Hu"),
+                                             DataCell(test.columns()[2], 91),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 3),
+                                             DataCell(test.columns()[1], "Yu"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 4),
+                                             DataCell(test.columns()[1], "Zh"),
+                                             DataCell(test.columns()[2], 78),
+                                     }),
+                             DataRow({
+                                             DataCell(test.columns()[0], 5),
+                                             DataCell(test.columns()[1], "Ai"),
+                                             DataCell(test.columns()[2], 78),
+                                     })
+                     });
+        String sql = test.toInsertStr();
+        StringArray texts;
+        StringArray::parse(sql, texts, '\n');
+        if (texts.count() != 5) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main() {
     if (!testDataColumnConstructor()) {
         return 1;
@@ -2076,6 +2158,10 @@ int main() {
 
     if (!testSort()) {
         return 80;
+    }
+
+    if (!testSql()) {
+        return 81;
     }
 
     return 0;

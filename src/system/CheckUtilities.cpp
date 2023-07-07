@@ -107,8 +107,8 @@ namespace System {
 
     unsigned short
     Crc16Utilities::quickCheckByBit(const uint8_t *buffer, off_t offset, size_t count, unsigned short initValue) {
-        uint8_t u8CRCHi; // high uint8_t of CRC initialized
-        uint8_t u8CRCLo; // low uint8_t of CRC initialized
+        uint8_t u8CRCHi; // high uint8_t of CRC isOpened
+        uint8_t u8CRCLo; // low uint8_t of CRC isOpened
         uint8_t u8Index; // will index into CRC lookup table
 
         u8CRCLo = initValue & 0xFF;

@@ -290,6 +290,12 @@ namespace Database {
 
         void sort(const OrderByItems &items);
 
+        String toInsertStr(const DataRow &row) const;
+
+        String toInsertStr() const;
+
+        String toUpdateStr(const DataRow &row, const String &whereStr) const;
+
     private:
         // A signed integer that indicates the relative values of x and y, as shown in the following table.
         // Value	            Meaning

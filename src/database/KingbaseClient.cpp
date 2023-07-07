@@ -96,9 +96,9 @@ namespace Database {
         return false;
     }
 
-    bool KingbaseClient::open(const String &kingbaseDbStr) {
+    bool KingbaseClient::open(const String &connectionStr) {
         StringArray texts;
-        Convert::splitStr(kingbaseDbStr, ';', texts);
+        Convert::splitStr(connectionStr, ';', texts);
         if (texts.count() == 5) {
             StringMap values{
                     {"host",            texts[0]},
