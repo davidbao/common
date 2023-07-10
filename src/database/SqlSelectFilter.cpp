@@ -276,7 +276,8 @@ namespace Database {
 
             // limit
             if (hasLimit()) {
-                result.append(String::format(" LIMIT %d,%d", offset(), limit()));
+                result.append(String::format(" LIMIT %d OFFSET %d", limit(), offset()));
+//                result.append(String::format(" LIMIT %d,%d", offset(), limit()));
             }
         }
 

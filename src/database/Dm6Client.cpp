@@ -438,7 +438,7 @@ namespace Database {
         }
 
 #ifdef DEBUG
-        createSqlFile("kingbase_insert.sql", sql);
+        createSqlFile("dm6_insert.sql", sql);
 #endif
 
         return executeSqlInner(sql);

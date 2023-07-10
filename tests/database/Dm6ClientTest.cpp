@@ -28,15 +28,15 @@ void setUp() {
     Trace::enableConsoleOutput();
     Trace::enableFlushConsoleOutput();
 
-    Dm6Client test;
-    if (!test.open(Url(_baseUrl), _username, _password)) {
-        Trace::error("Can not open dm6!");
-        return;
-    }
-    test.executeSql(String::format("DROP DATABASE %s CASCADE;", _database.c_str()));
-    String fileName = String::format("C:\\dmdbms6\\data\\%s.dbf", _database.c_str());
-    String sql = String::format("CREATE DATABASE %s DATAFILE '%s' SIZE 50;", _database.c_str(), fileName.c_str());
-    test.executeSql(sql);
+//    Dm6Client test;
+//    if (!test.open(Url(_baseUrl), _username, _password)) {
+//        Trace::error("Can not open dm6!");
+//        return;
+//    }
+//    test.executeSql(String::format("DROP DATABASE %s CASCADE;", _database.c_str()));
+//    String fileName = String::format("C:\\dmdbms6\\data\\%s.dbf", _database.c_str());
+//    String sql = String::format("CREATE DATABASE %s DATAFILE '%s' SIZE 50;", _database.c_str(), fileName.c_str());
+//    test.executeSql(sql);
 }
 
 void cleanUp() {
@@ -48,7 +48,7 @@ void cleanUp() {
         }
         return;
     } else {
-        test.executeSql(String::format("DROP DATABASE %s CASCADE;", _database.c_str()));
+//        test.executeSql(String::format("DROP DATABASE %s CASCADE;", _database.c_str()));
     }
 }
 

@@ -64,6 +64,25 @@ namespace Microservice {
         return _method;
     }
 
+    void IHttpRegister::registerWebPath(const String &webPath) {
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto *cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String baseUrl = cs->getProperty("server.http.baseUrl");
+        registerWebPath(baseUrl, webPath);
+    }
+
+    void IHttpRegister::unregisterWebPath(const String &webPath) {
+        unregisterWebPath(String::Empty, webPath);
+    }
+
+    void IHttpRegister::clearMapping() {
+        Locker locker(&_mappingsMutex);
+        _mappings.clear();
+    }
+
     void IHttpSession::registerTokenId(const String &tokenId) {
         _tokenId = tokenId;
     }

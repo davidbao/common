@@ -248,13 +248,9 @@ namespace Microservice {
 
         virtual void registerHomePage(const StringArray &homePages) = 0;
 
-        void registerWebPath(const String &webPath) {
-            registerWebPath(String::Empty, webPath);
-        }
+        void registerWebPath(const String &webPath);
 
-        void unregisterWebPath(const String &webPath) {
-            unregisterWebPath(String::Empty, webPath);
-        }
+        void unregisterWebPath(const String &webPath);
 
         template<class T>
         void registerMapping(const HttpMapping<T> &mapping) {
@@ -302,10 +298,7 @@ namespace Microservice {
             }
         }
 
-        void clearMapping() {
-            Locker locker(&_mappingsMutex);
-            _mappings.clear();
-        }
+        void clearMapping();
 
     protected:
         Mutex _mappingsMutex;
