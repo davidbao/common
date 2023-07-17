@@ -38,6 +38,8 @@ namespace Net {
 
         ssize_t receive(size_t count, ByteArray &buffer);
 
+        ssize_t receive(size_t count, String &str);
+
         ssize_t
         receiveByEndBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *endBuffer, size_t ebLength, int suffix,
                           uint32_t timeout);
@@ -58,6 +60,11 @@ namespace Net {
 
         ssize_t
         receiveBySize(ByteArray *buffer, size_t count, const TimeSpan &timeout, const EscapeOption *escape = nullptr);
+
+        ssize_t receiveBySize(String *str, size_t count, uint32_t timeout, const EscapeOption *escape = nullptr);
+
+        ssize_t
+        receiveBySize(String *str, size_t count, const TimeSpan &timeout, const EscapeOption *escape = nullptr);
 
         bool receiveByte(uint8_t &data, uint32_t timeout);
 

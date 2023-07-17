@@ -69,6 +69,15 @@ namespace Net {
         return -1;
     }
 
+    ssize_t Receiver::receive(size_t count, String &str) {
+        ByteArray buffer;
+        ssize_t length = receive(count, buffer);
+        if (length > 0) {
+            str = String((const char*)buffer.data(), buffer.count());
+        }
+        return length;
+    }
+
     ssize_t Receiver::receiveBySize(uint8_t *buffer, size_t bufferLength, off_t offset, size_t count, uint32_t timeout,
                                     const EscapeOption *escape) {
         if (buffer == nullptr) {
@@ -111,6 +120,25 @@ namespace Net {
     ssize_t
     Receiver::receiveBySize(ByteArray *buffer, size_t count, const TimeSpan &timeout, const EscapeOption *escape) {
         return receiveBySize(buffer, count, (uint32_t) timeout.totalMilliseconds(), escape);
+    }
+
+    ssize_t Receiver::receiveBySize(String *str, size_t count, uint32_t timeout, const EscapeOption *escape) {
+        ByteArray buffer;
+        ssize_t length = receiveBySize(&buffer, count, timeout, escape);
+        if (length > 0) {
+            *str = String((const char *)buffer.data(), buffer.count());
+        }
+        return length;
+    }
+
+    ssize_t
+    Receiver::receiveBySize(String *str, size_t count, const TimeSpan &timeout, const EscapeOption *escape) {
+        ByteArray buffer;
+        ssize_t length = receiveBySize(&buffer, count, timeout, escape);
+        if (length > 0) {
+            *str = String((const char *)buffer.data(), buffer.count());
+        }
+        return length;
     }
 
     ssize_t Receiver::receiveByEndBytes(uint8_t *buffer, size_t bufferLength, const uint8_t *endBuffer, size_t ebLength,

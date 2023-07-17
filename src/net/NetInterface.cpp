@@ -21,7 +21,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <signal.h>
+#include <csignal>
 #include <net/if.h>
 #include <netinet/tcp.h>
 
@@ -44,24 +44,15 @@
 #endif
 #endif
 
-#include <errno.h>
 #include "net/NetInterface.h"
 #include "diag/Trace.h"
 #include "system/Math.h"
 #include "data/Convert.h"
 #include "data/DateTime.h"
 #include "diag/Process.h"
-#include "thread/TickTimeout.h"
-#include "net/Dns.h"
-#include "net/TcpClient.h"
 
-#ifdef DEBUG
 
-#include "system/Application.h"
-
-#endif
-
-#if WIN32
+#ifdef WIN32
 #undef errno
 #define errno WSAGetLastError()
 #define ioctl(s, cmd, argp) ioctlsocket(s, cmd, argp)
@@ -203,8 +194,8 @@ namespace Net {
 
 #else
                 // Posix/FreeBSD/MacOS
-                sockaddr_dl *sdl = (struct sockaddr_dl *) current->ifa_addr;
-                uint8_t *MAC = reinterpret_cast<uint8_t *>(LLADDR(sdl));
+                auto sdl = (struct sockaddr_dl *) current->ifa_addr;
+                auto MAC = reinterpret_cast<uint8_t *>(LLADDR(sdl));
 #endif
                 MacAddress addr(MAC);
                 addresses.add(addr);
@@ -234,6 +225,25 @@ namespace Net {
 #ifdef DEBUG
         process.showChildLog = false;
 #endif
+
+#ifdef WIN32
+        String para;
+        para = String::convert("-n %d %s", detectionCount, ipAddress.c_str());
+        Process::start((String) "ping", para, &process);
+        const String &str = process.stdoutStr();
+        const String &receivedStr = "Received =";
+        ssize_t start = str.find(receivedStr);
+        if (start > 0) {
+            start += receivedStr.length();
+            int end = str.find(',', start);
+            if (end > start) {
+                String countStr = str.substr(start, end - start);
+                countStr = countStr.trim(' ', ',');
+                int count;
+                return Int32::parse(countStr, count) && count > 0;
+            }
+        }
+#else
         String para;
         if (iface.isNullOrEmpty())
             para = String::convert("-c %d %s", detectionCount, ipAddress.c_str());
@@ -253,10 +263,15 @@ namespace Net {
                 return Int32::parse(countStr, count) && count > 0;
             }
         }
+#endif
         return false;
     }
 
-    const IPAddress NetInterface::getIpAddress(const String &iface) {
+    bool NetInterface::ping(const String &ipAddress, int detectionCount) {
+        return NetInterface::ping(ipAddress, String::Empty, detectionCount);
+    }
+
+    IPAddress NetInterface::getIpAddress(const String &iface) {
 #ifdef WIN32
         return IPAddress::Empty;
 #elif !__ANDROID__
@@ -302,12 +317,12 @@ namespace Net {
 #endif
     }
 
-    const IPAddress NetInterface::getMaskAddress(const String &iface) {
+    IPAddress NetInterface::getMaskAddress(const String &iface) {
 #ifdef WIN32
         return IPAddress::Empty;
 #else
         int fd;
-        struct ifreq ifr;
+        struct ifreq ifr{};
 
         // only support IPV4.
         fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -333,7 +348,7 @@ namespace Net {
 #ifdef WIN32
         return false;
 #else
-        struct ifreq ifr;
+        struct ifreq ifr{};
         int fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
         memset(&ifr, 0, sizeof(ifr));
         strcpy(ifr.ifr_name, iface.c_str());
@@ -345,7 +360,7 @@ namespace Net {
 #endif
     }
 
-    const MacAddress NetInterface::getMacAddress(const String &iface) {
+    MacAddress NetInterface::getMacAddress(const String &iface) {
         MacAddress result;
 #ifdef WIN32
         return result;
@@ -404,8 +419,8 @@ namespace Net {
 
 #else
                     // Posix/FreeBSD/MacOS
-                    sockaddr_dl *sdl = (struct sockaddr_dl *) current->ifa_addr;
-                    uint8_t *MAC = reinterpret_cast<uint8_t *>(LLADDR(sdl));
+                    auto sdl = (struct sockaddr_dl *) current->ifa_addr;
+                    auto MAC = reinterpret_cast<uint8_t *>(LLADDR(sdl));
 #endif
                     result = MacAddress(MAC);
                     break;
@@ -624,7 +639,7 @@ namespace Net {
             strcpy(ifconfig_value, p);
             if(i == 2)
             {
-                data.recevieBytes = atol(ifconfig_value);
+                data.receiveBytes = atol(ifconfig_value);
             }
             if(i == 10)
             {
@@ -691,27 +706,7 @@ namespace Net {
                 if (IPAddress::parse(items[0], client.address) &&
                     MacAddress::parse(items[2], client.macAddress)) {
                     const String &state = items[3];
-                    if (String::equals(state, "PERMANENT", true))
-                        client.state = Client::State::PERMANENT;
-                    else if (String::equals(state, "NOARP", true))
-                        client.state = Client::State::NOARP;
-                    else if (String::equals(state, "REACHABLE", true))
-                        client.state = Client::State::REACHABLE;
-                    else if (String::equals(state, "STALE", true))
-                        client.state = Client::State::STALE;
-                    else if (String::equals(state, "NONE", true))
-                        client.state = Client::State::NONE;
-                    else if (String::equals(state, "INCOMPLETE", true))
-                        client.state = Client::State::INCOMPLETE;
-                    else if (String::equals(state, "DELAY", true))
-                        client.state = Client::State::DELAY;
-                    else if (String::equals(state, "PROBE", true))
-                        client.state = Client::State::PROBE;
-                    else if (String::equals(state, "FAILED", true))
-                        client.state = Client::State::FAILED;
-                    else
-                        client.state = Client::State::NONE;
-
+                    client.state = fromClientState(state);
                     clients.add(client);
                 }
             }
@@ -770,5 +765,30 @@ namespace Net {
             default:
                 return "NONE";
         }
+    }
+
+    NetInterface::Client::State NetInterface::fromClientState(const String &state) {
+        Client::State result = Client::NONE;
+        if (String::equals(state, "PERMANENT", true))
+            result = Client::State::PERMANENT;
+        else if (String::equals(state, "NOARP", true))
+            result = Client::State::NOARP;
+        else if (String::equals(state, "REACHABLE", true))
+            result = Client::State::REACHABLE;
+        else if (String::equals(state, "STALE", true))
+            result = Client::State::STALE;
+        else if (String::equals(state, "NONE", true))
+            result = Client::State::NONE;
+        else if (String::equals(state, "INCOMPLETE", true))
+            result = Client::State::INCOMPLETE;
+        else if (String::equals(state, "DELAY", true))
+            result = Client::State::DELAY;
+        else if (String::equals(state, "PROBE", true))
+            result = Client::State::PROBE;
+        else if (String::equals(state, "FAILED", true))
+            result = Client::State::FAILED;
+        else
+            result = Client::State::NONE;
+        return result;
     }
 }

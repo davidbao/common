@@ -73,6 +73,7 @@ bool testCreateTable() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
+        test.executeSql("drop table t_student;");
         if (!test.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
@@ -97,13 +98,12 @@ bool testInsertRecord() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
-                             "id int primary key not null,\n"
-                             "name text not null,\n"
-                             "score real\n"
-                             ");")) {
-            return false;
-        }
+        test.executeSql("drop table t_student;");
+        test.executeSql("create table t_student(\n"
+                        "id int primary key not null,\n"
+                        "name text not null,\n"
+                        "score real\n"
+                        ");");
         if (!test.executeSql("INSERT INTO t_student (\n"
                              "            id,\n"
                              "                    name,\n"
@@ -135,13 +135,12 @@ bool testInsertRecordByTable() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        test.executeSql("drop table t_student;");
+        test.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
-                             ");")) {
-            return false;
-        }
+                             ");");
         DataTable table("t_student");
         table.addColumns({
                                  DataColumn("id", DbType::Integer32, true),
@@ -181,13 +180,12 @@ bool testReplaceRecordByTable() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
-        if (test.executeSql("create table t_student(\n"
+        test.executeSql("drop table t_student;");
+        test.executeSql("create table t_student(\n"
                             "id int primary key not null,\n"
                             "name text not null,\n"
                             "score real\n"
-                            ");")) {
-            return false;
-        }
+                            ");");
         DataTable table("t_student");
         table.addColumns({
                                  DataColumn("id", DbType::Integer32, true),
@@ -229,13 +227,11 @@ bool testRetrieveCount() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        test.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
-                             ");")) {
-            return false;
-        }
+                             ");");
         DataTable table("t_student");
         table.addColumns({
                                  DataColumn("id", DbType::Integer32, true),

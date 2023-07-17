@@ -19,7 +19,7 @@ namespace Net {
     class NetInterface {
     public:
         struct Data {
-            long recevieBytes;
+            long receiveBytes;
             long transmitBytes;
         };
 
@@ -30,7 +30,7 @@ namespace Net {
                 // only be removed administratively.
                 PERMANENT,
                 // the neighbour entry is valid. No attempts to
-                // validate this entry will be made but it can be
+                // validate this entry will be made, but it can be
                 // removed when its lifetime expires.
                 NOARP,
                 // the neighbour entry is valid until the
@@ -71,7 +71,9 @@ namespace Net {
 
         static bool getMacAddresses(MacAddresses &addresses);
 
-        static bool ping(const String &ipAddress, const String &iface = String::Empty, int detectionCount = 2);
+        static bool ping(const String &ipAddress, const String &iface, int detectionCount = 2);
+
+        static bool ping(const String &ipAddress, int detectionCount = 2);
 
         static bool getClientList(const String &iface, Clients &clients);
 
@@ -81,18 +83,21 @@ namespace Net {
 
         static String toClientStateStr(Client::State state);
 
-        static const IPAddress getIpAddress(const String &iface);
+        static Client::State fromClientState(const String &state);
 
-        static const IPAddress getMaskAddress(const String &iface);
+        static IPAddress getIpAddress(const String &iface);
+
+        static IPAddress getMaskAddress(const String &iface);
 
 #ifndef __ANDROID__
 #ifdef __linux__
         static const IPAddress getGatewayAddress(const String& iface);
+
         static bool getData(const String& iface, Data& data);
 #endif    // __linux__
 #endif    // __ANDROID__
 
-        static const MacAddress getMacAddress(const String &iface);
+        static MacAddress getMacAddress(const String &iface);
 
         static bool isInterfaceUp(const String &iface);
 

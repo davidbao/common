@@ -154,11 +154,11 @@ namespace Net {
         throw NotImplementedException("Can not implement this method.");
     }
 
-    bool TcpClient::connectToHost(const char *host, uint16_t port, const TimeSpan &timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost(const String &host, uint16_t port, const TimeSpan &timeout, bool reuseAddress) {
         return connectToHost(host, port, (uint32_t) timeout.totalMilliseconds(), reuseAddress);
     }
 
-    bool TcpClient::connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress) {
 #ifdef __APPLE__
         return connectToHost_IPV6(host, port, timeout, reuseAddress);
 #else
@@ -166,7 +166,7 @@ namespace Net {
 #endif
     }
 
-    bool TcpClient::connectToHost(const char *host, uint16_t port, uint32_t timeout) {
+    bool TcpClient::connectToHost(const String &host, uint16_t port, uint32_t timeout) {
         return connectToHost(host, port, timeout, false);
     }
 
@@ -174,7 +174,7 @@ namespace Net {
         return connectToHost(host.address, host.port, timeout, reuseAddress);
     }
 
-    bool TcpClient::connectToHost_IPV6(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost_IPV6(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress) {
         // Fix bug: support IPV6.
         struct addrinfo hints{}, *res, *res0;
         memset(&hints, 0, sizeof(hints));
@@ -256,7 +256,7 @@ namespace Net {
         return connected();
     }
 
-    bool TcpClient::connectToHost_IPV4(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
+    bool TcpClient::connectToHost_IPV4(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress) {
         struct sockaddr_in sin{};     /* an Internet endpoint address  */
 
         memset(&sin, 0, sizeof(sin));
@@ -814,7 +814,7 @@ namespace Net {
         }
     }
 
-    bool TcpSSLClient::connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) {
+    bool TcpSSLClient::connectToHost(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress) {
         const SSL_METHOD *meth;
         switch (_version) {
             case SSLv3:

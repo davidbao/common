@@ -13,6 +13,7 @@
 #include "data/StringMap.h"
 #include "data/String.h"
 #include "data/Dictionary.h"
+#include "net/NetType.h"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -42,6 +43,8 @@ namespace Net {
 
         static bool getHostByName(const String &host, struct sockaddr_in &sin,
                                   const String &dnsServer = "114.114.114.114");
+
+        static void getHostAddresses(IPAddresses &addresses);
 
     private:
         Dns();

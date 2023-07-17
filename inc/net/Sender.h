@@ -30,6 +30,8 @@ namespace Net {
 
         ssize_t send(const ByteArray &buffer, const EscapeOption *escape = nullptr);
 
+        ssize_t send(const String &str);
+
     private:
         static void getEscapeBuffer(const uint8_t *buffer, off_t offset, size_t count,
                                     ByteArray &dst, const EscapeOption *escape);

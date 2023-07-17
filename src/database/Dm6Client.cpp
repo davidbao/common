@@ -377,9 +377,9 @@ namespace Database {
         if (primaryKey.isNullOrEmpty())
             return String::Empty;
 
-        // such like '"INSERT INTO users(name, age) SELECT 'Hu', 86 FROM users WHERE NOT EXISTS (SELECT name FROM users WHERE name='Hu');";
+        // such like '"INSERT INTO users(name, age) SELECT 'Hu', 86 WHERE NOT EXISTS (SELECT name FROM users WHERE name='Hu');";
         // UPDATE users SET (NAME, AGE)=('TEST', 11) WHERE NAME='TEST''
-        static const char *replaceStr = "INSERT INTO %s(%s) SELECT %s FROM %s WHERE NOT EXISTS (SELECT %s FROM %s WHERE %s);\n"
+        static const char *replaceStr = "INSERT INTO %s(%s) SELECT %s WHERE NOT EXISTS (SELECT %s FROM %s WHERE %s);\n"
                                        "UPDATE %s SET (%s)=(%s) WHERE %s;\n";
 
         String columnsStr;
@@ -405,7 +405,7 @@ namespace Database {
             if (!cell.isNullValue()) {
                 String whereStr = String::format("%s=%s", primaryKey.c_str(), cell.valueStr(true).c_str());
                 sql += String::convert(replaceStr,
-                                       table.name().c_str(), columnsStr.c_str(), valuesStr.c_str(), table.name().c_str(),
+                                       table.name().c_str(), columnsStr.c_str(), valuesStr.c_str(),
                                        primaryKey.c_str(), table.name().c_str(), whereStr.c_str(),
                                        table.name().c_str(), columnsStr.c_str(), valuesStr.c_str(), whereStr.c_str());
             }

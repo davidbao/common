@@ -12,13 +12,10 @@
 # Note: on OS X you should install XCode and the associated command-line tools
 
 set(NET_SRC
-#        Dns.cpp
 #        EthernetInfo.cpp
-#        NetInterface.cpp
         NetTypeTest.cpp
 #        Receiver.cpp
 #        Sender.cpp
-        TcpClientTest.cpp
 #        TcpServer.cpp
 #        UdpClient.cpp
 #        UdpServer.cpp
@@ -34,9 +31,9 @@ set(NET_SRC
 #    SET(NET_SRC "${NET_SRC}" OpcuaContext.cpp OpcuaClient.cpp)
 #endif ()
 #
-#if (NOT WEB_OS)
-#    SET(NET_SRC "${NET_SRC}" BluetoothClient.cpp BluetoothServer.cpp)
-#endif()
+if (NOT WEB_OS)
+    SET(NET_SRC "${NET_SRC}" DnsTest.cpp NetInterfaceTest.cpp TcpClientTest.cpp)
+endif()
 
 foreach (item ${NET_SRC})
     string(REGEX MATCH "[0-9A-Za-z_]*" app ${item})

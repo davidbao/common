@@ -148,25 +148,17 @@ namespace Http {
         return false;
     }
 
-//    static bool isThreadDead(void* parameter)
-//    {
-//        HttpServer::ContextEntry* entry = (HttpServer::ContextEntry*)parameter;
-//        return entry->loopExit;
-//    }
     void HttpServer::stop() {
         event_base_loopbreak(_httpContext.base);
-//        TickTimeout::msdelay(30 * 1000, isThreadDead, &_httpContext);
-
         event_base_loopbreak(_httpsContext.base);
-//        TickTimeout::msdelay(10 * 1000, isThreadDead, &_httpsContext);
     }
 
     bool HttpServer::isHttpServerAlive() const {
-        return _httpThread->isAlive();
+        return _httpThread != nullptr && _httpThread->isAlive() && !_httpContext.loopExit;
     }
 
     bool HttpServer::isHttpsServerAlive() const {
-        return _httpsThread->isAlive();
+        return _httpThread != nullptr && _httpsThread->isAlive() && !_httpsContext.loopExit;
     }
 
     void HttpServer::httpServerStart(void *parameter) {

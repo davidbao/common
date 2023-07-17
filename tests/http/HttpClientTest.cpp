@@ -10,6 +10,7 @@
 #include "http/HttpServer.h"
 #include "thread/TickTimeout.h"
 #include "IO/Directory.h"
+#include "thread/TickTimeout.h"
 
 using namespace Http;
 
@@ -29,7 +30,7 @@ static HttpStatus onAction(void* parameter, const HttpRequest& request, HttpResp
             response.setContent("test abc.");
         } else if (request.match("get/test2")) {
             response.headers.add("Content-Type", "application/octet-stream");
-            MemoryStream *ms = new MemoryStream();
+            auto ms = new MemoryStream();
             ms->writeByte(1);
             ms->writeByte(2);
             ms->writeByte(3);
@@ -53,21 +54,21 @@ static HttpStatus onAction(void* parameter, const HttpRequest& request, HttpResp
         }
     } else if(request.method == HttpMethod::Post) {
         if (request.match("post/test")) {
-            HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+            auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
             const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
             if(body == "abc") {
                 response.headers.add("Content-Type", "text/plain");
                 response.setContent("bcd");
             }
         } else if (request.match("post/test2")) {
-            HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+            auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
             const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
             if(body == "bcd") {
                 response.headers.add("Content-Type", "text/plain");
                 response.setContent("cde");
             }
         } else if (request.match("post/test3")) {
-            HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+            auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
             const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
             if(body == "cde") {
                 response.headers.add("Content-Type", "text/plain");
@@ -76,14 +77,14 @@ static HttpStatus onAction(void* parameter, const HttpRequest& request, HttpResp
         }
     } else if(request.method == HttpMethod::Put) {
         if (request.match("put/test")) {
-            HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+            auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
             const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
             if(body == "abc") {
                 response.headers.add("Content-Type", "text/plain");
                 response.setContent("bcd");
             }
         } else if (request.match("put/test2")) {
-            HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+            auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
             const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
             if(body == "bcd") {
                 response.headers.add("Content-Type", "text/plain");
@@ -151,7 +152,7 @@ bool testGet() {
 
     _finished = false;
     client.getAsync(Url(baseUrl, "get/test"), textHeaders, [](HttpResponse& request) {
-        HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+        auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
         const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
         _finished = body == "test abc.";
     });
@@ -188,7 +189,7 @@ bool testPost() {
     _finished = false;
     String request3 = "cde";
     client.postAsync(Url(baseUrl, "post/test3"), textHeaders, request3, [](HttpResponse& request) {
-        HttpStringContent* stringContent = dynamic_cast<HttpStringContent*>(request.content);
+        auto stringContent = dynamic_cast<HttpStringContent*>(request.content);
         const String& body = stringContent != nullptr ? stringContent->value() : String::Empty;
         _finished = body == "def";
     });
@@ -245,7 +246,7 @@ bool testDownload() {
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
-    String fileName = Path::combine(Path::getTempPath(), "download_target_test.txt");;
+    String fileName = Path::combine(Path::getTempPath(), "download_target_test.txt");
     if(!client.download(Url(baseUrl, "download/test"), textHeaders, fileName)) {
         return false;
     }
@@ -266,11 +267,10 @@ bool testDownload() {
 
 bool testUpload() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
-    HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
     HttpClient client;
 
-    String fileName = Path::combine(Path::getTempPath(), "upload_source_test.txt");;
+    String fileName = Path::combine(Path::getTempPath(), "upload_source_test.txt");
     String response;
     FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
     fs.writeText("123abc");
@@ -291,7 +291,13 @@ int main() {
     HttpServer::Context context(Endpoint("any", _serverPort));
     HttpServer::Actions actions(nullptr, onAction);
     server.startHttpServer(context, actions);
-    Thread::msleep(1000);
+
+    auto func = [](void* owner) {
+        auto server = (HttpServer*)owner;
+        return server->isHttpServerAlive();
+    };
+    TickTimeout::msdelay(1500, func, &server);
+//    Thread::msleep(1500);
 
     int result = 0;
     if(!testGet()) {

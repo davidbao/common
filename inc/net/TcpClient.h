@@ -54,13 +54,13 @@ namespace Net {
 
         virtual ssize_t read(uint8_t *data, size_t count);
 
-        virtual bool connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress);
+        virtual bool connectToHost(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress);
 
-        bool connectToHost(const char *host, uint16_t port, uint32_t timeout = 3000);
+        bool connectToHost(const String &host, uint16_t port, uint32_t timeout = 3000);
 
-        bool connectToHost(const char *host, uint16_t port, const TimeSpan &timeout, bool reuseAddress = false);
+        bool connectToHost(const String &host, uint16_t port, const TimeSpan &timeout, bool reuseAddress = false);
 
-        bool connectToHost(const Endpoint &host, const TimeSpan &timeout, bool reuseAddress = false);
+        bool connectToHost(const Endpoint &host, const TimeSpan &timeout = TimeSpan::fromSeconds(3), bool reuseAddress = false);
 
         virtual void close();
 
@@ -108,9 +108,9 @@ namespace Net {
     private:
         bool updateEndpoints(int ai_family);
 
-        bool connectToHost_IPV4(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
+        bool connectToHost_IPV4(const String &host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
 
-        bool connectToHost_IPV6(const char *host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
+        bool connectToHost_IPV6(const String &host, uint16_t port, uint32_t timeout = 3000, bool reuseAddress = false);
 
         bool hasNoError() const;
 
@@ -147,7 +147,7 @@ namespace Net {
 
         ~TcpSSLClient() override;
 
-        bool connectToHost(const char *host, uint16_t port, uint32_t timeout, bool reuseAddress) override;
+        bool connectToHost(const String &host, uint16_t port, uint32_t timeout, bool reuseAddress) override;
 
         void close() override;
 

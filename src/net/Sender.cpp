@@ -60,4 +60,9 @@ namespace Net {
     ssize_t Sender::send(const ByteArray &buffer, const EscapeOption *escape) {
         return send(buffer.data(), 0, buffer.count(), escape);
     }
+
+    ssize_t Sender::send(const String &str) {
+        ByteArray buffer((const uint8_t*) str.c_str(), str.length());
+        return send(buffer);
+    }
 }

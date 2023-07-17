@@ -9,6 +9,7 @@
 #include "net/Dns.h"
 #include "diag/Trace.h"
 #include "exception/Exception.h"
+#include "net/NetInterface.h"
 #include <cerrno>
 
 #ifdef WIN32
@@ -32,7 +33,6 @@
 
 #include "net/TcpClient.h"
 #include "diag/Process.h"
-#include "IO/Directory.h"
 #include "IO/Path.h"
 #include "IO/File.h"
 #include "data/Dictionary.h"
@@ -117,8 +117,9 @@ namespace Net {
             ifAddrStruct = ifAddrStruct->ifa_next;
         }
         return true;
-#endif  // __ANDROID__
+#else
         return false;
+#endif  // __ANDROID__
 #endif  // WIN32
     }
 
@@ -220,5 +221,17 @@ namespace Net {
 #endif
 #endif
         return false;
+    }
+
+    void Dns::getHostAddresses(IPAddresses &addresses) {
+        StringArray ifaces;
+        NetInterface::getInterfaceNames(ifaces);
+        for (int i = 0; i < ifaces.count(); ++i) {
+            const String &iface = ifaces[i];
+            IPAddress address = NetInterface::getIpAddress(iface);
+            if (!address.isEmpty()) {
+                addresses.add(address);
+            }
+        }
     }
 }
