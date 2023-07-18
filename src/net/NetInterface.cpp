@@ -255,9 +255,10 @@ namespace Net {
         ssize_t start = str.find(transmittedStr);
         if (start > 0) {
             start += transmittedStr.length();
-            int end = str.find("packets received");
+            int end = str.find("received");
             if (end > start) {
                 String countStr = str.substr(start, end - start);
+                countStr = String::replace(countStr, "packets", String::Empty);
                 countStr = countStr.trim(' ', ',');
                 int count;
                 return Int32::parse(countStr, count) && count > 0;
