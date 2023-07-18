@@ -227,8 +227,8 @@ namespace System {
         return 0;
 #else
         struct timeval tv;
-        if (gettimeofday (&tv, nullptr) == 0)
-            return ((uint64_t)tv.tv_sec * 1000000 + tv.tv_usec) * 10;
+        if (gettimeofday(&tv, nullptr) == 0)
+            return ((uint64_t) tv.tv_sec * 1000000 + tv.tv_usec) * 10;
         return 0;
 #endif
     }

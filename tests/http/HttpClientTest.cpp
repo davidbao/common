@@ -10,7 +10,6 @@
 #include "http/HttpServer.h"
 #include "thread/TickTimeout.h"
 #include "IO/Directory.h"
-#include "thread/TickTimeout.h"
 
 using namespace Http;
 
@@ -292,12 +291,10 @@ int main() {
     HttpServer::Actions actions(nullptr, onAction);
     server.startHttpServer(context, actions);
 
-    auto func = [](void* owner) {
-        auto server = (HttpServer*)owner;
+    auto func = [](HttpServer *server) {
         return server->isHttpServerAlive();
     };
-    TickTimeout::msdelay(1500, func, &server);
-//    Thread::msleep(1500);
+    Thread::delay(1500, Func<bool>(func, &server));
 
     int result = 0;
     if(!testGet()) {

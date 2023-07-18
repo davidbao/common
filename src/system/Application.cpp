@@ -150,7 +150,7 @@ namespace System {
 
     String Application::logPath() const {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
-            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+            auto listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->context().path;
             }
@@ -160,7 +160,7 @@ namespace System {
 
     String Application::logFileFilter() const {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
-            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+            auto listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return String::convert("*%s", listener->context().extName.c_str());
             }
@@ -170,7 +170,7 @@ namespace System {
 
     bool Application::parseLogFileName(const String &logFileName, DateTime &date) const {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
-            auto *listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
+            auto listener = dynamic_cast<FileTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->parseLogFileName(logFileName, date);
             }
@@ -180,7 +180,7 @@ namespace System {
 
     Delegates *Application::logUpdatedDelegates() {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
-            auto *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
+            auto listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->updatedDelegates();
             }
@@ -190,7 +190,7 @@ namespace System {
 
     void Application::getAllMessages(StringArray &messages) {
         for (size_t i = 0; i < _traceListeners.count(); i++) {
-            auto *listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
+            auto listener = dynamic_cast<MemoryTraceListener *>(_traceListeners[i]);
             if (listener != nullptr) {
                 return listener->getAllMessages(messages);
             }
@@ -268,7 +268,7 @@ namespace System {
             Trace::info("Force exiting!");
             OS::reboot();
         };
-        static auto *forceExitTimer = new Timer("forceExitTimer",
+        static auto forceExitTimer = new Timer("forceExitTimer",
                                                 TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30), timerProc);
         forceExitTimer->start();
     }
