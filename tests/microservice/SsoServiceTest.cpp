@@ -65,7 +65,10 @@ bool testConstructor() {
 
 bool testLogin() {
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
                         encryptNode)) {
@@ -131,7 +134,10 @@ bool testLogin() {
     }
 
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
                         encryptNode)) {
@@ -201,7 +207,10 @@ bool testLogin() {
     }
 
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
                         encryptNode)) {
@@ -273,7 +282,10 @@ bool testLogin() {
 
 bool testLogout() {
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         String request, response;
         JsonNode node{
                 {"name", "user"},
@@ -290,7 +302,10 @@ bool testLogout() {
     }
 
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         String request, response;
         Url baseUrl("http://127.0.0.1:5438/v1/auth/users/logout");
         Url url(baseUrl, String::format("?accessToken=%s&name=%s", _accessToken2.c_str(), "user"));
@@ -303,7 +318,10 @@ bool testLogout() {
     }
 
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         String request, response;
         Url baseUrl("http://127.0.0.1:5438/v1/auth/users/logout");
         Url url(baseUrl, String::format("?name=%s", "user"));
@@ -322,7 +340,10 @@ bool testLogout() {
 
 bool testModifyPassword() {
     {
-        HttpClient client;
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+        };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
                         encryptNode)) {
@@ -409,6 +430,9 @@ int main() {
     };
     Thread::delay(1500, Func<bool>(func, &hs));
     Thread::msleep(500);
+//#if defined(WIN32) && defined(_X86_)
+//    Thread::msleep(3000);
+//#endif
 
     int result = 0;
     if (!testConstructor()) {

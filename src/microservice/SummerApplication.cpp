@@ -13,9 +13,9 @@
 using namespace Data;
 
 namespace Microservice {
-    static const char* __Summer_default_ProdName = "easesuite";
-    static String __Summer_homePath;
-    static TraceListenerContexts __Summer_traceContexts;
+    static const char* Summer_default_ProdName = "easesuite";
+    static String Summer_homePath;
+    static TraceListenerContexts Summer_traceContexts;
 
     static struct InitializeSummerApplication {
         InitializeSummerApplication() {
@@ -23,42 +23,42 @@ namespace Microservice {
             String appFileName = Path::getFileName(appFilePath);
 
             String appName;
-            int pos = appFileName.find('.');
+            ssize_t pos = appFileName.find('.');
             if (pos > 0)
                 appName = appFileName.substr(0, pos);
             else
                 appName = appFileName;
 
-#if __linux__
+#ifdef __linux__
             const String homePath = Path::getAppPath();
 #else
             const String homePath = Path::getDocumentPath(
-                    String::format("Documents/%s/%s", __Summer_default_ProdName, appName.c_str()));
+                    String::format("Documents/%s/%s", Summer_default_ProdName, appName.c_str()));
 #endif
-            __Summer_homePath = homePath;
+            Summer_homePath = homePath;
 
-            __Summer_traceContexts.add(new FileTraceListenerContext(Path::combine(homePath, "logs")));
+            Summer_traceContexts.add(new FileTraceListenerContext(Path::combine(homePath, "logs")));
         }
     } InitializeSummerApplication;
 
     SummerApplication::SummerApplication(int argc, const char *argv[],
                                          const String &rootPath, const TraceListenerContexts &contexts) :
                                          Application(argc, argv,
-                                                     !rootPath.isNullOrEmpty() ? rootPath : __Summer_homePath,
-                                                     !contexts.isEmpty() ? contexts : __Summer_traceContexts) {
+                                                     !rootPath.isNullOrEmpty() ? rootPath : Summer_homePath,
+                                                     !contexts.isEmpty() ? contexts : Summer_traceContexts) {
 #ifdef WIN32
         Trace::enableConsoleOutput();
         Trace::enableFlushConsoleOutput();
 #endif
 
         if (_traceListeners.count() > 0) {
-            Trace::writeLine(String::format("%s is starting.", name().c_str()), Trace::Info);
+            Trace::writeLine(String::format("%s is starting.", Application::name().c_str()), Trace::Info);
         }
     }
 
     SummerApplication::~SummerApplication() {
         if (_traceListeners.count() > 0) {
-            Trace::writeLine(String::format("%s is stopping.", name().c_str()), Trace::Info);
+            Trace::writeLine(String::format("%s is stopping.", Application::name().c_str()), Trace::Info);
         }
     }
 

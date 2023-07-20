@@ -33,6 +33,16 @@ namespace Http {
         curl_global_init(CURL_GLOBAL_ALL);
     }
 
+    HttpClient::HttpClient(std::initializer_list<KeyValuePair<String, String>> list) : HttpClient() {
+        for (const auto &item: list) {
+            if (String::equals(item.key, "connectionTimeout")) {
+                TimeSpan::parse(item.value, connectionTimeout);
+            } else if (String::equals(item.key, "receiveTimeout")) {
+                TimeSpan::parse(item.value, receiveTimeout);
+            }
+        }
+    }
+
     HttpClient::~HttpClient() {
         curl_global_cleanup();
     }

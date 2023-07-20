@@ -372,13 +372,7 @@ namespace Diag {
     }
 
     bool Process::startByCmdString(const String &cmdString) {
-#ifdef WIN32
         return system(cmdString) == 0;
-#elif !IPHONE_OS
-        return system(cmdString) == 0;
-#else
-        return false;
-#endif
     }
 
     bool Process::getProcessById(int processId, Process &process) {
@@ -493,12 +487,13 @@ namespace Diag {
         ZeroMemory(&entry, sizeof(entry));
         entry.dwSize = sizeof(entry);
 
-        // Walkthrough all processes.
+        // Walk through all processes.
         if (Process32First(snapshot, &entry)) {
             do {
                 // Compare process.szExeFile based on format of name, i.e., trim file path
                 // trim .exe if necessary, etc.
-                if (strcmp(entry.szExeFile, processName) == 0) {
+                String exeFile = String(entry.szExeFile).toLower().replace(".exe", String::Empty);
+                if (String::equals(processName, exeFile, true)) {
                     auto process = new Process((int) entry.th32ProcessID);
                     process->_name = processName;
                     processes.add(process);
@@ -595,7 +590,6 @@ namespace Diag {
             if (hProcess != nullptr) {
                 WaitForSingleObject(hProcess, milliseconds);
                 CloseHandle(hProcess);
-
                 return true;
             }
 #else
@@ -676,6 +670,15 @@ namespace Diag {
         return false;
     }
 
+    void Process::killAll(const String &processName) {
+        Processes processes;
+        if (Process::getProcessByName(processName, processes)) {
+            for(size_t i=0; i<processes.count(); i++) {
+                processes[i]->kill();
+            }
+        }
+    }
+
     bool Process::stop(int milliseconds) {
         if (_id > 0) {
 #ifdef WIN32
@@ -695,9 +698,11 @@ namespace Diag {
         if (main != nullptr) {
             return PostMessage(main, WM_CLOSE, NULL, NULL) != 0;
         }
-#else
-#endif
         return false;
+#else
+        // DO NOT SUPPORT.
+        throw NotImplementedException("Process::closeMainWindow");
+#endif
     }
 
     int Process::id() const {
@@ -733,6 +738,7 @@ namespace Diag {
     }
 
 #ifdef WIN32
+
     struct ProcessWindows {
         DWORD dwCurrentProcessId;
         HWND hCurrentProcessWin;
@@ -766,7 +772,7 @@ namespace Diag {
         EnumWindows(EnumWindowsProc, (LPARAM) &pw);
         return (void *) pw.hCurrentProcessWin;
 #else
-        // todo: return the main window.
+        // DO NOT SUPPORT.
         throw NotImplementedException("Process::mainWindow");
 #endif
     }
@@ -776,7 +782,11 @@ namespace Diag {
 #ifdef WIN32
             enableDebugPriv();
             HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _id);
-            return (hProcess != nullptr);
+            if (hProcess != nullptr) {
+                CloseHandle(hProcess);
+                return true;
+            }
+            return false;
 #elif __linux__
             // Issue a kill(2) system call with 0 as the signal. If the call succeeds, it means that a process with this pid exists.
             // If the call fails and errno is set to ESRCH, a process with such a pid does not exist.

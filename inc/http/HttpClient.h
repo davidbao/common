@@ -14,6 +14,7 @@
 #include "data/TimeSpan.h"
 #include "data/PList.h"
 #include "data/String.h"
+#include "data/Dictionary.h"
 #include "data/StringArray.h"
 #include "system/PoolService.h"
 #include "http/HttpContent.h"
@@ -30,6 +31,8 @@ namespace Http {
 
     public:
         HttpClient();
+
+        HttpClient(std::initializer_list<KeyValuePair<String, String>> list);
 
         ~HttpClient() override;
 

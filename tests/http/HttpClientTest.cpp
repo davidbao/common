@@ -111,31 +111,62 @@ static HttpStatus onAction(void* parameter, const HttpRequest& request, HttpResp
 }
 
 bool _finished = false;
+
+bool testConstructor() {
+    {
+        HttpClient client;
+        if (client.connectionTimeout != TimeSpan::fromSeconds(30)) {
+            return false;
+        }
+        if (client.receiveTimeout != TimeSpan::fromSeconds(30)) {
+            return false;
+        }
+    }
+
+    {
+        HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:06"},
+        };
+        if (client.connectionTimeout != TimeSpan::fromSeconds(5)) {
+            return false;
+        }
+        if (client.receiveTimeout != TimeSpan::fromSeconds(6)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool testGet() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
     HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
     HttpHeaders jsonHeaders({HttpHeader("Content-Type", "application/json")});
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
-    HttpClient client;
+    HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+    };
 
-//    String response;
-//    if(!client.get(Url(baseUrl, "get/test"), textHeaders, response)) {
-//        return false;
-//    }
-//    if(response != "test abc.") {
-//        return false;
-//    }
-//
-//    ByteArray response2;
-//    if(!client.get(Url(baseUrl, "get/test2"), streamHeaders, response2)) {
-//        return false;
-//    }
-//    if(response2.count() != 5) {
-//        return false;
-//    }
-//    if(!(response2[0] == 1 && response2[1] == 2 && response2[2] == 3 && response2[3] == 4 && response2[4] == 5)) {
-//        return false;
-//    }
+    String response;
+    if(!client.get(Url(baseUrl, "get/test"), textHeaders, response)) {
+        return false;
+    }
+    if(response != "test abc.") {
+        return false;
+    }
+
+    ByteArray response2;
+    if(!client.get(Url(baseUrl, "get/test2"), streamHeaders, response2)) {
+        return false;
+    }
+    if(response2.count() != 5) {
+        return false;
+    }
+    if(!(response2[0] == 1 && response2[1] == 2 && response2[2] == 3 && response2[3] == 4 && response2[4] == 5)) {
+        return false;
+    }
 
     JsonNode response3;
     if(!client.get(Url(baseUrl, "get/test3"), jsonHeaders, response3)) {
@@ -169,7 +200,10 @@ bool testPost() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
     HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
-    HttpClient client;
+    HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+    };
 
     String request = "abc";
     String response;
@@ -206,7 +240,10 @@ bool testPut() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
     HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
-    HttpClient client;
+    HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+    };
 
     String request = "abc";
     String response;
@@ -243,7 +280,10 @@ bool testDownload() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
     HttpHeaders textHeaders({HttpHeader("Content-Type", "text/plain")});
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
-    HttpClient client;
+    HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+    };
 
     String fileName = Path::combine(Path::getTempPath(), "download_target_test.txt");
     if(!client.download(Url(baseUrl, "download/test"), textHeaders, fileName)) {
@@ -267,7 +307,10 @@ bool testDownload() {
 bool testUpload() {
     Url baseUrl("http", Endpoint("127.0.0.1", _serverPort));
     HttpHeaders streamHeaders({HttpHeader("Content-Type", "application/octet-stream")});
-    HttpClient client;
+    HttpClient client{
+            {"connectionTimeout", "00:00:05"},
+            {"receiveTimeout", "00:00:05"},
+    };
 
     String fileName = Path::combine(Path::getTempPath(), "upload_source_test.txt");
     String response;
@@ -295,22 +338,29 @@ int main() {
         return server->isAlive();
     };
     Thread::delay(1500, Func<bool>(func, &server));
+    Thread::msleep(500);
+//#if defined(WIN32) && defined(_X86_)
+//    Thread::msleep(3000);
+//#endif
 
     int result = 0;
-    if(!testGet()) {
+    if(!testConstructor()) {
         result = 1;
     }
-    if(!testPost()) {
+    if(!testGet()) {
         result = 2;
     }
-    if(!testPut()) {
+    if(!testPost()) {
         result = 3;
     }
-    if(!testDownload()) {
+    if(!testPut()) {
         result = 4;
     }
-    if(!testUpload()) {
+    if(!testDownload()) {
         result = 5;
+    }
+    if(!testUpload()) {
+        result = 6;
     }
 
     cleanUp();

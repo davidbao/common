@@ -87,6 +87,8 @@ namespace Diag {
 
         static int getCurrentProcessId();
 
+        static void killAll(const String &processName);
+
     private:
 #ifdef WIN32
 

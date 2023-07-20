@@ -7,8 +7,10 @@
 //
 
 #include "diag/Process.h"
+#include "system/Application.h"
 
 using namespace Diag;
+using namespace System;
 
 #ifdef WIN32
 String ll_cmd = "cmd";
@@ -183,22 +185,106 @@ bool testGetCurrentProcess() {
     return true;
 }
 
-int main() {
-    if (!testArgs()) {
-        return 1;
-    }
-    if (!testConstructor()) {
-        return 2;
-    }
-    if (!testStart()) {
-        return 3;
-    }
-    if (!testAttributes()) {
-        return 4;
-    }
-    if (!testGetCurrentProcess()) {
-        return 5;
+bool testMultiProcesses() {
+    String fileName = Application::startupPath();
+
+    {
+        Process process;
+        if (!Process::start(fileName, "-t", &process)) {
+            return false;
+        }
+        process.kill();
+        if (process.exist()) {
+            return false;
+        }
     }
 
+    {
+//        printf("%s Start to testMultiProcesses.\n", DateTime::now().toString().c_str());
+        Process process;
+//        process.setRedirectStdout(true);
+//        process.setWaitingTimeout(0);
+//        auto function = [](void *owner, void *sender, EventArgs *e) {
+//            auto args = dynamic_cast<ProcessOutputEventArgs *>(e);
+//            if (args != nullptr) {
+//                printf("%s %s", DateTime::now().toString().c_str(), args->message.c_str());
+//            }
+//        };
+//        process.outputDelegates()->add(Delegate(nullptr, function));
+        if (!Process::start(fileName, "-t", &process)) {
+            return false;
+        }
+        process.waitForExit();
+        Thread::msleep(200);
+        if (process.exist()) {
+            return false;
+        }
+//        printf("%s Start to testMultiProcesses.\n", DateTime::now().toString().c_str());
+    }
+
+    {
+        Process process1, process2, process3;
+        if (!Process::start(fileName, "-t", &process1)) {
+            return false;
+        }
+        if (!Process::start(fileName, "-t", &process2)) {
+            return false;
+        }
+        if (!Process::start(fileName, "-t", &process3)) {
+            return false;
+        }
+
+        Processes processes;
+        if (!Process::getProcessByName(Application::instance()->name(), processes)) {
+            return false;
+        }
+        for (size_t i = 0; i < processes.count(); ++i) {
+            if (processes[i]->id() != Process::getCurrentProcessId()) {
+                processes[i]->kill();
+            }
+        }
+        for (size_t i = 0; i < processes.count(); ++i) {
+            if (processes[i]->id() != Process::getCurrentProcessId()) {
+                if (!Process::waitForProcessExit(processes[i]->id(), 1000)) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+int main(int argc, const char *argv[]) {
+    Application app(argc, argv);
+    const Application::Arguments &arguments = app.arguments();
+    if(arguments.contains("test") || arguments.contains("t")) {
+        printf("Start to sleep.\n");
+        Thread::sleep(3000);
+        printf("Stop to sleep.\n");
+    } else {
+        if (!testArgs()) {
+            return 1;
+        }
+        if (!testConstructor()) {
+            return 2;
+        }
+        if (!testStart()) {
+            return 3;
+        }
+        if (!testAttributes()) {
+            return 4;
+        }
+        if (!testGetCurrentProcess()) {
+            return 5;
+        }
+        if (!testMultiProcesses()) {
+            return 6;
+        }
+
+#ifdef WIN32
+        Process::killAll("cmd");
+#endif
+    }
     return 0;
 }

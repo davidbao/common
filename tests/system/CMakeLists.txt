@@ -13,7 +13,7 @@
 
 set(SYSTEM_SRC
         ActionTest.cpp
-#        Application.cpp
+        ApplicationTest.cpp
 #        BCDUtilities.cpp
 #        CheckUtilities.cpp
 #        Clipboard.cpp

@@ -17,15 +17,15 @@
 #include "diag/FileTraceListener.h"
 #include "diag/MemoryTraceListener.h"
 
-#if WIN32
+#ifdef WIN32
 
 #include <Windows.h>
 #include <memory.h>
-#include <fcntl.h>
-#include <io.h>
+//#include <fcntl.h>
+//#include <io.h>
+//#include <Shlobj.h>
 #include <direct.h>
 #include <Shlwapi.h>
-#include <Shlobj.h>
 
 #elif __APPLE__
 
@@ -46,6 +46,7 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 #endif // __arm_linux__
+
 #endif
 
 namespace System {
@@ -56,25 +57,17 @@ namespace System {
                              const TraceListenerContexts &contexts,
                              const String &singleAppName) :
             _exitCode(0), _loop(true), _withQuit(false) {
-#if !defined(WIN32) && !defined(PHONE_OS) && !defined(__EMSCRIPTEN__)
-        signal(SIGPIPE, SIG_IGN);
-//        sigset_t set;
-//        sigemptyset(&set);
-//        sigaddset(&set, SIGPIPE);
-//        sigprocmask(SIG_BLOCK, &set, NULL);
-
-        signal(SIGCHLD, SIG_IGN);
-
-        signal(SIGABRT, onTerm);
-        signal(SIGINT, onTerm);
-        signal(SIGTERM, onTerm);
-#endif
-
         if (!singleAppName.isNullOrEmpty()) {
             if (ProcessMutex::exists(singleAppName)) {
                 ::exit(0);
             }
         }
+
+#if !defined(WIN32) && !defined(PHONE_OS) && !defined(__EMSCRIPTEN__)
+        signal(SIGABRT, onTerm);
+        signal(SIGINT, onTerm);
+        signal(SIGTERM, onTerm);
+#endif
 
         setlocale(LC_ALL, ".UTF-8");
 
@@ -245,6 +238,10 @@ namespace System {
             callback();
     }
 
+    void Application::runLoop(const Func<void> &func) {
+        func.execute();
+    }
+
     void Application::loopProc() {
 #ifdef __arm_linux__
         static const int time = 100;
@@ -269,7 +266,7 @@ namespace System {
             OS::reboot();
         };
         static auto forceExitTimer = new Timer("forceExitTimer",
-                                                TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30), timerProc);
+                                               TimeSpan::fromSeconds(30), TimeSpan::fromSeconds(30), timerProc);
         forceExitTimer->start();
     }
 
@@ -404,7 +401,7 @@ namespace System {
         // heap (even if the result _might_ be exactly MAX_PATH + 1, but that's ok).
         char buffer[MAX_PATH + 2];
         memset(buffer, 0, sizeof(buffer));
-        DWORD v = GetModuleFileName(0, buffer, MAX_PATH + 1);
+        DWORD v = GetModuleFileName(nullptr, buffer, MAX_PATH + 1);
 
         if (v == 0) {
             filePath = "";
@@ -412,7 +409,7 @@ namespace System {
             filePath = String(buffer);
         } else {
             // MAX_PATH sized buffer wasn't large enough to contain the full path, use heap
-            char *b = 0;
+            char *b = nullptr;
             int i = 1;
             DWORD size;
             do {

@@ -1,14 +1,22 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+//
+//  Application.h
+//  common
+//
+//  Created by baowei on 2015/4/18.
+//  Copyright (c) 2015 com. All rights reserved.
+//
 
-#include <assert.h>
+#ifndef Application_h
+#define Application_h
+
+#include <cassert>
 
 #ifndef WIN32
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <fcntl.h>
-#include <signal.h>
+#include <csignal>
 
 #endif
 
@@ -38,9 +46,9 @@ namespace System {
                     const TraceListenerContexts &contexts = TraceListenerContexts::Empty,
                     const String &singleAppName = String::Empty);
 
-        Application(const String &rootPath = String::Empty,
-                    const TraceListenerContexts &contexts = TraceListenerContexts::Empty,
-                    const String &singleAppName = String::Empty);
+        explicit Application(const String &rootPath = String::Empty,
+                             const TraceListenerContexts &contexts = TraceListenerContexts::Empty,
+                             const String &singleAppName = String::Empty);
 
         virtual ~Application();
 
@@ -68,6 +76,8 @@ namespace System {
         virtual void runLoop();
 
         virtual void runLoop(loop_callback callback);
+
+        virtual void runLoop(const Func<void> &func);
 
         virtual void exit(int code);
 
@@ -163,4 +173,4 @@ namespace System {
     };
 }
 
-#endif // APPLICATION_H
+#endif // Application_h
