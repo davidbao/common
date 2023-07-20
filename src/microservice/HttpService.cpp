@@ -487,6 +487,10 @@ namespace Microservice {
         return false;
     }
 
+    bool HttpService::isAlive() const {
+        return _httpServer.isAlive();
+    }
+
     /**
      * Get MIME type header
      *

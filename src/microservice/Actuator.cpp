@@ -94,7 +94,7 @@ namespace Microservice {
         else if (request.method == HttpMethod::Get) {
             ServiceFactory *factory = ServiceFactory::instance();
             assert(factory);
-            IConfigService *cs = factory->getService<IConfigService>();
+            auto cs = factory->getService<IConfigService>();
             assert(cs);
             Application *app = Application::instance();
             assert(app);
@@ -129,7 +129,7 @@ namespace Microservice {
 
             ServiceFactory *factory = ServiceFactory::instance();
             assert(factory);
-            IConfigService *cs = factory->getService<IConfigService>();
+            auto cs = factory->getService<IConfigService>();
             assert(cs);
             Application *app = Application::instance();
             assert(app);
@@ -166,7 +166,7 @@ namespace Microservice {
                 JsonNode dccDetailsNode("details");
                 JsonNode servicesNode("services", JsonNode::TypeArray);
                 StringArray serviceIds;
-                IServiceRegister *ss = factory->getService<IServiceRegister>();
+                auto ss = factory->getService<IServiceRegister>();
                 assert(ss);
                 ss->getServiceIds(serviceIds);
                 for (size_t i = 0; i < serviceIds.count(); i++) {
@@ -627,7 +627,7 @@ namespace Microservice {
             assert(factory);
             Application *app = Application::instance();
             assert(app);
-            IConfigService *cs = factory->getService<IConfigService>();
+            auto cs = factory->getService<IConfigService>();
             assert(cs);
             String profile = "none";
             cs->getProperty("summer.profiles.active", profile);
@@ -887,7 +887,7 @@ namespace Microservice {
 
             ServiceFactory *factory = ServiceFactory::instance();
             assert(factory);
-            IConfigService *cs = factory->getService<IConfigService>();
+            auto cs = factory->getService<IConfigService>();
             assert(cs);
             String profile = "none";
             cs->getProperty("summer.profiles.active", profile);
@@ -911,7 +911,7 @@ namespace Microservice {
     bool Actuator::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         Port actuatorPort;
@@ -942,7 +942,7 @@ namespace Microservice {
                 Trace::error("server.port is incorrect.");
                 return false;
             }
-            IHttpRegister *hs = factory->getService<IHttpRegister>();
+            auto hs = factory->getService<IHttpRegister>();
             assert(hs);
             hs->registerAction(this);
 
@@ -955,7 +955,7 @@ namespace Microservice {
 
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IHttpRegister *hs = factory->getService<IHttpRegister>();
+        auto hs = factory->getService<IHttpRegister>();
         assert(hs);
         hs->deregisterAction(this);
 
@@ -1008,7 +1008,7 @@ namespace Microservice {
     }
 
     HttpStatus Actuator::onAction(void *parameter, const HttpRequest &request, HttpResponse &response) {
-        Actuator *service = (Actuator *) parameter;
+        auto service = (Actuator *) parameter;
         assert(service);
         return service->onAction(request, response);
     }

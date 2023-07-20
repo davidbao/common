@@ -12,8 +12,8 @@ namespace Diag {
     Stopwatch::Stopwatch(uint32_t deadTime) : Stopwatch(String::Empty, deadTime) {
     }
 
-    Stopwatch::Stopwatch(const String &info, uint32_t deadTime) : _deadTime(deadTime), _startTime(0), _endTime(0),
-                                                                  _info(info) {
+    Stopwatch::Stopwatch(const String &info, uint32_t deadTime) : _deadTime(deadTime), _startTime(0),
+                                                                  _endTime(0), _info(info) {
 #ifdef DEBUG
         start(deadTime);
 #endif

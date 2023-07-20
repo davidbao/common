@@ -62,9 +62,12 @@ namespace Microservice {
             return operator()(request, response);
         };
 
-        void operator=(const HttpCallback &value) {
-            _instance = value._instance;
-            _method = value._method;
+        HttpCallback &operator=(const HttpCallback &value) {
+            if (this != &value) {
+                _instance = value._instance;
+                _method = value._method;
+            }
+            return *this;
         }
 
         bool operator==(const HttpCallback &value) const {
@@ -109,9 +112,12 @@ namespace Microservice {
             return operator()(request, filter, table);
         };
 
-        void operator=(const HttpQueryCallback &value) {
-            _instance = value._instance;
-            _method = value._method;
+        HttpQueryCallback &operator=(const HttpQueryCallback &value) {
+            if (this != &value) {
+                _instance = value._instance;
+                _method = value._method;
+            }
+            return *this;
         }
 
         bool operator==(const HttpQueryCallback &value) const {
@@ -282,7 +288,7 @@ namespace Microservice {
         void removeMapping(T *instance) {
             Locker locker(&_mappingsMutex);
             HttpMappings removed(false);
-            for (ssize_t i = _mappings.count() - 1; i >= 0; i--) {
+            for (ssize_t i = (ssize_t) _mappings.count() - 1; i >= 0; i--) {
                 BaseHttpMapping *mapping = _mappings[i];
                 auto *mapping1 = dynamic_cast<HttpMapping<T> *>(mapping);
                 if (mapping1 != nullptr && mapping1->instance() == instance) {
@@ -357,6 +363,8 @@ namespace Microservice {
 
         bool removeSession(const String &token) override;
 
+        bool isAlive() const;
+
     private:
         HttpStatus onAction(const HttpRequest &request, HttpResponse &response);
 
@@ -376,8 +384,6 @@ namespace Microservice {
         String existHomePage() const;
 
         String defaultWebPath() const;
-
-        void checkSessions();
 
         bool isAuthorized(const HttpRequest &request, const String &tokenId);
 

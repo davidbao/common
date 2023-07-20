@@ -17,6 +17,10 @@ namespace System {
         this->handled = handled;
     }
 
+    HandledEventArgs::HandledEventArgs(const HandledEventArgs &other) {
+        this->handled = other.handled;
+    }
+
     Delegate::Delegate() : owner(nullptr), handler(nullptr) {
     }
 

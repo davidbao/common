@@ -23,11 +23,11 @@ namespace Diag {
 
     class ProcessOutputEventArgs : public EventArgs {
     public:
-        explicit ProcessOutputEventArgs(const String &message) {
-            this->message = message;
-        }
+        explicit ProcessOutputEventArgs(const String &message);
 
-        ~ProcessOutputEventArgs() override = default;
+        ProcessOutputEventArgs(const ProcessOutputEventArgs &other);
+
+        ~ProcessOutputEventArgs() override;
 
         String message;
     };
@@ -50,11 +50,11 @@ namespace Diag {
 
         void setRedirectStdout(bool redirectStdout = true);
 
-        bool waitingTimeout() const;
+        TimeSpan waitingTimeout() const;
 
-        void setWaitingTimeout(int milliseconds = -1);
+        void setWaitingTimeout(int milliseconds);
 
-        void setWaitingTimeout(TimeSpan timeout = TimeSpan::Zero);
+        void setWaitingTimeout(const TimeSpan &timeout = TimeSpan::Zero);
 
         bool kill();
 
@@ -73,11 +73,11 @@ namespace Diag {
     public:
         static bool start(const String &fileName, const String &arguments = String::Empty, Process *process = nullptr);
 
+        static bool start(const String &fileName, Process *process);
+
         static bool startByCmdString(const String &cmdString);
 
         static bool getProcessById(int processId, Process &process);
-
-        static bool getProcessByName(const char *processName, Processes &processes);
 
         static bool getProcessByName(const String &processName, Processes &processes);
 
@@ -88,11 +88,13 @@ namespace Diag {
         static int getCurrentProcessId();
 
     private:
-        static bool isProcessEnded(void *parameter);
-
 #ifdef WIN32
 
-        void enableDebugPriv() const;
+        static void enableDebugPriv();
+
+#else
+
+        static int readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout);
 
 #endif
 

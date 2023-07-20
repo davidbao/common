@@ -94,9 +94,7 @@ namespace Http {
 
         void stop();
 
-        bool isHttpServerAlive() const;
-
-        bool isHttpsServerAlive() const;
+        bool isAlive() const;
 
     public:
         static bool getMessage(struct evhttp_request *req, String &buffer);

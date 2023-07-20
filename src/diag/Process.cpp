@@ -7,30 +7,28 @@
 //
 
 #include "diag/Process.h"
-#include "IO/Path.h"
-#include "data/Convert.h"
-#include "data/StringArray.h"
 #include "data/TimeSpan.h"
 #include "diag/Trace.h"
 #include "exception/Exception.h"
-#include "thread/TickTimeout.h"
+#include "system/Application.h"
+#include "IO/Path.h"
 
-#if WIN32
+#ifdef WIN32
 
 #include <Windows.h>
-#include <Psapi.h>
 #include <TlHelp32.h>
-////#pragma comment (lib, "User32.lib")
-//#pragma comment (lib, "Advapi32.lib")
+
 #else
 
+#include "data/Convert.h"
+#include "data/StringArray.h"
 #include <unistd.h>
 #include <cerrno>
 #include <sys/wait.h>
 #include <csignal>
 #include <cstdlib>
-#include <climits>
-#include <sys/stat.h>
+//#include <climits>
+//#include <sys/stat.h>
 #include <dirent.h>
 
 #if __APPLE__
@@ -44,6 +42,16 @@
 #endif
 
 namespace Diag {
+    ProcessOutputEventArgs::ProcessOutputEventArgs(const String &message) {
+        this->message = message;
+    }
+
+    ProcessOutputEventArgs::ProcessOutputEventArgs(const ProcessOutputEventArgs &other) {
+        this->message = other.message;
+    }
+
+    ProcessOutputEventArgs::~ProcessOutputEventArgs() = default;
+
     Process::Process() : Process(-1) {
     }
 
@@ -58,9 +66,9 @@ namespace Diag {
 
     Process::~Process() = default;
 
-#if WIN32
+#ifdef WIN32
 
-    void Process::enableDebugPriv() const {
+    void Process::enableDebugPriv() {
         HANDLE hToken;
         LUID luid;
         TOKEN_PRIVILEGES tkp;
@@ -82,7 +90,7 @@ namespace Diag {
 
 #ifndef WIN32
 
-    int readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout) {
+    int Process::readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout) {
         int len = -1;
         if (handle != -1) {
             const int MAX_COUNT = 512;
@@ -160,20 +168,21 @@ namespace Diag {
         //sj.hStdOutput
         PROCESS_INFORMATION pi;
         memset(&pi, 0, sizeof(pi));
-        String clineStr = !arguments.isNullOrEmpty() ? String::format("%s %s", fileName.c_str(), arguments.c_str()) : String(fileName);
+        String clineStr = !arguments.isNullOrEmpty() ? String::format("%s %s", fileName.c_str(), arguments.c_str())
+                                                     : String(fileName);
         BOOL result = CreateProcess(nullptr, (char *) clineStr.c_str(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW,
                                     nullptr, nullptr, &si, &pi);
         if (result) {
             if (process != nullptr) {
-                process->_id = pi.dwProcessId;
+                process->_id = (int) pi.dwProcessId;
+                process->_name = Path::getFileName(fileName);
 
                 if (hStdOutRead != nullptr) {
                     char buffer[128];
-                    memset(buffer, 0, sizeof(buffer));
-                    DWORD dwRead = 0, tdwAfail = 0, tdwLeft, dwAvail, ctr = 0;
+                    DWORD dwRead, tdwLeft, dwAvail;
                     while (PeekNamedPipe(hStdOutRead, buffer, 1, &dwRead, &dwAvail, &tdwLeft)) {
                         if (dwRead) {
-                            if (ReadFile(hStdOutRead, buffer, sizeof(buffer) - 1, &dwRead, nullptr) && dwRead != 0) {
+                            if (ReadFile(hStdOutRead, buffer, 1, &dwRead, nullptr) && dwRead != 0) {
                                 buffer[dwRead] = '\0';
                                 process->_stdoutStr.append(buffer);
 
@@ -198,6 +207,22 @@ namespace Diag {
                 CloseHandle(pi.hProcess);
                 CloseHandle(pi.hThread);
             }
+        } else {
+            LPVOID lpMsgBuf;
+            DWORD dw = GetLastError();
+
+            FormatMessage(
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_FROM_SYSTEM |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr,
+                    dw,
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    (LPTSTR) &lpMsgBuf,
+                    0, nullptr);
+
+            Trace::error(String::format("Process start error!, code: %d, reason: %s", dw, (LPTSTR) lpMsgBuf));
+            LocalFree(lpMsgBuf);
         }
 
         if (hStdOutRead != nullptr)
@@ -220,9 +245,8 @@ namespace Diag {
         if (child == 0)      // child process
         {
 #ifdef DEBUG
-            if (process == nullptr ||
-                (process != nullptr && process->showChildLog)) {
-                Debug::writeFormatLine("Process::start(child process), file name: %s, arguments: %s, child pid: %d",
+            if (process == nullptr || process->showChildLog) {
+                Debug::writeFormatLine("Process::start(child process), file name: '%s', arguments: '%s', child pid: %d",
                                        fileName.c_str(), arguments.c_str(), getpid());
             }
 #endif
@@ -286,26 +310,26 @@ namespace Diag {
 
                 if (process->_redirectStdout) {
                     String str;
-                    char reading_buf[512];
+                    char buffer[128];
                     if (process->_waiting != 0) {
-                        while ((timeout = readWithTimeout(pipefd[0], reading_buf, 1, process->_waiting)) > 0) {
-                            str.append(reading_buf[0]);
+                        while ((timeout = readWithTimeout(pipefd[0], buffer, 1, process->_waiting)) > 0) {
+                            str.append(buffer[0]);
 
                             static String line;
-                            line.append(reading_buf[0]);
-                            if (reading_buf[0] == '\n') {
+                            line.append(buffer[0]);
+                            if (buffer[0] == '\n') {
                                 ProcessOutputEventArgs e(line);
                                 process->_outputDelegates.invoke(process, &e);
                                 line.empty();
                             }
                         }
                     } else {
-                        while (read(pipefd[0], reading_buf, 1) > 0) {
-                            str.append(reading_buf[0]);
+                        while (read(pipefd[0], buffer, 1) > 0) {
+                            str.append(buffer[0]);
 
                             static String line;
-                            line.append(reading_buf[0]);
-                            if (reading_buf[0] == '\n') {
+                            line.append(buffer[0]);
+                            if (buffer[0] == '\n') {
                                 ProcessOutputEventArgs e(line);
                                 process->_outputDelegates.invoke(process, &e);
                                 line.empty();
@@ -339,27 +363,27 @@ namespace Diag {
                 }
             }
         }
-#endif
         return true;
+#endif
+    }
+
+    bool Process::start(const String &fileName, Process *process) {
+        return start(fileName, String::Empty, process);
     }
 
     bool Process::startByCmdString(const String &cmdString) {
 #ifdef WIN32
-        BOOL result = CreateProcess(nullptr, (char *) cmdString.c_str(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW,
-                                    nullptr, nullptr, nullptr, nullptr);
-        if (result) {
-            return true;
-        }
-        return false;
+        return system(cmdString) == 0;
 #elif !IPHONE_OS
-        return system(cmdString);
+        return system(cmdString) == 0;
 #else
         return false;
 #endif
     }
 
     bool Process::getProcessById(int processId, Process &process) {
-#if WIN32
+#ifdef WIN32
+
         // Create toolhelp snapshot.
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         PROCESSENTRY32 entry;
@@ -373,7 +397,7 @@ namespace Diag {
                 // trim .exe if necessary, etc.
                 //if (MatchProcessName(process.szExeFile, name))
                 if (processId == entry.th32ProcessID) {
-                    process._id = entry.th32ProcessID;
+                    process._id = (int) entry.th32ProcessID;
                     process._name = entry.szExeFile;
                     break;
                 }
@@ -401,7 +425,7 @@ namespace Diag {
         err = sysctl((int *) name, (sizeof(name) / sizeof(*name)) - 1, proc_list, &length, nullptr, 0);
         if (err) return false;
 
-        int proc_count = (int) length / sizeof(struct kinfo_proc);
+        int proc_count = (int) (length / sizeof(struct kinfo_proc));
 
         // use getpwuid_r() if you want to be thread-safe
 
@@ -461,8 +485,8 @@ namespace Diag {
         return process._id > 0;
     }
 
-    bool Process::getProcessByName(const char *processName, Processes &processes) {
-#if WIN32
+    bool Process::getProcessByName(const String &processName, Processes &processes) {
+#ifdef WIN32
         // Create toolhelp snapshot.
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         PROCESSENTRY32 entry;
@@ -475,7 +499,7 @@ namespace Diag {
                 // Compare process.szExeFile based on format of name, i.e., trim file path
                 // trim .exe if necessary, etc.
                 if (strcmp(entry.szExeFile, processName) == 0) {
-                    Process *process = new Process(entry.th32ProcessID);
+                    auto process = new Process((int) entry.th32ProcessID);
                     process->_name = processName;
                     processes.add(process);
                 }
@@ -503,7 +527,7 @@ namespace Diag {
         err = sysctl((int *) name, (sizeof(name) / sizeof(*name)) - 1, proc_list, &length, nullptr, 0);
         if (err) return false;
 
-        int proc_count = (int) length / sizeof(struct kinfo_proc);
+        int proc_count = (int) (length / sizeof(struct kinfo_proc));
 
         // use getpwuid_r() if you want to be thread-safe
 
@@ -511,7 +535,7 @@ namespace Diag {
             pid_t pid = proc_list[i].kp_proc.p_pid;
             const char *first = proc_list[i].kp_proc.p_comm;
             if (!strcmp(first, processName)) {
-                Process *process = new Process((pid_t) pid);
+                auto process = new Process((pid_t) pid);
                 process->_name = processName;
                 processes.add(process);
             }
@@ -563,13 +587,9 @@ namespace Diag {
         return processes.count() > 0;
     }
 
-    bool Process::getProcessByName(const String &processName, Processes &processes) {
-        return getProcessByName(processName.c_str(), processes);
-    }
-
     bool Process::waitForExit(int milliseconds) const {
         if (_id > 0) {
-#if WIN32
+#ifdef WIN32
             enableDebugPriv();
             HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _id);
             if (hProcess != nullptr) {
@@ -579,17 +599,14 @@ namespace Diag {
                 return true;
             }
 #else
-            TickTimeout::msdelay(milliseconds, isProcessEnded, (void *) this, 10);
+            auto isProcessEnded = [](const Process *process) {
+                return !process->exist();
+            };
+            Thread::delay(milliseconds, Func<bool>(isProcessEnded, this));
             return !exist();
 #endif
         }
         return false;
-    }
-
-    bool Process::isProcessEnded(void *parameter) {
-        Process *process = static_cast<Process *>(parameter);
-        assert(process);
-        return !process->exist();
     }
 
     bool Process::waitForProcessExit(int processId, int milliseconds) {
@@ -601,20 +618,32 @@ namespace Diag {
     }
 
     bool Process::getCurrentProcess(Process &process) {
-#if WIN32
+        bool result = false;
+#ifdef WIN32
         DWORD processId = ::GetCurrentProcessId();
         if (processId != -1) {
-            process._id = processId;
-            return true;
+            result = true;
+            process._id = (int) processId;
         }
 #else
         pid_t pid = getpid();
         if (pid > 0) {
+            result = true;
             process._id = pid;
-            return true;
         }
 #endif
-        return false;
+        if (result) {
+            String fileName = Application::startupPath();
+            String fName = Path::getFileName(Application::startupPath());
+            ssize_t pos = fName.find('.');
+            String name;
+            if (pos > 0)
+                name = fName.substr(0, pos);
+            else
+                name = fName;
+            process._name = name;
+        }
+        return result;
     }
 
     int Process::getCurrentProcessId() {
@@ -625,7 +654,7 @@ namespace Diag {
 
     bool Process::kill() {
         if (_id > 0) {
-#if WIN32
+#ifdef WIN32
             enableDebugPriv();
             HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _id);
             if (hProcess != nullptr) {
@@ -649,7 +678,7 @@ namespace Diag {
 
     bool Process::stop(int milliseconds) {
         if (_id > 0) {
-#if WIN32
+#ifdef WIN32
             return kill();
 #else
             bool result = ::kill(_id, SIGTERM) == 0;
@@ -661,9 +690,9 @@ namespace Diag {
     }
 
     bool Process::closeMainWindow() const {
-#if WIN32
+#ifdef WIN32
         HWND main = (HWND) mainWindow();
-        if (main != NULL) {
+        if (main != nullptr) {
             return PostMessage(main, WM_CLOSE, NULL, NULL) != 0;
         }
 #else
@@ -691,35 +720,33 @@ namespace Diag {
         _redirectStdout = redirectStdout;
     }
 
-    bool Process::waitingTimeout() const {
-        return _waiting != 0;
+    TimeSpan Process::waitingTimeout() const {
+        return TimeSpan::fromMilliseconds(_waiting);
     }
 
     void Process::setWaitingTimeout(int milliseconds) {
-        _waiting = milliseconds;
+        _waiting = milliseconds >= 0 ? milliseconds : 0;
     }
 
-    void Process::setWaitingTimeout(TimeSpan timeout) {
-        if (timeout != TimeSpan::Zero) {
-            setWaitingTimeout((int) timeout.totalMilliseconds());
-        }
+    void Process::setWaitingTimeout(const TimeSpan &timeout) {
+        setWaitingTimeout((int) timeout.totalMilliseconds());
     }
 
-#if WIN32
+#ifdef WIN32
     struct ProcessWindows {
         DWORD dwCurrentProcessId;
         HWND hCurrentProcessWin;
     };
 
     BOOL IsMainWindow(HWND hWnd) {
-        return (!(GetWindow(hWnd, GW_OWNER) != nullptr) && IsWindowVisible(hWnd));
+        return (GetWindow(hWnd, GW_OWNER) == nullptr && IsWindowVisible(hWnd));
     }
 
     BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
         DWORD dwProcessId = 0;
         GetWindowThreadProcessId(hWnd, &dwProcessId);
 
-        ProcessWindows *ppw = (ProcessWindows *) lParam;
+        auto ppw = (ProcessWindows *) lParam;
         if (ppw != nullptr) {
             if (ppw->dwCurrentProcessId == dwProcessId && IsMainWindow(hWnd)) {
                 ppw->hCurrentProcessWin = hWnd;
@@ -732,8 +759,8 @@ namespace Diag {
 #endif
 
     void *Process::mainWindow() const {
-#if WIN32
-        ProcessWindows pw;
+#ifdef WIN32
+        ProcessWindows pw{};
         memset(&pw, 0, sizeof(pw));
         pw.dwCurrentProcessId = _id;
         EnumWindows(EnumWindowsProc, (LPARAM) &pw);
@@ -746,7 +773,7 @@ namespace Diag {
 
     bool Process::exist() const {
         if (_id > 0) {
-#if WIN32
+#ifdef WIN32
             enableDebugPriv();
             HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _id);
             return (hProcess != nullptr);

@@ -188,6 +188,10 @@ namespace Config {
         return setProperty(key, Double(value).toString());
     }
 
+    bool IConfigService::setProperty(const String &key, const char *value) {
+        return setProperty(key, String(value));
+    }
+
     const ByteArray ConfigService::Sm4Key = {0x81, 0x50, 0xD4, 0xB6, 0x68, 0xAA, 0xD8, 0xCC, 0x7E, 0x35, 0xFB, 0xA6,
                                              0x5D, 0x4C, 0x83, 0xB0};
 

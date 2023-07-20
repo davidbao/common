@@ -26,6 +26,8 @@ namespace System {
     public:
         explicit HandledEventArgs(bool handled = false);
 
+        HandledEventArgs(const HandledEventArgs &other);
+
     public:
         bool handled;
     };

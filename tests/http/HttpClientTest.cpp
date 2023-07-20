@@ -292,7 +292,7 @@ int main() {
     server.startHttpServer(context, actions);
 
     auto func = [](HttpServer *server) {
-        return server->isHttpServerAlive();
+        return server->isAlive();
     };
     Thread::delay(1500, Func<bool>(func, &server));
 

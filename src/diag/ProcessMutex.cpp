@@ -10,17 +10,19 @@
 #include "diag/Trace.h"
 
 #ifdef WIN32
+
 #include <Windows.h>
+
 #else
 
-#include <cerrno>
-#include <unistd.h>
 #include <semaphore.h>
 #include <cstdio>
 #include <fcntl.h>
-#include <csignal>
-#include <cstring>
-#include <memory.h>
+//#include <cerrno>
+//#include <unistd.h>
+//#include <csignal>
+//#include <cstring>
+//#include <memory.h>
 
 #endif
 
@@ -28,7 +30,7 @@ namespace Diag {
     ProcessMutex::ProcessMutex(const String &name) {
         _mutexName = name;
 #ifdef WIN32
-        _mutex = CreateMutex(NULL, false, name.c_str());
+        _mutex = CreateMutex(nullptr, false, name.c_str());
 #else
         _mutex = sem_open(name, O_RDWR | O_CREAT, 0644, 1);
 #endif
@@ -48,14 +50,12 @@ namespace Diag {
 
     bool ProcessMutex::lock() {
 #ifdef WIN32
-        if (nullptr == _mutex)
-        {
+        if (nullptr == _mutex) {
             return false;
         }
-        
+
         DWORD nRet = WaitForSingleObject(_mutex, INFINITE);
-        if (nRet != WAIT_OBJECT_0)
-        {
+        if (nRet != WAIT_OBJECT_0) {
             return false;
         }
 #else
@@ -81,11 +81,10 @@ namespace Diag {
 
     bool ProcessMutex::exists(const String &name) {
 #ifdef WIN32
-        HANDLE hMutex = CreateMutex(0, 0, name);
-        if(GetLastError() == ERROR_ALREADY_EXISTS)
-        {
+        HANDLE hMutex = CreateMutex(nullptr, false, name);
+        if (GetLastError() == ERROR_ALREADY_EXISTS) {
             // The mutex exists so this is the
-            // the second instance so return.
+            // second instance so return.
             ReleaseMutex(hMutex);
             Debug::writeLine("Process already running!");
             return true;

@@ -21,6 +21,10 @@ set(DIAG_SRC
 #        TraceListener.cpp
         )
 
+if (NOT WEB_OS)
+    SET(DIAG_SRC "${DIAG_SRC}" ProcessTest.cpp)
+endif()
+
 foreach (item ${DIAG_SRC})
     string(REGEX MATCH "[0-9A-Za-z_]*" app ${item})
     add_executable(${app} ${item})

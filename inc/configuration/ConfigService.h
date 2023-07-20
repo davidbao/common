@@ -86,6 +86,8 @@ namespace Config {
 
         bool setProperty(const String &key, const double &value);
 
+        bool setProperty(const String &key, const char *value);
+
         template<class T>
         bool setProperty(const String &key, const T &value) {
             return setProperty(key, value.toString());
@@ -94,6 +96,9 @@ namespace Config {
 
     class ConfigService : public IConfigService {
     public:
+        using IConfigService::getProperty;
+        using IConfigService::setProperty;
+
         ConfigService();
 
         ~ConfigService() override;

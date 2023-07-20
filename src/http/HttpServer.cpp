@@ -153,12 +153,9 @@ namespace Http {
         event_base_loopbreak(_httpsContext.base);
     }
 
-    bool HttpServer::isHttpServerAlive() const {
-        return _httpThread != nullptr && _httpThread->isAlive() && !_httpContext.loopExit;
-    }
-
-    bool HttpServer::isHttpsServerAlive() const {
-        return _httpThread != nullptr && _httpsThread->isAlive() && !_httpsContext.loopExit;
+    bool HttpServer::isAlive() const {
+        return (_httpThread != nullptr && _httpThread->isAlive() && !_httpContext.loopExit) ||
+                (_httpsThread != nullptr && _httpsThread->isAlive() && !_httpsContext.loopExit);
     }
 
     void HttpServer::httpServerStart(void *parameter) {

@@ -16,31 +16,7 @@ namespace Microservice {
     const char *SsoService::AccessTokenId = "accessToken";
     const char *SsoService::Sm2String = "SM2_";
 
-    SsoService::SsoService() {
-//        ByteArray privateKey, publicKey;
-//        Sm2Provider::generateKey(publicKey, privateKey);
-//        Sm2Provider sm21(publicKey, privateKey);
-//        String intput, output;
-//        sm21.encrypt("abc", output);
-//        sm21.decrypt(output, intput);
-
-//        ByteArray privateKey;
-//        ByteArray::parseHexString("0127E2238F923C4530CC2EC87B9C3839497CCB11FD519E4F13C211BC49D86DB9", privateKey);
-//        ByteArray publicKey;
-//        ByteArray::parseHexString("FABB215EA4483A3686040F07A9EFCC1E86C6851AE68DCE9F39AF704EC72B310FE810C83E68140557A4DA10390DDEDF3CF6C00EFF6DB6B6996171662AE010330B", publicKey);
-//        Sm2Provider sm2(publicKey, privateKey);
-//
-////        String intput, output;
-////        Sm2Provider sm21(publicKey, privateKey);
-////        sm21.encrypt("abc", output);
-////        sm21.decrypt(output, intput);
-//        
-//        String cipherStr = "306D022100F1B02FDEEB120DD1D4B633000FC397417BFB18B3E00BAC40377E95D2B21A68EF022100BFA34AA9B61E6D2A98DF264EC1E0F7E40DD446815C6EB7BAB1F340E59DE0CD7F04208F81ECF21B6F99E24A9249E0E2556E98A54ADE72D5BCB9CAF6EDE3E5F63325DF0403E67AE9";
-//        ByteArray in, out;
-//        ByteArray::parseHexString(cipherStr, in);
-//        bool result = sm2.decrypt(in, out);
-//        int a = 0;
-    }
+    SsoService::SsoService() = default;
 
     SsoService::~SsoService() = default;
 
@@ -55,7 +31,8 @@ namespace Microservice {
 #define BasePath "v1/auth/users"
         hs->registerMapping(HttpMethod::Get, BasePath "/encrypt",
                             HttpCallback<SsoService>(this, &SsoService::onEncrypt));
-        hs->registerMapping(HttpMethod::Post, BasePath "/login", HttpCallback<SsoService>(this, &SsoService::onLogin));
+        hs->registerMapping(HttpMethod::Post, BasePath "/login",
+                            HttpCallback<SsoService>(this, &SsoService::onLogin));
         hs->registerMapping(HttpMethod::Post, BasePath "/logout",
                             HttpCallback<SsoService>(this, &SsoService::onLogout));
         hs->registerMapping(HttpMethod::Post, BasePath "/password",
@@ -72,7 +49,7 @@ namespace Microservice {
         // white list.
         bool whitelistEnabled = false;
         if (cs->getProperty("server.http.whitelist.enabled", whitelistEnabled) && whitelistEnabled) {
-            IHttpInterceptor *hi = factory->getService<IHttpInterceptor>();
+            auto hi = factory->getService<IHttpInterceptor>();
             assert(hi);
             StringArray list;
             cs->getProperty("server.http.whitelist.paths", list);
@@ -141,7 +118,7 @@ namespace Microservice {
 
         data.add(JsonNode("code", key.toHexString()));
         data.add(JsonNode("publicKey", publicKey.toHexString()));
-        result.add(JsonNode("code", "200"));
+        result.add(JsonNode("code", "0"));
         result.add(data);
         response.setContent(result);
         return HttpStatus::HttpOk;
@@ -157,7 +134,7 @@ namespace Microservice {
                 if (!name.isNullOrEmpty() && node.getAttribute("password", password)) {
                     if (check(name, password)) {
                         // Login successfully.
-                        result.add(JsonNode("code", "200"));
+                        result.add(JsonNode("code", "0"));
                         result.add(JsonNode("msg", "Login successfully."));
 
                         ServiceFactory *factory = ServiceFactory::instance();
@@ -190,7 +167,7 @@ namespace Microservice {
                 if (!name.isNullOrEmpty() && node.getAttribute("password", password)) {
                     if (check(name, password)) {
                         // Login successfully.
-                        result.add(JsonNode("code", "200"));
+                        result.add(JsonNode("code", "0"));
                         result.add(JsonNode("msg", "Login successfully."));
 
                         ServiceFactory *factory = ServiceFactory::instance();
@@ -243,7 +220,7 @@ namespace Microservice {
                 assert(hs);
                 hs->removeSession(request);
 
-                result.add(JsonNode("code", "200"));
+                result.add(JsonNode("code", "0"));
                 result.add(JsonNode("msg", "Logout successfully."));
             } else {
                 // The username or password is incorrect.
@@ -289,7 +266,7 @@ namespace Microservice {
 
                 if (check(name, oldPassword)) {
                     if (modifyPassword(name, oldPassword, newPassword)) {
-                        result.add(JsonNode("code", "200"));
+                        result.add(JsonNode("code", "0"));
                         result.add(JsonNode("msg", "Modify successfully."));
                     } else {
                         result.add(JsonNode("code", "1101"));
@@ -362,7 +339,7 @@ namespace Microservice {
                         result.add(JsonNode("code", "1101"));
                         result.add(JsonNode("msg", "Failed to save config file."));
                     } else {
-                        result.add(JsonNode("code", "200"));
+                        result.add(JsonNode("code", "0"));
                         result.add(JsonNode("msg", "Modify successfully."));
                     }
                 } else {
@@ -383,17 +360,27 @@ namespace Microservice {
     }
 
     SsoService::ErrorCode SsoService::decode(const HttpRequest &request, String &content) {
-        JsonNode result;
-        HttpProperties properties;
-        HttpProperties::parse(request.text(), properties);
+        JsonNode node;
         ByteArray publicKey;
         String publicKeyStr, cryptograph;
-        properties.at("publicKey", publicKeyStr);
-        ByteArray::parseHexString(publicKeyStr, publicKey);
-        if (!properties.at("cryptograph", cryptograph))
-            properties.at("encrypt", cryptograph);
+        if (JsonNode::parse(request.text(), node)) {
+            node.getAttribute("publicKey", publicKeyStr);
+            ByteArray::parseHexString(publicKeyStr, publicKey);
+            if (!node.getAttribute("cryptograph", cryptograph))
+                node.getAttribute("encrypt", cryptograph);
+        } else {
+            HttpProperties properties;
+            HttpProperties::parse(request.text(), properties);
+            if (properties.count() == 0) {
+                properties = request.properties;
+            }
+            properties.at("publicKey", publicKeyStr);
+            ByteArray::parseHexString(publicKeyStr, publicKey);
+            if (!properties.at("cryptograph", cryptograph))
+                properties.at("encrypt", cryptograph);
+        }
         if (!(!publicKey.isEmpty() && !cryptograph.isNullOrEmpty())) {
-            // The request prarmeters is incorrect.
+            // The request parameters is incorrect.
             return ErrorCode::ParameterIncorrect;
         }
 
