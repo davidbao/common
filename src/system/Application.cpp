@@ -12,7 +12,7 @@
 #include "diag/Trace.h"
 #include "IO/Path.h"
 #include "IO/Directory.h"
-#include "thread/TickTimeout.h"
+#include "system/Environment.h"
 #include "thread/Timer.h"
 #include "diag/FileTraceListener.h"
 #include "diag/MemoryTraceListener.h"
@@ -21,11 +21,9 @@
 
 #include <Windows.h>
 #include <memory.h>
-//#include <fcntl.h>
-//#include <io.h>
-//#include <Shlobj.h>
 #include <direct.h>
 #include <Shlwapi.h>
+#include <signal.h>
 
 #elif __APPLE__
 
@@ -63,7 +61,7 @@ namespace System {
             }
         }
 
-#if !defined(WIN32) && !defined(PHONE_OS) && !defined(__EMSCRIPTEN__)
+#if !defined(PHONE_OS) && !defined(__EMSCRIPTEN__)
         signal(SIGABRT, onTerm);
         signal(SIGINT, onTerm);
         signal(SIGTERM, onTerm);
@@ -72,7 +70,7 @@ namespace System {
         setlocale(LC_ALL, ".UTF-8");
 
         _instance = this;
-        _startTime = TickTimeout::getCurrentTickCount();
+        _startTime = Environment::getTickCount();
         _rootPath = rootPath.isNullOrEmpty() ? Path::getAppPath() : rootPath;
         _fullFileName = Application::startupPath();
 
@@ -317,10 +315,7 @@ namespace System {
 #endif
 
     TimeSpan Application::elapsedTime() const {
-        uint32_t start = _startTime;
-        uint32_t end = TickTimeout::getCurrentTickCount();
-        uint32_t elapsed = TickTimeout::elapsed(start, end);
-        return TimeSpan::fromMilliseconds(elapsed);
+        return TimeSpan::fromMilliseconds((double)(Environment::getTickCount() - _startTime));
     }
 
     DateTime Application::startTime() const {
@@ -380,6 +375,10 @@ namespace System {
 
     const Application::Arguments &Application::arguments() const {
         return _arguments;
+    }
+
+    void Application::addArgument(const String &key, const String &value) {
+        _arguments.add(key, value);
     }
 
     bool Application::withQuit() const {

@@ -16,6 +16,10 @@ using namespace System;
 String ll_cmd = "cmd";
 String ll_param = "/c dir";
 String ll_cmd_l = "cmd /c dir";
+#elif __arm_linux__
+String ll_cmd = "/bin/sh";
+String ll_param = "-c ls";
+String ll_cmd_l = "/bin/sh -c ls";
 #else
 String ll_cmd = "ls";
 String ll_param = "";
@@ -59,9 +63,16 @@ bool testConstructor() {
 
 bool testStart() {
     {
-        if (!Process::start(ll_cmd)) {
+        if (!Process::start(ll_cmd_l)) {
             return false;
         }
+    }
+    {
+        Process process;
+        if (!Process::start(ll_cmd, &process)) {
+            return false;
+        }
+        process.kill();
     }
     {
         Process process;
@@ -144,6 +155,7 @@ bool testAttributes() {
     {
         Process process;
         process.setRedirectStdout(true);
+        process.setWaitingTimeout(3000);
         static String message;
         auto function = [](void *owner, void *sender, EventArgs *e) {
             auto args = dynamic_cast<ProcessOutputEventArgs *>(e);
@@ -281,10 +293,6 @@ int main(int argc, const char *argv[]) {
         if (!testMultiProcesses()) {
             return 6;
         }
-
-#ifdef WIN32
-        Process::killAll("cmd");
-#endif
     }
     return 0;
 }

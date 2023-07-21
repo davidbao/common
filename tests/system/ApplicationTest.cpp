@@ -76,7 +76,11 @@ bool testConstructor() {
         Process::start(Application::startupPath(), "-s &");
         Process::start(Application::startupPath(), "-s &");
 
+#ifdef __arm_linux__
+        Thread::sleep(2000);
+#else
         Thread::sleep(200);
+#endif
         String fileName = Path::combine(Path::getAppPath(), "ApplicationTest_flag.txt");
         String content = File::readAllText(fileName);
         if (content != "abc123") {

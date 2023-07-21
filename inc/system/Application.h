@@ -129,7 +129,7 @@ namespace System {
         TraceListeners _traceListeners;
         Culture _culture;
 
-        uint32_t _startTime;
+        uint64_t _startTime;
 
     private:
         int _exitCode;

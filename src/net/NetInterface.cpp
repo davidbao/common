@@ -656,9 +656,8 @@ namespace Net {
 #endif    // __ANDROID__
 
     void NetInterface::getInterfaceNames(StringArray &names) {
-#if PC_OS
 #ifdef WIN32
-#else
+#elif !defined(PHONE_OS)
         struct ifaddrs *addrs, *tmp;
 
         getifaddrs(&addrs);
@@ -681,7 +680,6 @@ namespace Net {
 
         freeifaddrs(addrs);
 #endif // WIN32
-#endif // PC_OS
     }
 
     bool NetInterface::getClientList(const String &iface, Clients &clients) {

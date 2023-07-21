@@ -1143,25 +1143,34 @@ namespace Net {
             }
         }
 #else
+        // https://en.cppreference.com/w/c/io/fscanf
         char schemeStr[255] = {}, endpointStr[255] = {}, relativeStr[255] = {};
-        int result = sscanf(urlString.c_str(), "%[^://]://%[a-z|A-Z|0-9|.|_-|:]%s", schemeStr, endpointStr, relativeStr);
+        int result = sscanf(urlString.c_str(), "%[a-z|A-Z|0-9|.|_-]://%[a-z|A-Z|0-9|.|_-|:]%s", schemeStr, endpointStr, relativeStr);
         if (result >= 2) {
-            if(!Schemes.contains(schemeStr, true)) {
-                return false;
-            }
             value._scheme = schemeStr;
             Endpoint endpoint;
             if(Endpoint::parse(endpointStr, endpoint)) {
                 value._endpoint = endpoint;
             } else {
                 Port port;
-                if (String(schemeStr) == SchemeHttp)
+                String scheme = schemeStr;
+                if (scheme == SchemeHttp)
                     port = DefaultHttpPort;
-                else if (String(schemeStr) == SchemeHttps)
+                else if (scheme == SchemeHttps)
                     port = DefaultHttpsPort;
+                else if (scheme == SchemeMysql)
+                    port = DefaultMysqlPort;
+                else if (scheme == SchemeMysqls)
+                    port = DefaultMysqlsPort;
+                else if (scheme == SchemeMqtt)
+                    port = DefaultMqttPort;
+                else if (scheme == SchemeMqtts)
+                    port = DefaultMqttsPort;
+                else if (scheme == SchemeCoap)
+                    port = DefaultCoapPort;
                 value._endpoint = Endpoint(endpointStr, port);
             }
-            value._relativeUrl = relativeStr;
+            value._relativeUrl = String(relativeStr).trim('/', '\\');
             return true;
         }
 #endif

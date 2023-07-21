@@ -114,6 +114,7 @@ bool testGetMacAddress() {
 #ifndef WIN32
     {
         String iface = getFirstFaceName();
+        printf("testGetMacAddress.iface: %s\n", iface.c_str());
         MacAddress address = NetInterface::getMacAddress(iface);
         if (address.isEmpty()) {
             return false;

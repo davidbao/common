@@ -86,9 +86,30 @@ namespace Diag {
         CloseHandle(hToken);
     }
 
-#endif
+    struct ProcessWindows {
+        DWORD dwCurrentProcessId;
+        HWND hCurrentProcessWin;
+    };
 
-#ifndef WIN32
+    BOOL IsMainWindow(HWND hWnd) {
+        return (GetWindow(hWnd, GW_OWNER) == nullptr && IsWindowVisible(hWnd));
+    }
+
+    BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+        DWORD dwProcessId = 0;
+        GetWindowThreadProcessId(hWnd, &dwProcessId);
+
+        auto ppw = (ProcessWindows *) lParam;
+        if (ppw != nullptr) {
+            if (ppw->dwCurrentProcessId == dwProcessId && IsMainWindow(hWnd)) {
+                ppw->hCurrentProcessWin = hWnd;
+                return FALSE;
+            }
+        }
+        return TRUE;
+    }
+
+#else
 
     int Process::readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout) {
         int len = -1;
@@ -311,11 +332,11 @@ namespace Diag {
                 if (process->_redirectStdout) {
                     String str;
                     char buffer[128];
+                    static String line;
+                    line.empty();
                     if (process->_waiting != 0) {
                         while ((timeout = readWithTimeout(pipefd[0], buffer, 1, process->_waiting)) > 0) {
                             str.append(buffer[0]);
-
-                            static String line;
                             line.append(buffer[0]);
                             if (buffer[0] == '\n') {
                                 ProcessOutputEventArgs e(line);
@@ -326,8 +347,6 @@ namespace Diag {
                     } else {
                         while (read(pipefd[0], buffer, 1) > 0) {
                             str.append(buffer[0]);
-
-                            static String line;
                             line.append(buffer[0]);
                             if (buffer[0] == '\n') {
                                 ProcessOutputEventArgs e(line);
@@ -372,7 +391,14 @@ namespace Diag {
     }
 
     bool Process::startByCmdString(const String &cmdString) {
+#ifdef WIN32
         return system(cmdString) == 0;
+#else
+        sig_t oldSignal = signal(SIGCHLD, SIG_DFL);
+        bool result = system(cmdString) == 0;
+        signal(SIGCHLD, oldSignal);
+        return result;
+#endif
     }
 
     bool Process::getProcessById(int processId, Process &process) {
@@ -593,11 +619,14 @@ namespace Diag {
                 return true;
             }
 #else
+            sig_t oldSignal = signal(SIGCHLD, SIG_IGN);
             auto isProcessEnded = [](const Process *process) {
                 return !process->exist();
             };
             Thread::delay(milliseconds, Func<bool>(isProcessEnded, this));
-            return !exist();
+            bool result = !exist();
+            signal(SIGCHLD, oldSignal);
+            return result;
 #endif
         }
         return false;
@@ -673,7 +702,7 @@ namespace Diag {
     void Process::killAll(const String &processName) {
         Processes processes;
         if (Process::getProcessByName(processName, processes)) {
-            for(size_t i=0; i<processes.count(); i++) {
+            for (size_t i = 0; i < processes.count(); i++) {
                 processes[i]->kill();
             }
         }
@@ -736,33 +765,6 @@ namespace Diag {
     void Process::setWaitingTimeout(const TimeSpan &timeout) {
         setWaitingTimeout((int) timeout.totalMilliseconds());
     }
-
-#ifdef WIN32
-
-    struct ProcessWindows {
-        DWORD dwCurrentProcessId;
-        HWND hCurrentProcessWin;
-    };
-
-    BOOL IsMainWindow(HWND hWnd) {
-        return (GetWindow(hWnd, GW_OWNER) == nullptr && IsWindowVisible(hWnd));
-    }
-
-    BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
-        DWORD dwProcessId = 0;
-        GetWindowThreadProcessId(hWnd, &dwProcessId);
-
-        auto ppw = (ProcessWindows *) lParam;
-        if (ppw != nullptr) {
-            if (ppw->dwCurrentProcessId == dwProcessId && IsMainWindow(hWnd)) {
-                ppw->hCurrentProcessWin = hWnd;
-                return FALSE;
-            }
-        }
-        return TRUE;
-    }
-
-#endif
 
     void *Process::mainWindow() const {
 #ifdef WIN32
