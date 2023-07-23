@@ -9,6 +9,7 @@
 #include "diag/Trace.h"
 #include "diag/Stopwatch.h"
 #include "database/SqliteClient.h"
+#include "IO/FileInfo.h"
 #include "sqlite3.h"
 
 using namespace Diag;
@@ -32,13 +33,46 @@ namespace Database {
         delete _sqliteDb;
     }
 
-    bool SqliteClient::open(const String &connectionStr) {
+    bool SqliteClient::open(const StringMap &connections) {
         Locker locker(&_dbMutex);
 
+        return openInner(connections);
+    }
+
+    bool SqliteClient::open(const String &fileName) {
+        bool error = false;
+        String errorStr;
+        FileInfo fi(fileName);
+        if (!fi.exists() || fi.isWritable()) {
+            bool result = openInner(fileName);
+            if (!result) {
+                error = true;
+                errorStr = getErrorMsg();
+            }
+        } else {
+            error = true;
+            errorStr = String::convert("the file '%s' is readonly.", fileName.c_str());
+        }
+
+        if (error) {
+            Trace::debug(String::format("Failed to open sqlite. file: %s, reason: '%s'",
+                                        fileName.c_str(), errorStr.c_str()));
+        } else {
+            Trace::debug(String::format("Open sqlite successfully. file: %s", fileName.c_str()));
+        }
+        return !error;
+    }
+
+    bool SqliteClient::openInner(const StringMap &connections) {
+        String file = connections["file"];
+        return open(file);
+    }
+
+    bool SqliteClient::openInner(const String &fileName) {
 #if WIN32
-        String str = String::GBKtoUTF8(connectionStr);
+        String str = String::GBKtoUTF8(fileName);
 #else
-        String str = connectionStr;
+        String str = fileName;
 #endif
         // connectionStr is the db file name.
         int result = sqlite3_open(str.c_str(), &_sqliteDb->sqliteDb);
@@ -66,8 +100,9 @@ namespace Database {
             executeSqlInner("PRAGMA count_changes=OFF");
             executeSqlInner("PRAGMA journal_mode=MEMORY");
             executeSqlInner("PRAGMA temp_store=MEMORY");
+            return true;
         }
-        return isSucceed(result);
+        return false;
     }
 
     bool SqliteClient::close() {
@@ -218,7 +253,7 @@ namespace Database {
 
         // such like '"INSERT INTO example VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)";'
         String valuesStr;
-        int columnCount = (int)table.columnCount();
+        int columnCount = (int) table.columnCount();
         for (int i = 0; i < columnCount; i++) {
             if (i != 0) {
                 valuesStr += ", ";
@@ -238,7 +273,7 @@ namespace Database {
             return result;
         }
 
-        int rowCount = (int)table.rowCount();
+        int rowCount = (int) table.rowCount();
         for (int i = 0; i < rowCount; i++) {
             const DataRow &row = table.rows().at(i);
             for (int j = 0; j < columnCount; j++) {
@@ -255,16 +290,16 @@ namespace Database {
                         case DbValue::Integer8:
                         case DbValue::Integer16:
                         case DbValue::Integer32:
-                            sqlite3_bind_int(stmt, j + 1, (int32_t)value);
+                            sqlite3_bind_int(stmt, j + 1, (int32_t) value);
                             break;
                         case DbValue::UInteger8:
                         case DbValue::UInteger16:
                         case DbValue::UInteger32:
-                            sqlite3_bind_int(stmt, j + 1, (uint32_t)value);
+                            sqlite3_bind_int(stmt, j + 1, (uint32_t) value);
                             break;
                         case DbValue::Integer64:
                         case DbValue::UInteger64:
-                            sqlite3_bind_int64(stmt, j + 1, (int64_t)value);
+                            sqlite3_bind_int64(stmt, j + 1, (int64_t) value);
                             break;
                         case DbValue::Date: {
                             DateTime time = value;
@@ -297,7 +332,7 @@ namespace Database {
                             break;
                         case DbValue::Blob: {
                             ByteArray buffer = value;
-                            sqlite3_bind_blob(stmt, j + 1, buffer.data(), (int)buffer.count(), SQLITE_TRANSIENT);
+                            sqlite3_bind_blob(stmt, j + 1, buffer.data(), (int) buffer.count(), SQLITE_TRANSIENT);
                         }
                             break;
                         default:
@@ -348,7 +383,7 @@ namespace Database {
 #endif
 
         int columnCount = sqlite3_column_count(stmt);
-        int table_columnCount = (int)table.columnCount();
+        int table_columnCount = (int) table.columnCount();
         if ((table_columnCount > 0 && table_columnCount == columnCount) ||
             table_columnCount == 0) {
             if (table_columnCount == 0) {
@@ -442,6 +477,10 @@ namespace Database {
                 assert(false);
                 return DbType::Null;
         }
+    }
+
+    bool SqliteClient::ping() {
+        return true;
     }
 
     DbType SqliteClient::getColumnType(const String &type) {

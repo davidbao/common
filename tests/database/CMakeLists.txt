@@ -14,6 +14,8 @@
 if (${COMMON_BUILD_DATABASE})
     SET(DATABASE_SRC
             DataTableTest.cpp
+            SnowFlakeTest.cpp
+            SqlConnectionTest.cpp
             SqlSelectFilterTest.cpp
             )
 
@@ -25,9 +27,9 @@ if (${COMMON_BUILD_DATABASE})
         set(DATABASE_SRC ${DATABASE_SRC} MysqlClientTest.cpp)
     endif ()
 
-#    if (${COMMON_BUILD_ORACLE})
-#        set(DATABASE_SRC ${DATABASE_SRC} OracleClientTest.cpp)
-#    endif ()
+    if (${COMMON_BUILD_ORACLE})
+        set(DATABASE_SRC ${DATABASE_SRC} OracleClientTest.cpp)
+    endif ()
 
     if (${COMMON_BUILD_KINGBASE})
         set(DATABASE_SRC ${DATABASE_SRC} KingbaseClientTest.cpp)

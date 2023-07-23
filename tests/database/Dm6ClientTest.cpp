@@ -17,7 +17,9 @@ using namespace Database;
 using namespace System;
 using namespace IO;
 
-static String _baseUrl("dm6://192.166.1.3:12345");
+static String _host = "192.166.1.3";
+static String _port = "12345";
+static String _baseUrl(String::format("dm6://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "DM6CLIENTTEST_DB";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "SYSDBA";
@@ -436,8 +438,8 @@ bool parseArguments(const Application &app) {
     }
 
     _baseUrl = String::format("dm6://%s:%s",
-                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.3",
-                              !port.isEmpty() ? port.toString().c_str() : "12345");
+                              !host.isNullOrEmpty() ? host.c_str() : _host.c_str(),
+                              !port.isEmpty() ? port.toString().c_str() : _port.c_str());
     _schema = !schema.isNullOrEmpty() ? schema : "TEST";
     _database = !database.isNullOrEmpty() ? database : _database;
     _url = _baseUrl + "/" + _database;

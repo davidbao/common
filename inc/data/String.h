@@ -64,7 +64,7 @@ namespace Data {
 
         String(const String &value);
 
-        String(String &&value);
+        String(String &&value) noexcept;
 
         String(const string &value);
 
@@ -215,7 +215,7 @@ namespace Data {
 
         String &operator=(const String &value);
 
-        String &operator=(String &&value);
+        String &operator=(String &&value) noexcept;
 
         String &operator=(const string &value);
 

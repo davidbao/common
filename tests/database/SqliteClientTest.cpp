@@ -350,73 +350,6 @@ bool testTransaction() {
     return true;
 }
 
-bool testGenerateSnowFlakeId() {
-    {
-        uint64_t id = DbClient::generateSnowFlakeId();
-        if (id == 0) {
-            return false;
-        }
-    }
-    {
-        uint64_t id, prevId = 0;
-        for (int i = 0; i < 1000; ++i) {
-            id = DbClient::generateSnowFlakeId();
-//            printf("id = %lld\n", id);
-            if (id == prevId) {
-                return false;
-            }
-            prevId = id;
-        }
-    }
-    {
-        uint64_t id, prevId = 0;
-        for (int i = 0; i < 5000; ++i) {
-            id = DbClient::generateSnowFlakeId();
-            if (id == prevId) {
-                return false;
-            }
-            prevId = id;
-        }
-    }
-    {
-        uint64_t id, prevId = 0;
-        for (int i = 0; i < 1000 * 1000; ++i) {
-            id = DbClient::generateSnowFlakeId();
-            if (id == prevId) {
-                return false;
-            }
-            prevId = id;
-        }
-    }
-
-    {
-        uint64_t id = DbClient::generateSnowFlakeId(1, 2);
-        if (id == 0) {
-            return false;
-        }
-    }
-    {
-        uint64_t id = DbClient::generateSnowFlakeId(1, 2);
-        if (id == 0) {
-            return false;
-        }
-    }
-    {
-        uint64_t id = DbClient::generateSnowFlakeId(33, 2);
-        if (id != 0) {
-            return false;
-        }
-    }
-    {
-        uint64_t id = DbClient::generateSnowFlakeId(1, 33);
-        if (id != 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool testGetColumnNames() {
     {
         SqliteClient test;
@@ -471,9 +404,6 @@ int main() {
     }
     if(!testGetColumnNames()) {
         result = 8;
-    }
-    if(!testGenerateSnowFlakeId()) {
-        result = 9;
     }
 
     cleanUp();

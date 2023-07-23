@@ -8,18 +8,58 @@
 
 #include "database/DbClient.h"
 #include "diag/Trace.h"
-#include "IO/Path.h"
 #include "IO/Directory.h"
 #include "IO/FileStream.h"
+#ifdef HAS_DB_MYSQL
+#include "database/MysqlClient.h"
+#endif
+#ifdef HAS_DB_ORACLE
+#include "database/OracleClient.h"
+#endif
+#ifdef HAS_DB_SQLITE
+#include "database/SqliteClient.h"
+#endif
+#ifdef HAS_DB_KINGBASE
+#include "database/KingbaseClient.h"
+#endif
+#ifdef HAS_DB_DM6
+#include "database/Dm6Client.h"
+#endif
+
+#ifdef DEBUG
 #include "system/Application.h"
-#include "thread/TickTimeout.h"
+#include "IO/Path.h"
+#endif
 
 using namespace System;
+using namespace Diag;
 
 namespace Database {
     DbClient::DbClient() = default;
 
     DbClient::~DbClient() = default;
+
+    bool DbClient::open(const Url &url, const String &user, const String &password) {
+        const String &host = url.address();
+        int port = url.port();
+        const String &dbname = url.relativeUrl();
+        return open(host, port, dbname, user, password);
+    }
+
+    bool DbClient::open(const String &host, int port, const String &dbname,
+                        const String &user, const String &password) {
+        StringMap connections;
+        connections["host"] = host;
+        connections["port"] = Int32(port).toString();
+        connections["dbname"] = dbname;
+        connections["user"] = user;
+        connections["password"] = password;
+        return open(connections);
+    }
+
+    bool DbClient::open(const Endpoint &address, const String &dbname, const String &user, const String &password) {
+        return open(address.address, address.port, dbname, user, password);
+    }
 
     bool DbClient::executeSql(const String &sql) {
         return executeSql(sql, false);
@@ -64,77 +104,6 @@ namespace Database {
         }
     }
 
-    // Twitter snowflake
-    /*-------high----------------------------------------64 bits-------------------------------------------low-------|
-    |----------------------------------------------------------------------------------------------------------------|
-    |   0  | 0000000000 0000000000 0000000000 0000000000 0 |         00000       |       00000      |   000000000000 |
-    |unused|             41 bits timestamp                 |5 bits data center ID| 5 bits worker ID | 12 bits seq ID |
-    |----------------------------------------------------------------------------------------------------------------|
-    |unused|             41 bits timestamp                 |5 bits data center ID| 5 bits worker ID | 12 bits seq ID |
-    |---------------------------------------------------------------------------------------------------------------*/
-    // https://www.cnblogs.com/Keeping-Fit/p/15025402.html
-    uint64_t DbClient::generateSnowFlakeId(int dataCenterId, int workerId) {
-        constexpr int SEQUENCE_BITS = 12;
-        constexpr int WORKER_ID_BITS = 5;
-        constexpr int DATA_CENTER_ID_BITS = 5;
-
-        constexpr int SEQUENCE_ID_SHIFT = 0;
-        constexpr int WORK_ID_SHIFT = SEQUENCE_BITS;
-        constexpr int DATA_CENTER_ID_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS;
-        constexpr int TIMESTAMP_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + DATA_CENTER_ID_BITS;
-
-        constexpr uint64_t MAX_WORKER_ID = (1 << WORKER_ID_BITS) - 1;
-        constexpr uint64_t MAX_DATA_CENTER_ID = (1 << DATA_CENTER_ID_BITS) - 1;
-
-        constexpr uint64_t SEQUENCE_MASK = (1 << SEQUENCE_BITS) - 1;
-
-        if (dataCenterId < 0 || MAX_DATA_CENTER_ID < dataCenterId) {
-            return 0;
-        }
-        if (workerId < 0 || MAX_WORKER_ID < workerId) {
-            return 0;
-        }
-
-        static Mutex mutex;
-        Locker locker(&mutex);
-
-        static uint32_t startTick = TickTimeout::getCurrentTickCount();
-        static uint64_t startMilliseconds = DateTime::total2010Milliseconds(DateTime::now());
-        static uint64_t lastTimestamp = 0;
-        static uint64_t sequenceId = 0;
-
-        uint32_t currentTick = TickTimeout::getCurrentTickCount();
-        if (currentTick <= startTick) {
-            startTick = TickTimeout::getCurrentTickCount();
-            startMilliseconds = DateTime::total2010Milliseconds(DateTime::now());
-            currentTick = startTick;
-        }
-
-        uint64_t timestamp = startMilliseconds + (currentTick - startTick);
-        if (timestamp == lastTimestamp) {
-            sequenceId = (sequenceId + 1) & SEQUENCE_MASK;
-
-            if (0 == sequenceId) {
-                Thread::msleep(1);
-                timestamp++;
-            }
-        } else {
-            sequenceId = 0;
-        }
-        lastTimestamp = timestamp;
-        return (timestamp << TIMESTAMP_SHIFT)
-               | (dataCenterId << DATA_CENTER_ID_SHIFT)
-               | (workerId << WORK_ID_SHIFT)
-               | (sequenceId << SEQUENCE_ID_SHIFT);
-    }
-
-    uint64_t DbClient::generateSnowFlakeId(int workerId) {
-        return generateSnowFlakeId(0, workerId);
-    }
-    uint64_t DbClient::generateSnowFlakeId() {
-        return generateSnowFlakeId(0, 0);
-    }
-
 #ifdef DEBUG
 
     void DbClient::createSqlFile(const String &fileName, const String &sql) {
@@ -148,4 +117,30 @@ namespace Database {
     }
 
 #endif
+
+    DbClient *DbClientFactory::create(const String &scheme) {
+        DbClient *client = nullptr;
+        if (scheme == "mysql" || scheme == "mysqls") {
+#ifdef HAS_DB_MYSQL
+            client = new MysqlClient();
+#endif
+        } else if (scheme == "oracle" || scheme == "oracles") {
+#ifdef HAS_DB_ORACLE
+            client = new OracleClient();
+#endif
+        } else if (scheme == "sqlite") {
+#ifdef HAS_DB_SQLITE
+            client = new SqliteClient();
+#endif
+        } else if (scheme == "kingbase") {
+#ifdef HAS_DB_KINGBASE
+            client = new KingbaseClient();
+#endif
+        } else if (scheme == "dm6") {
+#ifdef HAS_DB_DM6
+            client = new Dm6Client();
+#endif
+        }
+        return client;
+    }
 }

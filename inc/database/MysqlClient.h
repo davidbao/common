@@ -11,15 +11,13 @@
 
 #include "thread/Mutex.h"
 #include "database/DbClient.h"
-#include "net/NetType.h"
-
-using namespace Net;
 
 namespace Database {
     class MysqlInner;
 
     class MysqlClient : public DbClient {
     public:
+        using DbClient::open;
         using DbClient::executeSql;
         using DbClient::executeSqlInsert;
         using DbClient::executeSqlReplace;
@@ -28,11 +26,7 @@ namespace Database {
 
         ~MysqlClient() override;
 
-        bool open(const Url &url, const String &username, const String &password);
-
-        bool open(const String &host, int port, const String &database, const String &username, const String &password);
-
-        bool open(const String &connectionStr) override;
+        bool open(const StringMap &connections) override;
 
         bool close() override;
 
@@ -57,7 +51,11 @@ namespace Database {
     protected:
         DbType getColumnType(int type) override;
 
+        bool ping() override;
+
     private:
+        bool openInner(const StringMap &connections);
+
         int executeSqlInner(const String &sql);
 
         int executeSqlInsertInner(const DataTable &table, bool replace = false);

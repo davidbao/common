@@ -16,6 +16,7 @@ namespace Database {
 
     class SqliteClient : public DbClient {
     public:
+        using DbClient::open;
         using DbClient::executeSql;
         using DbClient::executeSqlInsert;
         using DbClient::executeSqlReplace;
@@ -24,7 +25,7 @@ namespace Database {
 
         ~SqliteClient() override;
 
-        bool open(const String &connectionStr) override;
+        bool open(const StringMap &connections) override;
 
         bool close() override;
 
@@ -46,12 +47,21 @@ namespace Database {
 
         StringArray getColumnName(const String &tableName) override;
 
+    public:
+        bool open(const String &fileName);
+
     protected:
         DbType getColumnType(int type) override;
+
+        bool ping() override;
 
         static DbType getColumnType(const String &type);
 
     private:
+        bool openInner(const StringMap &connections);
+
+        bool openInner(const String &fileName);
+
         int executeSqlInner(const String &sql);
 
         int executeSqlInsertInner(const DataTable &table, bool replace = false);

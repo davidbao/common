@@ -83,71 +83,44 @@ namespace Database {
         _dm6Db = nullptr;
     }
 
-    bool Dm6Client::open(const Url &url, const String &username, const String &password) {
-        if (url.scheme() == "dm6") {
-            const String &host = url.address();
-            int port = url.port();
-            const String &database = url.relativeUrl();
-            StringMap values{
-                    {"host",            host},
-                    {"port",            Int32(port).toString()},
-                    {"dbname",          database},
-                    {"user",            username},
-                    {"password",        password},
-                    {"connect_timeout", Int32(10).toString()}
-            };
-            return open(values);
-        }
-        return false;
-    }
-
-    bool Dm6Client::open(const StringMap &values) {
+    bool Dm6Client::open(const StringMap &connections) {
         Locker locker(&_dbMutex);
 
-        return openInner(values);
+        return openInner(connections);
     }
 
-    bool Dm6Client::openInner(const StringMap &values) {
+    bool Dm6Client::openInner(const StringMap &connections) {
         _dm6Db->open();
         if (_dm6Db->isOpened()) {
-            int port = 0;
-            Int32::parse(values["port"], port);
+            String host = connections["host"];
+            String port = connections["port"];
+            String dbname = connections["dbname"];
+            String user = connections["user"];
+            int p = 0;
+            Int32::parse(port, p);
             dm_bool result = dm_login_port(_dm6Db->hdbc,
-                                           (dm_char *) values["host"].c_str(),
-                                           (dm_char *) values["user"].c_str(),
-                                           (dm_char *) values["password"].c_str(),
-                                           port);
+                                           (dm_char *) host.c_str(),
+                                           (dm_char *) user.c_str(),
+                                           (dm_char *) connections["password"].c_str(),
+                                           p);
             if (result != 0) {
-                String dbname = values["dbname"];
                 if (!dbname.isNullOrEmpty()) {
                     String sql = String::format("SET CURRENT DATABASE %s;", dbname.c_str());
                     executeSqlInner(sql);
                 }
+
+                Trace::debug(String::format("Open dm6 successfully. host: %s, port: %s, dbname: %s, user name: %s",
+                                            host.c_str(), port.c_str(), dbname.c_str(), user.c_str()));
                 return true;
             } else {
                 long errorCode = dm_con_get_errorcode(_dm6Db->hdbc);
-                Trace::error(String::format("Failed to open db, error code: %d", errorCode));
+                Trace::debug(String::format(
+                        "Failed to open dm6. host: %s, port: %s, dbname: %s, user name: %s, error code: %d",
+                        host.c_str(), port.c_str(), dbname.c_str(), user.c_str(), errorCode));
                 _dm6Db->close();
             }
         } else {
             Trace::error("Failed to open db, error: can not init env!");
-        }
-        return false;
-    }
-
-    bool Dm6Client::open(const String &connectionStr) {
-        StringArray texts;
-        Convert::splitStr(connectionStr, ';', texts);
-        if (texts.count() == 5) {
-            StringMap values{
-                    {"host",            texts[0]},
-                    {"port",            texts[1]},
-                    {"dbname",          texts[2]},
-                    {"user",            texts[3]},
-                    {"password",        texts[4]},
-                    {"connect_timeout", Int32(10).toString()}
-            };
-            return open(values);
         }
         return false;
     }
@@ -207,7 +180,7 @@ namespace Database {
 #ifdef WIN32
                 String error = String::GBKtoUTF8(errorStr);
 #else
-                String error = String((const char*) errorStr);
+                String error = String((const char *) errorStr);
 #endif
                 Trace::error(String::format("dm6_execute'%s' error code: %d, error: %s",
                                             sql.c_str(), errorCode, error.c_str()));
@@ -380,7 +353,7 @@ namespace Database {
         // such like '"INSERT INTO users(name, age) SELECT 'Hu', 86 WHERE NOT EXISTS (SELECT name FROM users WHERE name='Hu');";
         // UPDATE users SET (NAME, AGE)=('TEST', 11) WHERE NAME='TEST''
         static const char *replaceStr = "INSERT INTO %s(%s) SELECT %s WHERE NOT EXISTS (SELECT %s FROM %s WHERE %s);\n"
-                                       "UPDATE %s SET (%s)=(%s) WHERE %s;\n";
+                                        "UPDATE %s SET (%s)=(%s) WHERE %s;\n";
 
         String columnsStr;
         String valuesStr;
@@ -615,6 +588,10 @@ namespace Database {
         return DbType::Null;
     }
 
+    bool Dm6Client::ping() {
+        return true;
+    }
+
     String Dm6Client::getErrorMsg() {
         if (_dm6Db->isOpened()) {
             long errorCode = dm_con_get_errorcode(_dm6Db->hdbc);
@@ -648,7 +625,7 @@ namespace Database {
 
         String error;
         if (hsmt != nullptr && hsmt->hsmt != nullptr) {
-            error = (const char*) dm_stmt_get_errormsg(hsmt->hsmt);
+            error = (const char *) dm_stmt_get_errormsg(hsmt->hsmt);
         } else {
             error = getErrorMsg();
         }
@@ -657,7 +634,7 @@ namespace Database {
 
     bool Dm6Client::isConnected() const {
         if (_dm6Db->isOpened() &&
-                dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
+            dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
             return true;
         }
         return false;

@@ -1,63 +1,193 @@
 //
-//  KingbaseClientTest.cpp
+//  SqlConnectionTest.cpp
 //  common
 //
-//  Created by baowei on 2023/1/3.
+//  Created by baowei on 2023/7/22.
 //  Copyright (c) 2023 com. All rights reserved.
 //
 
-#include "database/KingbaseClient.h"
-#include "diag/Trace.h"
+#include "database/SqlConnection.h"
 #include "system/Application.h"
+#include "system/Environment.h"
 
-using namespace Diag;
 using namespace Database;
 using namespace System;
 
-static String _host = "192.166.1.3";
-static String _port = "54321";
-static String _baseUrl(String::format("kingbase://%s:%s", _host.c_str(), _port.c_str()));
-static String _database = "KINGBASECLIENTTEST_DB";
+static String _host = "127.0.0.1";
+static String _port = "3306";
+static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
+static String _database = "SqlConnectionTest_db";
 static String _url = _baseUrl + "/" + _database;
-static String _username = "SYSTEM";
-static String _password = "MANAGER";
-static String _schema = "SYSTEM";
+static String _username = "root";
+static String _password = "123456.com";
 
 void setUp() {
-    Trace::enableConsoleOutput();
-    Trace::enableFlushConsoleOutput();
-
-    KingbaseClient test;
-    if (!test.open(Url(_baseUrl), _username, _password)) {
+    SqlConnection connection;
+    if (!connection.open(Url(_baseUrl), _username, _password)) {
         return;
     }
-    test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
-    if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+    connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    if(!connection.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
         return;
     }
 }
 
 void cleanUp() {
-    KingbaseClient test;
-    if (!test.open(Url(_baseUrl), _username, _password)) {
-        KingbaseClient test2;
-        if (test2.open(Url(_url), _username, _password)) {
-            test2.executeSql(String::format("DROP SCHEMA %s CASCADE;", _schema.c_str()));
-        }
-        return;
-    } else {
-        test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    SqlConnection connection;
+    if (connection.open(Url(_baseUrl), _username, _password)) {
+        connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
     }
 }
 
-bool testCreateSchema() {
+bool testConstructor() {
     {
-        KingbaseClient test;
-        if (!test.open(Url(_url), _username, _password)) {
+        SqlConnection connection;
+        if (connection.maxConnectionCount() != 5) {
             return false;
         }
-        test.executeSql(String::format("DROP SCHEMA %s CASCADE;", _schema.c_str()));
-        if(!test.executeSql(String::format("CREATE SCHEMA %s AUTHORIZATION %s;", _schema.c_str(), _username.c_str()))) {
+    }
+
+    {
+        SqlConnection connection(50);
+        if (connection.maxConnectionCount() != 50) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(0);
+        if (connection.maxConnectionCount() != 1) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(200);
+        if (connection.maxConnectionCount() != 100) {
+            return false;
+        }
+    }
+
+    {
+        SqlConnection connection(TimeSpan::Zero);
+        if (connection.hasPing()) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(TimeSpan::fromSeconds(50));
+        if (connection.pingCycle() != TimeSpan::fromSeconds(50)) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(TimeSpan::fromSeconds(1));
+        if (connection.pingCycle() != TimeSpan::fromSeconds(5)) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(TimeSpan::fromSeconds(5000));
+        if (connection.pingCycle() != TimeSpan::fromSeconds(600)) {
+            return false;
+        }
+    }
+
+    {
+        SqlConnection connection{
+                {"maxConnectionCount", "10"},
+                {"pingCycle", "00:01:00"},
+        };
+        if (connection.maxConnectionCount() != 10) {
+            return false;
+        }
+        if (connection.pingCycle() != TimeSpan::fromSeconds(60)) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection{
+                {"maxConnectionCount", "10"},
+                {"pingCycle", "00:00:00"},
+        };
+        if (connection.maxConnectionCount() != 10) {
+            return false;
+        }
+        if (connection.hasPing()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testOpen() {
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        SqlConnection connection;
+        if (!connection.open(connectionStr)) {
+            return false;
+        }
+    }
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "scheme", Url(_url).scheme().c_str());
+        connectionStr.appendFormat(fmt, "host", _host.c_str());
+        connectionStr.appendFormat(fmt, "port", _port.c_str());
+        connectionStr.appendFormat(fmt, "dbname", _database.c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        SqlConnection connection;
+        if (!connection.open(connectionStr)) {
+            return false;
+        }
+    }
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "timeout", "5");
+        SqlConnection connection;
+        if (!connection.open(connectionStr)) {
+            return false;
+        }
+    }
+
+    {
+        uint64_t start = Environment::getTickCount();
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", "mysql://192.168.100.244:1000");
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "timeout", "2");
+        SqlConnection connection;
+        if (connection.open(connectionStr)) {
+            return false;
+        }
+        uint64_t end = Environment::getTickCount();
+        uint64_t elapsed = end - start;
+        if (!(elapsed >= 2000 && elapsed <= 3000)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testCreateDatabase() {
+    {
+        SqlConnection connection;
+        if (!connection.open(Url(_baseUrl), _username, _password)) {
+            return false;
+        }
+        connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+        if(!connection.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
             return false;
         }
     }
@@ -67,11 +197,11 @@ bool testCreateSchema() {
 
 bool testCreateTable() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
@@ -79,11 +209,11 @@ bool testCreateTable() {
             return false;
         }
         DataTable table;
-        if (!test.executeSqlQuery("select * from t_student;", table)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table)) {
             return false;
         }
 
-        test.executeSql("drop table t_student;");
+        connection.executeSql("drop table t_student;");
     }
 
     return true;
@@ -91,18 +221,18 @@ bool testCreateTable() {
 
 bool testInsertRecord() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
                              ");")) {
             return false;
         }
-        if (!test.executeSql("INSERT INTO t_student (\n"
+        if (!connection.executeSql("INSERT INTO t_student (\n"
                              "            id,\n"
                              "                    name,\n"
                              "                    score\n"
@@ -110,7 +240,7 @@ bool testInsertRecord() {
             return false;
         }
         DataTable table;
-        if (!test.executeSqlQuery("select * from t_student;", table)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table)) {
             return false;
         }
         if (table.rowCount() != 1) {
@@ -121,7 +251,7 @@ bool testInsertRecord() {
             return false;
         }
 
-        test.executeSql("drop table t_student;");
+        connection.executeSql("drop table t_student;");
     }
 
     return true;
@@ -129,11 +259,11 @@ bool testInsertRecord() {
 
 bool testInsertRecordByTable() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
@@ -153,12 +283,12 @@ bool testInsertRecordByTable() {
                                               DataCell(table.columns()[2], 86),
                                       })
                       });
-        if (!test.executeSqlInsert(table)) {
+        if (!connection.executeSqlInsert(table)) {
             return false;
         }
 
         DataTable table2;
-        if (!test.executeSqlQuery("select * from t_student;", table2)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table2)) {
             return false;
         }
         if (table2.rowCount() != 1) {
@@ -175,11 +305,11 @@ bool testInsertRecordByTable() {
 
 bool testReplaceRecordByTable() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (test.executeSql("create table t_student(\n"
+        if (connection.executeSql("create table t_student(\n"
                             "id int primary key not null,\n"
                             "name text not null,\n"
                             "score real\n"
@@ -199,12 +329,12 @@ bool testReplaceRecordByTable() {
                                               DataCell(table.columns()[2], 86),
                                       })
                       });
-        if (!test.executeSqlReplace(table)) {
+        if (!connection.executeSqlReplace(table)) {
             return false;
         }
 
         DataTable table2;
-        if (!test.executeSqlQuery("select * from t_student;", table2)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table2)) {
             return false;
         }
         if (table2.rowCount() != 1) {
@@ -215,7 +345,7 @@ bool testReplaceRecordByTable() {
             return false;
         }
 
-        test.executeSql("drop table t_student;");
+        connection.executeSql("drop table t_student;");
     }
 
     return true;
@@ -223,11 +353,11 @@ bool testReplaceRecordByTable() {
 
 bool testRetrieveCount() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("create table t_student(\n"
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
@@ -247,19 +377,19 @@ bool testRetrieveCount() {
                                               DataCell(table.columns()[2], 86),
                                       })
                       });
-        if (!test.executeSqlInsert(table)) {
+        if (!connection.executeSqlInsert(table)) {
             return false;
         }
 
         int count;
-        if(!test.retrieveCount("select count(*) t_student", count)) {
+        if(!connection.retrieveCount("select count(*) t_student", count)) {
             return false;
         }
         if(count != 1) {
             return false;
         }
 
-        test.executeSql("drop table t_student;");
+        connection.executeSql("drop table t_student;");
     }
 
     return true;
@@ -267,21 +397,21 @@ bool testRetrieveCount() {
 
 bool testTransaction() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        test.beginTransaction();
-        if (!test.executeSql("create table t_student(\n"
+        connection.beginTransaction();
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
                              ");", false)) {
             return false;
         }
-        test.commitTransaction();
+        connection.commitTransaction();
 
-        test.beginTransaction();
+        connection.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
                                  DataColumn("id", DbType::Integer32, true),
@@ -295,13 +425,13 @@ bool testTransaction() {
                                               DataCell(table.columns()[2], 86),
                                       })
                       });
-        if (!test.executeSqlInsert(table, false)) {
+        if (!connection.executeSqlInsert(table, false)) {
             return false;
         }
-        test.commitTransaction();
+        connection.commitTransaction();
 
         DataTable table2;
-        if (!test.executeSqlQuery("select * from t_student;", table2)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table2)) {
             return false;
         }
         if (table2.rowCount() != 1) {
@@ -312,25 +442,25 @@ bool testTransaction() {
             return false;
         }
 
-        test.executeSql("drop table t_student;");
+        connection.executeSql("drop table t_student;");
     }
 
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        test.beginTransaction();
-        if (!test.executeSql("create table t_student(\n"
+        connection.beginTransaction();
+        if (!connection.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
                              "score real\n"
                              ");", false)) {
             return false;
         }
-        test.commitTransaction();
+        connection.commitTransaction();
 
-        test.beginTransaction();
+        connection.beginTransaction();
         DataTable table("t_student");
         table.addColumns({
                                  DataColumn("id", DbType::Integer32, true),
@@ -344,13 +474,13 @@ bool testTransaction() {
                                               DataCell(table.columns()[2], 86),
                                       })
                       });
-        if (!test.executeSqlInsert(table, false)) {
+        if (!connection.executeSqlInsert(table, false)) {
             return false;
         }
-        test.rollbackTransaction();
+        connection.rollbackTransaction();
 
         DataTable table2;
-        if (!test.executeSqlQuery("select * from t_student;", table2)) {
+        if (!connection.executeSqlQuery("select * from t_student;", table2)) {
             return false;
         }
         if (table2.rowCount() != 0) {
@@ -363,11 +493,11 @@ bool testTransaction() {
 
 bool testGetColumnNames() {
     {
-        KingbaseClient test;
-        if (!test.open(_url, _username, _password)) {
+        SqlConnection connection;
+        if (!connection.open(_url, _username, _password)) {
             return false;
         }
-        if (!test.executeSql("DROP TABLE IF EXISTS t_student;"
+        if (!connection.executeSql("DROP TABLE IF EXISTS t_student;"
                              "create table t_student(\n"
                              "id int primary key not null,\n"
                              "name text not null,\n"
@@ -376,11 +506,11 @@ bool testGetColumnNames() {
             return false;
         }
 
-        StringArray names = test.getColumnName("T_STUDENT");
+        StringArray names = connection.getColumnName("t_student");
         if (names.count() != 3) {
             return false;
         }
-        if (!(names[0] == "ID" && names[1] == "NAME" && names[2] == "SCORE")) {
+        if (!(names[0] == "id" && names[1] == "name" && names[2] == "score")) {
             return false;
         }
     }
@@ -390,7 +520,7 @@ bool testGetColumnNames() {
 
 bool parseArguments(const Application &app) {
     const Application::Arguments &arguments = app.arguments();
-    String host, userName, password, schema, database;
+    String host, userName, password, database;
     Port port;
     if (arguments.contains("help") || arguments.contains("?")) {
         puts("Usage:");
@@ -399,8 +529,7 @@ bool parseArguments(const Application &app) {
         puts("-P, --port=#          Port number to use for connection.");
         puts("-u, --user=name       User for login if not current user.");
         puts("-p, --password[=name] Password to use when connecting to server.");
-        puts("-s, --schema=name     Schema for test.");
-        puts("-d, --database=name   Database for test.");
+        puts("-d, --database=name   Database for connection.");
         return false;
     }
 
@@ -427,12 +556,6 @@ bool parseArguments(const Application &app) {
             password = arguments["p"];
         }
     }
-    if(arguments.contains("schema") || arguments.contains("s")) {
-        schema = arguments["database"];
-        if (schema.isNullOrEmpty()) {
-            schema = arguments["s"];
-        }
-    }
     if(arguments.contains("database") || arguments.contains("d")) {
         database = arguments["database"];
         if (database.isNullOrEmpty()) {
@@ -440,10 +563,9 @@ bool parseArguments(const Application &app) {
         }
     }
 
-    _baseUrl = String::format("kingbase://%s:%s",
+    _baseUrl = String::format("mysql://%s:%s",
                               !host.isNullOrEmpty() ? host.c_str() : _host.c_str(),
                               !port.isEmpty() ? port.toString().c_str() : _port.c_str());
-    _schema = !schema.isNullOrEmpty() ? schema : "SYSTEM";
     _database = !database.isNullOrEmpty() ? database : _database;
     _url = _baseUrl + "/" + _database;
     _username = !userName.isNullOrEmpty() ? userName : _username;
@@ -452,7 +574,7 @@ bool parseArguments(const Application &app) {
     return true;
 }
 
-// argv: -h=192.167.0.6 -P=3306 -u=root -p=123456.com -s=test_schema -d=KINGBASECLIENTTEST_DB
+// argv: -h=192.167.0.6 -P=3306 -u=root -p=123456.com -d=connection_db
 int main(int argc, const char *argv[]) {
     Application app(argc, argv);
     if (!parseArguments(app)) {
@@ -462,29 +584,35 @@ int main(int argc, const char *argv[]) {
     setUp();
 
     int result = 0;
-    if (!testCreateSchema()) {
+    if (!testConstructor()) {
         result = 1;
     }
-    if (!testCreateTable()) {
+    if (!testOpen()) {
         result = 2;
     }
+    if (!testCreateDatabase()) {
+        result = 11;
+    }
+    if (!testCreateTable()) {
+        result = 12;
+    }
     if (!testInsertRecord()) {
-        result = 3;
+        result = 13;
     }
     if (!testInsertRecordByTable()) {
-        result = 4;
+        result = 14;
     }
     if (!testReplaceRecordByTable()) {
-        result = 5;
+        result = 15;
     }
     if (!testRetrieveCount()) {
-        result = 6;
+        result = 16;
     }
     if (!testTransaction()) {
-        result = 7;
+        result = 17;
     }
     if(!testGetColumnNames()) {
-        result = 8;
+        result = 18;
     }
 
     cleanUp();

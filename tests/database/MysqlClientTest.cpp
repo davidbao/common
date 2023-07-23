@@ -13,11 +13,13 @@
 using namespace Database;
 using namespace System;
 
-static String _baseUrl("mysql://192.166.1.3:3306");
+static String _host = "127.0.0.1";
+static String _port = "3306";
+static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "MysqlClientTest_db";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "root";
-static String _password = "123.com";
+static String _password = "123456.com";
 
 void setUp() {
     MysqlClient test;
@@ -421,8 +423,8 @@ bool parseArguments(const Application &app) {
     }
 
     _baseUrl = String::format("mysql://%s:%s",
-                              !host.isNullOrEmpty() ? host.c_str() : "192.166.1.3",
-                              !port.isEmpty() ? port.toString().c_str() : "3306");
+                              !host.isNullOrEmpty() ? host.c_str() : _host.c_str(),
+                              !port.isEmpty() ? port.toString().c_str() : _port.c_str());
     _database = !database.isNullOrEmpty() ? database : _database;
     _url = _baseUrl + "/" + _database;
     _username = !userName.isNullOrEmpty() ? userName : _username;
@@ -437,53 +439,6 @@ int main(int argc, const char *argv[]) {
     if (!parseArguments(app)) {
         return 0;
     }
-
-//    MysqlClient client;
-//    if (!client.open(_url, _username, _password)) {
-//        return -1;
-//    }
-//    {
-//        DataTable test("p_poverview_curve");
-//        test.addColumns({
-//                                DataColumn("id", DbType::Integer64, true),
-//                                DataColumn("pid", DbType::Integer32, false),
-//                                DataColumn("time", DbType ::Date, false),
-//                                DataColumn("P", DbType::Float32, false),
-//                                DataColumn("Q", DbType::Float32, false),
-//                                DataColumn("Ia", DbType::Float32, false),
-//                                DataColumn("Ib", DbType::Float32, false),
-//                                DataColumn("Ic", DbType::Float32, false),
-//                                DataColumn("Ua", DbType::Float32, false),
-//                                DataColumn("Ub", DbType::Float32, false),
-//                                DataColumn("Uc", DbType::Float32, false),
-//                        });
-//
-//        int days = 30;
-//        DateTime time = DateTime::now();
-//        time = time.date() - TimeSpan::fromDays(days);
-//        for (int i = 0; i < days * 24; ++i) {
-//            Debug::writeFormatLine("time: %s", time.toString().c_str());
-//            DataRow row{
-//                    DataCell(test.columns()[0], DbClient::generateSnowFlakeId()),
-//                    DataCell(test.columns()[1], 1 + i),
-//                    DataCell(test.columns()[2], time),
-//                    DataCell(test.columns()[3], rand() % 100),
-//                    DataCell(test.columns()[4], 86),
-//                    DataCell(test.columns()[5], 86),
-//                    DataCell(test.columns()[6], 86),
-//                    DataCell(test.columns()[7], 86),
-//                    DataCell(test.columns()[8], 86),
-//                    DataCell(test.columns()[9], 86),
-//                    DataCell(test.columns()[10], 86),
-//            };
-//            test.addRow(row);
-//
-//            time += TimeSpan::fromHours(1);
-//        }
-//        client.executeSqlInsert(test);
-//    }
-//
-//    return 0;
 
     setUp();
 

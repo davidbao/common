@@ -22,6 +22,7 @@ namespace Database {
 
     class KingbaseClient : public DbClient {
     public:
+        using DbClient::open;
         using DbClient::executeSql;
         using DbClient::executeSqlInsert;
         using DbClient::executeSqlReplace;
@@ -30,11 +31,7 @@ namespace Database {
 
         ~KingbaseClient() override;
 
-        bool open(const Url &url, const String &username, const String &password);
-
-        bool open(const StringMap &values);
-
-        bool open(const String &connectionStr) override;
+        bool open(const StringMap &connections) override;
 
         bool close() override;
 
@@ -59,8 +56,10 @@ namespace Database {
     protected:
         DbType getColumnType(int type) override;
 
+        bool ping() override;
+
     private:
-        bool openInner(const StringMap &values);
+        bool openInner(const StringMap &connections);
 
         bool reopen();
 

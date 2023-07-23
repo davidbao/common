@@ -15,6 +15,8 @@ if (${COMMON_BUILD_DATABASE})
     SET(DATABASE_SRC
             DataTable.cpp
             DbClient.cpp
+            SnowFlake.cpp
+            SqlConnection.cpp
             SqlSelectFilter.cpp
             )
 

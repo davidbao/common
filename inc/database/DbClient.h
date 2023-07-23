@@ -11,18 +11,23 @@
 
 #include "thread/Mutex.h"
 #include "data/String.h"
-#include "DataTable.h"
+#include "data/StringMap.h"
+#include "database/DataTable.h"
+#include "net/NetType.h"
 
 using namespace Data;
+using namespace Net;
 
 namespace Database {
+    class SqlConnection;
+
     class DbClient {
     public:
         DbClient();
 
         virtual ~DbClient();
 
-        virtual bool open(const String &connectionStr) = 0;
+        virtual bool open(const StringMap &connections) = 0;
 
         virtual bool close() = 0;
 
@@ -45,6 +50,12 @@ namespace Database {
         virtual StringArray getColumnName(const String &tableName) = 0;
 
     public:
+        bool open(const Url &url, const String &user, const String &password);
+
+        bool open(const String &host, int port, const String &dbname, const String &user, const String &password);
+
+        bool open(const Endpoint &address, const String &dbname, const String &user, const String &password);
+
         bool executeSql(const String &sql);
 
         bool executeSqlInsert(const DataTable &table);
@@ -53,15 +64,10 @@ namespace Database {
 
         bool retrieveCount(const String &sql, int &count);
 
-    public:
-        static uint64_t generateSnowFlakeId(int dataCenterId, int workerId);
-
-        static uint64_t generateSnowFlakeId(int workerId);
-
-        static uint64_t generateSnowFlakeId();
-
     protected:
         virtual DbType getColumnType(int type) = 0;
+
+        virtual bool ping() = 0;
 
     protected:
         void printErrorInfo(const String &methodName, const String &sql = String::Empty,
@@ -75,6 +81,16 @@ namespace Database {
 
     protected:
         Mutex _dbMutex;
+
+    private:
+        friend SqlConnection;
+    };
+
+    typedef PList<DbClient> DbClients;
+
+    class DbClientFactory {
+    public:
+        static DbClient *create(const String &scheme);
     };
 }
 

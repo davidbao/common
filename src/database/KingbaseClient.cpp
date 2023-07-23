@@ -12,9 +12,13 @@
 #include "thread/Locker.h"
 #include "system/Application.h"
 #include "IO/FileStream.h"
+
 #ifdef DEBUG
+
 #include "IO/Directory.h"
+
 #endif
+
 #include "IO/Path.h"
 #include "kci/libkci.h"
 
@@ -49,66 +53,42 @@ namespace Database {
         _kingbaseDb = nullptr;
     }
 
-    bool KingbaseClient::open(const Url &url, const String &username, const String &password) {
-        if (url.scheme() == "kingbase") {
-            const String &host = url.address();
-            int port = url.port();
-            const String &database = url.relativeUrl();
-            StringMap values{
-                    {"host",            host},
-                    {"port",            Int32(port).toString()},
-                    {"dbname",          database},
-                    {"user",            username},
-                    {"password",        password},
-                    {"connect_timeout", Int32(10).toString()}
-            };
-            return open(values);
-        }
-        return false;
-    }
-
-    bool KingbaseClient::open(const StringMap &values) {
+    bool KingbaseClient::open(const StringMap &connections) {
         Locker locker(&_dbMutex);
 
-        return openInner(values);
+        return openInner(connections);
     }
 
-    bool KingbaseClient::openInner(const StringMap &values) {
+    bool KingbaseClient::openInner(const StringMap &connections) {
         String connStr;
         static const char *fmt = "%s='%s' ";
-        connStr.appendFormat(fmt, "host", values["host"].c_str());
-        connStr.appendFormat(fmt, "port", values["port"].c_str());
-        connStr.appendFormat(fmt, "dbname", values["dbname"].c_str());
-        connStr.appendFormat(fmt, "user", values["user"].c_str());
-        connStr.appendFormat(fmt, "password", values["password"].c_str());
-        connStr.appendFormat(fmt, "connect_timeout", values["connect_timeout"].c_str());
+        String host = connections["host"];
+        String port = connections["port"];
+        String dbname = connections["dbname"];
+        String user = connections["user"];
+        connStr.appendFormat(fmt, "host", host.c_str());
+        connStr.appendFormat(fmt, "port", port.c_str());
+        connStr.appendFormat(fmt, "dbname", dbname.c_str());
+        connStr.appendFormat(fmt, "user", user.c_str());
+        connStr.appendFormat(fmt, "password", connections["password"].c_str());
+        connStr.appendFormat(fmt, "connect_timeout", connections["timeout"].c_str());
         KCIConnection *conn = KCIConnectionCreate(connStr);
         if (KCIConnectionGetStatus(conn) == CONNECTION_OK) {
-            _connectionParams = values;
+            _connectionParams = connections;
             _kingbaseDb->kingbaseDb = conn;
+
+            Trace::debug(String::format("Open kingbase successfully. host: %s, port: %s, dbname: %s, user name: %s",
+                                        host.c_str(), port.c_str(), dbname.c_str(), user.c_str()));
             return true;
         } else {
+            Trace::debug(String::format(
+                    "Failed to open kingbase. host: %s, port: %s, dbname: %s, user name: %s, reason: '%s'",
+                    host.c_str(), port.c_str(), dbname.c_str(), user.c_str(), getErrorMsg().c_str()));
+
             _kingbaseDb->kingbaseDb = conn;
             printErrorInfo("KCIConnectionCreate");
             KCIConnectionDestory(conn);
             _kingbaseDb->kingbaseDb = nullptr;
-        }
-        return false;
-    }
-
-    bool KingbaseClient::open(const String &connectionStr) {
-        StringArray texts;
-        Convert::splitStr(connectionStr, ';', texts);
-        if (texts.count() == 5) {
-            StringMap values{
-                    {"host",            texts[0]},
-                    {"port",            texts[1]},
-                    {"dbname",          texts[2]},
-                    {"user",            texts[3]},
-                    {"password",        texts[4]},
-                    {"connect_timeout", Int32(10).toString()}
-            };
-            return open(values);
         }
         return false;
     }
@@ -579,6 +559,10 @@ namespace Database {
                 assert(false);
                 return DbType::Null;
         }
+    }
+
+    bool KingbaseClient::ping() {
+        return true;
     }
 
     String KingbaseClient::getErrorMsg() {

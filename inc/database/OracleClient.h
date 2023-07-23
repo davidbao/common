@@ -16,6 +16,7 @@ namespace Database {
 
     class OracleClient : public DbClient {
     public:
+        using DbClient::open;
         using DbClient::executeSql;
         using DbClient::executeSqlInsert;
         using DbClient::executeSqlReplace;
@@ -24,9 +25,7 @@ namespace Database {
 
         ~OracleClient() override;
 
-        bool open(const String &database, const String &username, const String &password);
-
-        bool open(const String &connectionStr) override;
+        bool open(const StringMap &connections) override;
 
         bool close() override;
 
@@ -48,12 +47,19 @@ namespace Database {
 
         StringArray getColumnName(const String &tableName) override;
 
+    public:
+        bool open(const String &dbname, const String &user, const String &password);
+
         bool abortExecuting();
 
     protected:
         DbType getColumnType(int type) override;
 
+        bool ping() override;
+
     private:
+        bool openInner(const StringMap &connections);
+
         uint32_t executeSqlInner(const String &sql);
 
         uint32_t executeSqlQueryInner(const String &sql, DataTable &table);

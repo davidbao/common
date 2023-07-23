@@ -42,22 +42,25 @@ namespace Database {
         _mysqlDb = nullptr;
     }
 
-    bool MysqlClient::open(const Url &url, const String &username, const String &password) {
-        if (url.scheme() == "mysql" || url.scheme() == "mysqls") {
-            const String &host = url.address();
-            int port = url.port();
-            const String &database = url.relativeUrl();
-            return open(host, port, database, username, password);
-        }
-        return false;
-    }
-
-    bool MysqlClient::open(const String &host, int port, const String &database, const String &username,
-                           const String &password) {
+    bool MysqlClient::open(const StringMap &connections) {
         Locker locker(&_dbMutex);
 
-        if (mysql_real_connect(_mysqlDb->mysqlDb, host.c_str(), username.c_str(),
-                               password.c_str(), database.c_str(), port, nullptr, CLIENT_MULTI_STATEMENTS)) {
+        return openInner(connections);
+    }
+
+    bool MysqlClient::openInner(const StringMap &connections) {
+        String host = connections["host"];
+        Port port;
+        Port::parse(connections["port"], port);
+        String dbname = connections["dbname"];
+        String user = connections["user"];
+        String password = connections["password"];
+        int timeout = 60;
+        Int32::parse(connections["timeout"], timeout);
+
+        mysql_options(_mysqlDb->mysqlDb, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
+        if (mysql_real_connect(_mysqlDb->mysqlDb, host.c_str(), user.c_str(),
+                               password.c_str(), dbname.c_str(), port, nullptr, CLIENT_MULTI_STATEMENTS)) {
             int result = mysql_query(_mysqlDb->mysqlDb, "set names 'UTF8'");
             if (!isSucceed(result)) {
                 printErrorInfo("mysql_query(_mysqlDb->mysqlDb, \"set names 'UTF8'\"");
@@ -67,23 +70,40 @@ namespace Database {
             char value = 1;
             mysql_options(_mysqlDb->mysqlDb, MYSQL_OPT_RECONNECT, (char *) &value);
 
-//            mysql_autocommit(_mysqlDb->mysqlDb, 1);
+            Trace::debug(String::format("Open mysql successfully. host: %s, port: %d, dbname: %s, user name: %s",
+                                        host.c_str(), (int) port, dbname.c_str(), user.c_str()));
+
+            DataTable table;
+            if (executeSqlQueryInner(" select version();", table)) {
+                if (table.rows().count() > 0) {
+                    const DataCells &cells = table.rows().at(0).cells();
+                    if (cells.count() > 0) {
+                        Version mysqlVersion;
+                        if (!cells.at(0).isNullValue() &&
+                            Version::parse(cells.at(0).value(), mysqlVersion)) {
+                            if (mysqlVersion >= "8.0") {
+                                executeSql(
+                                        "set @@sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';");
+                            } else if (mysqlVersion >= "5.7.2") {
+                                // https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_only_full_group_by
+                                // Reject queries for which the select list, HAVING condition, or ORDER BY list refer to nonaggregated columns that are neither named in the GROUP BY clause nor are functionally dependent on (uniquely determined by) GROUP BY columns.
+                                // As of MySQL 5.7.5, the default SQL mode includes ONLY_FULL_GROUP_BY. (Before 5.7.5, MySQL does not detect functional dependency andONLY_FULL_GROUP_BY is not enabled by default. For a description of pre-5.7.5 behavior, see the MySQL 5.6 Reference Manual.)
+                                executeSqlInner(
+                                        "set @@sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';");
+                            }
+                        }
+                    }
+                }
+            }
 
             return true;
         } else {
             printErrorInfo("mysql_real_connect");
 
-        }
-        return false;
-    }
-
-    bool MysqlClient::open(const String &connectionStr) {
-        StringArray texts;
-        Convert::splitStr(connectionStr, ';', texts);
-        if (texts.count() == 5) {
-            int port = 3306;
-            Int32::parse(texts[1], port);
-            return open(texts[0], port, texts[2], texts[3], texts[4]);
+            Trace::debug(String::format(
+                    "Failed to open mysql. host: %s, port: %d, dbname: %s, user name: %s, reason: '%s'",
+                    host.c_str(), (int) port, dbname.c_str(), user.c_str(),
+                    getErrorMsg().c_str()));
         }
         return false;
     }
@@ -245,50 +265,6 @@ namespace Database {
         return 0;
     }
 
-//    int MysqlClient::executeSqlInner(const String &sql, DataTable &table) {
-//#if DEBUG
-//        size_t len = sql.length();
-//        if (len > 32) len = 32;
-//        String info = String::convert("MysqlClient::executeSqlInner, sql: %s", sql.substr(0, len).c_str());
-//        Stopwatch sw(info, 500);
-//#endif
-//
-//        mysql_ping(_mysqlDb->mysqlDb);
-//        int result = mysql_query(_mysqlDb->mysqlDb, sql.c_str());
-//        if (!isSucceed(result)) {
-//            printErrorInfo("mysql_query", sql);
-//            return result;
-//        }
-//
-//        int status;
-//        /* process each statement result */
-//        do {
-//            /* did current statement return data? */
-//            MYSQL_RES *result = mysql_store_result(_mysqlDb->mysqlDb);
-//            if (result) {
-//                /* yes; process rows and free the result set */
-//                updateDataTable(result, table);
-//                mysql_free_result(result);
-//            } else          /* no result set or error */
-//            {
-//                if (mysql_field_count(_mysqlDb->mysqlDb) == 0) {
-////                    printf("%lld rows affected\n",
-////                           mysql_affected_rows(_mysqlDb->mysqlDb));
-//                } else  /* some error occurred */
-//                {
-////                    printf("Could not retrieve result set\n");
-//                    break;
-//                }
-//            }
-//            /* more results? -1 = no, >0 = error, 0 = yes (keep looping) */
-//            if ((status = mysql_next_result(_mysqlDb->mysqlDb)) > 0) {
-////                printf("Could not execute statement\n");
-//            }
-//        } while (status == 0);
-//
-//        return 0;
-//    }
-
     int MysqlClient::executeSqlInsertInner(const DataTable &table, bool replace) {
 #if DEBUG
         String info = String::convert("MysqlClient::executeSqlInsertInner, table name: %s", table.name().c_str());
@@ -385,8 +361,8 @@ namespace Database {
         sw.setInfo(String::convert("MysqlClient::updateDataTable, the table name is '%s'", table.name().c_str()));
 #endif
 
-        int columnCount = (int)mysql_num_fields(result);
-        int table_columnCount = (int)table.columnCount();
+        int columnCount = (int) mysql_num_fields(result);
+        int table_columnCount = (int) table.columnCount();
         if ((table_columnCount > 0 && table_columnCount == columnCount) ||
             table_columnCount == 0) {
             if (table_columnCount == 0) {
@@ -494,6 +470,11 @@ namespace Database {
             default:
                 return DbType::Null;
         }
+    }
+
+    bool MysqlClient::ping() {
+        mysql_ping(_mysqlDb->mysqlDb);
+        return true;
     }
 
     String MysqlClient::getErrorMsg() {

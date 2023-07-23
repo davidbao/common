@@ -90,13 +90,23 @@ namespace Database {
         delete _oracleDb;
     }
 
-    bool OracleClient::open(const String &database, const String &username, const String &password) {
+    bool OracleClient::open(const StringMap &connections) {
+        String scheme = connections["scheme"];
+        if (scheme == "oracle" || scheme == "oracles") {
+            Locker locker(&_dbMutex);
+
+            return openInner(connections);
+        }
+        return false;
+    }
+
+    bool OracleClient::open(const String &dbname, const String &user, const String &password) {
         Locker locker(&_dbMutex);
 
         uint32_t result = OCILogon(_oracleDb->env, _oracleDb->error, &_oracleDb->context,
-                                   (const OraText *) username.c_str(), (ub4) username.length(),
+                                   (const OraText *) user.c_str(), (ub4) user.length(),
                                    (const OraText *) password.c_str(), (ub4) password.length(),
-                                   (const OraText *) database.c_str(), (ub4) database.length());
+                                   (const OraText *) dbname.c_str(), (ub4) dbname.length());
         if (result) {
             _oracleDb->lastError = result;
             printErrorInfo("OCILogon", result);
@@ -115,13 +125,15 @@ namespace Database {
         return isSucceed(result);
     }
 
-    bool OracleClient::open(const String &connectionStr) {
-        StringArray texts;
-        Convert::splitStr(connectionStr, ';', texts);
-        if (texts.count() == 3) {
-            return open(texts[0], texts[1], texts[2]);
-        }
-        return false;
+    bool OracleClient::openInner(const StringMap &connections) {
+        String host = connections["host"];
+        Port port;
+        Port::parse(connections["port"], port);
+        String dbname = connections["dbname"];
+        String user = connections["user"];
+        String password = connections["password"];
+        String timeout = connections["timeout"];
+        return open(dbname, user, password);
     }
 
     bool OracleClient::close() {
@@ -303,6 +315,10 @@ namespace Database {
             default:
                 return DbType::Null;
         }
+    }
+
+    bool OracleClient::ping() {
+        return true;
     }
 
     String OracleClient::getErrorMsg() {

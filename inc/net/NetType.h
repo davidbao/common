@@ -238,6 +238,8 @@ namespace Net {
 
         operator int() const;
 
+        operator unsigned int() const;
+
         operator String() const;
 
         Port &operator=(const uint16_t &value);

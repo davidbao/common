@@ -11,7 +11,7 @@
 
 #include "data/String.h"
 #include "net/NetType.h"
-#include "database/DbClient.h"
+#include "database/SqlConnection.h"
 #include "system/ServiceFactory.h"
 
 using namespace Data;
@@ -22,7 +22,7 @@ using namespace Net;
 namespace Microservice {
     class IDataSourceService : public IService {
     public:
-        virtual DbClient *dbClient() const = 0;
+        virtual SqlConnection *connection() = 0;
 
         // for DEBUG
         virtual void createSqlFile(const String &fileName, const String &sql) = 0;
@@ -38,28 +38,12 @@ namespace Microservice {
 
         bool unInitialize();
 
-        DbClient *dbClient() const override;
+        SqlConnection *connection() override;
 
         void createSqlFile(const String &fileName, const String &sql) override;
 
-    public:
-        static DbClient *open(const String &urlStr, const String &userName, const String &password);
-
     private:
-        static DbClient *openMysql(const Url &url, const String &userName, const String &password);
-
-        static DbClient *openSqlite(const String &urlStr);
-
-#ifdef HAS_DB_KINGBASE
-        static DbClient * openKingbase(const Url &url, const String &userName, const String &password);
-#endif
-
-#ifdef HAS_DB_DM6
-        static DbClient * openDm6(const Url &url, const String &userName, const String &password);
-#endif
-
-    private:
-        DbClient *_dbClient;
+        SqlConnection _connection;
     };
 }
 

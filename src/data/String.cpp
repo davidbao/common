@@ -9,7 +9,7 @@
 #include <cctype>
 #include <cstdarg>
 #include <cinttypes>
-#include <assert.h>
+#include <cassert>
 #include "iconv.h"
 #include "data/String.h"
 #include "data/ValueType.h"
@@ -42,7 +42,7 @@ namespace Data {
         this->operator=(value);
     }
 
-    String::String(String &&value) {
+    String::String(String &&value) noexcept {
         this->operator=(value);
         value.empty();
     }
@@ -142,7 +142,7 @@ namespace Data {
         return *this;
     }
 
-    String &String::operator=(String &&value) {
+    String &String::operator=(String &&value) noexcept {
         if (this != &value) {
             setString(value.getString());
             value.empty();

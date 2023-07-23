@@ -561,6 +561,10 @@ namespace Net {
         return _value;
     }
 
+    Port::operator unsigned int() const {
+        return _value;
+    }
+
     Port::operator String() const {
         return UInt16(_value).toString();
     }
