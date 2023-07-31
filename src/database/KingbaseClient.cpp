@@ -61,6 +61,10 @@ namespace Database {
 
     bool KingbaseClient::isConnected() {
         Locker locker(&_dbMutex);
+        return isConnectedInner();
+    }
+
+    bool KingbaseClient::isConnectedInner() {
         if (_kingbaseDb->kingbaseDb != nullptr &&
             KCIConnectionGetStatus(_kingbaseDb->kingbaseDb) == CONNECTION_OK) {
             int sock = KCIConnectionGetSocket(_kingbaseDb->kingbaseDb);
@@ -123,7 +127,7 @@ namespace Database {
         KCIResult *res = KCIStatementExecute(_kingbaseDb->kingbaseDb, sql.c_str());
         KCIExecuteStatus status = KCIResultGetStatusCode(res);
         if (!isSucceed(status)) {
-            if (status == EXECUTE_FATAL_ERROR && !isConnected()) {
+            if (status == EXECUTE_FATAL_ERROR && !isConnectedInner()) {
                 KCIResultDealloc(res);
 
                 reopen();

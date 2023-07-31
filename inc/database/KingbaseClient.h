@@ -84,6 +84,9 @@ namespace Database {
         void printErrorInfo(const String &methodName, const String &sql = String::Empty,
                             const ResultInner *result = nullptr);
 
+        bool isConnectedInner();
+
+    private:
         static bool isSucceed(int result);
 
         static String toInsertStr(const DataTable &table, const DataRow &row);

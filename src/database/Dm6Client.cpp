@@ -127,7 +127,10 @@ namespace Database {
 
     bool Dm6Client::isConnected() {
         Locker locker(&_dbMutex);
+        return isConnectedInner();
+    }
 
+    bool Dm6Client::isConnectedInner() {
         if (_dm6Db->isOpened() &&
             dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
             return true;
@@ -173,7 +176,7 @@ namespace Database {
 
         result = dm_direct_exec(hsmt.hsmt, (dm_char *) sql.c_str());
         if (result == 0) {
-            if (!isConnected()) {
+            if (!isConnectedInner()) {
                 dm_free_stmt(hsmt.hsmt);
 
                 reopen();
