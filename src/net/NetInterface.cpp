@@ -657,7 +657,7 @@ namespace Net {
 
     void NetInterface::getInterfaceNames(StringArray &names) {
 #ifdef WIN32
-#elif !defined(PHONE_OS)
+#elif !defined(PHONE_OS) && !defined(WEB_OS)
         struct ifaddrs *addrs, *tmp;
 
         getifaddrs(&addrs);

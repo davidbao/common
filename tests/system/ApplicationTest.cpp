@@ -101,6 +101,7 @@ void setUp() {
 }
 
 int main(int argc, const char *argv[]) {
+#ifndef __EMSCRIPTEN__
     Application app(argc, argv);
     const Application::Arguments &arguments = app.arguments();
     if(arguments.contains("single") || arguments.contains("s")) {
@@ -118,6 +119,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
     }
-
+#endif
+    
     return 0;
 }
