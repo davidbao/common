@@ -176,6 +176,14 @@ namespace Database {
         return open(connectionStr);
     }
 
+    bool SqlConnection::isConnected() {
+        DbClient *client = getClient();
+        if (client != nullptr) {
+            return client->isConnected();
+        }
+        return false;
+    }
+
     bool SqlConnection::close() {
         Locker locker(&_clients);
         for (size_t i = 0; i < _clients.count(); ++i) {

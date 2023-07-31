@@ -21,6 +21,15 @@ using namespace Net;
 namespace Database {
     class SqlConnection;
 
+    enum ConnectionState {
+        Closed = 0,
+        Open = 1,
+        Connecting = 2,
+        Executing = 4,
+        Fetching = 8,
+        Broken = 16,
+    };
+
     class DbClient {
     public:
         DbClient();
@@ -30,6 +39,8 @@ namespace Database {
         virtual bool open(const StringMap &connections) = 0;
 
         virtual bool close() = 0;
+
+        virtual bool isConnected() = 0;
 
         virtual bool executeSql(const String &sql, bool transaction) = 0;
 

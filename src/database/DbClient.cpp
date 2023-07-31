@@ -35,7 +35,8 @@ using namespace System;
 using namespace Diag;
 
 namespace Database {
-    DbClient::DbClient() = default;
+    DbClient::DbClient() {
+    }
 
     DbClient::~DbClient() = default;
 

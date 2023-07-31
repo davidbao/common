@@ -35,6 +35,8 @@ namespace Database {
 
         bool open(const Url &url, const String &user, const String &password);
 
+        bool isConnected();
+
         bool close();
 
         bool executeSql(const String &sql, bool transaction = true);

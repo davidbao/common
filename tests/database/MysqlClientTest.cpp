@@ -9,17 +9,18 @@
 #include "database/MysqlClient.h"
 #include "IO/Path.h"
 #include "system/Application.h"
+#include "system/Environment.h"
 
 using namespace Database;
 using namespace System;
 
-static String _host = "127.0.0.1";
+static String _host = "192.166.1.3";
 static String _port = "3306";
 static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "MysqlClientTest_db";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "root";
-static String _password = "123456.com";
+static String _password = "123.com";
 
 void setUp() {
     MysqlClient test;
@@ -27,7 +28,7 @@ void setUp() {
         return;
     }
     test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
-    if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+    if (!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
         return;
     }
 }
@@ -39,6 +40,56 @@ void cleanUp() {
     }
 }
 
+bool testOpen() {
+    {
+        StringMap connections;
+        connections.add("host", _host.c_str());
+        connections.add("port", _port.c_str());
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        MysqlClient test;
+        if (!test.open(connections)) {
+            return false;
+        }
+    }
+    {
+        StringMap connections;
+        connections.add("host", _host.c_str());
+        connections.add("port", _port.c_str());
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "5");
+        MysqlClient test;
+        if (!test.open(connections)) {
+            return false;
+        }
+    }
+
+    {
+        uint64_t start = Environment::getTickCount();
+        StringMap connections;
+        connections.add("host", "192.168.100.244");
+        connections.add("port", 100);
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "2");
+        MysqlClient test;
+        if (test.open(connections)) {
+            return false;
+        }
+        uint64_t end = Environment::getTickCount();
+        uint64_t elapsed = end - start;
+        if (!(elapsed >= 2000 && elapsed <= 3000)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool testCreateDatabase() {
     {
         MysqlClient test;
@@ -46,7 +97,7 @@ bool testCreateDatabase() {
             return false;
         }
         test.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
-        if(!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+        if (!test.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
             return false;
         }
     }
@@ -169,10 +220,10 @@ bool testReplaceRecordByTable() {
             return false;
         }
         if (test.executeSql("create table t_student(\n"
-                             "id int primary key not null,\n"
-                             "name text not null,\n"
-                             "score real\n"
-                             ");")) {
+                            "id int primary key not null,\n"
+                            "name text not null,\n"
+                            "score real\n"
+                            ");")) {
             return false;
         }
         DataTable table("t_student");
@@ -241,10 +292,10 @@ bool testRetrieveCount() {
         }
 
         int count;
-        if(!test.retrieveCount("select count(*) t_student", count)) {
+        if (!test.retrieveCount("select count(*) t_student", count)) {
             return false;
         }
-        if(count != 1) {
+        if (count != 1) {
             return false;
         }
 
@@ -377,6 +428,34 @@ bool testGetColumnNames() {
     return true;
 }
 
+bool testIsConnected() {
+    {
+        MysqlClient test;
+        if (!test.open(_url, _username, _password)) {
+            return false;
+        }
+        if (!test.isConnected()) {
+            return false;
+        }
+    }
+    {
+        StringMap connections;
+        connections.add("host", "192.168.100.244");
+        connections.add("port", 100);
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "1");
+        MysqlClient test;
+        test.open(connections);
+        if (test.isConnected()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool parseArguments(const Application &app) {
     const Application::Arguments &arguments = app.arguments();
     String host, userName, password, database;
@@ -392,30 +471,30 @@ bool parseArguments(const Application &app) {
         return false;
     }
 
-    if(arguments.contains("host") || arguments.contains("h")) {
+    if (arguments.contains("host") || arguments.contains("h")) {
         host = arguments["host"];
         if (host.isNullOrEmpty()) {
             host = arguments["h"];
         }
     }
-    if(arguments.contains("port") || arguments.contains("P")) {
+    if (arguments.contains("port") || arguments.contains("P")) {
         if (!Port::parse(arguments["port"], port)) {
             Port::parse(arguments["P"], port);
         }
     }
-    if(arguments.contains("user") || arguments.contains("u")) {
+    if (arguments.contains("user") || arguments.contains("u")) {
         userName = arguments["user"];
         if (userName.isNullOrEmpty()) {
             userName = arguments["u"];
         }
     }
-    if(arguments.contains("password") || arguments.contains("p")) {
+    if (arguments.contains("password") || arguments.contains("p")) {
         password = arguments["password"];
         if (password.isNullOrEmpty()) {
             password = arguments["p"];
         }
     }
-    if(arguments.contains("database") || arguments.contains("d")) {
+    if (arguments.contains("database") || arguments.contains("d")) {
         database = arguments["database"];
         if (database.isNullOrEmpty()) {
             database = arguments["d"];
@@ -443,29 +522,35 @@ int main(int argc, const char *argv[]) {
     setUp();
 
     int result = 0;
-    if (!testCreateDatabase()) {
+    if (!testOpen()) {
         result = 1;
     }
-    if (!testCreateTable()) {
+    if (!testCreateDatabase()) {
         result = 2;
     }
-    if (!testInsertRecord()) {
+    if (!testCreateTable()) {
         result = 3;
     }
-    if (!testInsertRecordByTable()) {
+    if (!testInsertRecord()) {
         result = 4;
     }
-    if (!testReplaceRecordByTable()) {
+    if (!testInsertRecordByTable()) {
         result = 5;
     }
-    if (!testRetrieveCount()) {
+    if (!testReplaceRecordByTable()) {
         result = 6;
     }
-    if (!testTransaction()) {
+    if (!testRetrieveCount()) {
         result = 7;
     }
-    if(!testGetColumnNames()) {
+    if (!testTransaction()) {
         result = 8;
+    }
+    if (!testGetColumnNames()) {
+        result = 9;
+    }
+    if (!testIsConnected()) {
+        result = 9;
     }
 
     cleanUp();

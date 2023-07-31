@@ -125,6 +125,16 @@ namespace Database {
         return false;
     }
 
+    bool Dm6Client::isConnected() {
+        Locker locker(&_dbMutex);
+
+        if (_dm6Db->isOpened() &&
+            dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
+            return true;
+        }
+        return false;
+    }
+
     bool Dm6Client::reopen() {
         Trace::info("Reopen the dm6 client!");
         if (_dm6Db->isOpened()) {
@@ -589,6 +599,16 @@ namespace Database {
     }
 
     bool Dm6Client::ping() {
+        if (_dbMutex.tryLock()) {
+            if (_dm6Db->isOpened() &&
+                dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
+                _dbMutex.unlock();
+                return true;
+            } else {
+                _dbMutex.unlock();
+                return false;
+            }
+        }
         return true;
     }
 
@@ -630,13 +650,5 @@ namespace Database {
             error = getErrorMsg();
         }
         DbClient::printErrorInfo(methodName, sql, error);
-    }
-
-    bool Dm6Client::isConnected() const {
-        if (_dm6Db->isOpened() &&
-            dm_con_get_errorcode(_dm6Db->hdbc) == 0) {
-            return true;
-        }
-        return false;
     }
 }

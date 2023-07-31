@@ -27,6 +27,8 @@ namespace Database {
 
         bool open(const StringMap &connections) override;
 
+        bool isConnected() override;
+
         bool close() override;
 
         bool executeSql(const String &sql, bool transaction) override;

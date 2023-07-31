@@ -108,6 +108,12 @@ namespace Database {
         return false;
     }
 
+    bool MysqlClient::isConnected() {
+        Locker locker(&_dbMutex);
+        int result = mysql_ping(_mysqlDb->mysqlDb);
+        return result == 0;
+    }
+
     bool MysqlClient::close() {
         Locker locker(&_dbMutex);
 
@@ -473,7 +479,10 @@ namespace Database {
     }
 
     bool MysqlClient::ping() {
-        mysql_ping(_mysqlDb->mysqlDb);
+        if (_dbMutex.tryLock()) {
+            mysql_ping(_mysqlDb->mysqlDb);
+            _dbMutex.unlock();
+        }
         return true;
     }
 

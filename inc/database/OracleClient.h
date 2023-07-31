@@ -29,6 +29,8 @@ namespace Database {
 
         bool close() override;
 
+        bool isConnected() override;
+
         bool executeSql(const String &sql, bool transaction) override;
 
         bool executeSqlQuery(const String &sql, DataTable &table) override;

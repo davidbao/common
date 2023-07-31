@@ -36,6 +36,8 @@ namespace Database {
 
         bool close() override;
 
+        bool isConnected() override;
+
         bool executeSql(const String &sql, bool transaction) override;
 
         bool executeSqlQuery(const String &sql, DataTable &table) override;
@@ -82,8 +84,6 @@ namespace Database {
 
         void printErrorInfo(const String &methodName, const String &sql = String::Empty,
                             const HsmtInner *hsmt = nullptr);
-
-        bool isConnected() const;
 
         static bool isSucceed(int result);
 

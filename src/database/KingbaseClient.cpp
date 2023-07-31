@@ -59,6 +59,16 @@ namespace Database {
         return openInner(connections);
     }
 
+    bool KingbaseClient::isConnected() {
+        Locker locker(&_dbMutex);
+        if (_kingbaseDb->kingbaseDb != nullptr &&
+            KCIConnectionGetStatus(_kingbaseDb->kingbaseDb) == CONNECTION_OK) {
+            int sock = KCIConnectionGetSocket(_kingbaseDb->kingbaseDb);
+            return sock >= 0;
+        }
+        return false;
+    }
+
     bool KingbaseClient::openInner(const StringMap &connections) {
         String connStr;
         static const char *fmt = "%s='%s' ";
@@ -562,6 +572,17 @@ namespace Database {
     }
 
     bool KingbaseClient::ping() {
+        if (_dbMutex.tryLock()) {
+            if (_kingbaseDb->kingbaseDb != nullptr &&
+                KCIConnectionGetStatus(_kingbaseDb->kingbaseDb) == CONNECTION_OK) {
+                int sock = KCIConnectionGetSocket(_kingbaseDb->kingbaseDb);
+                _dbMutex.unlock();
+                return sock >= 0;
+            } else {
+                _dbMutex.unlock();
+                return false;
+            }
+        }
         return true;
     }
 
@@ -602,14 +623,5 @@ namespace Database {
             error = getErrorMsg();
         }
         DbClient::printErrorInfo(methodName, sql, error);
-    }
-
-    bool KingbaseClient::isConnected() const {
-        if (_kingbaseDb->kingbaseDb != nullptr &&
-            KCIConnectionGetStatus(_kingbaseDb->kingbaseDb) == CONNECTION_OK) {
-            int sock = KCIConnectionGetSocket(_kingbaseDb->kingbaseDb);
-            return sock >= 0;
-        }
-        return false;
     }
 }

@@ -63,6 +63,11 @@ namespace Database {
         return !error;
     }
 
+    bool SqliteClient::isConnected() {
+        Locker locker(&_dbMutex);
+        return _sqliteDb->sqliteDb != nullptr;
+    }
+
     bool SqliteClient::openInner(const StringMap &connections) {
         String file = connections["file"];
         return open(file);

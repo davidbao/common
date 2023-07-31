@@ -13,13 +13,13 @@
 using namespace Database;
 using namespace System;
 
-static String _host = "127.0.0.1";
+static String _host = "192.166.1.3";
 static String _port = "3306";
 static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "SqlConnectionTest_db";
 static String _url = _baseUrl + "/" + _database;
 static String _username = "root";
-static String _password = "123456.com";
+static String _password = "123.com";
 
 void setUp() {
     SqlConnection connection;

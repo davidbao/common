@@ -125,6 +125,11 @@ namespace Database {
         return isSucceed(result);
     }
 
+    bool OracleClient::isConnected() const {
+        // todo: implement this method.
+        return true;
+    }
+
     bool OracleClient::openInner(const StringMap &connections) {
         String host = connections["host"];
         Port port;
