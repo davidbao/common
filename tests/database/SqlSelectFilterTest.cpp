@@ -287,6 +287,59 @@ bool testToSql() {
             return false;
         }
     }
+    {
+        String str = "{\n"
+                     "\"page\": 1,\n"
+                     "\"pageSize\": 10,\n"
+                     "\"alarm_timeFrom\": \"2022-01-02 00:00:00\",\n"
+                     "\"alarm_timeTo\": \"2022-01-03 00:00:00\",\n"
+                     "\"event_type\":\"'alarm'\",\n"
+                     "\"tag_name\": \"like411like\",\n"
+                     "\"tag_name2\": \"quotename2quote\",\n"
+                     "\"tag_name3\": \"%22name3%22\",\n"
+                     "\"tag_name4\": \"%27name4%27\",\n"
+                     "\"valueFrom\": \"18\",\n"
+                     "\"valueTo\": \"60\",\n"
+                     "\"limit_value\":\"5\",\n"
+                     "\"orderBy\": \"alarm_time DESC\"\n"
+                     "}";
+        SqlSelectFilter test;
+        if (!SqlSelectFilter::parse(str, test)) {
+            return false;
+        }
+        String qSql = test.toSelectSql("t1");
+        if (qSql.isNullOrEmpty()) {
+            return false;
+        }
+        if (qSql.find("alarm_time>='2022-01-02 00:00:00' AND alarm_time<='2022-01-03 00:00:00'") <= 0) {
+            return false;
+        }
+        if (qSql.find("event_type = 'alarm'") <= 0) {
+            return false;
+        }
+        if (qSql.find("limit_value = 5") <= 0) {
+            return false;
+        }
+        if (qSql.find("tag_name like '%411%'") <= 0) {
+            return false;
+        }
+        if (qSql.find("tag_name2 = 'name2'") <= 0) {
+            return false;
+        }
+        if (qSql.find("tag_name3 = 'name3'") <= 0) {
+            return false;
+        }
+        if (qSql.find("tag_name4 = 'name4'") <= 0) {
+            return false;
+        }
+        if (qSql.find("value>=18 AND value<=60") <= 0) {
+            return false;
+        }
+        String cSql = test.toCountSql("t1");
+        if (cSql.isNullOrEmpty()) {
+            return false;
+        }
+    }
 
     return true;
 }

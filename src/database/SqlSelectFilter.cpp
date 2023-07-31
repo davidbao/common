@@ -247,11 +247,19 @@ namespace Database {
                         if (v.find("like") >= 0) {
                             String temp = String::replace(v, "like", "%");
                             whereStr.append(String::format("%s like '%s'", k.c_str(), temp.c_str()));
-                        } else if (v.find("%") >= 0) {
-                            whereStr.append(String::format("%s like '%s'", k.c_str(), v.c_str()));
+                        } else if (v.find("%22") >= 0) {
+//                            %22 is "
+                            String temp = String::replace(v, "%22", "'");
+                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
+                        } else if (v.find("%27") >= 0) {
+//                            %27 is '
+                            String temp = String::replace(v, "%27", "'");
+                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
                         } else if (v.find("quote") >= 0) {
                             String temp = String::replace(v, "quote", "'");
                             whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
+                        } else if (v.find("%") >= 0) {
+                            whereStr.append(String::format("%s like '%s'", k.c_str(), v.c_str()));
                         } else if (v.find('\"') >= 0) {
                             String temp = String::replace(v, "\"", "'");
                             whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
