@@ -125,7 +125,7 @@ namespace Database {
         return isSucceed(result);
     }
 
-    bool OracleClient::isConnected() const {
+    bool OracleClient::isConnected() {
         // todo: implement this method.
         return true;
     }
