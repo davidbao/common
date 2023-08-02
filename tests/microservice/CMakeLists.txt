@@ -15,7 +15,7 @@ set(MICROSERVICE_SRC
 #        Actuator.cpp
 #        ClusterService.cpp
 #        ConsulService.cpp
-#        DataSourceService.cpp
+        DataSourceServiceTest.cpp
 #        HttpService.cpp
 #        LoadBalancerClient.cpp
 #        NacosService.cpp

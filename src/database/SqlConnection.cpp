@@ -9,70 +9,88 @@
 #include "database/SqlConnection.h"
 #include "net/NetType.h"
 #include "diag/Trace.h"
+#include "system/Environment.h"
 
 using namespace System;
 using namespace Net;
 using namespace Diag;
 
 namespace Database {
-    SqlConnection::SqlConnection() : SqlConnection(5, TimeSpan::fromSeconds(30)) {
+    SqlConnection::DataSource::DataSource(DbClient *client) : client(client) {
+        openedTick = Environment::getTickCount();
+        executedTick = openedTick;
     }
 
-    SqlConnection::SqlConnection(int maxConnectionCount) : SqlConnection(maxConnectionCount,
-                                                                         TimeSpan::fromSeconds(30)) {
-    }
-
-    SqlConnection::SqlConnection(const TimeSpan &pingCycle) : SqlConnection(5, pingCycle) {
-    }
-
-    SqlConnection::SqlConnection(int maxConnectionCount, const TimeSpan &pingCycle) {
-        if (maxConnectionCount < 1) {
-            _maxConnectionCount = 1;
-        } else if (maxConnectionCount > 100) {
-            _maxConnectionCount = 100;
-        } else {
-            _maxConnectionCount = maxConnectionCount;
+    SqlConnection::DataSource::~DataSource() {
+        if (client != nullptr) {
+            client->close();
+            delete client;
+            client = nullptr;
         }
-
-        if (pingCycle == TimeSpan::Zero) {
-            // disable the ping timer.
-        } else if (pingCycle < TimeSpan::fromSeconds(5)) {
-            _pingCycle = TimeSpan::fromSeconds(5);
-        } else if (pingCycle > TimeSpan::fromSeconds(600)) {
-            _pingCycle = TimeSpan::fromSeconds(600);
-        } else {
-            _pingCycle = pingCycle;
-        }
-
-        _pingTimer = nullptr;
     }
 
-    SqlConnection::SqlConnection(std::initializer_list<KeyValuePair<String, String>> list)
-            : _maxConnectionCount(5), _pingCycle(TimeSpan::fromSeconds(30)), _pingTimer(nullptr) {
+    void SqlConnection::DataSource::update() {
+        executedTick = Environment::getTickCount();
+    }
+
+    bool SqlConnection::DataSource::ping() const {
+        return client != nullptr && client->ping();
+    }
+
+    bool SqlConnection::DataSource::reopen(const StringMap &connections) {
+        if (client != nullptr) {
+            client->close();
+            return client->open(connections);
+        }
+        return false;
+    }
+
+    bool SqlConnection::DataSource::close() {
+        if (client != nullptr) {
+            return client->close();
+        }
+        return false;
+    }
+
+    void SqlConnection::DataSource::lock() {
+        _mutex.lock();
+    }
+
+    bool SqlConnection::DataSource::tryLock() {
+        return _mutex.tryLock();
+    }
+
+    void SqlConnection::DataSource::unlock() {
+        _mutex.unlock();
+    }
+
+    SqlConnection::SqlConnection() : _pingTimer(nullptr) {
+        init(String::Empty);
+    }
+
+    SqlConnection::SqlConnection(const String &connectionStr) : _pingTimer(nullptr) {
+        init(connectionStr);
+    }
+
+    SqlConnection::SqlConnection(const Url &url, const String &user, const String &password) : _pingTimer(nullptr) {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", user.c_str());
+        connectionStr.appendFormat(fmt, "password", password.c_str());
+        init(connectionStr);
+    }
+
+    SqlConnection::SqlConnection(std::initializer_list<KeyValuePair<String, String>> list) : _pingTimer(nullptr) {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
         for (const auto &item: list) {
-            if (String::equals(item.key, "maxConnectionCount")) {
-                Int32::parse(item.value, _maxConnectionCount);
-            } else if (String::equals(item.key, "pingCycle")) {
-                Boolean pingEnable;
-                if (Boolean::parse(item.value, pingEnable) && !pingEnable) {
-                    // disable the ping timer.
-                } else {
-                    TimeSpan::parse(item.value, _pingCycle);
-                }
-            }
+            connectionStr.appendFormat(fmt, item.key.c_str(), item.value.c_str());
         }
+        init(connectionStr);
     }
 
-    SqlConnection::~SqlConnection() {
-        if (_pingTimer != nullptr) {
-            delete _pingTimer;
-            _pingTimer = nullptr;
-        }
-
-        close();
-    }
-
-    bool SqlConnection::open(const String &connectionStr) {
+    void SqlConnection::init(const String &connectionStr) {
         Url url;
         Port port;
         String scheme, host, dbname, user;
@@ -119,61 +137,124 @@ namespace Database {
                            String::equals(key, "db name", true)) {
                     dbname = value;
                     connections.add("dbname", dbname);
+                } else if (String::equals(key, "minCount", true) ||
+                           String::equals(key, "minConnectionCount", true)) {
+                    int v;
+                    if (Int32::parse(value, v) && v >= 1 && v <= 10) {
+                        connections.add("minCount", v);
+                    }
+                } else if (String::equals(key, "maxCount", true) ||
+                           String::equals(key, "maxConnectionCount", true)) {
+                    int v;
+                    if (Int32::parse(value, v) && v >= 1 && v <= 50) {
+                        connections.add("maxCount", v);
+                    }
+                } else if (String::equals(key, "pingCycle", true) ||
+                         String::equals(key, "ping cycle", true)) {
+                    TimeSpan v;
+                    if (TimeSpan::parse(value, v) &&
+                        v >= TimeSpan::fromSeconds(3) && v <= TimeSpan::fromSeconds(600)) {
+                        connections.add("pingCycle", v);
+                    }
+                } else if (String::equals(key, "idle", true)) {
+                    TimeSpan v;
+                    if (TimeSpan::parse(value, v) &&
+                        v >= TimeSpan::fromMinutes(1) && v <= TimeSpan::fromMinutes(60)) {
+                        connections.add("idle", v);
+                    }
                 }
             }
         }
 
+        // combine url.
         if (url.isEmpty()) {
-            if (scheme.isNullOrEmpty()) {
-                Trace::error("Can not find the database scheme!");
-                return false;
-            }
             url = Url(scheme, Endpoint(host, port), dbname);
-            connections.add("url", url);
         } else {
             connections.add("host", url.address());
             connections.add("port", url.port());
             connections.add("dbname", url.relativeUrl());
         }
+        if (!url.isEmpty()) {
+            connections.add("url", url);
+        }
 
+        // default properties.
+        if (!connections.contains("minCount")) {
+            connections.add("minCount", 1);
+        }
+        if (!connections.contains("maxCount")) {
+            connections.add("maxCount", 5);
+        }
+        if (!connections.contains("pingCycle")) {
+            connections.add("pingCycle", TimeSpan::fromSeconds(30));
+        }
+        if (!connections.contains("idle")) {
+            connections.add("idle", TimeSpan::fromMinutes(5));
+        }
+
+        _connections = connections;
+    }
+
+    SqlConnection::~SqlConnection() {
+        if (_pingTimer != nullptr) {
+            delete _pingTimer;
+            _pingTimer = nullptr;
+        }
+
+        close();
+    }
+
+    bool SqlConnection::open() {
+        // check url.
+        Url url;
+        getProperty("url", url);
         if (url.isEmpty()) {
             Trace::error("Can not find the database url!");
             return false;
         }
+        String user;
+        getProperty("user", user);
         if (user.isNullOrEmpty()) {
             Trace::error("Can not find the database user!");
             return false;
         }
 
+        // open it.
+        const StringMap &connections = _connections;
+        if (openInner(connections) != nullptr) {
+            if (_pingTimer == nullptr) {
+                if (hasPing()) {
+                    TimeSpan pingCycle;
+                    getProperty("pingCycle", pingCycle);
+                    _pingTimer = new Timer("sql.ping.timer", pingCycle, pingCycle, &SqlConnection::timerProc, this);
+                }
+            }
+
+            int minCount = 0;
+            getProperty("minCount", minCount);
+            for (int i = 1; i < minCount; ++i) {
+                openInner(connections);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    DbClient *SqlConnection::openInner(const StringMap &connections) {
+        Url url;
+        Url::parse(connections["url"], url);
         auto client = DbClientFactory::create(url.scheme());
         if (client != nullptr) {
             if (client->open(connections)) {
-                _connections = connections;
-
-                if (_pingTimer == nullptr) {
-                    if (hasPing()) {
-                        _pingTimer = new Timer("sql.ping.timer", _pingCycle, _pingCycle,
-                                               &SqlConnection::timerProc, this);
-                    }
-                }
-
-                Locker locker(&_clients);
-                _clients.add(client);
-                return true;
+                Locker locker(&_dataSources);
+                _dataSources.add(new DataSource(client));
+                return client;
             } else {
                 delete client;
             }
         }
-        return false;
-    }
-
-    bool SqlConnection::open(const Url &url, const String &user, const String &password) {
-        String connectionStr;
-        static const char *fmt = "%s=%s; ";
-        connectionStr.appendFormat(fmt, "url", url.toString().c_str());
-        connectionStr.appendFormat(fmt, "user", user.c_str());
-        connectionStr.appendFormat(fmt, "password", password.c_str());
-        return open(connectionStr);
+        return nullptr;
     }
 
     bool SqlConnection::isConnected() {
@@ -185,11 +266,8 @@ namespace Database {
     }
 
     bool SqlConnection::close() {
-        Locker locker(&_clients);
-        for (size_t i = 0; i < _clients.count(); ++i) {
-            _clients[i]->close();
-        }
-        _clients.clear();
+        Locker locker(&_dataSources);
+        _dataSources.clear();
         return true;
     }
 
@@ -266,35 +344,89 @@ namespace Database {
         return false;
     }
 
-    int SqlConnection::maxConnectionCount() const {
-        return _maxConnectionCount;
+    Url SqlConnection::url() const {
+        Url value;
+        getProperty("url", value);
+        return value;
     }
 
-    const TimeSpan &SqlConnection::pingCycle() const {
-        return _pingCycle;
+    size_t SqlConnection::numberOfConnections() {
+        Locker locker(&_dataSources);
+        return _dataSources.count();
     }
 
     bool SqlConnection::hasPing() const {
-        return _pingCycle != TimeSpan::Zero;
+        TimeSpan pingCycle;
+        if (getProperty("pingCycle", pingCycle)) {
+            return pingCycle != TimeSpan::Zero;
+        }
+        return false;
     }
 
     DbClient *SqlConnection::getClient() {
-        Locker locker(&_clients);
-        if (_clients.count() > 0) {
-            return _clients[0];
+        _dataSources.lock();
+        size_t count = _dataSources.count();
+        if (count > 0) {
+            DataSource *ds = nullptr;
+            for (size_t i = 0; i < _dataSources.count(); ++i) {
+                auto temp = _dataSources[i];
+                if (temp->client != nullptr) {
+                    if (!temp->client->isExecuting()) {
+                        temp->update();
+                        ds = temp;
+                        break;
+                    }
+                }
+            }
+            _dataSources.unlock();
+
+            if (ds == nullptr) {
+                int maxCount = 0;
+                getProperty("maxCount", maxCount);
+                if (count < maxCount) {
+                    DbClient *client = openInner(_connections);
+                    return client;
+                }
+            } else {
+                return ds->client;
+            }
+        } else {
+            _dataSources.unlock();
         }
         return nullptr;
     }
 
     void SqlConnection::timerProc() {
-        if (_clients.tryLock()) {
-            for (size_t i = 0; i < _clients.count(); ++i) {
-                if (!_clients[i]->ping()) {
-                    _clients[i]->close();
-                    _clients[i]->open(_connections);
+        if (_dataSources.tryLock()) {
+            // keep the minimum number of connections if idle.
+            TimeSpan idle;
+            getProperty("idle", idle);
+            if (idle != TimeSpan::Zero) {
+                int minCount = 0;
+                getProperty("minCount", minCount);
+                DataSources removed(false);
+                uint64_t current = Environment::getTickCount();
+                for (size_t i = 0; i < _dataSources.count(); ++i) {
+                    auto ds = _dataSources[i];
+                    if (current - ds->executedTick >= (uint64_t) idle.totalMilliseconds()) {
+                        if (_dataSources.count() - removed.count() > minCount) {
+                            removed.add(ds);
+                        }
+                    }
+                }
+                for (size_t i = 0; i < removed.count(); ++i) {
+                    _dataSources.remove(removed[i]);
                 }
             }
-            _clients.unlock();
+
+            // ping.
+            for (size_t i = 0; i < _dataSources.count(); ++i) {
+                auto ds = _dataSources[i];
+                if (!ds->ping()) {
+                    ds->reopen(_connections);
+                }
+            }
+            _dataSources.unlock();
         }
     }
 }

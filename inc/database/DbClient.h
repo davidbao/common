@@ -75,6 +75,8 @@ namespace Database {
 
         bool retrieveCount(const String &sql, int &count);
 
+        bool isExecuting();
+
     protected:
         virtual DbType getColumnType(int type) = 0;
 

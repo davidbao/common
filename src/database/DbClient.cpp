@@ -35,8 +35,7 @@ using namespace System;
 using namespace Diag;
 
 namespace Database {
-    DbClient::DbClient() {
-    }
+    DbClient::DbClient() = default;
 
     DbClient::~DbClient() = default;
 
@@ -84,6 +83,14 @@ namespace Database {
             }
         }
         return false;
+    }
+
+    bool DbClient::isExecuting() {
+        if (_dbMutex.tryLock()) {
+            _dbMutex.unlock();
+            return false;
+        }
+        return true;
     }
 
     void DbClient::printErrorInfo(const String &methodName, const String &sql, const String &error) {

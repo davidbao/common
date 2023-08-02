@@ -232,7 +232,7 @@ namespace Database {
 #if DEBUG
         size_t len = sql.length();
         if (len > 32) len = 32;
-        String info = String::convert("MysqlClient::executeSqlInner, sql: %s", sql.substr(0, len).c_str());
+        String info = String::convert("MysqlClient::executeSqlInner, sql: '%s'", sql.substr(0, len).c_str());
         Stopwatch sw(info, 500);
 #endif
 

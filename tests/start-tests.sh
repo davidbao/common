@@ -46,7 +46,7 @@ runTest database/DataTableTest
 runTest database/KingbaseClientTest -h=192.166.1.3
 runTest database/Dm6ClientTest -h=192.166.1.3
 runTest database/MysqlClientTest -h=192.166.1.3
-runTest database/SqlConnectionTest
+runTest database/SqlConnectionTest -h=192.166.1.3
 runTest database/SqliteClientTest
 runTest database/SqlSelectFilterTest
 runTest diag/FileTraceListenerTest
@@ -66,6 +66,7 @@ runTest IO/ZipTest
 runTest json/JsonNodeTest
 runTest json/JsonTextReaderTest
 runTest json/JsonTextWriterTest
+runTest microservice/DataSourceServiceTest
 runTest microservice/SsoServiceTest
 runTest microservice/SummerApplicationTest
 runTest net/DnsTest

@@ -43,7 +43,7 @@ namespace Microservice {
         void createSqlFile(const String &fileName, const String &sql) override;
 
     private:
-        SqlConnection _connection;
+        SqlConnection *_connection;
     };
 }
 

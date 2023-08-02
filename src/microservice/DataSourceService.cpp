@@ -19,7 +19,7 @@
 using namespace Config;
 
 namespace Microservice {
-    DataSourceService::DataSourceService() : _connection(100) {
+    DataSourceService::DataSourceService() : _connection(nullptr) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
         factory->addService<IDataSourceService>(this);
@@ -29,6 +29,9 @@ namespace Microservice {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
         factory->removeService<IDataSourceService>();
+
+        delete _connection;
+        _connection = nullptr;
     }
 
     bool DataSourceService::initialize() {
@@ -55,6 +58,12 @@ namespace Microservice {
         }
         String timeout;
         cs->getProperty("summer.datasource.timeout", timeout);
+        int minCount = 0, maxCount = 0;
+        cs->getProperty("summer.datasource.pool.minCount", minCount);
+        cs->getProperty("summer.datasource.pool.maxCount", maxCount);
+        TimeSpan pingCycle, idle;
+        cs->getProperty("summer.datasource.pingCycle", pingCycle);
+        cs->getProperty("summer.datasource.pool.idle", idle);
 
         String url = cs->getProperty("summer.datasource.url");
         String connectionStr;
@@ -63,11 +72,16 @@ namespace Microservice {
         connectionStr.appendFormat(fmt, "user", user.c_str());
         connectionStr.appendFormat(fmt, "password", password.c_str());
         connectionStr.appendFormat(fmt, "timeout", timeout.c_str());
-        return _connection.open(connectionStr);
+        connectionStr.appendFormat(fmt, "pingCycle", pingCycle.toString().c_str());
+        connectionStr.appendFormat(fmt, "minCount", Int32(minCount).toString().c_str());
+        connectionStr.appendFormat(fmt, "maxCount", Int32(maxCount).toString().c_str());
+        connectionStr.appendFormat(fmt, "idle", idle.toString().c_str());
+        _connection = new SqlConnection(connectionStr);
+        return _connection->open();
     }
 
     bool DataSourceService::unInitialize() {
-        _connection.close();
+        _connection->close();
         return true;
     }
 
@@ -84,6 +98,6 @@ namespace Microservice {
     }
 
     SqlConnection *DataSourceService::connection() {
-        return &_connection;
+        return _connection;
     }
 }

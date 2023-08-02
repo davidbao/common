@@ -22,8 +22,8 @@ static String _username = "root";
 static String _password = "123.com";
 
 void setUp() {
-    SqlConnection connection;
-    if (!connection.open(Url(_baseUrl), _username, _password)) {
+    SqlConnection connection(Url(_baseUrl), _username, _password);
+    if (!connection.open()) {
         return;
     }
     connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
@@ -33,8 +33,8 @@ void setUp() {
 }
 
 void cleanUp() {
-    SqlConnection connection;
-    if (connection.open(Url(_baseUrl), _username, _password)) {
+    SqlConnection connection(Url(_baseUrl), _username, _password);
+    if (connection.open()) {
         connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
     }
 }
@@ -42,76 +42,174 @@ void cleanUp() {
 bool testConstructor() {
     {
         SqlConnection connection;
-        if (connection.maxConnectionCount() != 5) {
+        int minCount;
+        if (!connection.getProperty("minCount", minCount)) {
+            return false;
+        }
+        if (minCount != 1) {
+            return false;
+        }
+
+        int maxCount;
+        if (!connection.getProperty("maxCount", maxCount)) {
+            return false;
+        }
+        if (maxCount != 5) {
+            return false;
+        }
+
+        TimeSpan pingCycle;
+        if (!connection.getProperty("pingCycle", pingCycle)) {
+            return false;
+        }
+        if (pingCycle != TimeSpan::fromSeconds(30)) {
             return false;
         }
     }
 
     {
-        SqlConnection connection(50);
-        if (connection.maxConnectionCount() != 50) {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        SqlConnection connection(connectionStr);
+        if (connection.url() != Url(_url)) {
+            return false;
+        }
+        String user;
+        if (!connection.getProperty("user", user)) {
+            return false;
+        }
+        if (user != _username) {
+            return false;
+        }
+        String password;
+        if (!connection.getProperty("password", password)) {
+            return false;
+        }
+        if (password != _password) {
             return false;
         }
     }
     {
-        SqlConnection connection(0);
-        if (connection.maxConnectionCount() != 1) {
+        SqlConnection connection("minCount=0");
+        int minCount;
+        if (!connection.getProperty("minCount", minCount)) {
+            return false;
+        }
+        if (minCount != 1) {
             return false;
         }
     }
     {
-        SqlConnection connection(200);
-        if (connection.maxConnectionCount() != 100) {
+        SqlConnection connection("minCount=6");
+        int minCount;
+        if (!connection.getProperty("minCount", minCount)) {
+            return false;
+        }
+        if (minCount != 6) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection("minCount=15");
+        int minCount;
+        if (!connection.getProperty("minCount", minCount)) {
+            return false;
+        }
+        if (minCount != 1) {
             return false;
         }
     }
 
     {
-        SqlConnection connection(TimeSpan::Zero);
-        if (connection.hasPing()) {
+        SqlConnection connection("maxCount=0");
+        int maxCount;
+        if (!connection.getProperty("maxCount", maxCount)) {
+            return false;
+        }
+        if (maxCount != 5) {
             return false;
         }
     }
     {
-        SqlConnection connection(TimeSpan::fromSeconds(50));
-        if (connection.pingCycle() != TimeSpan::fromSeconds(50)) {
+        SqlConnection connection("maxCount=6");
+        int maxCount;
+        if (!connection.getProperty("maxCount", maxCount)) {
+            return false;
+        }
+        if (maxCount != 6) {
             return false;
         }
     }
     {
-        SqlConnection connection(TimeSpan::fromSeconds(1));
-        if (connection.pingCycle() != TimeSpan::fromSeconds(5)) {
+        SqlConnection connection("maxCount=55");
+        int maxCount;
+        if (!connection.getProperty("maxCount", maxCount)) {
+            return false;
+        }
+        if (maxCount != 5) {
+            return false;
+        }
+    }
+
+    {
+        SqlConnection connection("pingCycle=00:00:50");
+        TimeSpan pingCycle;
+        if (!connection.getProperty("pingCycle", pingCycle)) {
+            return false;
+        }
+        if (pingCycle != TimeSpan::fromSeconds(50)) {
             return false;
         }
     }
     {
-        SqlConnection connection(TimeSpan::fromSeconds(5000));
-        if (connection.pingCycle() != TimeSpan::fromSeconds(600)) {
+        SqlConnection connection("pingCycle=00:00:00");
+        TimeSpan pingCycle;
+        if (!connection.getProperty("pingCycle", pingCycle)) {
+            return false;
+        }
+        if (pingCycle != TimeSpan::fromSeconds(30)) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection("pingCycle=01:00:00");
+        TimeSpan pingCycle;
+        if (!connection.getProperty("pingCycle", pingCycle)) {
+            return false;
+        }
+        if (pingCycle != TimeSpan::fromSeconds(30)) {
             return false;
         }
     }
 
     {
         SqlConnection connection{
-                {"maxConnectionCount", "10"},
+                {"minCount", "5"},
+                {"maxCount", "10"},
                 {"pingCycle", "00:01:00"},
         };
-        if (connection.maxConnectionCount() != 10) {
+        int minCount;
+        if (!connection.getProperty("minCount", minCount)) {
             return false;
         }
-        if (connection.pingCycle() != TimeSpan::fromSeconds(60)) {
+        if (minCount != 5) {
             return false;
         }
-    }
-    {
-        SqlConnection connection{
-                {"maxConnectionCount", "10"},
-                {"pingCycle", "00:00:00"},
-        };
-        if (connection.maxConnectionCount() != 10) {
+        int maxCount;
+        if (!connection.getProperty("maxCount", maxCount)) {
             return false;
         }
-        if (connection.hasPing()) {
+        if (maxCount != 10) {
+            return false;
+        }
+        TimeSpan pingCycle;
+        if (!connection.getProperty("pingCycle", pingCycle)) {
+            return false;
+        }
+        if (pingCycle != TimeSpan::fromSeconds(60)) {
             return false;
         }
     }
@@ -126,8 +224,8 @@ bool testOpen() {
         connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
         connectionStr.appendFormat(fmt, "user", _username.c_str());
         connectionStr.appendFormat(fmt, "password", _password.c_str());
-        SqlConnection connection;
-        if (!connection.open(connectionStr)) {
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
             return false;
         }
     }
@@ -140,8 +238,8 @@ bool testOpen() {
         connectionStr.appendFormat(fmt, "dbname", _database.c_str());
         connectionStr.appendFormat(fmt, "user", _username.c_str());
         connectionStr.appendFormat(fmt, "password", _password.c_str());
-        SqlConnection connection;
-        if (!connection.open(connectionStr)) {
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
             return false;
         }
     }
@@ -152,8 +250,8 @@ bool testOpen() {
         connectionStr.appendFormat(fmt, "user", _username.c_str());
         connectionStr.appendFormat(fmt, "password", _password.c_str());
         connectionStr.appendFormat(fmt, "timeout", "5");
-        SqlConnection connection;
-        if (!connection.open(connectionStr)) {
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
             return false;
         }
     }
@@ -166,8 +264,8 @@ bool testOpen() {
         connectionStr.appendFormat(fmt, "user", _username.c_str());
         connectionStr.appendFormat(fmt, "password", _password.c_str());
         connectionStr.appendFormat(fmt, "timeout", "2");
-        SqlConnection connection;
-        if (connection.open(connectionStr)) {
+        SqlConnection connection(connectionStr);
+        if (connection.open()) {
             return false;
         }
         uint64_t end = Environment::getTickCount();
@@ -182,8 +280,8 @@ bool testOpen() {
 
 bool testCreateDatabase() {
     {
-        SqlConnection connection;
-        if (!connection.open(Url(_baseUrl), _username, _password)) {
+        SqlConnection connection(Url(_baseUrl), _username, _password);
+        if (!connection.open()) {
             return false;
         }
         connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
@@ -197,8 +295,8 @@ bool testCreateDatabase() {
 
 bool testCreateTable() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (!connection.executeSql("create table t_student(\n"
@@ -221,8 +319,8 @@ bool testCreateTable() {
 
 bool testInsertRecord() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (!connection.executeSql("create table t_student(\n"
@@ -259,8 +357,8 @@ bool testInsertRecord() {
 
 bool testInsertRecordByTable() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (!connection.executeSql("create table t_student(\n"
@@ -305,8 +403,8 @@ bool testInsertRecordByTable() {
 
 bool testReplaceRecordByTable() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (connection.executeSql("create table t_student(\n"
@@ -353,8 +451,8 @@ bool testReplaceRecordByTable() {
 
 bool testRetrieveCount() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (!connection.executeSql("create table t_student(\n"
@@ -397,8 +495,8 @@ bool testRetrieveCount() {
 
 bool testTransaction() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         connection.beginTransaction();
@@ -446,8 +544,8 @@ bool testTransaction() {
     }
 
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         connection.beginTransaction();
@@ -493,8 +591,8 @@ bool testTransaction() {
 
 bool testGetColumnNames() {
     {
-        SqlConnection connection;
-        if (!connection.open(_url, _username, _password)) {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
             return false;
         }
         if (!connection.executeSql("DROP TABLE IF EXISTS t_student;"
@@ -511,6 +609,165 @@ bool testGetColumnNames() {
             return false;
         }
         if (!(names[0] == "id" && names[1] == "name" && names[2] == "score")) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testProperties() {
+    {
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
+            return false;
+        }
+        if (!connection.isConnected()) {
+            return false;
+        }
+    }
+    {
+        SqlConnection connection(_url, _username, _password);
+        if (connection.url() != Url(_url)) {
+            return false;
+        }
+    }
+
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "minConnectionCount", "2");
+        connectionStr.appendFormat(fmt, "maxConnectionCount", "10");
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
+            return false;
+        }
+        if (connection.numberOfConnections() != 2) {
+            return false;
+        }
+    }
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "minConnectionCount", "2");
+        connectionStr.appendFormat(fmt, "maxConnectionCount", "10");
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
+            return false;
+        }
+
+        auto runFunc = [](SqlConnection *connection) {
+            connection->executeSql("select sleep(2);");
+        };
+        Thread thread1("sqlConnection.thread1", runFunc, &connection);
+        thread1.start();
+        Thread thread2("sqlConnection.thread2", runFunc, &connection);
+        thread2.start();
+        Thread::msleep(100);
+        connection.executeSql("select now();");
+        if (connection.numberOfConnections() != 3) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testPool() {
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "minConnectionCount", "2");
+        connectionStr.appendFormat(fmt, "maxConnectionCount", "10");
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
+            return false;
+        }
+
+        auto runFunc = [](SqlConnection *connection) {
+            connection->executeSql("select sleep(2);");
+        };
+        Thread thread("sqlConnection.thread", runFunc, &connection);
+        thread.start();
+        uint64_t start = Environment::getTickCount();
+        connection.executeSql("select now();");
+        uint64_t end = Environment::getTickCount();
+        if (end - start > 1000) {
+            return false;
+        }
+    }
+
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "minConnectionCount", "2");
+        connectionStr.appendFormat(fmt, "maxConnectionCount", "10");
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
+            return false;
+        }
+
+        auto runFunc = [](SqlConnection *connection) {
+            connection->executeSql("select sleep(2);");
+        };
+        Thread thread1("sqlConnection.thread1", runFunc, &connection);
+        thread1.start();
+        Thread thread2("sqlConnection.thread2", runFunc, &connection);
+        thread2.start();
+        uint64_t start = Environment::getTickCount();
+        connection.executeSql("select now();");
+        uint64_t end = Environment::getTickCount();
+        if (end - start > 1000) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testIdle() {
+    {
+        String connectionStr;
+        static const char *fmt = "%s=%s; ";
+        connectionStr.appendFormat(fmt, "url", _url.toString().c_str());
+        connectionStr.appendFormat(fmt, "user", _username.c_str());
+        connectionStr.appendFormat(fmt, "password", _password.c_str());
+        connectionStr.appendFormat(fmt, "minConnectionCount", "2");
+        connectionStr.appendFormat(fmt, "maxConnectionCount", "10");
+        connectionStr.appendFormat(fmt, "idle", "00:01:00");
+        SqlConnection connection(connectionStr);
+        if (!connection.open()) {
+            return false;
+        }
+
+        auto runFunc = [](SqlConnection *connection) {
+            connection->executeSql("select sleep(2);");
+        };
+        Thread thread1("sqlConnection.thread1", runFunc, &connection);
+        thread1.start();
+        Thread thread2("sqlConnection.thread2", runFunc, &connection);
+        thread2.start();
+        Thread thread3("sqlConnection.thread3", runFunc, &connection);
+        thread3.start();
+        Thread::msleep(100);
+        connection.executeSql("select now();");
+        if (connection.numberOfConnections() != 4) {
+            return false;
+        }
+        Thread::msleep(61 * 1000);
+        if (connection.numberOfConnections() != 2) {
             return false;
         }
     }
@@ -614,6 +871,17 @@ int main(int argc, const char *argv[]) {
     if(!testGetColumnNames()) {
         result = 18;
     }
+    if(!testProperties()) {
+        result = 19;
+    }
+    if(!testPool()) {
+        result = 20;
+    }
+
+    // testIdle took too long, so it was commented out.
+//    if(!testIdle()) {
+//        result = 21;
+//    }
 
     cleanUp();
 

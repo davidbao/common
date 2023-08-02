@@ -21,19 +21,15 @@ namespace Database {
     public:
         SqlConnection();
 
-        explicit SqlConnection(int maxConnectionCount);
+        explicit SqlConnection(const String &connectionStr);
 
-        explicit SqlConnection(const TimeSpan &pingCycle);
-
-        SqlConnection(int maxConnectionCount, const TimeSpan &pingCycle);
+        SqlConnection(const Url &url, const String &user, const String &password);
 
         SqlConnection(std::initializer_list<KeyValuePair<String, String>> list);
 
         ~SqlConnection();
 
-        bool open(const String &connectionStr);
-
-        bool open(const Url &url, const String &user, const String &password);
+        bool open();
 
         bool isConnected();
 
@@ -57,24 +53,59 @@ namespace Database {
 
         bool rollbackTransaction();
 
-        int maxConnectionCount() const;
+        template<class T>
+        bool getProperty(const String &name, T &value) const {
+            return _connections.at(name, value);
+        }
 
-        const TimeSpan &pingCycle() const;
+        Url url() const;
 
-        bool hasPing() const;
+        size_t numberOfConnections();
 
     private:
+        void init(const String &connectionStr);
+
+        DbClient *openInner(const StringMap &connections);
+
         DbClient *getClient();
+
+        bool hasPing() const;
 
         void timerProc();
 
     private:
-        DbClients _clients;
+        class DataSource : public IMutex {
+        public:
+            DbClient *client;
+            uint64_t openedTick;
+            uint64_t executedTick;
+
+            explicit DataSource(DbClient *client = nullptr);
+
+            ~DataSource() override;
+
+            void update();
+
+            bool ping() const;
+
+            bool reopen(const StringMap &connections);
+
+            bool close();
+
+            void lock() override;
+
+            bool tryLock() override;
+
+            void unlock() override;
+
+        private:
+            Mutex _mutex;
+        };
+        typedef PList<DataSource> DataSources;
+
+        DataSources _dataSources;
 
         StringMap _connections;
-
-        int _maxConnectionCount;
-        TimeSpan _pingCycle;
 
         Timer* _pingTimer;
     };
