@@ -50,7 +50,7 @@ namespace Drivers {
         ValueSet _value;
     };
 
-    typedef PList <Data> Datas;
+    typedef PList<Data> Datas;
 
     class Context {
     public:

@@ -1,3 +1,11 @@
+//
+//  Sampler.h
+//  common
+//
+//  Created by baowei on 2015/8/4.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
 #ifndef SAMPLER_H
 #define SAMPLER_H
 

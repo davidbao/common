@@ -1,56 +1,49 @@
 #include "driver/Context.h"
 
-namespace Drivers
-{
-    ValueSet::ValueSet() : type(ValueEmpty)
-    {
+namespace Drivers {
+    ValueSet::ValueSet() : type(ValueEmpty) {
         Value.iValue = 0;
     }
-    ValueSet::ValueSet(const String& value)
-    {
+
+    ValueSet::ValueSet(const String &value) {
         type = ValueStr;
         strcpy(Value.strValue, value.c_str());
     }
-    ValueSet::ValueSet(int value)
-    {
+
+    ValueSet::ValueSet(int value) {
         type = ValueInt;
         Value.iValue = value;
     }
-    bool ValueSet::isEmpty() const
-    {
+
+    bool ValueSet::isEmpty() const {
         return type == ValueEmpty;
     }
-    
-    Data::Data()
-    {
+
+    Data::Data() {
         _name = String::Empty;
     }
-    Data::Data(const String& name, ValueSet value)
-    {
+
+    Data::Data(const String &name, ValueSet value) {
         _name = name;
         _value = value;
     }
 
-    const String& Data::name() const
-    {
+    const String &Data::name() const {
         return _name;
     }
-    
-    ValueSet Data::getValue() const
-    {
+
+    ValueSet Data::getValue() const {
         return _value;
     }
-    
-	Context::Context()
-	{
-//        _data = new Datas();
-	}
 
-	Context::~Context()
-	{
+    Context::Context() {
+//        _data = new Datas();
+    }
+
+    Context::~Context() {
 //        delete _data;
 //        _data = NULL;
-	}
+    }
 
 //    void Context::setValue(const String& name, ValueSet value)
 //    {

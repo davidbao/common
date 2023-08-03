@@ -1,8 +1,14 @@
-#include <assert.h>
+//
+//  Sampler.cpp
+//  common
+//
+//  Created by baowei on 2015/8/4.
+//  Copyright (c) 2015 com. All rights reserved.
+//
+
+#include <cassert>
 #include "driver/devices/Sampler.h"
-#include "thread/Locker.h"
 #include "thread/TickTimeout.h"
-#include "diag/Stopwatch.h"
 #include "diag/Trace.h"
 #include "system/Resources.h"
 #include "driver/channels/ChannelDescription.h"
@@ -20,13 +26,13 @@ namespace Drivers {
         _isInvalidStatus = false;
         _checkOnlineFailedCount = 0;
         _connectedFailedCount = 0;
-        _sampleInterval = detectionInterval();
+        _sampleInterval = Sampler::detectionInterval();
 
         _skipSampler = skipSampler;
     }
 
     Sampler::~Sampler() {
-        stop();
+        Sampler::stop();
 
         _connected = Device::Unknown;
     }
@@ -93,7 +99,7 @@ namespace Drivers {
     }
 
     bool isChannelOpened(void *parameter) {
-        const Channel *channel = static_cast<const Channel *>(parameter);
+        auto channel = static_cast<const Channel *>(parameter);
         assert(channel);
         return channel->opened();
     }
@@ -110,7 +116,7 @@ namespace Drivers {
     }
 
     bool Sampler::reopen() {
-        return _channel != nullptr ? _channel->reopen() : false;
+        return _channel != nullptr && _channel->reopen();
     }
 
     void Sampler::errorHandle(const DeviceDescription *dd, const InstructionDescription *id, bool error) {
@@ -123,7 +129,7 @@ namespace Drivers {
             if (checkOnlineFailed()) {
                 setConnectStatus(Device::Offline);
 
-                if (_channel != NULL && _channel->reopened()) {
+                if (_channel != nullptr && _channel->reopened()) {
                     reopen();
                 }
 

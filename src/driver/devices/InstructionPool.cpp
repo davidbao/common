@@ -1,3 +1,11 @@
+//
+//  InstructionPool.cpp
+//  common
+//
+//  Created by baowei on 2017/1/4.
+//  Copyright (c) 2017 com. All rights reserved.
+//
+
 #include <cassert>
 #include "driver/devices/InstructionPool.h"
 #include "thread/Locker.h"

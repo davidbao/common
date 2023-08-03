@@ -37,7 +37,7 @@ namespace Microservice {
 
     class BaseNotification {
     public:
-        BaseNotification(NotificationType type);
+        explicit BaseNotification(NotificationType type);
 
         virtual ~BaseNotification();
 
@@ -51,7 +51,7 @@ namespace Microservice {
 
     class HttpNotification : public BaseNotification {
     public:
-        HttpNotification(const Url &url);
+        explicit HttpNotification(const Url &url);
 
         ~HttpNotification() override;
 
@@ -64,7 +64,7 @@ namespace Microservice {
 
     class MqttNotification : public BaseNotification {
     public:
-        MqttNotification(const MqttClient::ConnectOptions &options);
+        explicit MqttNotification(const MqttClient::ConnectOptions &options);
 
         ~MqttNotification() override;
 

@@ -1,3 +1,11 @@
+//
+//  Device.cpp
+//  common
+//
+//  Created by baowei on 2016/12/19.
+//  Copyright (c) 2016 com. All rights reserved.
+//
+
 #include "system/Math.h"
 #include "driver/devices/Device.h"
 #include "diag/Trace.h"

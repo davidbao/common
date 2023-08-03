@@ -19,8 +19,7 @@ namespace Microservice {
     BaseNotification::BaseNotification(NotificationType type) : _type(type) {
     }
 
-    BaseNotification::~BaseNotification() {
-    }
+    BaseNotification::~BaseNotification() = default;
 
     NotificationType BaseNotification::type() const {
         return _type;
@@ -89,8 +88,7 @@ namespace Microservice {
     RedisNotification::RedisNotification() : BaseNotification(NotificationType::Redis) {
     }
 
-    RedisNotification::~RedisNotification() {
-    }
+    RedisNotification::~RedisNotification() = default;
 
     void RedisNotification::push(const String &key, const String &value) {
 //        String rdisKey = String::replace(key, "/", ":");
@@ -119,7 +117,7 @@ namespace Microservice {
     bool NotificationService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool enabled = false;
@@ -192,7 +190,7 @@ namespace Microservice {
     }
 
     void NotificationService::process(const IPoolEntry *value) {
-        const ValueEntry *entry = dynamic_cast<const ValueEntry *>(value);
+        auto entry = dynamic_cast<const ValueEntry *>(value);
         assert(entry);
 
         Locker locker(&_notificationsMutex);

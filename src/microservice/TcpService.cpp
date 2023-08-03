@@ -11,11 +11,9 @@
 #include "microservice/TcpTemplate.h"
 
 namespace Microservice {
-    ITcpAction::ITcpAction() {
-    }
+    ITcpAction::ITcpAction() = default;
 
-    ITcpAction::~ITcpAction() {
-    }
+    ITcpAction::~ITcpAction() = default;
 
     TcpStatus ITcpAction::onGetAction(const StringArray &texts, String &result) {
         return TcpStatus::TcpNotFound;
@@ -40,7 +38,7 @@ namespace Microservice {
     bool TcpService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         bool enable = true;
@@ -91,7 +89,7 @@ namespace Microservice {
     }
 
     bool TcpService::onStringResponse(void *owner, const IRpcSyncRequestData *request, IRpcSyncResponseData *response) {
-        TcpService *ts = (TcpService *) owner;
+        auto ts = (TcpService *) owner;
         return ts->onStringResponseInner(request, response);
     }
 
@@ -99,8 +97,8 @@ namespace Microservice {
         Locker locker(&_actionsMutex);
         for (size_t i = 0; i < _actions.count(); i++) {
             ITcpAction *action = _actions[i];
-            const TcpStringRequest *trequest = dynamic_cast<const TcpStringRequest *>(request);
-            TcpStringResponse *tresponse = dynamic_cast<TcpStringResponse *>(response);
+            auto trequest = dynamic_cast<const TcpStringRequest *>(request);
+            auto tresponse = dynamic_cast<TcpStringResponse *>(response);
             StringArray texts;
             StringArray::parse(trequest->body, texts, '/');
             String result;

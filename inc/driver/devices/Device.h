@@ -1,3 +1,11 @@
+//
+//  Device.h
+//  common
+//
+//  Created by baowei on 2016/12/19.
+//  Copyright (c) 2016 com. All rights reserved.
+//
+
 #ifndef DEVICE_H
 #define DEVICE_H
 

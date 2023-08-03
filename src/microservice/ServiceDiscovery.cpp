@@ -16,8 +16,7 @@ namespace Microservice {
     ServiceDiscovery::Item::Item(const String &serviceId, ILoadBalancer *lb) : serviceId(serviceId), lb(lb) {
     }
 
-    ServiceDiscovery::Items::Items() {
-    }
+    ServiceDiscovery::Items::Items() = default;
 
     bool ServiceDiscovery::Items::contains(const String &serviceId) const {
         for (size_t i = 0; i < count(); i++) {
@@ -43,7 +42,7 @@ namespace Microservice {
     bool ServiceDiscovery::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
-        IConfigService *cs = factory->getService<IConfigService>();
+        auto cs = factory->getService<IConfigService>();
         assert(cs);
 
         ServiceGovernanceFactory *sgfactory = ServiceGovernanceFactory::instance();
@@ -67,9 +66,7 @@ namespace Microservice {
         }
 
         if (_service == nullptr) {
-            ServiceGovernanceFactory *factory = ServiceGovernanceFactory::instance();
-            assert(factory);
-            _service = dynamic_cast<IServiceGovernance *>(factory->createOrGetService(name));
+            _service = dynamic_cast<IServiceGovernance *>(sgfactory->createOrGetService(name));
         }
 
         if (_serviceTimer == nullptr) {

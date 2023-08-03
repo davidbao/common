@@ -15,26 +15,23 @@ namespace Microservice {
 
     REGISTER_SERVICE(NacosService);
 
-    IServiceGovernance::IServiceGovernance() {
-    }
+    IServiceGovernance::IServiceGovernance() = default;
 
-    IServiceGovernance::~IServiceGovernance() {
-    }
+    IServiceGovernance::~IServiceGovernance() = default;
 
     ServiceGovernanceFactory *ServiceGovernanceFactory::_instance = nullptr;
 
     ServiceGovernanceFactory::ServiceGovernanceFactory() : _services(false) {
     }
 
-    ServiceGovernanceFactory::~ServiceGovernanceFactory() {
-    }
+    ServiceGovernanceFactory::~ServiceGovernanceFactory() = default;
 
     void ServiceGovernanceFactory::registerService(const String &typeName, Constructor constructor) {
         if (typeName.isNullOrEmpty())
             return;
 
         String name;
-        int index;
+        ssize_t index;
         if ((index = typeName.find("Service")) > 0) {
             name = typeName.substr(0, index).toLower();
         } else {
