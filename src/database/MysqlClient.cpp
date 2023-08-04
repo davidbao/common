@@ -352,7 +352,7 @@ namespace Database {
     }
 
     void MysqlClient::updateDataTable(void *tag, DataTable &table) {
-        auto *result = (MYSQL_RES *) tag;
+        auto result = (MYSQL_RES *) tag;
 #if DEBUG
         String info = String::convert("MysqlClient::updateDataTable, table name: %s", table.name().c_str());
         Stopwatch sw(info, 100);
