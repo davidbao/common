@@ -52,7 +52,7 @@ namespace Drivers {
 
         virtual void setConnectStatus(Device::Status status);
 
-        // return the sample instruction context, do not warry about deleting.
+        // return the sample instruction context, do not worry about deleting.
         virtual InstructionDescription *sampleInstruction();
 
         void instructionProc() override;
