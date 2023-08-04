@@ -75,10 +75,11 @@ namespace Data {
 
     void String::addString(const char *value, size_t count) {
         if (value != nullptr) {
+            size_t len = strlen(value);
             if(count == 0) {
-                count = strlen(value);
+                count = len;
             }
-            size_t length = Math::min(strlen(value), count);
+            size_t length = Math::min(len, count);
             if (length > 0) {
                 if (isNullOrEmpty()) {
                     _buffer.clear();

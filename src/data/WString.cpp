@@ -66,10 +66,11 @@ namespace Data {
 
     void WString::addString(const wchar_t *value, size_t count) {
         if (value != nullptr) {
-            if (count == 0) {
-                count = wcslen(value);
+            size_t len = wcslen(value);
+            if(count == 0) {
+                count = len;
             }
-            size_t length = Math::min(wcslen(value), count);
+            size_t length = Math::min(len, count);
             if (length > 0) {
                 if (isNullOrEmpty()) {
                     _buffer.clear();
