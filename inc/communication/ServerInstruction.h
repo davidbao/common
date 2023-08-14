@@ -11,6 +11,7 @@
 
 #include "ClientInstruction.h"
 #include "system/Delegate.h"
+#include "diag/Trace.h"
 
 using namespace Diag;
 

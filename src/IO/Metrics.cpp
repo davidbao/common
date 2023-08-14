@@ -778,6 +778,25 @@ namespace IO {
         Trace::verb(String::format("Current used memory, %s M", str.c_str()));
     }
 
+    int64_t MemoryStat::virtualSize() {
+#if MAC_OS
+        task_vm_info_data_t vmInfo;
+        mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+        kern_return_t result = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &vmInfo, &count);
+        if (result != KERN_SUCCESS)
+            return 0;
+        return static_cast<int64_t>(vmInfo.virtual_size);
+#elif __linux__
+        return getProcStatmValue(ProcStatm::Size);
+#elif WIN32
+        PROCESS_MEMORY_COUNTERS info;
+        GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
+        return (int64_t) info.WorkingSetSize;
+#else
+        return 0;
+#endif
+    }
+
     String UserStat::country() {
         return String::Empty;
     }

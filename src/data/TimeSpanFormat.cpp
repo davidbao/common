@@ -1057,7 +1057,6 @@ namespace Data {
             result = parseResult.parsedTimeSpan;
             return true;
         } else {
-            result = TimeSpan();
             return false;
         }
     }
@@ -1087,7 +1086,6 @@ namespace Data {
             result = parseResult.parsedTimeSpan;
             return true;
         } else {
-            result = TimeSpan();
             return false;
         }
     }
@@ -1115,7 +1113,6 @@ namespace Data {
             result = parseResult.parsedTimeSpan;
             return true;
         } else {
-            result = TimeSpan();
             return false;
         }
     }

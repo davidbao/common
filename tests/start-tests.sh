@@ -52,6 +52,8 @@ runTest database/SqlSelectFilterTest
 runTest diag/FileTraceListenerTest
 runTest diag/MemoryTraceListenerTest
 runTest diag/ProcessTest
+runTest diag/StopMemoryTest
+runTest diag/StopwatchTest
 runTest http/HttpClientTest
 runTest http/HttpContentTest
 runTest IO/DirectoryTest

@@ -123,7 +123,7 @@ namespace Drivers {
 #endif
         bool result = instructionSet()->receive(this, _channel, buffer);
 #ifdef DEBUG
-        if (sw.elapsed() >= 3000) {
+        if (sw.elapsedMilliseconds() >= 3000) {
             Debug::writeFormatLine("channel connected: %s, available: %d", _channel->connected() ? "true" : "false",
                                    _channel->available());
         }

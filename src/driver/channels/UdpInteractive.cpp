@@ -1,5 +1,6 @@
 #include "exception/Exception.h"
 #include "diag/Stopwatch.h"
+#include "diag/Trace.h"
 #include "thread/Thread.h"
 #include "net/NetInterface.h"
 #include "driver/channels/Channel.h"

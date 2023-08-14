@@ -12,6 +12,7 @@
 #include "exception/Exception.h"
 #include "system/Application.h"
 #include "IO/Path.h"
+#include "system/Environment.h"
 
 #ifdef WIN32
 
@@ -59,6 +60,8 @@ namespace Diag {
         _id = processId;
         _redirectStdout = false;
         _waiting = 0;
+        _startTick = 0;
+        _exitCode = 0;
 #ifdef DEBUG
         showChildLog = true;
 #endif
@@ -161,6 +164,11 @@ namespace Diag {
     bool Process::start(const String &fileName, const String &arguments, Process *process) {
         if (fileName.isNullOrEmpty())
             throw ArgumentNullException("fileName");
+
+        if (process != nullptr) {
+            process->_startTick = Environment::getTickCount();
+            process->_startTime = DateTime::now();
+        }
 #ifdef WIN32
         STARTUPINFO si;
         memset(&si, 0, sizeof(si));
@@ -198,6 +206,8 @@ namespace Diag {
                 process->_id = (int) pi.dwProcessId;
                 process->_name = Path::getFileName(fileName);
 
+                static String line;
+                line.empty();
                 if (hStdOutRead != nullptr) {
                     char buffer[128];
                     DWORD dwRead, tdwLeft, dwAvail;
@@ -207,7 +217,6 @@ namespace Diag {
                                 buffer[dwRead] = '\0';
                                 process->_stdoutStr.append(buffer);
 
-                                static String line;
                                 line.append(buffer[0]);
                                 if (buffer[0] == '\n') {
                                     ProcessOutputEventArgs e(line);
@@ -222,8 +231,22 @@ namespace Diag {
                     }
                 }
 
-                if (process->_waiting != 0) {
-                    WaitForSingleObject(pi.hProcess, process->_waiting);
+                int milliseconds = process->_waiting;
+                if (milliseconds != 0) {
+                    if (milliseconds > 0) {
+                        uint64_t endTick = Environment::getTickCount();
+                        milliseconds = process->_waiting - (endTick - process->_startTick);
+                        if (milliseconds > 0) {
+                            WaitForSingleObject(pi.hProcess, milliseconds);
+                        }
+                    } else {
+                        WaitForSingleObject(pi.hProcess, INFINITE);
+                    }
+                }
+
+                DWORD exitCode = 0;
+                if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
+                    process->_exitCode = (int) exitCode;
                 }
                 CloseHandle(pi.hProcess);
                 CloseHandle(pi.hThread);
@@ -253,6 +276,8 @@ namespace Diag {
 
         return result;
 #else
+        sig_t oldSignal = signal(SIGCHLD, SIG_IGN);
+
         int pipefd[2];
         pipe(pipefd);
 
@@ -308,10 +333,8 @@ namespace Diag {
                 delete[] argv;
             }
             if (result == -1) {
-                Trace::error(
-                        String::format("Process::start.execvp'%s %s' failed with error(%d): %s", fileName.c_str(),
-                                       arguments.c_str(),
-                                       errno, strerror(errno)));
+                Trace::error(String::format("Process::start.execvp'%s %s' failed with error(%d): %s",
+                                            fileName.c_str(), arguments.c_str(), errno, strerror(errno)));
                 return false;
             }
             return true;
@@ -362,13 +385,17 @@ namespace Diag {
             close(pipefd[0]);
 
             if (process != nullptr) {
-                if (process->_waiting != 0) {
-//                	Debug::writeFormatLine("start process->waitForExit, timeout: %d ms", process->_waiting);
-                    if (timeout != -2)
-                        process->waitForExit(process->_waiting);
-//                    Debug::writeFormatLine("end process->waitForExit, timeout: %d ms", process->_waiting);
-                    if (process->exist())
-                        process->kill();
+                int milliseconds = process->_waiting;
+                if (milliseconds != 0 && timeout != -2) {
+                    if (milliseconds > 0) {
+                        uint64_t endTick = Environment::getTickCount();
+                        milliseconds = process->_waiting - (endTick - process->_startTick);
+                        if (milliseconds > 0) {
+                            process->waitForExit(milliseconds);
+                        }
+                    } else {
+                        process->waitForExit(-1);
+                    }
                 }
             } else {
                 if (arguments.find('&') < 0) {
@@ -382,6 +409,8 @@ namespace Diag {
                 }
             }
         }
+
+        signal(SIGCHLD, oldSignal);
         return true;
 #endif
     }
@@ -811,5 +840,9 @@ namespace Diag {
 
     Delegates *Process::outputDelegates() {
         return &_outputDelegates;
+    }
+
+    int Process::exitCode() const {
+        return _exitCode;
     }
 }

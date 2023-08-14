@@ -11,9 +11,11 @@
 
 #include "data/String.h"
 #include "data/PList.h"
+#include "data/DateTime.h"
 #include "data/TimeSpan.h"
 #include "system/Delegate.h"
 
+using namespace Data;
 using namespace System;
 
 namespace Diag {
@@ -70,6 +72,8 @@ namespace Diag {
 
         Delegates *outputDelegates();
 
+        int exitCode() const;
+
     public:
         static bool start(const String &fileName, const String &arguments = String::Empty, Process *process = nullptr);
 
@@ -114,7 +118,12 @@ namespace Diag {
 
         int _waiting;
 
+        uint64_t _startTick;
+        DateTime _startTime;
+
         Delegates _outputDelegates;
+
+        int _exitCode;
     };
 }
 

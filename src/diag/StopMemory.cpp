@@ -8,6 +8,9 @@
 
 #include "diag/StopMemory.h"
 #include "IO/Metrics.h"
+#include "diag/Trace.h"
+
+using namespace Diag;
 
 namespace Diag {
     StopMemory::StopMemory(int64_t deadMemory) : StopMemory(String::Empty, deadMemory) {
@@ -28,23 +31,24 @@ namespace Diag {
 
     void StopMemory::start(int64_t deadMemory) {
         _deadMemory = deadMemory;
-        _startMemory = MemoryStat::used();
+        _startMemory = MemoryStat::virtualSize();
         _endMemory = 0;
     }
 
     void StopMemory::stop(bool showInfo) {
         if (_endMemory == 0) {
-            _endMemory = MemoryStat::used();
+            _endMemory = MemoryStat::virtualSize();
+
             if (showInfo && !_info.isNullOrEmpty()) {
                 int64_t used = this->used();
                 if (used >= _deadMemory) {
                     if (used < 1024) {
                         // < 1K
                         Trace::verb(String::format("%s, used: %ld", _info.c_str(), used));
-                    } else if (used >= 1024 && used < 1024 * 1024) {
+                    } else if (used < 1024 * 1024) {
                         // >= 1K && < 1M
                         Trace::verb(String::format("%s, used: %.1fK", _info.c_str(), (double) used / 1024.0));
-                    } else if (used >= 1024 * 1024 && used < 1024 * 1024 * 1024) {
+                    } else if (used < 1024 * 1024 * 1024) {
                         // >= 1M && < 1G
                         Trace::verb(String::format("%s, used: %.1fM", _info.c_str(), (double) used / 1024.0 / 1024.0));
                     } else {
@@ -61,8 +65,20 @@ namespace Diag {
         _info = info;
     }
 
+    const String &StopMemory::info() const {
+        return _info;
+    }
+
     int64_t StopMemory::used() const {
         return _endMemory - _startMemory;
+    }
+
+    int64_t StopMemory::deadMemory() const {
+        return _deadMemory;
+    }
+
+    bool StopMemory::isRunning() const {
+        return _endMemory == 0;
     }
 
     void StopMemory::logUsed() {

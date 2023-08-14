@@ -9,43 +9,53 @@
 #ifndef Stopwatch_h
 #define Stopwatch_h
 
-#include "thread/TickTimeout.h"
-#include "data/DateTime.h"
+#include "data/TimeSpan.h"
 #include "data/String.h"
-#include "diag/Trace.h"
+
+using namespace Data;
 
 namespace Diag {
     class Stopwatch {
     public:
-        explicit Stopwatch(uint32_t deadTime = 0);
+        explicit Stopwatch(uint32_t deadTime);
 
-        explicit Stopwatch(const String &info, uint32_t deadTime = 0);
+        Stopwatch(const String &info, uint32_t deadTime);
+
+        explicit Stopwatch(const TimeSpan &deadTime = TimeSpan::Zero);
+
+        explicit Stopwatch(const String &info, const TimeSpan &deadTime = TimeSpan::Zero);
 
         ~Stopwatch();
 
         void reStart();
 
-        void start(uint32_t deadTime = 0);
+        void start(uint32_t deadTime);
+
+        void start(const TimeSpan &deadTime = TimeSpan::Zero);
 
         void stop(bool showInfo = true);
 
         void setInfo(const String &info);
 
-        uint32_t elapsed() const;
+        const String &info() const;
 
-        TimeSpan elapsed2() const;
+        uint32_t elapsedMilliseconds() const;
 
-        uint32_t dateTime() const;
+        TimeSpan elapsed() const;
 
-        TimeSpan dateTime2() const;
+        uint32_t deadTimeMilliseconds() const;
+
+        TimeSpan deadTime() const;
+
+        bool isRunning() const;
 
     private:
-        uint32_t elapsedInner(bool currentTime = false) const;
+        uint64_t elapsedInner(bool currentTime = false) const;
 
     private:
-        uint32_t _deadTime;
-        uint32_t _startTime;
-        uint32_t _endTime;
+        TimeSpan _deadTime;
+        uint64_t _startTime;
+        uint64_t _endTime;
         String _info;
     };
 }

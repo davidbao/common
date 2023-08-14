@@ -82,6 +82,8 @@ namespace IO {
 
         static void logUsed();
 
+        static int64_t virtualSize();
+
     private:
         enum ProcStatm {
             Size = 0,

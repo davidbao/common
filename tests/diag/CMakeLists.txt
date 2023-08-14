@@ -15,8 +15,8 @@ set(DIAG_SRC
         # diag
         FileTraceListenerTest.cpp
         MemoryTraceListenerTest.cpp
-#        StopMemory.cpp
-#        Stopwatch.cpp
+        StopMemoryTest.cpp
+        StopwatchTest.cpp
 #        Trace.cpp
 #        TraceListener.cpp
         )

@@ -7,10 +7,15 @@
 //
 
 #include "diag/Process.h"
+#include "diag/Stopwatch.h"
+#include "IO/Path.h"
+#include "IO/File.h"
+#include "IO/FileStream.h"
 #include "system/Application.h"
 
 using namespace Diag;
 using namespace System;
+using namespace IO;
 
 #ifdef WIN32
 String ll_cmd = "cmd";
@@ -235,6 +240,26 @@ bool testMultiProcesses() {
     }
 
     {
+        Process process;
+        process.setRedirectStdout(true);
+        process.setWaitingTimeout(1000);
+        Stopwatch sw;
+        if (!Process::start(fileName, "-t", &process)) {
+            return false;
+        }
+        if (!process.exist()) {
+            return false;
+        }
+        sw.stop(false);
+        if (sw.elapsedMilliseconds() < 1000) {
+            return false;
+        }
+        if (sw.elapsedMilliseconds() > 5000) {
+            return false;
+        }
+    }
+
+    {
         Process process1, process2, process3;
         if (!Process::start(fileName, "-t", &process1)) {
             return false;
@@ -267,6 +292,39 @@ bool testMultiProcesses() {
     return true;
 }
 
+bool testWait() {
+//    {
+////        String fileName = Path::getTempFileName();
+////        String script = "if __name__ == '__main__':\n"
+////                        "   if len(sys.argv) > 1:\n"
+////                        "       taskName = sys.argv[1]\n"
+////                        "       if taskName == \"test\":\n"
+////                        "           print('Hello world!')";
+////        fileName = Path::getTempFileName("tserver");
+////        FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
+////        fs.writeText(script);
+////        fs.close();
+//
+//        String fileName = "/usr/local/tserver.zjk_ss/python/home.py";
+//        Stopwatch sw;
+//        String param = String::format("%s %s", fileName.c_str(), "total");
+//        static const char *PythonApp = "python";
+//        Process process;
+//        process.setRedirectStdout(true);
+//        process.setWaitingTimeout(TimeSpan::fromSeconds(30));
+//        bool result = Process::start(PythonApp, param, &process);
+//        sw.stop();
+//        Trace::info(process.stdoutStr());
+////        File::deleteFile(fileName);
+//        uint32_t elapsed = sw.elapsedMilliseconds();
+//        bool hasExist = process.exist();
+//        printf("result: %s, elapsed: %d ms, exist: %s\n",
+//               result ? "true" : "false", elapsed, hasExist ? "true" : "false");
+//    }
+
+    return true;
+}
+
 int main(int argc, const char *argv[]) {
     Application app(argc, argv);
     const Application::Arguments &arguments = app.arguments();
@@ -292,6 +350,9 @@ int main(int argc, const char *argv[]) {
         }
         if (!testMultiProcesses()) {
             return 6;
+        }
+        if (!testWait()) {
+            return 7;
         }
     }
     return 0;

@@ -9,6 +9,7 @@
 #include "data/ByteArray.h"
 #include "IO/IOPort.h"
 #include "diag/Stopwatch.h"
+#include "diag/Trace.h"
 
 #ifdef WIN32
 

@@ -9,11 +9,9 @@
 #ifndef StopMemory_h
 #define StopMemory_h
 
-#include "thread/TickTimeout.h"
-#include "data/DateTime.h"
 #include "data/String.h"
-#include "diag/Trace.h"
-#include "Trace.h"
+
+using namespace Data;
 
 namespace Diag {
     class StopMemory {
@@ -32,7 +30,13 @@ namespace Diag {
 
         void setInfo(const String &info);
 
+        const String &info() const;
+
         int64_t used() const;
+
+        int64_t deadMemory() const;
+
+        bool isRunning() const;
 
     public:
         static void logUsed();
