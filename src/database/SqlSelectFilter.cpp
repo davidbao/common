@@ -240,31 +240,61 @@ namespace Database {
                         whereStr.appendFormat(hasQuotes ? "(%s>='%s' AND %s<='%s')" : "(%s>=%s AND %s<=%s)",
                                               keyStr.c_str(), fromValue.c_str(), keyStr.c_str(), toValue.c_str());
                     } else {
-                        // equals.
                         if (!whereStr.isNullOrEmpty()) {
                             whereStr.append(" AND ");
                         }
-                        if (v.find("like") >= 0) {
-                            String temp = String::replace(v, "like", "%");
-                            whereStr.append(String::format("%s like '%s'", k.c_str(), temp.c_str()));
-                        } else if (v.find("%22") >= 0) {
-//                            %22 is "
-                            String temp = String::replace(v, "%22", "'");
-                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
-                        } else if (v.find("%27") >= 0) {
-//                            %27 is '
-                            String temp = String::replace(v, "%27", "'");
-                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
-                        } else if (v.find("quote") >= 0) {
-                            String temp = String::replace(v, "quote", "'");
-                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
-                        } else if (v.find("%") >= 0) {
-                            whereStr.append(String::format("%s like '%s'", k.c_str(), v.c_str()));
-                        } else if (v.find('\"') >= 0) {
-                            String temp = String::replace(v, "\"", "'");
-                            whereStr.append(String::format("%s = %s", k.c_str(), temp.c_str()));
+
+                        auto hasCompareSymbolFunc = [](const String &str) {
+                            static const char compareSymbols[] = {'<', '>', '=', '!', '\0'};
+                            String value = str.trimStart();
+                            if (value.length() > 0) {
+                                const char first = value[0];
+                                int index = 0;
+                                char symbol;
+                                while((symbol = compareSymbols[index++]) != 0) {
+                                    if (symbol == first) {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            } else {
+                                return false;
+                            }
+                        };
+                        auto replaceFunc = [](const String &str) {
+                            if (str.find("%22") >= 0) {
+//                              %22 is "
+                                return String::replace(str, "%22", "'");
+                            } else if (str.find("%27") >= 0) {
+//                              %27 is '
+                                return String::replace(str, "%27", "'");
+                            } else if (str.find("quote") >= 0) {
+                                return String::replace(str, "quote", "'");
+                            } else if (str.find('\"') >= 0) {
+                                return String::replace(str, "\"", "'");
+                            } else {
+                                return str;
+                            }
+                        };
+
+                        if (hasCompareSymbolFunc(v)) {
+                            String str = replaceFunc(v);
+                            whereStr.append(String::format("%s %s", k.c_str(), str.c_str()));
                         } else {
-                            whereStr.append(String::format("%s = %s", k.c_str(), v.c_str()));
+                            if (v.find("like") >= 0) {
+                                // like
+                                String temp = String::replace(v, "like", "%");
+                                whereStr.append(String::format("%s like '%s'", k.c_str(), temp.c_str()));
+                            } else {
+                                String str = replaceFunc(v);
+                                if (str.find("%") >= 0) {
+                                    // like
+                                    whereStr.append(String::format("%s like '%s'", k.c_str(), str.c_str()));
+                                } else {
+                                    // equals.
+                                    whereStr.append(String::format("%s = %s", k.c_str(), str.c_str()));
+                                }
+                            }
                         }
                     }
                 }

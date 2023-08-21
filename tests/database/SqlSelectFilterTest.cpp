@@ -298,6 +298,34 @@ bool testToSql() {
                      "\"tag_name2\": \"quotename2quote\",\n"
                      "\"tag_name3\": \"%22name3%22\",\n"
                      "\"tag_name4\": \"%27name4%27\",\n"
+                     "\"value1\": \"< 100\",\n"
+                     "\"value2\": \"<= 100\",\n"
+                     "\"value3\": \"= 100\",\n"
+                     "\"value4\": \"!= 100\",\n"
+                     "\"value5\": \"> 100\",\n"
+                     "\"value6\": \">= 100\",\n"
+                     "\"value7\": \"  >= 100\",\n"
+                     "\"str1\": \"< quotestr1quote\",\n"
+                     "\"str2\": \"<= quotestr2quote\",\n"
+                     "\"str3\": \"= quotestr3quote\",\n"
+                     "\"str4\": \"!= quotestr4quote\",\n"
+                     "\"str5\": \"> quotestr5quote\",\n"
+                     "\"str6\": \">= quotestr6quote\",\n"
+                     "\"str7\": \"  >= quotestr7quote\",\n"
+                     "\"text1\": \"< %22text1%22\",\n"
+                     "\"text2\": \"<= %22text2%22\",\n"
+                     "\"text3\": \"= %22text3%22\",\n"
+                     "\"text4\": \"!= %22text4%22\",\n"
+                     "\"text5\": \"> %22text5%22\",\n"
+                     "\"text6\": \">= %22text6%22\",\n"
+                     "\"text7\": \"  >= %22text7%22\",\n"
+                     "\"string1\": \"< %27string1%27\",\n"
+                     "\"string2\": \"<= %27string2%27\",\n"
+                     "\"string3\": \"= %27string3%27\",\n"
+                     "\"string4\": \"!= %27string4%27\",\n"
+                     "\"string5\": \"> %27string5%27\",\n"
+                     "\"string6\": \">= %27string6%27\",\n"
+                     "\"string7\": \"  >= %27string7%27\",\n"
                      "\"valueFrom\": \"18\",\n"
                      "\"valueTo\": \"60\",\n"
                      "\"limit_value\":\"5\",\n"
@@ -333,6 +361,90 @@ bool testToSql() {
             return false;
         }
         if (qSql.find("value>=18 AND value<=60") <= 0) {
+            return false;
+        }
+        if (qSql.find("value1 < 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value2 <= 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value3 = 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value4 != 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value5 > 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value6 >= 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("value7   >= 100") <= 0) {
+            return false;
+        }
+        if (qSql.find("str1 < 'str1'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str2 <= 'str2'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str3 = 'str3'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str4 != 'str4'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str5 > 'str5'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str6 >= 'str6'") <= 0) {
+            return false;
+        }
+        if (qSql.find("str7   >= 'str7'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text1 < 'text1'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text2 <= 'text2'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text3 = 'text3'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text4 != 'text4'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text5 > 'text5'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text6 >= 'text6'") <= 0) {
+            return false;
+        }
+        if (qSql.find("text7   >= 'text7'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string1 < 'string1'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string2 <= 'string2'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string3 = 'string3'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string4 != 'string4'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string5 > 'string5'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string6 >= 'string6'") <= 0) {
+            return false;
+        }
+        if (qSql.find("string7   >= 'string7'") <= 0) {
             return false;
         }
         String cSql = test.toCountSql("t1");

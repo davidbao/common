@@ -15,14 +15,14 @@ set(DIAG_SRC
         # diag
         FileTraceListenerTest.cpp
         MemoryTraceListenerTest.cpp
-        StopMemoryTest.cpp
-        StopwatchTest.cpp
 #        Trace.cpp
 #        TraceListener.cpp
         )
 
 if (NOT WEB_OS)
     SET(DIAG_SRC "${DIAG_SRC}" ProcessTest.cpp)
+    SET(DIAG_SRC "${DIAG_SRC}" StopMemoryTest.cpp)
+    SET(DIAG_SRC "${DIAG_SRC}" StopwatchTest.cpp)
 endif()
 
 foreach (item ${DIAG_SRC})
