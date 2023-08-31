@@ -176,7 +176,7 @@ namespace Data {
         // millisecond, and adding that interval to this DateTime. The
         // value argument is permitted to be negative.
         //
-        DateTime addDays(double value);
+        DateTime addDays(double value) const;
 
         // Returns the DateTime resulting from adding a fractional number of
         // hours to this DateTime. The result is computed by rounding the
@@ -184,7 +184,7 @@ namespace Data {
         // millisecond, and adding that interval to this DateTime. The
         // value argument is permitted to be negative.
         //
-        DateTime addHours(double value);
+        DateTime addHours(double value) const;
 
         // Returns the DateTime resulting from the given number of
         // milliseconds to this DateTime. The result is computed by rounding
@@ -192,7 +192,7 @@ namespace Data {
         // and adding that interval to this DateTime. The value
         // argument is permitted to be negative.
         //
-        DateTime addMilliseconds(double value);
+        DateTime addMilliseconds(double value) const;
 
         // Returns the DateTime resulting from adding a fractional number of
         // minutes to this DateTime. The result is computed by rounding the
@@ -200,7 +200,7 @@ namespace Data {
         // millisecond, and adding that interval to this DateTime. The
         // value argument is permitted to be negative.
         //
-        DateTime addMinutes(double value);
+        DateTime addMinutes(double value) const;
 
         // Returns the DateTime resulting from adding the given number of
         // months to this DateTime. The result is computed by incrementing
@@ -219,7 +219,7 @@ namespace Data {
         // or equal to d that denotes a valid day in month m1 of year
         // y1.
         //
-        DateTime addMonths(int months);
+        DateTime addMonths(int months) const;
 
         // Returns the DateTime resulting from adding a fractional number of
         // seconds to this DateTime. The result is computed by rounding the
@@ -227,7 +227,7 @@ namespace Data {
         // millisecond, and adding that interval to this DateTime. The
         // value argument is permitted to be negative.
         //
-        DateTime addSeconds(double value);
+        DateTime addSeconds(double value) const;
 
         // Returns the DateTime resulting from adding the given number of
         // 100-nanosecond ticks to this DateTime. The value argument
@@ -243,7 +243,7 @@ namespace Data {
         // DateTime becomes 2/28. Otherwise, the month, day, and time-of-day
         // parts of the result are the same as those of this DateTime.
         //
-        DateTime addYears(int value);
+        DateTime addYears(int value) const;
 
         uint32_t subtract(DateTime prev, Resolutions tr) const;
 
@@ -288,6 +288,8 @@ namespace Data {
 
         static DateTime from2010Milliseconds(double time, bool utc = true);
 
+        static bool isValid(int year, int month, int day);
+
     private:
         // Returns a given date part of this DateTime. This method is used
         // to compute the year, day-of-year, month, or day part.
@@ -302,9 +304,8 @@ namespace Data {
 
         static uint64_t timeToTicks(int hour, int minute, int second);
 
-        static uint64_t
-        toTicks(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, int millisecond = 0,
-                Kind kind = Unspecified);
+        static uint64_t toTicks(int year, int month, int day, int hour = 0, int minute = 0, int second = 0,
+                                int millisecond = 0, Kind kind = Unspecified);
 
     public:
         static const DateTime MinValue;

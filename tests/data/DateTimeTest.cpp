@@ -778,6 +778,18 @@ bool testStatic() {
         }
     }
 
+    {
+        if (!DateTime::isValid(2010, 1, 20)) {
+            return false;
+        }
+        if (DateTime::isValid(2010, 2, 31)) {
+            return false;
+        }
+        if (DateTime::isValid(2010, 4, 31)) {
+            return false;
+        }
+    }
+
     return true;
 }
 

@@ -107,6 +107,16 @@ namespace Data {
         return TimeZone::Local.toUtcTime(*this);
     }
 
+    bool DateTime::isValid(int year, int month, int day) {
+        if (year >= 1 && year <= 9999 && month >= 1 && month <= 12) {
+            const int *days = isLeapYear(year) ? DaysToMonth366 : DaysToMonth365;
+            if (day >= 1 && day <= days[month] - days[month - 1]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     uint64_t DateTime::dateToTicks(int year, int month, int day) {
         if (year >= 1 && year <= 9999 && month >= 1 && month <= 12) {
             const int *days = isLeapYear(year) ? DaysToMonth366 : DaysToMonth365;
@@ -627,7 +637,7 @@ namespace Data {
     // millisecond, and adding that interval to this DateTime. The
     // value argument is permitted to be negative.
     //
-    DateTime DateTime::addDays(double value) {
+    DateTime DateTime::addDays(double value) const {
         return add(value, MillisPerDay);
     }
 
@@ -637,7 +647,7 @@ namespace Data {
     // millisecond, and adding that interval to this DateTime. The
     // value argument is permitted to be negative.
     //
-    DateTime DateTime::addHours(double value) {
+    DateTime DateTime::addHours(double value) const {
         return add(value, MillisPerHour);
     }
 
@@ -647,7 +657,7 @@ namespace Data {
     // and adding that interval to this DateTime. The value
     // argument is permitted to be negative.
     //
-    DateTime DateTime::addMilliseconds(double value) {
+    DateTime DateTime::addMilliseconds(double value) const {
         return add(value, 1);
     }
 
@@ -657,7 +667,7 @@ namespace Data {
     // millisecond, and adding that interval to this DateTime. The
     // value argument is permitted to be negative.
     //
-    DateTime DateTime::addMinutes(double value) {
+    DateTime DateTime::addMinutes(double value) const {
         return add(value, MillisPerMinute);
     }
 
@@ -678,7 +688,7 @@ namespace Data {
     // or equal to d that denotes a valid day in month m1 of year
     // y1.
     //
-    DateTime DateTime::addMonths(int months) {
+    DateTime DateTime::addMonths(int months) const {
         if (months < -120000 || months > 120000)
             throw ArgumentOutOfRangeException("months", "ArgumentOutOfRange_DateTimeBadMonths");
         int y = getDatePart(DatePartYear);
@@ -706,7 +716,7 @@ namespace Data {
     // millisecond, and adding that interval to this DateTime. The
     // value argument is permitted to be negative.
     //
-    DateTime DateTime::addSeconds(double value) {
+    DateTime DateTime::addSeconds(double value) const {
         return add(value, MillisPerSecond);
     }
 
@@ -730,7 +740,7 @@ namespace Data {
     // DateTime becomes 2/28. Otherwise, the month, day, and time-of-day
     // parts of the result are the same as those of this DateTime.
     //
-    DateTime DateTime::addYears(int value) {
+    DateTime DateTime::addYears(int value) const {
         if (value < -10000 || value > 10000)
             throw ArgumentOutOfRangeException("years", "ArgumentOutOfRange_DateTimeBadYears");
         return addMonths(value * 12);

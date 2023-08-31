@@ -400,7 +400,7 @@ namespace Diag {
             } else {
                 if (arguments.find('&') < 0) {
                     int status;
-                    while (waitpid(child, &status, 0) < 0) {
+                    while (waitpid(child, &status, WNOHANG) < 0) {
                         if (errno != EINTR) {
                             status = -1;
                             break;
