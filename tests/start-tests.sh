@@ -45,6 +45,7 @@ runTest data/WStringTest
 runTest database/DataTableTest
 runTest database/KingbaseClientTest -h=192.166.1.3
 runTest database/Dm6ClientTest -h=192.166.1.3
+runTest database/Dm7ClientTest -h=192.166.1.3
 runTest database/MysqlClientTest -h=192.166.1.3
 runTest database/SqlConnectionTest -h=192.166.1.3
 runTest database/SqliteClientTest

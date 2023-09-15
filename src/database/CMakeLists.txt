@@ -40,5 +40,9 @@ if (${COMMON_BUILD_DATABASE})
         set(DATABASE_SRC ${DATABASE_SRC} Dm6Client.cpp)
     endif ()
 
+    if (${COMMON_BUILD_DM7})
+        set(DATABASE_SRC ${DATABASE_SRC} Dm7Client.cpp)
+    endif ()
+
     add_library(database OBJECT ${DATABASE_SRC})
 endif ()

@@ -39,6 +39,10 @@ if (${COMMON_BUILD_DATABASE})
         set(DATABASE_SRC ${DATABASE_SRC} Dm6ClientTest.cpp)
     endif ()
 
+    if (${COMMON_BUILD_DM7})
+        set(DATABASE_SRC ${DATABASE_SRC} Dm7ClientTest.cpp)
+    endif ()
+
     foreach (item ${DATABASE_SRC})
         string(REGEX MATCH "[0-9A-Za-z_]*" app ${item})
         add_executable(${app} ${item})
