@@ -6,6 +6,7 @@
 //  Copyright (c) 2020 com. All rights reserved.
 //
 
+#ifdef DEBUG
 #include "diag/StopMemory.h"
 #include "IO/Metrics.h"
 #include "diag/Trace.h"
@@ -85,4 +86,4 @@ namespace Diag {
         MemoryStat::logUsed();
     }
 }
-
+#endif  // DEBUG

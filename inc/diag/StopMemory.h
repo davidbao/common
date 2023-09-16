@@ -6,6 +6,7 @@
 //  Copyright (c) 2020 com. All rights reserved.
 //
 
+#ifdef DEBUG
 #ifndef StopMemory_h
 #define StopMemory_h
 
@@ -49,4 +50,5 @@ namespace Diag {
     };
 }
 
-#endif /* StopMemory_h */
+#endif // StopMemory_h
+#endif  // DEBUG

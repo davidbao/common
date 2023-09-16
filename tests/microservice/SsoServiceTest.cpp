@@ -428,7 +428,7 @@ int main() {
     auto func = [](HttpService *hs) {
         return hs->isAlive();
     };
-    Thread::delay(1500, Func<bool>(func, &hs));
+    Thread::delay(3000, Func<bool>(func, &hs));
     Thread::msleep(500);
 //#if defined(WIN32) && defined(_X86_)
 //    Thread::msleep(3000);

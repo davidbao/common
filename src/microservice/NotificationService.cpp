@@ -39,6 +39,7 @@ namespace Microservice {
             _webClient.postAsync(_url, HttpHeaders::JsonTypeHeaders, value);
     }
 
+#ifdef HAS_MQTTCLIENT
     MqttNotification::MqttNotification(const MqttClient::ConnectOptions &options) : BaseNotification(
             NotificationType::Mqtt) {
         _connectOptions = options;
@@ -84,7 +85,9 @@ namespace Microservice {
 
         return true;
     }
+#endif
 
+#ifdef HAS_REDISCLIENT
     RedisNotification::RedisNotification() : BaseNotification(NotificationType::Redis) {
     }
 
@@ -93,6 +96,7 @@ namespace Microservice {
     void RedisNotification::push(const String &key, const String &value) {
 //        String rdisKey = String::replace(key, "/", ":");
     }
+#endif
 
     void INotificationService::push(const String &key, const String &value) {
         push(NotificationType::All, key, value);

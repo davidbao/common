@@ -83,6 +83,16 @@ if (COMMON_ENABLE_TEST)
         endif ()
     endif ()
 
+    if (COMMON_BUILD_MQTTCLIENT)
+        set(EXTERNALS_LIB
+                paho-mqtt3a-static${CMAKE_FIND_LIBRARY_SUFFIXES}
+                paho-mqtt3as-static${CMAKE_FIND_LIBRARY_SUFFIXES}
+                paho-mqtt3c-static${CMAKE_FIND_LIBRARY_SUFFIXES}
+                paho-mqtt3cs-static${CMAKE_FIND_LIBRARY_SUFFIXES}
+                ${EXTERNALS_LIB}
+                )
+    endif()
+
     if (COMMON_BUILD_DATABASE)
         if (COMMON_BUILD_SQLITE)
             set(EXTERNALS_LIB sqlite3${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
@@ -105,11 +115,21 @@ if (COMMON_ENABLE_TEST)
             endif ()
         endif ()
         if (COMMON_BUILD_DM6)
-            set(EXTERNALS_LIB dmapi ${EXTERNALS_LIB})
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
+            if (COMMON_BUILD_DM6_STATIC)
+                set(EXTERNALS_LIB dmapi${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
+                if (NOT WIN_OS)
+                    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
+                endif()
+            else ()
+                set(EXTERNALS_LIB dmapi ${EXTERNALS_LIB})
+            endif ()
         endif ()
         if (COMMON_BUILD_DM7)
-            set(EXTERNALS_LIB dmdpi ${EXTERNALS_LIB})
+            if (COMMON_BUILD_DM7_STATIC)
+                set(EXTERNALS_LIB dmdpi${CMAKE_FIND_LIBRARY_SUFFIXES} ${EXTERNALS_LIB})
+            else ()
+                set(EXTERNALS_LIB dmdpi ${EXTERNALS_LIB})
+            endif ()
         endif ()
     endif ()
 

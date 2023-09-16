@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 com. All rights reserved.
 //
 
+#ifdef DEBUG
 #include "diag/StopMemory.h"
 
 using namespace Diag;
@@ -44,6 +45,7 @@ bool testStart() {
         free(value);
         int64_t used = sm.used();
         if (used < 1024 * 512) {
+            printf("used1: %lld\n", used);
             return false;
         }
     }
@@ -55,6 +57,7 @@ bool testStart() {
         free(value);
         int64_t used = sm.used();
         if (used < 1024 * 640) {
+            printf("used2: %lld\n", used);
             return false;
         }
         sm.reStart();
@@ -63,6 +66,7 @@ bool testStart() {
         free(value);
         used = sm.used();
         if (used < 1024 * 1024 * 1) {
+            printf("used3: %lld\n", used);
             return false;
         }
     }
@@ -115,3 +119,4 @@ int main() {
 
     return 0;
 }
+#endif  // DEBUG

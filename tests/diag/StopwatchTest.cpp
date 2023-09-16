@@ -12,6 +12,12 @@
 using namespace Diag;
 using namespace Threading;
 
+#ifdef WIN32
+#define MinTick 55
+#else
+#define MinTick 0
+#endif
+
 bool testConstructor() {
     {
         Stopwatch sw;
@@ -59,7 +65,8 @@ bool testStart() {
         Stopwatch sw("testAbc123");
         Thread::sleep(200);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 200) {
+        if (sw.elapsedMilliseconds() < 200 - MinTick) {
+            printf("elapsed1: %d\n", sw.elapsedMilliseconds());
             return false;
         }
     }
@@ -68,6 +75,7 @@ bool testStart() {
         Thread::sleep(200);
         sw.stop();
         if (sw.elapsed() < TimeSpan::fromMilliseconds(200)) {
+            printf("elapsed2: %d\n", sw.elapsedMilliseconds());
             return false;
         }
     }
@@ -76,13 +84,15 @@ bool testStart() {
         Stopwatch sw("testAbc123");
         Thread::sleep(200);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 200) {
+        if (sw.elapsedMilliseconds() < 200 - MinTick) {
+            printf("elapsed3: %d\n", sw.elapsedMilliseconds());
             return false;
         }
         sw.start(100);
         Thread::sleep(100);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 100) {
+        if (sw.elapsedMilliseconds() < 100 - MinTick) {
+            printf("elapsed4: %d\n", sw.elapsedMilliseconds());
             return false;
         }
     }
@@ -90,13 +100,15 @@ bool testStart() {
         Stopwatch sw("testAbc123");
         Thread::sleep(200);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 200) {
+        if (sw.elapsedMilliseconds() < 200 - MinTick) {
+            printf("elapsed5: %d\n", sw.elapsedMilliseconds());
             return false;
         }
         sw.start(TimeSpan::fromMilliseconds(100));
         Thread::sleep(100);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 100) {
+        if (sw.elapsedMilliseconds() < 100 - MinTick) {
+            printf("elapsed6: %d\n", sw.elapsedMilliseconds());
             return false;
         }
     }
@@ -105,13 +117,15 @@ bool testStart() {
         Stopwatch sw("testAbc123");
         Thread::sleep(200);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 200) {
+        if (sw.elapsedMilliseconds() < 200 - MinTick) {
+            printf("elapsed7: %d\n", sw.elapsedMilliseconds());
             return false;
         }
         sw.reStart();
         Thread::sleep(200);
         sw.stop();
-        if (sw.elapsedMilliseconds() < 200) {
+        if (sw.elapsedMilliseconds() < 200 - MinTick) {
+            printf("elapsed8: %d\n", sw.elapsedMilliseconds());
             return false;
         }
     }

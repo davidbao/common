@@ -21,8 +21,10 @@ set(DIAG_SRC
 
 if (NOT WEB_OS)
     SET(DIAG_SRC "${DIAG_SRC}" ProcessTest.cpp)
-    SET(DIAG_SRC "${DIAG_SRC}" StopMemoryTest.cpp)
     SET(DIAG_SRC "${DIAG_SRC}" StopwatchTest.cpp)
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        SET(DIAG_SRC "${DIAG_SRC}" StopMemoryTest.cpp)
+    endif ()
 endif()
 
 foreach (item ${DIAG_SRC})

@@ -11,7 +11,9 @@
 
 #include "http/HttpClient.h"
 #include "data/Dictionary.h"
+#ifdef HAS_MQTTCLIENT
 #include "net/MqttClient.hpp"
+#endif
 #include "system/ServiceFactory.h"
 
 using namespace Data;
@@ -62,6 +64,7 @@ namespace Microservice {
         HttpClient _webClient;
     };
 
+#ifdef HAS_MQTTCLIENT
     class MqttNotification : public BaseNotification {
     public:
         explicit MqttNotification(const MqttClient::ConnectOptions &options);
@@ -82,7 +85,9 @@ namespace Microservice {
         MqttClient::ConnectOptions _connectOptions;
         MqttClient *_service;
     };
+#endif
 
+#ifdef HAS_REDISCLIENT
     class RedisNotification : public BaseNotification {
     public:
         RedisNotification();
@@ -93,6 +98,7 @@ namespace Microservice {
 
     private:
     };
+#endif
 
     typedef PList<BaseNotification> Notifications;
 

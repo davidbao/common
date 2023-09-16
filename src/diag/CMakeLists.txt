@@ -17,10 +17,13 @@ set(DIAG_SRC
         MemoryTraceListener.cpp
         Process.cpp
         ProcessMutex.cpp
-        StopMemory.cpp
         Stopwatch.cpp
         Trace.cpp
         TraceListener.cpp
         )
+
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    SET(DIAG_SRC "${DIAG_SRC}" StopMemory.cpp)
+endif ()
 
 add_library(diag OBJECT ${DIAG_SRC})
