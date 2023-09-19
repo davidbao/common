@@ -95,7 +95,7 @@ namespace Database {
                                         host.c_str(), port.c_str(), dbname.c_str(), user.c_str()));
             return true;
         } else {
-            Trace::debug(String::format(
+            Trace::error(String::format(
                     "Failed to open kingbase. host: %s, port: %s, dbname: %s, user name: %s, reason: '%s'",
                     host.c_str(), port.c_str(), dbname.c_str(), user.c_str(), getErrorMsg().c_str()));
 

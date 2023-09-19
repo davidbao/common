@@ -9,8 +9,8 @@
 #include "database/Dm7Client.h"
 #include "diag/Trace.h"
 #include "IO/Path.h"
-#include "IO/Directory.h"
 #include "system/Application.h"
+#include "system/Environment.h"
 
 using namespace Diag;
 using namespace Database;
@@ -54,6 +54,56 @@ void cleanUp() {
     }
 }
 
+bool testOpen() {
+    {
+        StringMap connections;
+        connections.add("host", _host.c_str());
+        connections.add("port", _port.c_str());
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        Dm7Client test;
+        if (!test.open(connections)) {
+            return false;
+        }
+    }
+    {
+        StringMap connections;
+        connections.add("host", _host.c_str());
+        connections.add("port", _port.c_str());
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "5");
+        Dm7Client test;
+        if (!test.open(connections)) {
+            return false;
+        }
+    }
+
+    {
+        uint64_t start = Environment::getTickCount();
+        StringMap connections;
+        connections.add("host", "192.168.100.244");
+        connections.add("port", 100);
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "2");
+        Dm7Client test;
+        if (test.open(connections)) {
+            return false;
+        }
+        uint64_t end = Environment::getTickCount();
+        uint64_t elapsed = end - start;
+        if (!(elapsed >= 2000 && elapsed <= 3000)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool testCreateSchema() {
     {
         Dm7Client test;
@@ -88,7 +138,17 @@ bool testCreateTable() {
             return false;
         }
 
+        if (!test.executeSql("drop table t_student;\n"
+                             "create table t_student(\n"
+                             "id int primary key not null,\n"
+                             "name text not null,\n"
+                             "score real\n"
+                             ");")) {
+            return false;
+        }
+
         test.executeSql("drop table t_student;");
+
     }
 
     return true;
@@ -271,6 +331,7 @@ bool testTransaction() {
         if (!test.open(_url, _username, _password)) {
             return false;
         }
+        test.executeSql("drop table t_student;");
         test.beginTransaction();
         if (!test.executeSql("create table t_student(\n"
                              "id int primary key not null,\n"
@@ -315,48 +376,48 @@ bool testTransaction() {
         test.executeSql("drop table t_student;");
     }
 
-//    {
-//        Dm7Client test;
-//        if (!test.open(_url, _username, _password)) {
-//            return false;
-//        }
-//        test.beginTransaction();
-//        if (!test.executeSql("create table t_student(\n"
-//                             "id int primary key not null,\n"
-//                             "name text not null,\n"
-//                             "score real\n"
-//                             ");", false)) {
-//            return false;
-//        }
-//        test.commitTransaction();
-//
-//        test.beginTransaction();
-//        DataTable table("t_student");
-//        table.addColumns({
-//                                 DataColumn("id", DbType::Integer32, true),
-//                                 DataColumn("name", DbType::Text, false),
-//                                 DataColumn("score", DbType::Float64, false),
-//                         });
-//        table.addRows({
-//                              DataRow({
-//                                              DataCell(table.columns()[0], 1),
-//                                              DataCell(table.columns()[1], "Xu"),
-//                                              DataCell(table.columns()[2], 86),
-//                                      })
-//                      });
-//        if (!test.executeSqlInsert(table, false)) {
-//            return false;
-//        }
-//        test.rollbackTransaction();
-//
-//        DataTable table2;
-//        if (!test.executeSqlQuery("select * from t_student;", table2)) {
-//            return false;
-//        }
-//        if (table2.rowCount() != 0) {
-//            return false;
-//        }
-//    }
+    {
+        Dm7Client test;
+        if (!test.open(_url, _username, _password)) {
+            return false;
+        }
+        test.beginTransaction();
+        if (!test.executeSql("create table t_student(\n"
+                             "id int primary key not null,\n"
+                             "name text not null,\n"
+                             "score real\n"
+                             ");", false)) {
+            return false;
+        }
+        test.commitTransaction();
+
+        test.beginTransaction();
+        DataTable table("t_student");
+        table.addColumns({
+                                 DataColumn("id", DbType::Integer32, true),
+                                 DataColumn("name", DbType::Text, false),
+                                 DataColumn("score", DbType::Float64, false),
+                         });
+        table.addRows({
+                              DataRow({
+                                              DataCell(table.columns()[0], 1),
+                                              DataCell(table.columns()[1], "Xu"),
+                                              DataCell(table.columns()[2], 86),
+                                      })
+                      });
+        if (!test.executeSqlInsert(table, false)) {
+            return false;
+        }
+        test.rollbackTransaction();
+
+        DataTable table2;
+        if (!test.executeSqlQuery("select * from t_student;", table2)) {
+            return false;
+        }
+        if (table2.rowCount() != 0) {
+            return false;
+        }
+    }
 
     return true;
 }
@@ -378,6 +439,34 @@ bool testGetColumnNames() {
             return false;
         }
         if (!(names[0].toUpper() == "ID" && names[1].toUpper() == "NAME" && names[2].toUpper() == "SCORE")) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool testIsConnected() {
+    {
+        Dm7Client test;
+        if (!test.open(_url, _username, _password)) {
+            return false;
+        }
+        if (!test.isConnected()) {
+            return false;
+        }
+    }
+    {
+        StringMap connections;
+        connections.add("host", "192.168.100.244");
+        connections.add("port", 100);
+        connections.add("dbname", _database.c_str());
+        connections.add("user", _username.c_str());
+        connections.add("password", _password.c_str());
+        connections.add("timeout", "1");
+        Dm7Client test;
+        test.open(connections);
+        if (test.isConnected()) {
             return false;
         }
     }
@@ -459,29 +548,35 @@ int main(int argc, const char *argv[]) {
     setUp();
 
     int result = 0;
-    if (!testCreateSchema()) {
+    if (!testOpen()) {
         result = 1;
     }
-    if (!testCreateTable()) {
+    if (!testCreateSchema()) {
         result = 2;
     }
-    if (!testInsertRecord()) {
+    if (!testCreateTable()) {
         result = 3;
     }
-    if (!testInsertRecordByTable()) {
+    if (!testInsertRecord()) {
         result = 4;
     }
-    if (!testReplaceRecordByTable()) {
+    if (!testInsertRecordByTable()) {
         result = 5;
     }
-    if (!testRetrieveCount()) {
+    if (!testReplaceRecordByTable()) {
         result = 6;
     }
-    if (!testTransaction()) {
+    if (!testRetrieveCount()) {
         result = 7;
     }
-    if(!testGetColumnNames()) {
+    if (!testTransaction()) {
         result = 8;
+    }
+    if(!testGetColumnNames()) {
+        result = 9;
+    }
+    if (!testIsConnected()) {
+        result = 10;
     }
 
     cleanUp();

@@ -100,7 +100,7 @@ namespace Database {
         } else {
             printErrorInfo("mysql_real_connect");
 
-            Trace::debug(String::format(
+            Trace::error(String::format(
                     "Failed to open mysql. host: %s, port: %d, dbname: %s, user name: %s, reason: '%s'",
                     host.c_str(), (int) port, dbname.c_str(), user.c_str(),
                     getErrorMsg().c_str()));

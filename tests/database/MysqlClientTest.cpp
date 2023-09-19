@@ -550,7 +550,7 @@ int main(int argc, const char *argv[]) {
         result = 9;
     }
     if (!testIsConnected()) {
-        result = 9;
+        result = 10;
     }
 
     cleanUp();

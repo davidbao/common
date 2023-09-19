@@ -55,7 +55,7 @@ namespace Database {
         }
 
         if (error) {
-            Trace::debug(String::format("Failed to open sqlite. file: %s, reason: '%s'",
+            Trace::error(String::format("Failed to open sqlite. file: %s, reason: '%s'",
                                         fileName.c_str(), errorStr.c_str()));
         } else {
             Trace::debug(String::format("Open sqlite successfully. file: %s", fileName.c_str()));

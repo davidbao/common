@@ -36,7 +36,7 @@ String getFirstFaceName() {
     String iface;
     StringArray ifaces;
     NetInterface::getInterfaceNames(ifaces);
-    for (int i = 0; i < ifaces.count(); ++i) {
+    for (size_t i = 0; i < ifaces.count(); ++i) {
         if (ifaces[i].find("e") >= 0) {
             iface = ifaces[i];
             break;

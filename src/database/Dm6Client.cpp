@@ -22,6 +22,12 @@
 #include "IO/Path.h"
 #include "dm6/api.h"
 
+#ifdef WIN32
+#pragma warning(disable: 4312)
+#else
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif
+
 using namespace System;
 
 namespace Database {
@@ -98,6 +104,15 @@ namespace Database {
             String user = connections["user"];
             int p = 0;
             Int32::parse(port, p);
+
+            // Not supported.
+//            int timeout; // seconds.
+//            if (Int32::parse(connections["timeout"], timeout)) {
+//                timeout *= 1000;
+//                dm_set_con_attr(_dm6Db->hdbc, DM_ATTR_LOGIN_TIMEOUT,
+//                                 (void*) timeout, sizeof(timeout));
+//            }
+
             dm_bool result = dm_login_port(_dm6Db->hdbc,
                                            (dm_char *) host.c_str(),
                                            (dm_char *) user.c_str(),
@@ -114,7 +129,7 @@ namespace Database {
                 return true;
             } else {
                 long errorCode = dm_con_get_errorcode(_dm6Db->hdbc);
-                Trace::debug(String::format(
+                Trace::error(String::format(
                         "Failed to open dm6. host: %s, port: %s, dbname: %s, user name: %s, error code: %d",
                         host.c_str(), port.c_str(), dbname.c_str(), user.c_str(), errorCode));
                 _dm6Db->close();
@@ -524,16 +539,23 @@ namespace Database {
     }
 
     int Dm6Client::beginTransactionInner() {
-        return 1;
-//        return executeSqlInner("BEGIN TRANSACTION");
+        int value = DM_AUTOCOMMIT_OFF;
+        dm_bool result = dm_set_con_attr(_dm6Db->hdbc, DM_ATTR_AUTOCOMMIT, (void *)value, sizeof(value));
+        return result;
     }
 
     int Dm6Client::commitTransactionInner() {
-        return dm_commit(_dm6Db->hdbc);
+        dm_bool result = dm_commit(_dm6Db->hdbc);
+        int value = DM_AUTOCOMMIT_ON;
+        dm_set_con_attr(_dm6Db->hdbc, DM_ATTR_AUTOCOMMIT, (void *)value, sizeof(value));
+        return result;
     }
 
     int Dm6Client::rollbackTransactionInner() {
-        return dm_rollback(_dm6Db->hdbc);
+        dm_bool result = dm_rollback(_dm6Db->hdbc);
+        int value = DM_AUTOCOMMIT_ON;
+        dm_set_con_attr(_dm6Db->hdbc, DM_ATTR_AUTOCOMMIT, (void *)value, sizeof(value));
+        return result;
     }
 
     StringArray Dm6Client::getColumnName(const String &tableName) {

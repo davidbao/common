@@ -24,6 +24,12 @@
 #include "dm7/DPIext.h"
 #include "dm7/DPItypes.h"
 
+#ifdef WIN32
+#pragma warning(disable: 4312)
+#else
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif
+
 using namespace System;
 
 namespace Database {
@@ -98,6 +104,44 @@ namespace Database {
             String dbname = connections["dbname"];
             String user = connections["user"];
             String password = connections["password"];
+            String localCode = connections["local_code"];
+
+            udint4 timeout; // seconds.
+            if (UInt32::parse(connections["timeout"], timeout)) {
+                timeout *= 1000;
+                dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_LOGIN_TIMEOUT,
+                                 (dpointer) timeout, sizeof(timeout));
+            }
+            if (!localCode.isNullOrEmpty()) {
+                udint4 code = PG_GBK;
+                if (String::equals(localCode, "utf8", true) ||
+                    String::equals(localCode, "utf-8", true)) {
+                    code = PG_UTF8;
+                } else if (String::equals(localCode, "gbk", true)) {
+                    code = PG_GBK;
+                } else if (String::equals(localCode, "big5", true)) {
+                    code = PG_BIG5;
+                } else if (String::equals(localCode, "gb18030", true)) {
+                    code = PG_GB18030;
+                } else if (String::equals(localCode, "ISO_8859_9", true)) {
+                    code = PG_ISO_8859_9;
+                } else if (String::equals(localCode, "EUC_JP", true)) {
+                    code = PG_EUC_JP;
+                } else if (String::equals(localCode, "EUC_KR", true)) {
+                    code = PG_EUC_KR;
+                } else if (String::equals(localCode, "KOI8R", true)) {
+                    code = PG_KOI8R;
+                } else if (String::equals(localCode, "ISO_8859_1", true)) {
+                    code = PG_ISO_8859_1;
+                } else if (String::equals(localCode, "SQL_ASCII", true)) {
+                    code = PG_SQL_ASCII;
+                } else if (String::equals(localCode, "ISO_8859_11", true)) {
+                    code = PG_ISO_8859_11;
+                }
+                dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_LOCAL_CODE,
+                                 (dpointer) code, sizeof(code));
+            }
+
             String svr = host + ":" + port;
             DPIRETURN result;
             result = dpi_login(_dm7Db->hdbc,
@@ -112,7 +156,7 @@ namespace Database {
                 unsigned int errorCode;
                 String errorMessage;
                 getErrorInfo(DSQL_HANDLE_DBC, _dm7Db->hdbc, errorCode, errorMessage);
-                Trace::debug(String::format(
+                Trace::error(String::format(
                         "Failed to open dm7. host: %s, port: %s, dbname: %s,"
                         " user name: %s, error code: %d, error message: %s",
                         host.c_str(), port.c_str(), dbname.c_str(), user.c_str(), errorCode, errorMessage.c_str()));
@@ -131,11 +175,11 @@ namespace Database {
 
     bool Dm7Client::isConnectedInner() {
         if (_dm7Db->isOpened()) {
-            unsigned int errorCode;
-            String errorMessage;
-            getErrorInfo(DSQL_HANDLE_DBC, _dm7Db->hdbc, errorCode, errorMessage);
-            if (errorCode == 0) {
-                return true;
+            sdint4 connection = 0, len = 0;
+            DPIRETURN result = dpi_get_con_attr(_dm7Db->hdbc, DSQL_ATTR_CONNECTION_DEAD,
+                             &connection, sizeof(connection), &len);
+            if (isSucceed(result)) {
+                return connection == 0;
             }
         }
         return false;
@@ -308,11 +352,31 @@ namespace Database {
         Stopwatch sw(info, 500);
 #endif
 
-        HsmtInner hsmt;
-        int result = executeInner(sql, hsmt);
-        if (isSucceed(result)) {
-            dpi_free_stmt(hsmt.hsmt);
+        DPIRETURN result;
+        dhstmt hsmt;
+        result = dpi_alloc_stmt(_dm7Db->hdbc, &hsmt);
+        StringArray sqls;
+        StringArray::parse(sql, sqls, ';');
+        for (size_t i = 0; i < sqls.count(); ++i) {
+            String str = sqls[i].trim('\r', '\n');
+            if (!str.isNullOrEmpty()) {
+                result = dpi_exec_direct(hsmt, (sdbyte *) sqls[i].c_str());
+                if (!isSucceed(result)) {
+                    unsigned int errorCode;
+                    String errorMessage;
+                    getErrorInfo(DSQL_HANDLE_STMT, hsmt, errorCode, errorMessage);
+#ifdef WIN32
+                    String error = String::GBKtoUTF8(errorMessage);
+#else
+                    String error = errorMessage;
+#endif
+                    Trace::error(String::format("dm7_execute'%s' error code: %d, error: %s",
+                                                sql.c_str(), errorCode, error.c_str()));
+                    break;
+                }
+            }
         }
+        dpi_free_stmt(hsmt);
         return result;
     }
 
@@ -486,7 +550,7 @@ namespace Database {
             int i = 0;
             ulength row_num;
             char value[65535] = {0};
-            while(dpi_fetch_scroll(hsmt, DSQL_FETCH_NEXT, 0, &row_num) != DSQL_NO_DATA) {
+            while (dpi_fetch_scroll(hsmt, DSQL_FETCH_NEXT, 0, &row_num) != DSQL_NO_DATA) {
                 DataRow row;
                 for (int j = 0; j < columnCount; j++) {
                     const DataColumn &column = table.columns().at(j);
@@ -504,44 +568,27 @@ namespace Database {
 
                 i++;
             }
-
-//            char value[65535];
-//            sdint8 row_count = 0;
-//            dpi_row_count(hsmt, &row_count);
-//            for (sdint8 i = 0; i < row_count; i++) {
-//                DataRow row;
-//                for (int j = 0; j < columnCount; j++) {
-//                    const DataColumn &column = table.columns().at(j);
-//                    DbType type = column.type();
-//                    DPIRETURN result = dpi_get_data(hsmt, j + 1, dataTypes[j], value, sizeof(value), nullptr);
-//                    if (i > 0) {
-//                        if (result != 0) {
-//                            row.addCell(DataCell(column, DbValue(type, value)));
-//                        } else {
-//                            row.addCell(DataCell(column));
-//                        }
-//                    }
-//                }
-//                if (row.cellCount() > 0) {
-//                    table.addRow(row);
-//                }
-//                ulength row_num;
-//                dpi_fetch_scroll(hsmt, DSQL_FETCH_NEXT, 0, &row_num);
-//            }
         }
     }
 
     int Dm7Client::beginTransactionInner() {
-        return 1;
-//        return executeSqlInner("BEGIN TRANSACTION");
+        udint4 value = DSQL_AUTOCOMMIT_OFF;
+        DPIRETURN result = dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_AUTOCOMMIT, (dpointer) value, sizeof(value));
+        return result;
     }
 
     int Dm7Client::commitTransactionInner() {
-        return dpi_commit(_dm7Db->hdbc);
+        DPIRETURN result = dpi_commit(_dm7Db->hdbc);
+        udint4 value = DSQL_AUTOCOMMIT_ON;
+        dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_AUTOCOMMIT, (dpointer) value, sizeof(value));
+        return result;
     }
 
     int Dm7Client::rollbackTransactionInner() {
-        return dpi_rollback(_dm7Db->hdbc);
+        DPIRETURN result = dpi_rollback(_dm7Db->hdbc);
+        udint4 value = DSQL_AUTOCOMMIT_ON;
+        dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_AUTOCOMMIT, (dpointer) value, sizeof(value));
+        return result;
     }
 
     StringArray Dm7Client::getColumnName(const String &tableName) {
@@ -575,7 +622,7 @@ namespace Database {
         else if (type == DSQL_INT)           /* INTEGER 4 bytes */
             return DbType::Integer32;
         else if (type == DSQL_BIGINT)           /* INTEGER 8 bytes */
-            return DbType::Integer8;
+            return DbType::Integer64;
         else if (type == DSQL_DEC)           /* DECIMAL */
             return DbType::Decimal;
         else if (type == DSQL_FLOAT)          /* FLOAT, SINGLE */
