@@ -25,6 +25,9 @@
 #ifdef HAS_DB_DM6
 #include "database/Dm6Client.h"
 #endif
+#ifdef HAS_DB_DM7
+#include "database/Dm7Client.h"
+#endif
 
 #ifdef DEBUG
 #include "system/Application.h"
@@ -147,6 +150,10 @@ namespace Database {
         } else if (scheme == "dm6") {
 #ifdef HAS_DB_DM6
             client = new Dm6Client();
+#endif
+        } else if (scheme == "dm7") {
+#ifdef HAS_DB_DM7
+            client = new Dm7Client();
 #endif
         }
         return client;
