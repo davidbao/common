@@ -13,6 +13,9 @@
 #include "thread/TickTimeout.h"
 #include "net/TcpServer.h"
 #include "system/Regex.h"
+#include "IO/Path.h"
+#include "IO/File.h"
+#include "data/Dictionary.h"
 
 #ifdef WIN32
 #define TAILQ_EMPTY(head)       ((head)->tqh_first == NULL)
@@ -44,31 +47,65 @@ namespace Http {
         this->action = action;
     }
 
-    HttpServer::Actions::Actions(const Actions &actions) {
-        this->operator=(actions);
+    HttpServer::Actions::Actions(const Actions &other) : Actions() {
+        Actions::evaluates(other);
     }
+
+    HttpServer::Actions::~Actions() = default;
 
     bool HttpServer::Actions::isEmpty() const {
         return this->processAction == nullptr;
     }
 
-    HttpServer::Actions &HttpServer::Actions::operator=(const Actions &value) {
-        if (this != &value) {
-            this->owner = value.owner;
-            this->processAction = value.processAction;
-            this->action = value.action;
+    HttpServer::Actions &HttpServer::Actions::operator=(const Actions &other) {
+        if (this != &other) {
+            Actions::evaluates(other);
         }
         return *this;
     }
 
-    bool HttpServer::Actions::operator==(const Actions &value) const {
-        return this->owner == value.owner &&
-               this->processAction == value.processAction &&
-               this->action == value.action;
+    void HttpServer::Actions::evaluates(const Actions &other) {
+        this->owner = other.owner;
+        this->processAction = other.processAction;
+        this->action = other.action;
     }
 
-    bool HttpServer::Actions::operator!=(const Actions &value) const {
-        return !operator==(value);
+    bool HttpServer::Actions::equals(const Actions &other) const {
+        return this->owner == other.owner &&
+               this->processAction == other.processAction &&
+               this->action == other.action;
+    }
+
+    const HttpServer::Secure HttpServer::Secure::None(false);
+
+    HttpServer::Secure::Secure(bool enabled) : enabled(enabled) {
+    }
+
+    HttpServer::Secure::Secure(const Secure &other) : Secure() {
+        Secure::evaluates(other);
+    }
+
+    HttpServer::Secure::~Secure() = default;
+
+    HttpServer::Secure &HttpServer::Secure::operator=(const Secure &other) {
+        if (this != &other) {
+            Secure::evaluates(other);
+        }
+        return *this;
+    }
+
+    void HttpServer::Secure::evaluates(const Secure &other) {
+        this->certFile = other.certFile;
+        this->keyFile = other.keyFile;
+        this->cacertFile = other.cacertFile;
+        this->enabled = other.enabled;
+    }
+
+    bool HttpServer::Secure::equals(const Secure &other) const {
+        return this->certFile == other.certFile &&
+               this->keyFile == other.keyFile &&
+               this->cacertFile == other.cacertFile &&
+               this->enabled == other.enabled;
     }
 
     HttpServer::Context::Context(const Endpoint &endpoint, const Secure &secure, const TimeSpan &timeout) {
@@ -155,7 +192,7 @@ namespace Http {
 
     bool HttpServer::isAlive() const {
         return (_httpThread != nullptr && _httpThread->isAlive() && !_httpContext.loopExit) ||
-                (_httpsThread != nullptr && _httpsThread->isAlive() && !_httpsContext.loopExit);
+               (_httpsThread != nullptr && _httpsThread->isAlive() && !_httpsContext.loopExit);
     }
 
     void HttpServer::httpServerStart(void *parameter) {

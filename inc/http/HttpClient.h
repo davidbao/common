@@ -36,27 +36,33 @@ namespace Http {
 
         ~HttpClient() override;
 
-        bool get(const Url &url, const HttpHeaders &headers, String &response);
+        bool get(const Url &url, const HttpHeaders &headers, String &response) const;
 
-        bool get(const Url &url, const HttpHeaders &headers, ByteArray &response);
+        bool get(const Url &url, const HttpHeaders &headers, ByteArray &response) const;
 
-        bool get(const Url &url, const HttpHeaders &headers, JsonNode &response);
+        bool get(const Url &url, const HttpHeaders &headers, JsonNode &response) const;
 
         void getAsync(const Url &url, const HttpHeaders &headers, HttpSendCallback callback = nullptr);
 
-        bool post(const Url &url, const HttpHeaders &headers, const String &request, String &response);
+        bool post(const Url &url, const HttpHeaders &headers, const String &request, String &response) const;
 
-        bool post(const Url &url, const HttpHeaders &headers, const String &request = String::Empty);
+        bool post(const Url &url, const HttpHeaders &headers, const String &request = String::Empty) const;
 
         void postAsync(const Url &url, const HttpHeaders &headers, const String &request,
                        HttpSendCallback callback = nullptr);
 
-        bool put(const Url &url, const HttpHeaders &headers, const String &request, String &response);
+        bool put(const Url &url, const HttpHeaders &headers, const String &request, String &response) const;
 
-        bool put(const Url &url, const HttpHeaders &headers, const String &request = String::Empty);
+        bool put(const Url &url, const HttpHeaders &headers, const String &request = String::Empty) const;
 
         void putAsync(const Url &url, const HttpHeaders &headers, const String &request,
                       HttpSendCallback callback = nullptr);
+
+        bool del(const Url &url, const HttpHeaders &headers, String &response) const;
+
+        bool del(const Url &url, const HttpHeaders &headers) const;
+
+        void delAsync(const Url &url, const HttpHeaders &headers, HttpSendCallback callback = nullptr);
 
         //
         // Summary:
@@ -72,7 +78,7 @@ namespace Http {
         //
         // Returns:
         //    Return false if downloading failed.
-        bool download(const Url &url, const HttpHeaders &headers, const String &fileName);
+        bool download(const Url &url, const HttpHeaders &headers, const String &fileName) const;
 
         //
         // Summary:
@@ -90,9 +96,9 @@ namespace Http {
         //
         // Returns:
         //    Return false if uploading failed.
-        bool upload(const Url &url, const HttpHeaders &headers, const String &fileName, String &response);
+        bool upload(const Url &url, const HttpHeaders &headers, const String &fileName, String &response) const;
 
-        bool send(const HttpRequest &request, HttpResponse &response);
+        bool send(const HttpRequest &request, HttpResponse &response) const;
 
         void sendAsync(const HttpRequest &request, HttpSendCallback callback = nullptr);
 

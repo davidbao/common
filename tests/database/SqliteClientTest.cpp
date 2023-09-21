@@ -28,6 +28,32 @@ void cleanUp() {
     }
 }
 
+bool testOpen() {
+    {
+        SqliteClient test;
+        if (!test.open(_fileName)) {
+            return false;
+        }
+        if (!File::exists(_fileName)) {
+            return false;
+        }
+        File::deleteFile(_fileName);
+    }
+    {
+        SqliteClient test;
+        StringMap value{{"file", _fileName}};
+        if (!test.open(value)) {
+            return false;
+        }
+        if (!File::exists(_fileName)) {
+            return false;
+        }
+        File::deleteFile(_fileName);
+    }
+
+    return true;
+}
+
 bool testCreateDatabase() {
     {
         SqliteClient test;
@@ -381,29 +407,32 @@ int main() {
     setUp();
 
     int result = 0;
-    if (!testCreateDatabase()) {
+    if (!testOpen()) {
         result = 1;
     }
-    if (!testCreateTable()) {
+    if (!testCreateDatabase()) {
         result = 2;
     }
-    if (!testInsertRecord()) {
+    if (!testCreateTable()) {
         result = 3;
     }
-    if (!testInsertRecordByTable()) {
+    if (!testInsertRecord()) {
         result = 4;
     }
-    if (!testReplaceRecordByTable()) {
+    if (!testInsertRecordByTable()) {
         result = 5;
     }
-    if (!testRetrieveCount()) {
+    if (!testReplaceRecordByTable()) {
         result = 6;
     }
-    if (!testTransaction()) {
+    if (!testRetrieveCount()) {
         result = 7;
     }
-    if(!testGetColumnNames()) {
+    if (!testTransaction()) {
         result = 8;
+    }
+    if(!testGetColumnNames()) {
+        result = 9;
     }
 
     cleanUp();

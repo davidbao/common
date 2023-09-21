@@ -12,6 +12,8 @@
 #include "data/String.h"
 #include "database/SqlSelectFilter.h"
 #include "system/ServiceFactory.h"
+#include "database/DataTable.h"
+#include "thread/Timer.h"
 #include "http/HttpServer.h"
 
 using namespace Data;

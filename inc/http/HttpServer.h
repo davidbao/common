@@ -9,10 +9,9 @@
 #ifndef HttpServer_h
 #define HttpServer_h
 
-#include "data/Dictionary.h"
-#include "thread/Timer.h"
-#include "communication/BaseCommConfig.h"
 #include "http/HttpContent.h"
+#include "thread/Thread.h"
+
 #include <evhttp.h>
 #include <event.h>
 #include <event2/bufferevent.h>
@@ -31,7 +30,7 @@
 #include <linux/in6.h>
 #endif
 
-using namespace Communication;
+using namespace Threading;
 
 namespace Http {
     class HttpServer {
@@ -42,7 +41,7 @@ namespace Http {
 
         typedef HttpStatus (*action_process_action)(void *, const HttpRequest &, HttpResponse &);
 
-        struct Actions {
+        struct Actions : IEvaluation<Actions>, IEquatable<Actions> {
         public:
             void *owner;
             action_process_action processAction;
@@ -53,15 +52,40 @@ namespace Http {
 
             Actions(void *owner, action_send_document_cb action);
 
-            Actions(const Actions &actions);
+            Actions(const Actions &other);
+
+            ~Actions() override;
 
             bool isEmpty() const;
 
-            Actions &operator=(const Actions &value);
+            Actions &operator=(const Actions &other);
 
-            bool operator==(const Actions &value) const;
+            void evaluates(const Actions &other) override;
 
-            bool operator!=(const Actions &value) const;
+            bool equals(const Actions &other) const override;
+        };
+
+        class Secure : IEvaluation<Secure>, IEquatable<Secure> {
+        public:
+            String certFile;
+            String keyFile;
+            String cacertFile;
+            bool enabled;
+
+            explicit Secure(bool enabled = false);
+
+            Secure(const Secure &other);
+
+            ~Secure() override;
+
+            Secure &operator=(const Secure &other);
+
+            void evaluates(const Secure &other) override;
+
+            bool equals(const Secure &other) const override;
+
+        public:
+            static const Secure None;
         };
 
         class Context {

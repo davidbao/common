@@ -7,6 +7,8 @@
 //
 
 #include "microservice/Actuator.h"
+#include "IO/Path.h"
+#include "IO/File.h"
 #include "IO/Metrics.h"
 #include "IO/Directory.h"
 #include "diag/Process.h"
@@ -16,6 +18,8 @@
 #include "configuration/ConfigService.h"
 #include "system/Application.h"
 #include "microservice/ServiceRegister.h"
+
+using namespace Config;
 
 namespace Microservice {
     IActuator::IActuator() = default;
@@ -914,6 +918,12 @@ namespace Microservice {
         auto cs = factory->getService<IConfigService>();
         assert(cs);
 
+        bool enable = false;
+        if (!(cs->getProperty("summer.actuator.enable", enable) && enable)) {
+            // Disable actuator.
+            return false;
+        }
+
         Port actuatorPort;
         if (cs->getProperty("management.server.port", actuatorPort)) {
             // start actuator http server.
@@ -929,8 +939,8 @@ namespace Microservice {
 
             return true;
         } else {
-            bool enable = true;
-            if (cs->getProperty("server.enabled", enable) && !enable) {
+            bool sEnable = true;
+            if (cs->getProperty("server.enabled", enable) && !sEnable) {
                 return false;
             }
             String scheme;

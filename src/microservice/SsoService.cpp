@@ -11,6 +11,7 @@
 #include "configuration/ConfigService.h"
 
 using namespace Crypto;
+using namespace Config;
 
 namespace Microservice {
     const char *SsoService::AccessTokenId = "accessToken";

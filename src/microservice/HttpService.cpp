@@ -8,10 +8,13 @@
 
 #include "microservice/HttpService.h"
 #include "configuration/ConfigService.h"
+#include "IO/Path.h"
+#include "IO/File.h"
 #include "IO/Directory.h"
 #include "diag/Trace.h"
 
 using namespace Diag;
+using namespace Config;
 
 namespace Microservice {
     IHttpAction::IHttpAction() = default;

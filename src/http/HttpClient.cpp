@@ -47,9 +47,9 @@ namespace Http {
         curl_global_cleanup();
     }
 
-    bool HttpClient::get(const Url &url, const HttpHeaders &headers, String &response) {
+    bool HttpClient::get(const Url &url, const HttpHeaders &headers, String &response) const {
         HttpRequest httpRequest(url, HttpMethod::Get, headers);
-        HttpStringContent *content = new HttpStringContent();
+        auto content = new HttpStringContent();
         HttpResponse httpResponse(content);
         bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
         if (result) {
@@ -58,9 +58,9 @@ namespace Http {
         return result;
     }
 
-    bool HttpClient::get(const Url &url, const HttpHeaders &headers, ByteArray &response) {
+    bool HttpClient::get(const Url &url, const HttpHeaders &headers, ByteArray &response) const {
         HttpRequest httpRequest(url, HttpMethod::Get, headers);
-        HttpByteArrayContent *content = new HttpByteArrayContent();
+        auto content = new HttpByteArrayContent();
         HttpResponse httpResponse(content);
         bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
         if (result) {
@@ -69,7 +69,7 @@ namespace Http {
         return result;
     }
 
-    bool HttpClient::get(const Url &url, const HttpHeaders &headers, JsonNode &response) {
+    bool HttpClient::get(const Url &url, const HttpHeaders &headers, JsonNode &response) const {
         String str;
         return get(url, headers, str) && JsonNode::parse(str, response);
     }
@@ -79,9 +79,9 @@ namespace Http {
         sendAsync(request, callback);
     }
 
-    bool HttpClient::post(const Url &url, const HttpHeaders &headers, const String &request, String &response) {
+    bool HttpClient::post(const Url &url, const HttpHeaders &headers, const String &request, String &response) const {
         HttpRequest httpRequest(url, HttpMethod::Post, headers, new HttpStringContent(request));
-        HttpStringContent *content = new HttpStringContent();
+        auto content = new HttpStringContent();
         HttpResponse httpResponse(content);
         bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
         if (result) {
@@ -90,23 +90,23 @@ namespace Http {
         return result;
     }
 
-    bool HttpClient::post(const Url &url, const HttpHeaders &headers, const String &request) {
+    bool HttpClient::post(const Url &url, const HttpHeaders &headers, const String &request) const {
         String response;
         return post(url, headers, request, response);
     }
 
     void HttpClient::postAsync(const Url &url, const HttpHeaders &headers, const String &request,
                                HttpSendCallback callback) {
-        if(!isStarted()) {
+        if (!isStarted()) {
             start();
         }
         HttpRequest httpRequest(url, HttpMethod::Post, headers, new HttpStringContent(request));
         sendAsync(httpRequest, callback);
     }
 
-    bool HttpClient::put(const Url &url, const HttpHeaders &headers, const String &request, String &response) {
+    bool HttpClient::put(const Url &url, const HttpHeaders &headers, const String &request, String &response) const {
         HttpRequest httpRequest(url, HttpMethod::Put, headers, new HttpStringContent(request));
-        HttpStringContent *content = new HttpStringContent();
+        auto content = new HttpStringContent();
         HttpResponse httpResponse(content);
         bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
         if (result) {
@@ -115,32 +115,23 @@ namespace Http {
         return result;
     }
 
-    bool HttpClient::put(const Url &url, const HttpHeaders &headers, const String &request) {
+    bool HttpClient::put(const Url &url, const HttpHeaders &headers, const String &request) const {
         String response;
         return put(url, headers, request, response);
     }
 
     void
     HttpClient::putAsync(const Url &url, const HttpHeaders &headers, const String &request, HttpSendCallback callback) {
-        if(!isStarted()) {
+        if (!isStarted()) {
             start();
         }
         HttpRequest httpRequest(url, HttpMethod::Put, headers, new HttpStringContent(request));
         sendAsync(httpRequest, callback);
     }
 
-    bool HttpClient::download(const Url &url, const HttpHeaders &headers, const String &fileName) {
-        HttpRequest httpRequest(url, HttpMethod::Get, HttpHeaders::JsonTypeHeaders);
-        FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
-        HttpStreamContent *content = new HttpStreamContent(&fs);
-        HttpResponse httpResponse(content);
-        return send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
-    }
-
-    bool HttpClient::upload(const Url &url, const HttpHeaders &headers, const String &fileName, String &response) {
-        FileStream stream(fileName, FileMode::FileOpenWithoutException, FileAccess::FileRead);
-        HttpRequest httpRequest(url, HttpMethod::Put, headers, new HttpStreamContent(&stream));
-        HttpStringContent *content = new HttpStringContent();
+    bool HttpClient::del(const Url &url, const HttpHeaders &headers, String &response) const {
+        HttpRequest httpRequest(url, HttpMethod::Delete, headers, new HttpStringContent());
+        auto content = new HttpStringContent();
         HttpResponse httpResponse(content);
         bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
         if (result) {
@@ -149,7 +140,42 @@ namespace Http {
         return result;
     }
 
-    bool HttpClient::send(const HttpRequest &request, HttpResponse &response) {
+    bool HttpClient::del(const Url &url, const HttpHeaders &headers) const {
+        String response;
+        return put(url, headers, response);
+    }
+
+    void
+    HttpClient::delAsync(const Url &url, const HttpHeaders &headers, HttpSendCallback callback) {
+        if (!isStarted()) {
+            start();
+        }
+        HttpRequest httpRequest(url, HttpMethod::Delete, headers, new HttpStringContent());
+        sendAsync(httpRequest, callback);
+    }
+
+    bool HttpClient::download(const Url &url, const HttpHeaders &headers, const String &fileName) const {
+        HttpRequest httpRequest(url, HttpMethod::Get, HttpHeaders::JsonTypeHeaders);
+        FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
+        auto content = new HttpStreamContent(&fs);
+        HttpResponse httpResponse(content);
+        return send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
+    }
+
+    bool
+    HttpClient::upload(const Url &url, const HttpHeaders &headers, const String &fileName, String &response) const {
+        FileStream stream(fileName, FileMode::FileOpenWithoutException, FileAccess::FileRead);
+        HttpRequest httpRequest(url, HttpMethod::Put, headers, new HttpStreamContent(&stream));
+        auto content = new HttpStringContent();
+        HttpResponse httpResponse(content);
+        bool result = send(httpRequest, httpResponse) && httpResponse.status == HttpStatus::HttpOk;
+        if (result) {
+            response = content->value();
+        }
+        return result;
+    }
+
+    bool HttpClient::send(const HttpRequest &request, HttpResponse &response) const {
         if (request.url.isEmpty())
             return false;
 
@@ -192,11 +218,14 @@ namespace Http {
             curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, request.contentSize());
             if (request.method == HttpMethod::Post) {
                 curl_easy_setopt(curl, CURLOPT_UPLOAD, true);
-//                curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, request.contentStr().c_str());
+            } else if (request.method == HttpMethod::Get) {
+                curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
             } else if (request.method == HttpMethod::Put) {
-                curl_easy_setopt(curl, CURLOPT_UPLOAD, true);
+                curl_easy_setopt(curl, CURLOPT_PUT, true);
             } else if (request.method == HttpMethod::Delete) {
-                curl_easy_setopt(curl, CURLOPT_UPLOAD, true);
+                curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+            } else {
+                curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, request.method.method.c_str());
             }
 
             // response headers.
@@ -234,14 +263,14 @@ namespace Http {
     }
 
     void HttpClient::sendAsync(const HttpRequest &request, HttpSendCallback callback) {
-        if(!isStarted()) {
+        if (!isStarted()) {
             start();
         }
         add(new HttpRequestEntry(request, callback));
     }
 
     void HttpClient::process(const IPoolEntry *value) {
-        const HttpRequestEntry *entry = dynamic_cast<const HttpRequestEntry *>(value);
+        auto entry = dynamic_cast<const HttpRequestEntry *>(value);
         assert(entry);
         HttpResponse response(new HttpStringContent());
         send(entry->request, response);
@@ -251,7 +280,7 @@ namespace Http {
     }
 
     size_t HttpClient::write_data(void *buffer, size_t size, size_t nmemb, void *userdata) {
-        HttpResponse *response = (HttpResponse *) userdata;
+        auto response = (HttpResponse *) userdata;
         assert(response);
 
         if (response->content != nullptr)
@@ -263,14 +292,14 @@ namespace Http {
     size_t HttpClient::write_header(char *buffer, size_t size, size_t nitems, void *userdata) {
         /* received header is nitems * size long in 'buffer' NOT ZERO TERMINATED */
         /* 'userdata' is set with CURLOPT_HEADERDATA */
-        HttpHeaders *headers = (HttpHeaders *) userdata;
+        auto headers = (HttpHeaders *) userdata;
         String str = String((const char *) buffer, (uint32_t) (size * nitems));
         HttpHeaders::parse(str, *headers);
         return size * nitems;
     }
 
     size_t HttpClient::read_data(void *buffer, size_t size, size_t nmemb, void *userdata) {
-        HttpRequest *request = (HttpRequest *) userdata;
+        auto request = (HttpRequest *) userdata;
         assert(request);
 
         if (request->content != nullptr)
@@ -301,10 +330,10 @@ namespace Http {
         String result;
         CURL *curl = curl_easy_init();
         if (curl) {
-            int decodelen;
-            char *decoded = curl_easy_unescape(curl, str, (int) str.length(), &decodelen);
+            int len;
+            char *decoded = curl_easy_unescape(curl, str, (int) str.length(), &len);
             if (decoded) {
-                result = String(decoded, decodelen);
+                result = String(decoded, len);
                 curl_free(decoded);
             } else {
                 result = str;
