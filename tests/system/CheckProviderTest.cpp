@@ -159,7 +159,7 @@ bool testCrc8Provider() {
         Crc8Type expects[] = {0x5F, 0x32, 0xED, 0xED};
         if (!testCrcProvider<uint8_t>(Crc8Provider::CRC8, expects)) {
             return false;
-        }1
+        }
     }
     {
         Crc8Type expects[] = {0x33, 0x86, 0xAA, 0xAA};
