@@ -42,7 +42,10 @@ namespace System {
         assert(app);
 
         Regex reg("([^&?]\\w+)=([^&]*)");
-        reg.match(url, app->_arguments);
+        StringArray groups;
+        if (reg.match(url, groups) && groups.count() == 2) {
+            app->_arguments.add(groups[0], groups[1]);
+        }
 
         WebApplication::_url = url;
     }
@@ -70,7 +73,7 @@ namespace System {
     }
 
     WebApplication::~WebApplication() {
-        Trace::writeLine(String::format("%s is stopping.", name().c_str()), Trace::Info);
+        Trace::writeLine(String::format("%s is stopping.", WebApplication::name().c_str()), Trace::Info);
     }
 
     WebApplication *WebApplication::instance() {
@@ -89,7 +92,7 @@ namespace System {
         return _url;
     }
 
-    const Url WebApplication::url() const {
+    Url WebApplication::url() const {
         Url url;
         Url::parse(_url, url);
         return url;

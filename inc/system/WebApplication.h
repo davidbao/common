@@ -37,7 +37,7 @@ namespace System {
 
         const String &urlStr() const;
 
-        const Url url() const;
+        Url url() const;
 
         const Arguments &arguments() const;
 

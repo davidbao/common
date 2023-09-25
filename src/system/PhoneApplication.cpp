@@ -6,14 +6,11 @@
 //  Copyright (c) 2015 com. All rights reserved.
 //
 
-#include <assert.h>
+#include <cassert>
 #include "system/PhoneApplication.h"
 #include "diag/Trace.h"
-#include "diag/Trace.h"
 #include "IO/Path.h"
-#include "IO/Directory.h"
 #include "thread/TickTimeout.h"
-#include "thread/Timer.h"
 #include "diag/FileTraceListener.h"
 #include "diag/MemoryTraceListener.h"
 
@@ -23,8 +20,7 @@ namespace System {
         _startTime = TickTimeout::getCurrentTickCount();
     }
 
-    PhoneApplication::~PhoneApplication() {
-    }
+    PhoneApplication::~PhoneApplication() = default;
 
     PhoneApplication *PhoneApplication::instance() {
         if (_instance == nullptr) {
@@ -95,7 +91,7 @@ namespace System {
         }
     }
 
-    const String PhoneApplication::toNetStatusStr(NetStatus status) {
+    String PhoneApplication::toNetStatusStr(NetStatus status) {
         switch (status) {
             case Unknown:
                 return "Unknown";
@@ -155,7 +151,7 @@ namespace System {
     }
 
     void PhoneApplication::initLog(const String &rootPath, const String &logPath) {
-        FileTraceListener *listener = new FileTraceListener(Path::combine(rootPath, logPath));
+        auto listener = new FileTraceListener(Path::combine(rootPath, logPath));
         _traceListeners.add(listener);
         Trace::addTraceListener(listener);
         Trace::enableConsoleOutput();

@@ -142,7 +142,6 @@ if (COMMON_ENABLE_TEST)
     endif ()
 
     if (WEB_OS)
-        add_definitions("-sEXIT_RUNTIME=1")
     endif ()
 
     # application settings

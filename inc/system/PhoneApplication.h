@@ -99,7 +99,7 @@ namespace System {
 
         void initLog(const String &rootPath, const String &logPath = "logs");
 
-        static const String toNetStatusStr(NetStatus status);
+        static String toNetStatusStr(NetStatus status);
 
     private:
         static const int EventCount = 7;

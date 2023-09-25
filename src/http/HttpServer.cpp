@@ -737,7 +737,7 @@ namespace Http {
     bool HttpServer::isIllegal(struct evhttp_request *req, const String &str) {
         static Regex filterRegex(
                 "\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)\b|(\\*|;|\\+|'|%)");
-        if (filterRegex.match(str)) {
+        if (filterRegex.isMatch(str)) {
             returnIllegalInfo(req);
             return false;
         }

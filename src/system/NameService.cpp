@@ -10,11 +10,9 @@
 #include "system/Regex.h"
 
 namespace System {
-    INameContainer::INameContainer() {
-    }
+    INameContainer::INameContainer() = default;
 
-    INameContainer::~INameContainer() {
-    }
+    INameContainer::~INameContainer() = default;
 
     String NameService::createNameByType(const INameContainer *container, const String &typeName) {
         String result;
@@ -86,7 +84,7 @@ namespace System {
 
     String NameService::createNameInner(const String &name, int index) {
         String result;
-        static const Regex strIndexRegex("([^0-9]*)([0-9]+)");
+        static Regex strIndexRegex("([^0-9]*)([0-9]+)");
         StringArray texts;
         if (strIndexRegex.match(name, texts) && texts.count() == 2) {
             String prefix = texts[0];

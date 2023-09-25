@@ -53,7 +53,7 @@ namespace Communication
         virtual bool setCommandBuffer(MemoryStream& ms, ClientContext* context) = 0;
         
         virtual uint8_t command() const = 0;
-        virtual bool autoResponsed() const;
+        virtual bool autoResponded() const;
         
         virtual bool syncSendReceive(Interactive* interactive) const;
         

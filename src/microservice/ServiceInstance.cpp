@@ -26,11 +26,14 @@ namespace Microservice {
         this->operator=(value);
     }
 
-    void ServerProperty::operator=(const ServerProperty &value) {
-        this->_url = value._url;
-        this->_isAliveFlag = value._isAliveFlag;
-        this->_zone = value._zone;
-        this->_readyToServe = value._readyToServe;
+    ServerProperty &ServerProperty::operator=(const ServerProperty &value) {
+        if (this != &value) {
+            this->_url = value._url;
+            this->_isAliveFlag = value._isAliveFlag;
+            this->_zone = value._zone;
+            this->_readyToServe = value._readyToServe;
+        }
+        return *this;
     }
 
     bool ServerProperty::operator==(const ServerProperty &value) const {
@@ -96,8 +99,7 @@ namespace Microservice {
         _zone = zone;
     }
 
-    ServerProperties::ServerProperties() {
-    }
+    ServerProperties::ServerProperties() = default;
 
     void ServerProperties::add(ServerProperty *server) {
         _servers.add(server);
@@ -133,8 +135,7 @@ namespace Microservice {
 
     const ServiceInstance ServiceInstance::Empty;
 
-    ServiceInstance::ServiceInstance() {
-    }
+    ServiceInstance::ServiceInstance() = default;
 
     ServiceInstance::ServiceInstance(const String &serviceId, const ServerProperty &server) : _serviceId(serviceId),
                                                                                               _server(server) {
@@ -144,8 +145,7 @@ namespace Microservice {
         this->operator=(value);
     }
 
-    ServiceInstance::~ServiceInstance() {
-    }
+    ServiceInstance::~ServiceInstance() = default;
 
     String ServiceInstance::instanceId() const {
         return _server.id();
@@ -213,7 +213,7 @@ namespace Microservice {
     }
 
     bool ServiceInstance::getTag(const String &name, String &value) const {
-        static const Regex expressionRegex("^(\\S+)=(.*)$");
+        static Regex expressionRegex("^(\\S+)=(.*)$");
 
         StringArray groups;
         for (size_t i = 0; i < _tags.count(); i++) {
@@ -235,11 +235,14 @@ namespace Microservice {
         _meta = meta;
     }
 
-    void ServiceInstance::operator=(const ServiceInstance &value) {
-        this->_serviceId = value._serviceId;
-        this->_server = value._server;
-        this->_tags = value._tags;
-        this->_meta = value._meta;
+    ServiceInstance &ServiceInstance::operator=(const ServiceInstance &value) {
+        if (this != &value) {
+            this->_serviceId = value._serviceId;
+            this->_server = value._server;
+            this->_tags = value._tags;
+            this->_meta = value._meta;
+        }
+        return *this;
     }
 
     bool ServiceInstance::operator==(const ServiceInstance &value) const {
@@ -253,8 +256,7 @@ namespace Microservice {
         return !operator==(value);
     }
 
-    ServiceInstances::ServiceInstances() {
-    }
+    ServiceInstances::ServiceInstances() = default;
 
     void ServiceInstances::add(ServiceInstance *instance) {
         _instances.add(instance);
@@ -282,14 +284,14 @@ namespace Microservice {
     void ServiceInstances::toServerProperties(ServerProperties &servers) const {
         for (size_t i = 0; i < _instances.count(); i++) {
             const ServiceInstance *instance = _instances[i];
-            ServerProperty *prop = new ServerProperty(instance->server());
+            auto prop = new ServerProperty(instance->server());
             servers.add(prop);
 
             const StringArray &tags = instance->tags();
             if (tags.count() > 0) {
                 static const String zoneNoStr = "zoneNo=";
-                for (size_t i = 0; i < tags.count(); i++) {
-                    const String &tag = tags[i];
+                for (size_t j = 0; j < tags.count(); j++) {
+                    const String &tag = tags[j];
                     if (tag.find(zoneNoStr) >= 0) {
                         String str = tag.substr((off_t) zoneNoStr.length(), tag.length() - zoneNoStr.length());
                         prop->setZone(str);
@@ -308,9 +310,7 @@ namespace Microservice {
         }
     }
 
-    ServiceInstanceChooser::ServiceInstanceChooser() {
-    }
+    ServiceInstanceChooser::ServiceInstanceChooser() = default;
 
-    ServiceInstanceChooser::~ServiceInstanceChooser() {
-    }
+    ServiceInstanceChooser::~ServiceInstanceChooser() = default;
 }

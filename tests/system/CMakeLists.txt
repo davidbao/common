@@ -15,7 +15,7 @@ set(SYSTEM_SRC
         ActionTest.cpp
         ApplicationTest.cpp
 #        BCDUtilities.cpp
-#        CheckUtilities.cpp
+        CheckProviderTest.cpp
 #        Clipboard.cpp
 #        Console.cpp
         DelegateTest.cpp
@@ -27,9 +27,9 @@ set(SYSTEM_SRC
 #        PoolService.cpp
 #        Property.cpp
         RandomTest.cpp
-#        Regex.cpp
+        RegexTest.cpp
         ResourcesTest.cpp
-#        ServiceFactory.cpp
+        ServiceFactoryTest.cpp
         )
 
 #if (WIN_OS)

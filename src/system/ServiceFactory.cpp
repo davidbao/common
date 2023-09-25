@@ -1,9 +1,9 @@
 //
-//  TaskTimer.h
+//  ServiceFactory.cpp
 //  common
 //
-//  Created by baowei on 2017/4/3.
-//  Copyright (c) 2017 com. All rights reserved.
+//  Created by baowei on 2018/12/8.
+//  Copyright (c) 2018 com. All rights reserved.
 //
 
 #include "system/ServiceFactory.h"

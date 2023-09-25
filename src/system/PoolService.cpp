@@ -6,7 +6,6 @@
 //  Copyright (c) 2017 com. All rights reserved.
 //
 
-#include <cassert>
 #include "system/PoolService.h"
 
 namespace System {
@@ -16,7 +15,7 @@ namespace System {
     }
 
     PoolBaseService::~PoolBaseService() {
-        stop();
+        PoolBaseService::stop();
     }
 
     void PoolBaseService::start() {
@@ -55,11 +54,10 @@ namespace System {
     }
 
     PoolService::~PoolService() {
-        invoke();
+        PoolService::invoke();
     }
 
     void PoolService::process(const IPoolEntry *value) {
-
     }
 
     void PoolService::process(const IPoolEntry **value, size_t count) {

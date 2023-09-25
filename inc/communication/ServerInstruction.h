@@ -86,7 +86,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return true;
         }
     };
@@ -101,7 +101,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return false;
         }
     };
@@ -116,7 +116,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return true;
         }
     };
@@ -194,7 +194,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return true;
         }
 
@@ -298,7 +298,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return _syncSendReceive;
         }
 
@@ -391,7 +391,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return true;
         }
 
@@ -464,7 +464,7 @@ namespace Communication {
         }
 
     protected:
-        bool autoResponsed() const override {
+        bool autoResponded() const override {
             return _syncSendReceive;
         }
 

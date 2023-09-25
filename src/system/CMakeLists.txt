@@ -14,7 +14,7 @@
 set(SYSTEM_SRC
         Application.cpp
         BCDUtilities.cpp
-        CheckUtilities.cpp
+        CheckProvider.cpp
         Clipboard.cpp
         Console.cpp
         Delegate.cpp

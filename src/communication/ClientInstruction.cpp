@@ -3,7 +3,7 @@
 #include "diag/Trace.h"
 #include "IO/MemoryStream.h"
 #include "system/BCDUtilities.h"
-#include "system/CheckUtilities.h"
+#include "system/CheckProvider.h"
 #include "driver/devices/Device.h"
 #include "driver/channels/Channel.h"
 #include "driver/channels/TcpInteractive.h"
@@ -143,7 +143,7 @@ namespace Communication {
         InstructionContext *result = setReceiveBuffer(ms, ic, false);
 
         if (result != nullptr) {
-            if (autoResponsed() && !_isSender) {
+            if (autoResponded() && !_isSender) {
                 // send back.
                 uint8_t frameId = (*buffer)[ClientContext::FrameIdPosition];
                 send(interactive, device, context, frameId);
@@ -277,7 +277,7 @@ namespace Communication {
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
 
-        uint16_t crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int) (ms.length() - 1));
+        uint16_t crc16 = Crc16Provider::MODBUS.calc(ms.buffer()->data(), 1, (int) (ms.length() - 1));
         ms.seek(position);
         ms.writeUInt16(crc16);
 
@@ -303,7 +303,7 @@ namespace Communication {
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
 
-        uint16_t crc16 = Crc16Utilities::quickCheckByBit(ms.buffer()->data(), 1, (int) (ms.length() - 1));
+        uint16_t crc16 = Crc16Provider::MODBUS.calc(ms.buffer()->data(), 1, (int) (ms.length() - 1));
         ms.seek(position);
         ms.writeUInt16(crc16);
     }
@@ -361,7 +361,7 @@ namespace Communication {
             return false;
         }
         if (buffer->count() <= 10 * 1024) {
-            uint16_t crc16 = Crc16Utilities::quickCheckByBit(buffer->data(), 1, count - 1 - 2);
+            uint16_t crc16 = Crc16Provider::MODBUS.calc(buffer->data(), 1, count - 1 - 2);
             if (!((*buffer)[count - 2] == ((crc16 >> 8) & 0xFF) &&
                   (*buffer)[count - 1] == (crc16 & 0xFF))) {
                 return false;
@@ -370,7 +370,7 @@ namespace Communication {
         return true;
     }
 
-    bool ClientInstruction::autoResponsed() const {
+    bool ClientInstruction::autoResponded() const {
         return false;
     }
 

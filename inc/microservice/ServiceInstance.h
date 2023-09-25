@@ -25,8 +25,8 @@ namespace Microservice
     public:
         ServerProperty(const Url& url = Url::Empty);
         ServerProperty(const ServerProperty& value);
-        
-        void operator=(const ServerProperty& value);
+
+        ServerProperty &operator=(const ServerProperty& value);
         bool operator==(const ServerProperty& value) const;
         bool operator!=(const ServerProperty& value) const;
         
@@ -119,8 +119,8 @@ namespace Microservice
         
         const StringMap& meta() const;
         void setMeta(const StringMap& meta);
-        
-        void operator=(const ServiceInstance& value);
+
+        ServiceInstance &operator=(const ServiceInstance& value);
         bool operator==(const ServiceInstance& value) const;
         bool operator!=(const ServiceInstance& value) const;
         

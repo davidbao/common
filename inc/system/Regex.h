@@ -1,53 +1,61 @@
-#ifndef REGEX_H
-#define REGEX_H
+//
+//  Regex.h
+//  common
+//
+//  Created by baowei on 2015/11/6.
+//  Copyright (c) 2015 com. All rights reserved.
+//
 
-#include <cstdio>
+#ifndef Regex_h
+#define Regex_h
+
 #include <regex>
 #include "data/String.h"
 #include "data/StringArray.h"
-#include "data/StringMap.h"
-#include "data/Dictionary.h"
 
-#ifndef REG_NOERROR
-#define REG_NOERROR 0
-#endif
+using namespace Data;
 
 namespace System {
+    enum RegexOptions {
+        ECMAScript = 0x0000,
+        icase = 0x0001,
+        nosubs = 0x0002,
+        optimize = 0x0004,
+        collate = 0x0008,
+        basic = 0x0010,
+        extended = 0x0020,
+        awk = 0x0040,
+        grep = 0x0080,
+        egrep = 0x0100,
+    };
+
     class Regex {
     public:
-        explicit Regex(const String &pattern);
+        explicit Regex(const String &pattern, RegexOptions options = ECMAScript);
 
         ~Regex();
 
-        bool match(const String &input) const;
+        bool isValid() const;
 
-        bool match(const String &input, StringArray &groups) const;
+        const String &error() const;
 
-        bool match(const String &input, StringMap &groups) const;
+        bool isMatch(const String &input);
+
+        bool match(const String &input, StringArray &groups);
 
     private:
         regex *_regex;
-    };
 
-//    class Regex2
-//    {
-//    public:
-//        Regex2(const String& pattern);
-//        ~Regex2();
-//        
-//        bool match(const String& input) const;
-//        bool match(const String& input, StringArray& groups) const;
-//        bool match(const String& input, StringMap& groups) const;
-//        
-//    private:
-//        regex_t _regex;
-//        bool _created;
-//        String _pattern;
-//    };
+        String _error;
+    };
 
     class SystemRegex {
     public:
         static bool isPhoneNumber(const String &str);
+
+        static bool isIdCardNo(const String &str);
+
+        static bool isMail(const String &str);
     };
 }
-#endif // REGEX_H
+#endif // Regex_h
