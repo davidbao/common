@@ -144,9 +144,13 @@ namespace IO {
 
         int16_t readBCDInt16();
 
-        void writeBCDValue(int64_t value, int length);
+        void writeBCDUInt64(uint64_t value);
 
-        int64_t readBCDValue(int length);
+        uint64_t readBCDUInt64();
+
+        void writeBCDInt64(int64_t value);
+
+        int64_t readBCDInt64();
 
         const Version &version() const;
 

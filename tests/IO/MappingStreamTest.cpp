@@ -1110,7 +1110,7 @@ bool testReadWrite() {
         String fileName = Path::combine(_path, "test.bin");
         MappingStream ms(fileName, _fileSize);
         auto expect = 12345678;
-        ms.writeBCDValue(expect, 8);
+        ms.writeBCDInt64(expect);
         ms.close();
 
         MappingStream ms2(fileName);

@@ -13,7 +13,7 @@
 
 set(SYSTEM_SRC
         Application.cpp
-        BCDUtilities.cpp
+        BCDProvider.cpp
         CheckProvider.cpp
         Clipboard.cpp
         Console.cpp

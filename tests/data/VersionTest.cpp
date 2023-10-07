@@ -226,6 +226,7 @@ bool testStream() {
         Version test2;
         test2.read(&stream);
         if (test2 != test) {
+            printf("testStream.error1\n");
             return false;
         }
     }
@@ -237,7 +238,8 @@ bool testStream() {
         Version test2;
         test2.read(&stream, true);
         if (test2 != test) {
-            return true;
+            printf("testStream.error2\n");
+            return false;
         }
     }
     {
@@ -248,6 +250,7 @@ bool testStream() {
         Version test2;
         test2.read(&stream, false);
         if (test2 != test) {
+            printf("testStream.error3\n");
             return false;
         }
     }
@@ -260,6 +263,7 @@ bool testStream() {
         Version test2;
         test2.readInt32(&stream);
         if (test2 != test) {
+            printf("testStream.error4\n");
             return false;
         }
     }
@@ -271,6 +275,7 @@ bool testStream() {
         Version test2;
         test2.readInt32(&stream, true);
         if (test2 != test) {
+            printf("testStream.error5\n");
             return false;
         }
     }
@@ -282,6 +287,7 @@ bool testStream() {
         Version test2;
         test2.readInt32(&stream, false);
         if (test2 != test) {
+            printf("testStream.error6\n");
             return false;
         }
     }
@@ -294,6 +300,7 @@ bool testStream() {
         Version test2;
         test2.readInt16(&stream);
         if (test2 != test) {
+            printf("testStream.error7\n");
             return false;
         }
     }
@@ -305,6 +312,7 @@ bool testStream() {
         Version test2;
         test2.readInt16(&stream, true);
         if (test2 != test) {
+            printf("testStream.error8\n");
             return false;
         }
     }
@@ -316,6 +324,7 @@ bool testStream() {
         Version test2;
         test2.readInt16(&stream, false);
         if (test2 != test) {
+            printf("testStream.error9\n");
             return false;
         }
     }
@@ -328,6 +337,7 @@ bool testStream() {
         Version test2;
         test2.readByte(&stream);
         if (test2 != test) {
+            printf("testStream.error10\n");
             return false;
         }
     }
@@ -339,6 +349,7 @@ bool testStream() {
         Version test2;
         test2.readByte(&stream);
         if (test2 != test) {
+            printf("testStream.error11\n");
             return false;
         }
     }
@@ -350,6 +361,7 @@ bool testStream() {
         Version test2;
         test2.readByte(&stream);
         if (test2 != test) {
+            printf("testStream.error12\n");
             return false;
         }
     }
@@ -362,6 +374,7 @@ bool testStream() {
         Version test2;
         test2.readBCDInt32(&stream);
         if (test2 != test) {
+            printf("testStream.error13\n");
             return false;
         }
     }
@@ -373,6 +386,7 @@ bool testStream() {
         Version test2;
         test2.readBCDInt32(&stream);
         if (test2 != test) {
+            printf("testStream.error14\n");
             return false;
         }
     }
@@ -396,6 +410,7 @@ bool testStream() {
         Version test2;
         test2.readBCDInt16(&stream);
         if (test2 != test) {
+            printf("testStream.error15\n");
             return false;
         }
     }
@@ -408,6 +423,7 @@ bool testStream() {
         Version test2;
         test2.readBCDByte(&stream);
         if (test2 != test) {
+            printf("testStream.error16\n");
             return false;
         }
     }
@@ -419,6 +435,7 @@ bool testStream() {
         Version test2;
         test2.readBCDByte(&stream);
         if (test2 != test) {
+            printf("testStream.error17\n");
             return false;
         }
     }
@@ -430,6 +447,7 @@ bool testStream() {
         Version test2;
         test2.readBCDByte(&stream);
         if (test2 != test) {
+            printf("testStream.error18\n");
             return false;
         }
     }

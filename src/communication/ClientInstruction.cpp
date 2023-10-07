@@ -2,7 +2,7 @@
 #include "diag/Trace.h"
 #include "diag/Trace.h"
 #include "IO/MemoryStream.h"
-#include "system/BCDUtilities.h"
+#include "system/BCDProvider.h"
 #include "system/CheckProvider.h"
 #include "driver/devices/Device.h"
 #include "driver/channels/Channel.h"
@@ -261,7 +261,7 @@ namespace Communication {
         ms.writeByte(ClientContext::Header);
         ms.writeByte(frameId == 0xFF ? getFrameId() : frameId);
         ms.writeByte(0);    // state is ok
-        const int lengthCount = ClientContext::BufferBCDLength;
+        static const int lengthCount = ClientContext::BufferBCDLength;
         uint8_t lengthBuffer[lengthCount];
         memset(lengthBuffer, 0, lengthCount);
         ms.write(lengthBuffer, 0, lengthCount);
@@ -272,8 +272,8 @@ namespace Communication {
         }
 
         int64_t position = ms.position();
-        BCDUtilities::Int64ToBCD(ms.length() - ClientContext::LengthPosition - lengthCount + 2, lengthBuffer,
-                                 lengthCount);
+        uint32_t value = (uint32_t) (ms.length() - ClientContext::LengthPosition - lengthCount + 2);
+        BCDProvider::bin2buffer(value, lengthBuffer);
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
 
@@ -288,7 +288,7 @@ namespace Communication {
         ms.writeByte(ClientContext::Header);
         ms.writeByte(frameId);
         ms.writeByte(state);    // state
-        const int lengthCount = ClientContext::BufferBCDLength;
+        static const int lengthCount = ClientContext::BufferBCDLength;
         uint8_t lengthBuffer[lengthCount];
         memset(lengthBuffer, 0, lengthCount);
         ms.write(lengthBuffer, 0, lengthCount);
@@ -298,8 +298,8 @@ namespace Communication {
         version.writeByte(&ms);
 
         int64_t position = ms.position();
-        BCDUtilities::Int64ToBCD(ms.length() - ClientContext::LengthPosition - lengthCount + 2, lengthBuffer,
-                                 lengthCount);
+        uint32_t value = (uint32_t) (ms.length() - ClientContext::LengthPosition - lengthCount + 2);
+        BCDProvider::bin2buffer(value, lengthBuffer);
         ms.seek(ClientContext::LengthPosition);
         ms.write(lengthBuffer, 0, lengthCount);
 

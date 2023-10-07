@@ -11,7 +11,7 @@
 #include "data/TimeSpan.h"
 #include "data/TimeZone.h"
 #include "exception/Exception.h"
-#include "system/BCDUtilities.h"
+#include "system/BCDProvider.h"
 #include "system/Resources.h"
 #include "system/Math.h"
 #include "DateTimeFormat.h"
@@ -404,17 +404,17 @@ namespace Data {
         memset(buffer, 0, len);
 
         off_t offset = 0;
-        BCDUtilities::Int64ToBCD(year(), buffer + offset, 2);
+        BCDProvider::bin2buffer((uint16_t) year(), buffer + offset);
         offset += 2;
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) month());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) day());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) hour());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) minute());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) month());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) day());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) hour());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) minute());
         if (includedSec) {
-            buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) second());
+            buffer[offset++] = BCDProvider::bin2bcd((uint8_t) second());
         }
         if (includedMs) {
-            BCDUtilities::Int64ToBCD(millisecond(), buffer + offset, 2);
+            BCDProvider::bin2buffer((uint16_t) millisecond(), buffer + offset);
 //			offset += 2;
         }
 
@@ -443,25 +443,25 @@ namespace Data {
             _dateData = 0;
         } else {
             off_t offset = 0;
-            int year = (int) BCDUtilities::BCDToInt64(buffer, offset, 2);
+            int year = (int) BCDProvider::bcd2bin(buffer, offset, 2);
             offset += 2;
-            int month = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int month = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
-            int day = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int day = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
 
-            int hour = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int hour = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
-            int minute = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int minute = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
             int second = 0;
             if (includedSec) {
-                second = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+                second = (int) BCDProvider::bcd2bin(buffer, offset, 1);
                 offset += 1;
             }
             int millisecond = 0;
             if (includedMs) {
-                millisecond = (int) BCDUtilities::BCDToInt64(buffer, offset, 2);
+                millisecond = (int) BCDProvider::bcd2bin(buffer, offset, 2);
 //				offset += 2;
             }
             _dateData = toTicks(year, month, day, hour, minute, second, millisecond);
@@ -475,10 +475,10 @@ namespace Data {
         memset(buffer, 0, sizeof(buffer));
 
         off_t offset = 0;
-        BCDUtilities::Int64ToBCD(year(), buffer + offset, 2);
+        BCDProvider::bin2buffer((int16_t) year(), buffer + offset);
         offset += 2;
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) month());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) day());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) month());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) day());
 
         stream->write(buffer, 0, sizeof(buffer));
     }
@@ -498,11 +498,11 @@ namespace Data {
             _dateData = 0;
         } else {
             off_t offset = 0;
-            int year = (int) BCDUtilities::BCDToInt64(buffer, offset, 2);
+            int year = (int) BCDProvider::bcd2bin(buffer, offset, 2);
             offset += 2;
-            int month = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int month = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
-            int day = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int day = (int) BCDProvider::bcd2bin(buffer, offset, 1);
 //			offset += 1;
 
             _dateData = toTicks(year, month, day);
@@ -515,9 +515,9 @@ namespace Data {
         memset(buffer, 0, sizeof(buffer));
 
         off_t offset = 0;
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) hour());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) minute());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) second());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) hour());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) minute());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) second());
 
         stream->write(buffer, 0, sizeof(buffer));
     }
@@ -538,12 +538,12 @@ namespace Data {
             _dateData = 0;
         } else {
             off_t offset = 0;
-            int hour = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int hour = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
-            int minute = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            int minute = (int) BCDProvider::bcd2bin(buffer, offset, 1);
             offset += 1;
             int second = 0;
-            second = (int) BCDUtilities::BCDToInt64(buffer, offset, 1);
+            second = (int) BCDProvider::bcd2bin(buffer, offset, 1);
 //			offset += 1;
 
             _dateData = toTicks(1, 1, 1, hour, minute, second);

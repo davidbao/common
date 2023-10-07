@@ -15,6 +15,10 @@
 
 using namespace Data;
 
+#ifdef WIN32
+#pragma warning(disable: 4333)
+#endif
+
 namespace System {
     template<class Type>
     class CheckProvider {

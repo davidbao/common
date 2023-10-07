@@ -14,7 +14,7 @@
 set(SYSTEM_SRC
         ActionTest.cpp
         ApplicationTest.cpp
-#        BCDUtilities.cpp
+        BCDProviderTest.cpp
         CheckProviderTest.cpp
 #        Clipboard.cpp
 #        Console.cpp

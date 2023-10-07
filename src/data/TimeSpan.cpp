@@ -12,7 +12,7 @@
 #include "exception/Exception.h"
 #include "data/StringArray.h"
 #include "data/Culture.h"
-#include "system/BCDUtilities.h"
+#include "system/BCDProvider.h"
 #include "TimeSpanFormat.h"
 
 using namespace IO;
@@ -168,9 +168,9 @@ namespace Data {
         // such like HHmmss
         uint8_t buffer[3] = {0};
         off_t offset = 0;
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) hours());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) minutes());
-        buffer[offset++] = BCDUtilities::ByteToBCD((uint8_t) seconds());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) hours());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) minutes());
+        buffer[offset++] = BCDProvider::bin2bcd((uint8_t) seconds());
         stream->write(buffer, 0, sizeof(buffer));
     }
 
@@ -179,9 +179,9 @@ namespace Data {
         uint8_t buffer[3] = {0};
         stream->read(buffer, 0, sizeof(buffer));
         off_t offset = 0;
-        int hour = (int) BCDUtilities::BCDToInt64(buffer, offset++, 1);
-        int minute = (int) BCDUtilities::BCDToInt64(buffer, offset++, 1);
-        int second = (int) BCDUtilities::BCDToInt64(buffer, offset++, 1);
+        int hour = (int) BCDProvider::bcd2bin(buffer, offset++, 1);
+        int minute = (int) BCDProvider::bcd2bin(buffer, offset++, 1);
+        int second = (int) BCDProvider::bcd2bin(buffer, offset++, 1);
         _ticks = timeToTicks(hour, minute, second);
     }
 

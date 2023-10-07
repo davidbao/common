@@ -47,7 +47,7 @@ namespace Http {
         this->action = action;
     }
 
-    HttpServer::Actions::Actions(const Actions &other) : Actions() {
+    HttpServer::Actions::Actions(const Actions &other) : Actions(nullptr) {
         Actions::evaluates(other);
     }
 
@@ -81,7 +81,7 @@ namespace Http {
     HttpServer::Secure::Secure(bool enabled) : enabled(enabled) {
     }
 
-    HttpServer::Secure::Secure(const Secure &other) : Secure() {
+    HttpServer::Secure::Secure(const Secure &other) : Secure(false) {
         Secure::evaluates(other);
     }
 

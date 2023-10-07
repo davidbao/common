@@ -18,7 +18,7 @@ using namespace System;
 using namespace IO;
 
 static String _host = "192.166.1.3";
-static String _port = "5237";
+static String _port = "5236";
 static String _baseUrl(String::format("dm7://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "DM7CLIENTTEST_DB";
 static String _url = _baseUrl + "/" + _database;

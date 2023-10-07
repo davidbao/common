@@ -1,4 +1,4 @@
-#include "system/BCDUtilities.h"
+#include "system/BCDProvider.h"
 #include "system/Application.h"
 #include "driver/channels/Channel.h"
 #include "driver/devices/Device.h"
@@ -46,7 +46,7 @@ namespace Communication {
             return false;
         }
 
-        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+        int validLength = (int) BCDProvider::bcd2bin(buffer->data(), ClientContext::LengthPosition,
                                                          ClientContext::BufferBCDLength);
         if (validLength > ClientContext::MaxValidLength) {
 #ifdef DEBUG
@@ -193,7 +193,7 @@ namespace Communication {
             return false;
         }
 
-        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+        int validLength = (int) BCDProvider::bcd2bin(buffer->data(), ClientContext::LengthPosition,
                                                          ClientContext::BufferBCDLength);
         ssize_t dataLen = channel->receiveBySize(buffer, validLength, timeout);
         if (validLength != dataLen) {
@@ -243,7 +243,7 @@ namespace Communication {
 
         context->setPeek(false);
 
-        int validLength = (int) BCDUtilities::BCDToInt64(buffer->data(), ClientContext::LengthPosition,
+        int validLength = (int) BCDProvider::bcd2bin(buffer->data(), ClientContext::LengthPosition,
                                                          ClientContext::BufferBCDLength);
         validLength += ClientContext::HeaderLength;
         buffer->clear();

@@ -1215,7 +1215,7 @@ bool testReadWrite() {
         String fileName = Path::combine(_path, "test.bin");
         FileStream fs(fileName, FileMode::FileOpenOrCreate, FileAccess::FileReadWrite);
         auto expect = 12345678;
-        fs.writeBCDValue(expect, 8);
+        fs.writeBCDInt64(expect);
         fs.close();
 
         FileStream fs2(fileName, FileMode::FileOpen, FileAccess::FileReadWrite);

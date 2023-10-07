@@ -7,7 +7,7 @@
 //
 
 #include "IO/Stream.h"
-#include "system/BCDUtilities.h"
+#include "system/BCDProvider.h"
 #include "system/Math.h"
 #include <cassert>
 
@@ -393,11 +393,19 @@ namespace IO {
     }
 
     void Stream::writeBCDInt32(int value) {
-        writeBCDValue(value, 4);
+        static const int count = sizeof(int32_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        BCDProvider::bin2buffer((int32_t) value, buffer);
+        write(buffer, 0, count);
     }
 
     int32_t Stream::readBCDInt32() {
-        return (int32_t) readBCDValue(4);
+        static const int count = sizeof(int32_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        read(buffer, 0, count);
+        return BCDProvider::bcd2bin(buffer, 0, count);
     }
 
     uint32_t Stream::readUInt32(bool bigEndian) {
@@ -417,27 +425,43 @@ namespace IO {
     }
 
     void Stream::writeBCDUInt32(uint32_t value) {
-        writeBCDValue(value, 4);
+        static const int count = sizeof(uint32_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        BCDProvider::bin2buffer((uint32_t) value, buffer);
+        write(buffer, 0, count);
     }
 
     uint32_t Stream::readBCDUInt32() {
-        return (uint32_t) readBCDValue(4);
+        static const int count = sizeof(uint32_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        read(buffer, 0, count);
+        return BCDProvider::bcd2bin(buffer, 0, count);
     }
 
     void Stream::writeBCDByte(uint8_t value) {
-        writeBCDValue(value, 1);
+        writeByte(BCDProvider::bin2bcd(value));
     }
 
     uint8_t Stream::readBCDByte() {
-        return (uint8_t) readBCDValue(1);
+        return BCDProvider::bcd2bin(readByte());
     }
 
     void Stream::writeBCDUInt16(uint16_t value) {
-        writeBCDValue(value, 2);
+        static const int count = sizeof(int16_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        BCDProvider::bin2buffer((int16_t) value, buffer);
+        write(buffer, 0, count);
     }
 
     uint16_t Stream::readBCDUInt16() {
-        return (uint16_t) readBCDValue(2);
+        static const int count = sizeof(uint16_t);
+        uint8_t buffer[count];
+        memset(buffer, 0, sizeof(buffer));
+        read(buffer, 0, count);
+        return BCDProvider::bcd2bin(buffer, 0, count);
     }
 
     void Stream::writeBCDInt16(int16_t value) {
@@ -448,18 +472,28 @@ namespace IO {
         return (int16_t) readBCDUInt16();
     }
 
-    void Stream::writeBCDValue(int64_t value, int length) {
-        uint8_t buffer[8];
+    void Stream::writeBCDUInt64(uint64_t value) {
+        static const int count = sizeof(int64_t);
+        uint8_t buffer[count];
         memset(buffer, 0, sizeof(buffer));
-        BCDUtilities::Int64ToBCD(value, buffer, length);
-        write(buffer, 0, length);
+        BCDProvider::bin2buffer((int64_t) value, buffer);
+        write(buffer, 0, count);
     }
 
-    int64_t Stream::readBCDValue(int length) {
-        uint8_t buffer[8];
+    uint64_t Stream::readBCDUInt64() {
+        static const int count = sizeof(uint64_t);
+        uint8_t buffer[count];
         memset(buffer, 0, sizeof(buffer));
-        read(buffer, 0, length);
-        return BCDUtilities::BCDToInt64(buffer, 0, length);
+        read(buffer, 0, count);
+        return BCDProvider::bcd2bin(buffer, 0, count);
+    }
+
+    void Stream::writeBCDInt64(int64_t value) {
+        writeBCDUInt64(value);
+    }
+
+    int64_t Stream::readBCDInt64() {
+        return (int64_t) readBCDUInt64();
     }
 
     off_t Stream::seek(off_t offset) {
