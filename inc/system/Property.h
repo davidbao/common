@@ -1,13 +1,13 @@
 //
-//  Property.hpp
+//  Property.h
 //  common
 //
 //  Created by baowei on 16/8/24.
 //  Copyright (c) 2016 com. All rights reserved.
 //
 
-#ifndef Property_hpp
-#define Property_hpp
+#ifndef Property_h
+#define Property_h
 
 #include "data/String.h"
 #include "data/TimeSpan.h"
@@ -208,4 +208,4 @@ namespace System {
     typedef void (*PropertyChangedEventHandler)(void *, void *, PropertyChangedEventArgs *);
 }
 
-#endif /* Property_hpp */
+#endif // Property_h

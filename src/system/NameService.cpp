@@ -48,15 +48,15 @@ namespace System {
         if (!(Char::isLetter(ch) || ch == '_'))
             return false;
 
-        for (size_t i = 0; i < name.length(); i++) {
-            if (!Char::isLetterOrDigit(name[i]) && name[i] != '_')
+        for (char i : name) {
+            if (!Char::isLetterOrDigit(i) && i != '_')
                 return false;
         }
 
         static const char *Keywords[] = {
-                "class", "struct", "int", "const", "for", "while", "if", "else",
-                "throw", "long", "size_t", "uint32_t", "bool", "string", "short",
-                "uint16_t", "char", "uint8_t", "int64_t", "uint64_t",
+                "class", "struct", "const", "for", "while", "if", "else", "throw", "size_t", "off_t",
+                "bool", "string", "byte", "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong",
+                "int8_t", "uint8_t", "int16_t", "uint16_t", "int32_t", "uint32_t", "int64_t", "uint64_t",
                 nullptr
         };
 

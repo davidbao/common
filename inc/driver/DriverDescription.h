@@ -7,23 +7,25 @@
 
 using namespace Data;
 
-namespace Drivers
-{
-	typedef PList<DeviceDescription> DeviceDescriptions;
+namespace Drivers {
+    typedef PList<DeviceDescription> DeviceDescriptions;
 
-	class DriverDescription
-	{
-	public:
+    class DriverDescription {
+    public:
         DriverDescription();
+
         ~DriverDescription();
 
-        DeviceDescriptions* getDevices() const;
-        void addDevice(DeviceDescription* description);
-        const DeviceDescription* getDevice(const String& name) const;
-        const ChannelDescription* getChannel(const String& name) const;
-        
-	private:
-		DeviceDescriptions* _devices;
-	};
+        DeviceDescriptions *getDevices() const;
+
+        void addDevice(DeviceDescription *description);
+
+        const DeviceDescription *getDevice(const String &name) const;
+
+        const ChannelDescription *getChannel(const String &name) const;
+
+    private:
+        DeviceDescriptions *_devices;
+    };
 }
 #endif // DRIVERDESCRIPTION_H

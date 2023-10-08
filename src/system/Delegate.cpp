@@ -77,10 +77,10 @@ namespace System {
     Delegates::Delegates(const Delegate *array, size_t count, size_t capacity) : List(array, count, capacity) {
     }
 
-    Delegates::Delegates(const Delegate &value, size_t count) : List(DefaultCapacity) {
+    Delegates::Delegates(const Delegate &value, size_t count) : List(value, count) {
     }
 
-    Delegates::Delegates(std::initializer_list<Delegate> list) : Delegates(DefaultCapacity) {
+    Delegates::Delegates(std::initializer_list<Delegate> list) : List(list) {
     }
 
     void Delegates::add(void *owner, EventHandler handler) {
