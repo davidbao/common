@@ -563,8 +563,8 @@ namespace Http {
         _stream = new MemoryStream((const uint8_t *) value.c_str(), value.length());
     }
 
-    HttpStringContent::HttpStringContent(const HttpStringContent &content) : _stream(nullptr) {
-        HttpStringContent::evaluates(content);
+    HttpStringContent::HttpStringContent(const HttpStringContent &other) : _stream(nullptr) {
+        HttpStringContent::evaluates(other);
     }
 
     HttpStringContent::~HttpStringContent() {
@@ -613,8 +613,8 @@ namespace Http {
     HttpJsonContent::HttpJsonContent(const JsonNode &value) : HttpJsonContent(value.toString()) {
     }
 
-    HttpJsonContent::HttpJsonContent(const HttpJsonContent &content) {
-        HttpJsonContent::evaluates(content);
+    HttpJsonContent::HttpJsonContent(const HttpJsonContent &other) : HttpJsonContent() {
+        HttpJsonContent::evaluates(other);
     }
 
     JsonNode HttpJsonContent::node() const {
@@ -635,8 +635,8 @@ namespace Http {
         _stream = new MemoryStream(&_value, false);
     }
 
-    HttpByteArrayContent::HttpByteArrayContent(const HttpByteArrayContent &content) : _stream(nullptr) {
-        HttpByteArrayContent::evaluates(content);
+    HttpByteArrayContent::HttpByteArrayContent(const HttpByteArrayContent &other) : _stream(nullptr) {
+        HttpByteArrayContent::evaluates(other);
     }
 
     HttpByteArrayContent::~HttpByteArrayContent() {

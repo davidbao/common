@@ -32,8 +32,8 @@ namespace Net {
 
     ssize_t Receiver::receive(ByteArray *buffer, size_t count, uint32_t timeout) {
         if (timeout == 0) {
-            uint8_t *temp = new uint8_t[count];
-            int readCount = receive(temp, 0, count);
+            auto temp = new uint8_t[count];
+            ssize_t readCount = receive(temp, 0, count);
             if (readCount > 0) {
                 buffer->addRange(temp, readCount);
             }

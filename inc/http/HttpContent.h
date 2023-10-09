@@ -311,7 +311,7 @@ namespace Http {
 
         explicit HttpStringContent(const String &value);
 
-        HttpStringContent(const HttpStringContent &content);
+        HttpStringContent(const HttpStringContent &other);
 
         ~HttpStringContent() override;
 
@@ -344,7 +344,7 @@ namespace Http {
 
         explicit HttpJsonContent(const JsonNode &value);
 
-        HttpJsonContent(const HttpJsonContent &content);
+        HttpJsonContent(const HttpJsonContent &other);
 
         HttpContent *clone() const override;
 
@@ -357,7 +357,7 @@ namespace Http {
 
         explicit HttpByteArrayContent(const ByteArray &value);
 
-        HttpByteArrayContent(const HttpByteArrayContent &content);
+        HttpByteArrayContent(const HttpByteArrayContent &other);
 
         ~HttpByteArrayContent() override;
 

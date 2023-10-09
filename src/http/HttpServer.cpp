@@ -531,9 +531,18 @@ namespace Http {
         char *decoded_path = nullptr;
         int code = HTTP_NOTFOUND;
 
+//        evhttp_connection *con = evhttp_request_get_connection(req);
+//        if (con) {
+//            char *address;
+//            ev_uint16_t port;
+//            evhttp_connection_get_peer(con, &address, &port);
+//            printf("address:%s\n", address);
+//            printf("port:%d\n", port);
+//        }
+
         evhttp_cmd_type type = evhttp_request_get_command(req);
 
-        auto *entry = static_cast<ContextEntry *>(arg);
+        auto entry = static_cast<ContextEntry *>(arg);
         assert(entry);
 
         /* Decode the URI */

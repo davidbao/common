@@ -24,15 +24,16 @@ namespace Microservice {
         TcpNoContent = HTTP_NOCONTENT,    /**< request does not have content */
         TcpMovePerm = HTTP_MOVEPERM,    /**< the uri moved permanently */
         TcpMoveTemp = HTTP_MOVETEMP,    /**< the uri moved temporarily */
-        TcpNotMdified = HTTP_NOTMODIFIED,    /**< page was not modified from last */
+        TcpNotModified = HTTP_NOTMODIFIED,    /**< page was not modified from last */
         TcpBadRequest = HTTP_BADREQUEST,    /**< invalid http request was made */
+        TcpForbidden = 403,
         TcpNotFound = HTTP_NOTFOUND,    /**< could not find content for uri */
         TcpBadMethod = HTTP_BADMETHOD,     /**< method not allowed for this uri */
         TcpEntityTooLarge = HTTP_ENTITYTOOLARGE,    /**<  */
         TcpExpectationFailed = HTTP_EXPECTATIONFAILED,    /**< we can't handle this expectation */
         TcpInternal = HTTP_INTERNAL,     /**< internal error */
         TcpNotImplemented = HTTP_NOTIMPLEMENTED,     /**< not implemented */
-        TcpServuavail = HTTP_SERVUNAVAIL,    /**< the server is not available */
+        Tcp_Servunavail = HTTP_SERVUNAVAIL,    /**< the server is not available */
     };
 
     class ITcpAction {
