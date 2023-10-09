@@ -25,7 +25,7 @@ namespace IO {
             Regular = 0x8000,
         };
 
-        FileInfo(const String &name);
+        explicit FileInfo(const String &name);
 
         FileAttributes attributes() const;
 
@@ -33,7 +33,7 @@ namespace IO {
 
         bool isWritable() const;
 
-        int64_t size() const;
+        off_t size() const;
 
         bool exists() const;
 
@@ -46,7 +46,7 @@ namespace IO {
         String _name;
 
         FileInfo::FileAttributes _attributes;
-        int64_t _size;
+        off_t _size;
         DateTime _modifiedTime;
     };
 }

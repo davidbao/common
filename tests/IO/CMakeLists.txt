@@ -15,7 +15,7 @@ set(IO_SRC
         DirectoryTest.cpp
 #        DirectoryInfo.cpp
         FileTest.cpp
-#        FileInfo.cpp
+        FileInfoTest.cpp
         FileStreamTest.cpp
         MappingStreamTest.cpp
         MemoryStreamTest.cpp

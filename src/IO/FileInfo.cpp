@@ -10,21 +10,18 @@
 #include "IO/FileInfo.h"
 
 #if WIN32
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
+
 #elif __APPLE__
 
-#include <sys/param.h>
-#include <sys/mount.h>
-#include <libgen.h>
-#include <dirent.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #else
+
 #include <sys/vfs.h>
 #include <libgen.h>
 #include <limits.h>
@@ -33,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #endif
 
 namespace IO {
@@ -40,7 +38,6 @@ namespace IO {
         _name = name;
         _attributes = FileAttributes::Unknown;
         _size = 0;
-        _modifiedTime = 0;
 
         stat();
     }
@@ -59,7 +56,7 @@ namespace IO {
         return ((attr & Write) != 0);
     }
 
-    int64_t FileInfo::size() const {
+    off_t FileInfo::size() const {
         return _size;
     }
 
@@ -73,7 +70,7 @@ namespace IO {
 
     void FileInfo::stat() {
         if (exists()) {
-            struct stat buffer;
+            struct stat buffer{};
             int result = ::stat(_name.c_str(), &buffer);
             if (result == 0) {
                 _attributes = (FileInfo::FileAttributes) buffer.st_mode;
