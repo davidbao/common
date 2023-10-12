@@ -162,6 +162,10 @@ namespace Database {
                         v >= TimeSpan::fromMinutes(1) && v <= TimeSpan::fromMinutes(60)) {
                         connections.add("idle", v);
                     }
+                } else if (String::equals(key, "local_code", true) ||
+                        String::equals(key, "localCode", true) ||
+                        String::equals(key, "encoding", true)) {
+                    connections.add("encoding", value);
                 }
             }
         }

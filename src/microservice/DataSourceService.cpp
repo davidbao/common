@@ -56,6 +56,8 @@ namespace Microservice {
             Trace::warn("database password is incorrect.");
             return false;
         }
+        String encoding;
+        cs->getProperty("summer.datasource.encoding", encoding);
         String timeout;
         cs->getProperty("summer.datasource.timeout", timeout);
         int minCount = 0, maxCount = 0;
@@ -76,6 +78,7 @@ namespace Microservice {
         connectionStr.appendFormat(fmt, "minCount", Int32(minCount).toString().c_str());
         connectionStr.appendFormat(fmt, "maxCount", Int32(maxCount).toString().c_str());
         connectionStr.appendFormat(fmt, "idle", idle.toString().c_str());
+        connectionStr.appendFormat(fmt, "encoding", encoding.c_str());
         _connection = new SqlConnection(connectionStr);
         return _connection->open();
     }

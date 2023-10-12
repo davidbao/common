@@ -104,7 +104,7 @@ namespace Database {
             String dbname = connections["dbname"];
             String user = connections["user"];
             String password = connections["password"];
-            String localCode = connections["local_code"];
+            String encoding = connections["encoding"];
 
             udint4 timeout; // seconds.
             if (UInt32::parse(connections["timeout"], timeout)) {
@@ -112,34 +112,33 @@ namespace Database {
                 dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_LOGIN_TIMEOUT,
                                  (dpointer) timeout, sizeof(timeout));
             }
-            if (!localCode.isNullOrEmpty()) {
+            if (!encoding.isNullOrEmpty()) {
                 udint4 code = PG_GBK;
-                if (String::equals(localCode, "utf8", true) ||
-                    String::equals(localCode, "utf-8", true)) {
+                if (String::equals(encoding, "utf8", true) ||
+                    String::equals(encoding, "utf-8", true)) {
                     code = PG_UTF8;
-                } else if (String::equals(localCode, "gbk", true)) {
+                } else if (String::equals(encoding, "gbk", true)) {
                     code = PG_GBK;
-                } else if (String::equals(localCode, "big5", true)) {
+                } else if (String::equals(encoding, "big5", true)) {
                     code = PG_BIG5;
-                } else if (String::equals(localCode, "gb18030", true)) {
+                } else if (String::equals(encoding, "gb18030", true)) {
                     code = PG_GB18030;
-                } else if (String::equals(localCode, "ISO_8859_9", true)) {
+                } else if (String::equals(encoding, "ISO_8859_9", true)) {
                     code = PG_ISO_8859_9;
-                } else if (String::equals(localCode, "EUC_JP", true)) {
+                } else if (String::equals(encoding, "EUC_JP", true)) {
                     code = PG_EUC_JP;
-                } else if (String::equals(localCode, "EUC_KR", true)) {
+                } else if (String::equals(encoding, "EUC_KR", true)) {
                     code = PG_EUC_KR;
-                } else if (String::equals(localCode, "KOI8R", true)) {
+                } else if (String::equals(encoding, "KOI8R", true)) {
                     code = PG_KOI8R;
-                } else if (String::equals(localCode, "ISO_8859_1", true)) {
+                } else if (String::equals(encoding, "ISO_8859_1", true)) {
                     code = PG_ISO_8859_1;
-                } else if (String::equals(localCode, "SQL_ASCII", true)) {
+                } else if (String::equals(encoding, "SQL_ASCII", true)) {
                     code = PG_SQL_ASCII;
-                } else if (String::equals(localCode, "ISO_8859_11", true)) {
+                } else if (String::equals(encoding, "ISO_8859_11", true)) {
                     code = PG_ISO_8859_11;
                 }
-                dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_LOCAL_CODE,
-                                 (dpointer) code, sizeof(code));
+                dpi_set_con_attr(_dm7Db->hdbc, DSQL_ATTR_LOCAL_CODE, (dpointer) code, sizeof(code));
             }
 
             String svr = host + ":" + port;
@@ -549,15 +548,16 @@ namespace Database {
 
             int i = 0;
             ulength row_num;
+            slength val_len;
             char value[65535] = {0};
             while (dpi_fetch_scroll(hsmt, DSQL_FETCH_NEXT, 0, &row_num) != DSQL_NO_DATA) {
                 DataRow row;
                 for (int j = 0; j < columnCount; j++) {
                     const DataColumn &column = table.columns().at(j);
                     DbType type = column.type();
-                    DPIRETURN result = dpi_get_data(hsmt, j + 1, DSQL_C_CHAR, value, sizeof(value), nullptr);
+                    DPIRETURN result = dpi_get_data(hsmt, j + 1, DSQL_C_CHAR, value, sizeof(value), &val_len);
                     if (isSucceed(result)) {
-                        row.addCell(DataCell(column, DbValue(type, value)));
+                        row.addCell(DataCell(column, DbValue(type, String(value, val_len))));
                     } else {
                         row.addCell(DataCell(column));
                     }
