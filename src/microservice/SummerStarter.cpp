@@ -38,6 +38,8 @@ namespace Microservice {
         _cluster = new ClusterService();
 #ifdef HAS_NOTIFICATION
         _notification = new NotificationService();
+#else
+        _notification = nullptr;
 #endif
 
         initialize();

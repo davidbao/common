@@ -84,8 +84,11 @@ namespace Microservice {
     }
 
     bool DataSourceService::unInitialize() {
-        _connection->close();
-        return true;
+        if (_connection != nullptr) {
+            _connection->close();
+            return true;
+        }
+        return false;
     }
 
     void DataSourceService::createSqlFile(const String &fileName, const String &sql) {
