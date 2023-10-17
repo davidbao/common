@@ -13,7 +13,7 @@
 
 set(IO_SRC
         DirectoryTest.cpp
-#        DirectoryInfo.cpp
+        DirectoryInfoTest.cpp
         FileTest.cpp
         FileInfoTest.cpp
         FileStreamTest.cpp

@@ -35,7 +35,10 @@
 
 namespace IO {
     FileInfo::FileInfo(const String &name) {
-        _name = name;
+        String str = name;
+        if (str.find("file://") >= 0)
+            str.replace("file://", String::Empty);
+        _name = str;
         _attributes = FileAttributes::Unknown;
         _size = 0;
 
@@ -68,15 +71,25 @@ namespace IO {
         return _modifiedTime;
     }
 
+    DateTime FileInfo::creationTime() const {
+        return _creationTime;
+    }
+
+    DateTime FileInfo::lastAccessTime() const {
+        return _lastAccessTime;
+    }
+
     void FileInfo::stat() {
         if (exists()) {
-            struct stat buffer{};
-            int result = ::stat(_name.c_str(), &buffer);
+            struct stat s{};
+            int result = ::stat(_name.c_str(), &s);
             if (result == 0) {
-                _attributes = (FileInfo::FileAttributes) buffer.st_mode;
-                _size = buffer.st_size;
+                _attributes = (FileInfo::FileAttributes) s.st_mode;
+                _size = s.st_size;
 
-                _modifiedTime = DateTime::fromLocalTime(buffer.st_mtime);
+                _modifiedTime = DateTime::fromLocalTime(s.st_mtime);
+                _creationTime = DateTime::fromLocalTime(s.st_ctime);
+                _lastAccessTime = DateTime::fromLocalTime(s.st_atime);
             }
         }
     }

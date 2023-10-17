@@ -39,6 +39,10 @@ namespace IO {
 
         DateTime modifiedTime() const;
 
+        DateTime creationTime() const;
+
+        DateTime lastAccessTime() const;
+
     private:
         void stat();
 
@@ -48,6 +52,8 @@ namespace IO {
         FileInfo::FileAttributes _attributes;
         off_t _size;
         DateTime _modifiedTime;
+        DateTime _creationTime;
+        DateTime _lastAccessTime;
     };
 }
 
