@@ -206,11 +206,14 @@ namespace Diag {
                 process->_id = (int) pi.dwProcessId;
                 process->_name = Path::getFileName(fileName);
 
+                int milliseconds = process->_waiting;
+
                 static String line;
                 line.empty();
                 if (hStdOutRead != nullptr) {
                     char buffer[128];
                     DWORD dwRead, tdwLeft, dwAvail;
+                    uint64_t startTick = Environment::getTickCount();
                     while (PeekNamedPipe(hStdOutRead, buffer, 1, &dwRead, &dwAvail, &tdwLeft)) {
                         if (dwRead) {
                             if (ReadFile(hStdOutRead, buffer, 1, &dwRead, nullptr) && dwRead != 0) {
@@ -228,10 +231,15 @@ namespace Diag {
                             if (WaitForSingleObject(pi.hProcess, 0) == WAIT_OBJECT_0)
                                 break;
                         }
+
+                        if (milliseconds > 0) {
+                            if (Environment::getTickCount() - startTick >= milliseconds) {
+                                break;
+                            }
+                        }
                     }
                 }
 
-                int milliseconds = process->_waiting;
                 if (milliseconds != 0) {
                     if (milliseconds > 0) {
                         uint64_t endTick = Environment::getTickCount();
@@ -812,9 +820,17 @@ namespace Diag {
         if (_id > 0) {
 #ifdef WIN32
             enableDebugPriv();
-            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _id);
+            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, _id);
             if (hProcess != nullptr) {
-                CloseHandle(hProcess);
+                DWORD exitCode = 0;
+                if (GetExitCodeProcess(hProcess, &exitCode)) {
+                    CloseHandle(hProcess);
+                    if (exitCode == STILL_ACTIVE) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
                 return true;
             }
             return false;

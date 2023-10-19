@@ -232,7 +232,7 @@ bool testMultiProcesses() {
             return false;
         }
         process.waitForExit();
-        Thread::msleep(200);
+//        Thread::msleep(200);
         if (process.exist()) {
             return false;
         }
@@ -326,6 +326,9 @@ bool testWait() {
 }
 
 int main(int argc, const char *argv[]) {
+    Trace::enableFlushConsoleOutput();
+    Trace::enableConsoleOutput();
+
     Application app(argc, argv);
     const Application::Arguments &arguments = app.arguments();
     if(arguments.contains("test") || arguments.contains("t")) {
