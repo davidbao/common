@@ -18,6 +18,10 @@
 #include "yml/YmlNode.h"
 
 using namespace Yml;
+namespace Database {
+    class DataTable;
+}
+using namespace Database;
 
 class JSONNode;
 
@@ -149,6 +153,8 @@ namespace Json {
         bool getAttribute(StringArray &value) const;
 
         bool getAttribute(StringMap &value) const;
+
+        bool getAttribute(const String &name, DataTable &value) const;
 
         bool hasAttribute(const String &name) const;
 

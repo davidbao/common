@@ -10,6 +10,7 @@
 #include "diag/Trace.h"
 #include "data/DateTime.h"
 #include "data/Version.h"
+#include "database/DataTable.h"
 
 using namespace Json;
 
@@ -574,7 +575,7 @@ bool testAt() {
 
     {
         JsonNode test;
-        JsonNode::parse("{\"type\":\"cycle\",\"interval\":\"00:01:00\"}", test);
+        JsonNode::parse(R"({"type":"cycle","interval":"00:01:00"})", test);
         if (test.getAttribute("type") != "cycle") {
             return false;
         }
@@ -955,6 +956,145 @@ bool testAttribute() {
         }
     }
 
+    {
+        // {
+        //            "name": "button1",
+        //            "table": {
+        //                "columns": [
+        //                    "col1", "col2", "col3", "col4"
+        //                ],
+        //                "rows": [
+        //                    [1, "2", "3", "4"],
+        //                    [2, "3", "4", "5"],
+        //                    [3, "4", "5", "6"]
+        //                ]
+        //            }
+        //        }
+        JsonNode test;
+        if (!JsonNode::parse(R"({"name":"button1","table":{"columns":["col1","col2","col3","col4"],"rows":[[1,"2","3","4"],[2,"3","4","5"],[3,"4","5","6"]]}})",
+                test)) {
+            return false;
+        }
+        DataTable table;
+        if (!test.getAttribute("table", table)) {
+            return false;
+        }
+        if (table.name() != "table") {
+            return false;
+        }
+        if (table.columnCount() != 4) {
+            return false;
+        }
+        if (!(table.columns()[0].name() == "col1" &&
+              table.columns()[1].name() == "col2" &&
+              table.columns()[2].name() == "col3" &&
+              table.columns()[3].name() == "col4")) {
+            return false;
+        }
+        if (table.rowCount() != 3) {
+            return false;
+        }
+        if (table.rows()[0].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[0].cells()[0].value() == 1 &&
+              table.rows()[0].cells()[1].value() == 2 &&
+              table.rows()[0].cells()[2].value() == 3 &&
+              table.rows()[0].cells()[3].value() == 4)) {
+            return false;
+        }
+        if (table.rows()[1].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[1].cells()[0].value() == 2 &&
+              table.rows()[1].cells()[1].value() == 3 &&
+              table.rows()[1].cells()[2].value() == 4 &&
+              table.rows()[1].cells()[3].value() == 5)) {
+            return false;
+        }
+        if (table.rows()[2].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[2].cells()[0].value() == 3 &&
+              table.rows()[2].cells()[1].value() == 4 &&
+              table.rows()[2].cells()[2].value() == 5 &&
+              table.rows()[2].cells()[3].value() == 6)) {
+            return false;
+        }
+    }
+    {
+        // {
+        //            "name": "button1",
+        //            "table": {
+        //                "columns": [
+        //                    {"name": "col1", "type": "text", "pkey": true},
+        //                    {"name": "col2", "type": "text"},
+        //                    {"name": "col3", "type": "text"},
+        //                    {"name": "col4", "type": "text"}
+        //                ],
+        //                "rows": [
+        //                    [1, "2", "3", "4"],
+        //                    [2, "3", "4", "5"],
+        //                    [3, "4", "5", "6"]
+        //                ]
+        //            }
+        //        }
+        JsonNode test;
+        if (!JsonNode::parse(R"({"name":"button1","table":{"columns":[{"name":"col1","type":"int64","pkey":true},{"name":"col2","type":"text"},{"name":"col3","type":"text"},{"name":"col4","type":"text"}],"rows":[[1,"2","3","4"],[2,"3","4","5"],[3,"4","5","6"]]}})",
+                test)) {
+            return false;
+        }
+        DataTable table;
+        if (!test.getAttribute("table", table)) {
+            return false;
+        }
+        if (table.name() != "table") {
+            return false;
+        }
+        if (table.columnCount() != 4) {
+            return false;
+        }
+        if (!(table.columns()[0].name() == "col1" &&
+              table.columns()[1].name() == "col2" &&
+              table.columns()[2].name() == "col3" &&
+              table.columns()[3].name() == "col4")) {
+            return false;
+        }
+        if (!table.columns()[0].primaryKey()) {
+            return false;
+        }
+        if (table.rowCount() != 3) {
+            return false;
+        }
+        if (table.rows()[0].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[0].cells()[0].value() == 1 &&
+              table.rows()[0].cells()[1].value() == 2 &&
+              table.rows()[0].cells()[2].value() == 3 &&
+              table.rows()[0].cells()[3].value() == 4)) {
+            return false;
+        }
+        if (table.rows()[1].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[1].cells()[0].value() == 2 &&
+              table.rows()[1].cells()[1].value() == 3 &&
+              table.rows()[1].cells()[2].value() == 4 &&
+              table.rows()[1].cells()[3].value() == 5)) {
+            return false;
+        }
+        if (table.rows()[2].cellCount() != 4) {
+            return false;
+        }
+        if (!(table.rows()[2].cells()[0].value() == 3 &&
+              table.rows()[2].cells()[1].value() == 4 &&
+              table.rows()[2].cells()[2].value() == 5 &&
+              table.rows()[2].cells()[3].value() == 6)) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1105,7 +1245,7 @@ bool testCopyTo() {
         if (!node.getAttribute("test3", v3)) {
             return false;
         }
-        if (v3 != true) {
+        if (!v3) {
             return false;
         }
     }
