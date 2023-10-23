@@ -9,7 +9,6 @@
 #include "json/JsonNode.h"
 #include "libjson/libjson.h"
 #include "diag/Trace.h"
-#include "database/DataTable.h"
 #include <cmath>
 
 namespace Json {
@@ -404,50 +403,6 @@ namespace Json {
             }
         }
         return value.count() > 0;
-    }
-
-    bool JsonNode::getAttribute(const String &name, DataTable &value) const {
-        JsonNode node = at(name);
-        if (node.type() == TypeNode) {
-            StringArray columns;
-            node.getAttribute("columns", columns);
-            if (columns.count() > 0) {
-                value.setName(name);
-                for (size_t i = 0; i < columns.count(); ++i) {
-                    const String &column = columns[i];
-                    JsonNode colNode;
-                    if (!JsonNode::parse(column, colNode)) {
-                        value.addColumn(DataColumn(column, DbType::Text));
-                    } else {
-                        String colName = colNode.getAttribute("name");
-                        DbType type = DbValue::fromTypeStr(colNode.getAttribute("type"));
-                        if (type == DbType::Null) {
-                            type = DbType ::Text;
-                        }
-                        bool pkey = false;
-                        colNode.getAttribute("pkey", pkey);
-                        value.addColumn(DataColumn(colName, type, pkey));
-                    }
-                }
-
-                JsonNode rowsNode = node.at("rows");
-                for (size_t i = 0; i < rowsNode.count(); ++i) {
-                    const JsonNode& rowNode = rowsNode[i];
-                    StringArray rows;
-                    rowNode.getAttribute(rows);
-                    if (value.columnCount() == rows.count()) {
-                        DataRow row;
-                        for (size_t j = 0; j < rows.count(); ++j) {
-                            row.addCell(DataCell(value.columns()[j], rows[j]));
-                        }
-                        value.addRow(row);
-                    }
-                }
-
-                return true;
-            }
-        }
-        return false;
     }
 
     bool JsonNode::setAttribute(const String &name, const String &value) {

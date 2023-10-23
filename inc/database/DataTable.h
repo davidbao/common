@@ -296,6 +296,9 @@ namespace Database {
 
         String toUpdateStr(const DataRow &row, const String &whereStr) const;
 
+    public:
+        static bool parse(const JsonNode &node, DataTable &table);
+
     private:
         // A signed integer that indicates the relative values of x and y, as shown in the following table.
         // Value	            Meaning

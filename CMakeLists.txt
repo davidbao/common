@@ -164,6 +164,10 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Release")
 endif ()
 
+if (COMMON_BUILD_DATABASE)
+    add_definitions(-DHAS_DATABASE=1)
+endif ()
+
 if (COMMON_BUILD_NOTIFICATION)
     add_definitions(-DHAS_NOTIFICATION=1)
 endif ()

@@ -494,6 +494,48 @@ namespace Database {
         return node.toString();
     }
 
+    bool DataTable::parse(const JsonNode &node, DataTable &table) {
+        if (node.type() == JsonNode::TypeNode) {
+            StringArray columns;
+            node.getAttribute("columns", columns);
+            if (columns.count() > 0) {
+                for (size_t i = 0; i < columns.count(); ++i) {
+                    const String &column = columns[i];
+                    JsonNode colNode;
+                    if (!JsonNode::parse(column, colNode)) {
+                        table.addColumn(DataColumn(column, DbType::Text));
+                    } else {
+                        String colName = colNode.getAttribute("name");
+                        DbType type = DbValue::fromTypeStr(colNode.getAttribute("type"));
+                        if (type == DbType::Null) {
+                            type = DbType ::Text;
+                        }
+                        bool pkey = false;
+                        colNode.getAttribute("pkey", pkey);
+                        table.addColumn(DataColumn(colName, type, pkey));
+                    }
+                }
+
+                JsonNode rowsNode = node.at("rows");
+                for (size_t i = 0; i < rowsNode.count(); ++i) {
+                    const JsonNode& rowNode = rowsNode[i];
+                    StringArray rows;
+                    rowNode.getAttribute(rows);
+                    if (table.columnCount() == rows.count()) {
+                        DataRow row;
+                        for (size_t j = 0; j < rows.count(); ++j) {
+                            row.addCell(DataCell(table.columns()[j], rows[j]));
+                        }
+                        table.addRow(row);
+                    }
+                }
+
+                return true;
+            }
+        }
+        return false;
+    }
+
     void DataTable::sort(const String &orderBy) {
         OrderByItems items;
         if (SqlSelectFilter::parseOrderBy(orderBy, items)) {
