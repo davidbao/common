@@ -549,15 +549,19 @@ namespace Database {
             int i = 0;
             ulength row_num;
             slength val_len;
-            char value[65535] = {0};
+            char valueStr[65535] = {0};
             while (dpi_fetch_scroll(hsmt, DSQL_FETCH_NEXT, 0, &row_num) != DSQL_NO_DATA) {
                 DataRow row;
                 for (int j = 0; j < columnCount; j++) {
                     const DataColumn &column = table.columns().at(j);
                     DbType type = column.type();
-                    DPIRETURN result = dpi_get_data(hsmt, j + 1, DSQL_C_CHAR, value, sizeof(value), &val_len);
+                    DPIRETURN result = dpi_get_data(hsmt, j + 1, DSQL_C_CHAR, valueStr, sizeof(valueStr), &val_len);
                     if (isSucceed(result)) {
-                        row.addCell(DataCell(column, DbValue(type, String(value, val_len))));
+                        DbValue value = DbValue::NullValue;
+                        if (val_len > 0) {
+                            value = DbValue(type, String(valueStr, val_len));
+                        }
+                        row.addCell(DataCell(column, value));
                     } else {
                         row.addCell(DataCell(column));
                     }
