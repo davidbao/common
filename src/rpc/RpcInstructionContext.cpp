@@ -9,14 +9,12 @@
 #include "rpc/RpcInstructionContext.h"
 
 namespace Rpc {
-    RpcStreamContext::RpcStreamContext() {
+    RpcStreamContext::RpcStreamContext() : _stream(nullptr) {
     }
 
-    RpcStreamContext::~RpcStreamContext() {
-    }
+    RpcStreamContext::~RpcStreamContext() = default;
 
-    RpcHeartbeatRequest::RpcHeartbeatRequest() {
-    }
+    RpcHeartbeatRequest::RpcHeartbeatRequest() = default;
 
     void RpcHeartbeatRequest::write(Stream *stream) const {
     }
@@ -27,8 +25,7 @@ namespace Rpc {
     void RpcHeartbeatRequest::copyFrom(const RpcHeartbeatRequest *value) {
     }
 
-    RpcHeartbeatResponse::RpcHeartbeatResponse() {
-    }
+    RpcHeartbeatResponse::RpcHeartbeatResponse() = default;
 
     void RpcHeartbeatResponse::write(Stream *stream) const {
     }
@@ -39,8 +36,7 @@ namespace Rpc {
     void RpcHeartbeatResponse::copyFrom(const RpcHeartbeatResponse *value) {
     }
 
-    RpcCloseRequest::RpcCloseRequest() {
-    }
+    RpcCloseRequest::RpcCloseRequest() = default;
 
     void RpcCloseRequest::write(Stream *stream) const {
     }
@@ -51,8 +47,7 @@ namespace Rpc {
     void RpcCloseRequest::copyFrom(const RpcCloseRequest *value) {
     }
 
-    RpcCloseResponse::RpcCloseResponse() {
-    }
+    RpcCloseResponse::RpcCloseResponse() = default;
 
     void RpcCloseResponse::write(Stream *stream) const {
     }
@@ -69,8 +64,7 @@ namespace Rpc {
     }
 
     RpcSyncRequest::~RpcSyncRequest() {
-        if (_data != nullptr)
-            delete _data;
+        delete _data;
     }
 
     void RpcSyncRequest::read(Stream *stream) {
@@ -108,8 +102,7 @@ namespace Rpc {
     }
 
     RpcSyncResponse::~RpcSyncResponse() {
-        if (_data != nullptr)
-            delete _data;
+        delete _data;
     }
 
     void RpcSyncResponse::read(Stream *stream) {
@@ -156,8 +149,7 @@ namespace Rpc {
     }
 
     RpcAsyncRequest::~RpcAsyncRequest() {
-        if (_data != nullptr)
-            delete _data;
+        delete _data;
     }
 
     void RpcAsyncRequest::read(Stream *stream) {
@@ -204,8 +196,7 @@ namespace Rpc {
     }
 
     RpcAsyncResponse::~RpcAsyncResponse() {
-        if (_data != nullptr)
-            delete _data;
+        delete _data;
     }
 
     void RpcAsyncResponse::read(Stream *stream) {
@@ -258,8 +249,7 @@ namespace Rpc {
     }
 
     RpcNotifyInfo::~RpcNotifyInfo() {
-        if (_info != nullptr)
-            delete _info;
+        delete _info;
     }
 
     void RpcNotifyInfo::read(Stream *stream) {

@@ -17,7 +17,6 @@ namespace Microservice {
     static String Summer_rootPath;
     static TraceListenerContexts Summer_traceContexts(true, 32);
 
-    __attribute__((unused))
     static struct InitializeSummerApplication {
         InitializeSummerApplication() {
             String appFilePath = Application::startupPath();

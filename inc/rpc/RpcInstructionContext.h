@@ -94,7 +94,7 @@ namespace Rpc {
 
     class RpcSyncRequest {
     public:
-        RpcSyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
+        explicit RpcSyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
                        const IRpcSyncRequestData *data = nullptr);
 
         virtual ~RpcSyncRequest();
@@ -116,7 +116,7 @@ namespace Rpc {
 
     class RpcSyncResponse {
     public:
-        RpcSyncResponse(const RpcMethodContext &context = RpcMethodContext::Empty,
+        explicit RpcSyncResponse(const RpcMethodContext &context = RpcMethodContext::Empty,
                         IRpcSyncResponseData *data = nullptr);
 
         virtual ~RpcSyncResponse();
@@ -143,7 +143,7 @@ namespace Rpc {
 
     class RpcAsyncRequest {
     public:
-        RpcAsyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
+        explicit RpcAsyncRequest(const RpcMethodContext &context = RpcMethodContext::Empty,
                         const IRpcAsyncRequestData *data = nullptr);
 
         virtual ~RpcAsyncRequest();
@@ -168,7 +168,7 @@ namespace Rpc {
 
     class RpcAsyncResponse {
     public:
-        RpcAsyncResponse(const RpcMethodContext &context = RpcMethodContext(), const Uuid &token = Uuid::Empty,
+        explicit RpcAsyncResponse(const RpcMethodContext &context = RpcMethodContext(), const Uuid &token = Uuid::Empty,
                          IRpcAsyncResponseData *data = nullptr);
 
         virtual ~RpcAsyncResponse();
@@ -201,7 +201,7 @@ namespace Rpc {
 
     class RpcNotifyInfo {
     public:
-        RpcNotifyInfo(const RpcMethodContext &context = RpcMethodContext(), const IRpcNotifyInfo *info = nullptr);
+        explicit RpcNotifyInfo(const RpcMethodContext &context = RpcMethodContext(), const IRpcNotifyInfo *info = nullptr);
 
         virtual ~RpcNotifyInfo();
 

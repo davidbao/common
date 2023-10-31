@@ -20,7 +20,7 @@ using namespace Data;
 namespace Rpc {
     class RpcServerEventContainer {
     public:
-        RpcServerEventContainer(IRpcServerEvent *receiver);
+        explicit RpcServerEventContainer(IRpcServerEvent *receiver);
 
         virtual ~RpcServerEventContainer();
 
@@ -33,7 +33,7 @@ namespace Rpc {
 
     class RpcReceiverEventContainer {
     public:
-        RpcReceiverEventContainer(IRpcReceiverEvent *receiver);
+        explicit RpcReceiverEventContainer(IRpcReceiverEvent *receiver);
 
         virtual ~RpcReceiverEventContainer();
 
@@ -50,7 +50,7 @@ namespace Rpc {
 
     class RpcSenderEventContainer {
     public:
-        RpcSenderEventContainer(IRpcSenderEvent *receiver);
+        explicit RpcSenderEventContainer(IRpcSenderEvent *receiver);
 
         virtual ~RpcSenderEventContainer();
 
@@ -63,7 +63,7 @@ namespace Rpc {
 
     class HeartbeatInstruction : public ElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse> {
     public:
-        HeartbeatInstruction(InstructionDescription *id);
+        explicit HeartbeatInstruction(InstructionDescription *id);
 
         ~HeartbeatInstruction() override;
 
@@ -74,7 +74,7 @@ namespace Rpc {
 
     class ServerHeartbeatInstruction : public ServerElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse> {
     public:
-        ServerHeartbeatInstruction(InstructionDescription *id);
+        explicit ServerHeartbeatInstruction(InstructionDescription *id);
 
         ~ServerHeartbeatInstruction() override;
 
@@ -85,7 +85,7 @@ namespace Rpc {
 
     class CloseInstruction : public ElementInstruction<RpcCloseRequest, RpcCloseResponse> {
     public:
-        CloseInstruction(InstructionDescription *id);
+        explicit CloseInstruction(InstructionDescription *id);
 
         ~CloseInstruction() override;
 
@@ -110,7 +110,7 @@ namespace Rpc {
 
     class RpcSyncInstruction : public ElementInstruction<RpcSyncRequest, RpcSyncResponse> {
     public:
-        RpcSyncInstruction(InstructionDescription *id);
+        explicit RpcSyncInstruction(InstructionDescription *id);
 
         ~RpcSyncInstruction() override;
 
@@ -135,7 +135,7 @@ namespace Rpc {
 
     class RpcAsyncRequestInstruction : public ElementAInstruction<RpcAsyncRequest> {
     public:
-        RpcAsyncRequestInstruction(InstructionDescription *id);
+        explicit RpcAsyncRequestInstruction(InstructionDescription *id);
 
         ~RpcAsyncRequestInstruction() override;
 
@@ -160,7 +160,7 @@ namespace Rpc {
 
     class RpcAsyncResponseInstruction : public ElementAInstruction<RpcAsyncResponse> {
     public:
-        RpcAsyncResponseInstruction(InstructionDescription *id);
+        explicit RpcAsyncResponseInstruction(InstructionDescription *id);
 
         ~RpcAsyncResponseInstruction() override;
 
@@ -185,7 +185,7 @@ namespace Rpc {
 
     class RpcNotifyInstruction : public ElementAInstruction<RpcNotifyInfo> {
     public:
-        RpcNotifyInstruction(InstructionDescription *id);
+        explicit RpcNotifyInstruction(InstructionDescription *id);
 
         ~RpcNotifyInstruction() override;
 
@@ -210,7 +210,7 @@ namespace Rpc {
 
     class RpcSyncInstruction2 : public RpcSyncInstruction {
     public:
-        RpcSyncInstruction2(InstructionDescription *id);
+        explicit RpcSyncInstruction2(InstructionDescription *id);
 
         ~RpcSyncInstruction2() override;
 
@@ -228,7 +228,7 @@ namespace Rpc {
 
     class RpcAsyncRequestInstruction2 : public RpcAsyncRequestInstruction {
     public:
-        RpcAsyncRequestInstruction2(InstructionDescription *id);
+        explicit RpcAsyncRequestInstruction2(InstructionDescription *id);
 
         ~RpcAsyncRequestInstruction2() override;
 
@@ -246,7 +246,7 @@ namespace Rpc {
 
     class RpcAsyncResponseInstruction2 : public RpcAsyncResponseInstruction {
     public:
-        RpcAsyncResponseInstruction2(InstructionDescription *id);
+        explicit RpcAsyncResponseInstruction2(InstructionDescription *id);
 
         ~RpcAsyncResponseInstruction2() override;
 
@@ -264,7 +264,7 @@ namespace Rpc {
 
     class RpcNotifyInstruction2 : public RpcNotifyInstruction {
     public:
-        RpcNotifyInstruction2(InstructionDescription *id);
+        explicit RpcNotifyInstruction2(InstructionDescription *id);
 
         ~RpcNotifyInstruction2() override;
 

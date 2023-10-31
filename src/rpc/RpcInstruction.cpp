@@ -35,12 +35,12 @@ namespace Rpc {
     RpcSyncContext *RpcReceiverEventContainer::onSyncSetValue(RpcSyncContext *context) {
         if (context != nullptr) {
             RpcSyncRequest *request = context->inputData();
-            RpcSyncResponse *reponse = context->outputData();
+            RpcSyncResponse *response = context->outputData();
             Stream *stream = context->stream();
             IRpcSyncResponseData *data = nullptr;
             _receiver->onSyncSetValue(request->methodContext(), stream, request->data(), data);
             if (data != nullptr) {
-                reponse->setData(data);
+                response->setData(data);
                 delete data;
             }
         }
@@ -89,8 +89,7 @@ namespace Rpc {
             : ElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse>(id) {
     }
 
-    HeartbeatInstruction::~HeartbeatInstruction() {
-    }
+    HeartbeatInstruction::~HeartbeatInstruction() = default;
 
     uint8_t HeartbeatInstruction::command() const {
         return 0x01;
@@ -104,8 +103,7 @@ namespace Rpc {
             : ServerElementInstruction<RpcHeartbeatRequest, RpcHeartbeatResponse>(id) {
     }
 
-    ServerHeartbeatInstruction::~ServerHeartbeatInstruction() {
-    }
+    ServerHeartbeatInstruction::~ServerHeartbeatInstruction() = default;
 
     uint8_t ServerHeartbeatInstruction::command() const {
         return 0x01;
@@ -120,8 +118,7 @@ namespace Rpc {
             : ElementInstruction<RpcCloseRequest, RpcCloseResponse>(id) {
     }
 
-    CloseInstruction::~CloseInstruction() {
-    }
+    CloseInstruction::~CloseInstruction() = default;
 
     uint8_t CloseInstruction::command() const {
         return 0x02;
@@ -135,8 +132,7 @@ namespace Rpc {
             : ServerElementInstruction<RpcCloseRequest, RpcCloseResponse>(id), RpcServerEventContainer(receiver) {
     }
 
-    ServerCloseInstruction::~ServerCloseInstruction() {
-    }
+    ServerCloseInstruction::~ServerCloseInstruction() = default;
 
     uint8_t ServerCloseInstruction::command() const {
         return 0x02;
@@ -147,7 +143,7 @@ namespace Rpc {
     }
 
     ClientContext *ServerCloseInstruction::setValue(ClientContext *context) {
-        RpcCloseContext *rcontext = dynamic_cast<RpcCloseContext *>(context);
+        auto rcontext = dynamic_cast<RpcCloseContext *>(context);
         if (rcontext != nullptr) {
             // close the client.
             onCloseClient(rcontext->peerEndpoint());
@@ -160,8 +156,7 @@ namespace Rpc {
             : ElementInstruction<RpcSyncRequest, RpcSyncResponse>(id) {
     }
 
-    RpcSyncInstruction::~RpcSyncInstruction() {
-    }
+    RpcSyncInstruction::~RpcSyncInstruction() = default;
 
     uint8_t RpcSyncInstruction::command() const {
         return 0x10;
@@ -175,8 +170,7 @@ namespace Rpc {
             : ServerElementInstruction<RpcSyncRequest, RpcSyncResponse>(id), RpcReceiverEventContainer(receiver) {
     }
 
-    ServerRpcSyncInstruction::~ServerRpcSyncInstruction() {
-    }
+    ServerRpcSyncInstruction::~ServerRpcSyncInstruction() = default;
 
     uint8_t ServerRpcSyncInstruction::command() const {
         return 0x10;
@@ -187,7 +181,7 @@ namespace Rpc {
     }
 
     bool ServerRpcSyncInstruction::setCommandBuffer(MemoryStream &ms, ClientContext *context) {
-        RpcSyncContext *rcontext = dynamic_cast<RpcSyncContext *>(context);
+        auto rcontext = dynamic_cast<RpcSyncContext *>(context);
         if (rcontext != nullptr) {
             ms.readByte();    // skip command
             readVersion(&ms);
@@ -205,8 +199,7 @@ namespace Rpc {
             : ElementAInstruction<RpcAsyncRequest>(id) {
     }
 
-    RpcAsyncRequestInstruction::~RpcAsyncRequestInstruction() {
-    }
+    RpcAsyncRequestInstruction::~RpcAsyncRequestInstruction() = default;
 
     uint8_t RpcAsyncRequestInstruction::command() const {
         return 0x11;
@@ -221,8 +214,7 @@ namespace Rpc {
             : ServerElementAInstruction<RpcAsyncRequest>(id), RpcReceiverEventContainer(receiver) {
     }
 
-    ServerRpcAsyncRequestInstruction::~ServerRpcAsyncRequestInstruction() {
-    }
+    ServerRpcAsyncRequestInstruction::~ServerRpcAsyncRequestInstruction() = default;
 
     uint8_t ServerRpcAsyncRequestInstruction::command() const {
         return 0x11;
@@ -233,7 +225,7 @@ namespace Rpc {
     }
 
     bool ServerRpcAsyncRequestInstruction::setCommandBuffer(MemoryStream &ms, ClientContext *context) {
-        RpcAsyncRequestContext *rcontext = dynamic_cast<RpcAsyncRequestContext *>(context);
+        auto rcontext = dynamic_cast<RpcAsyncRequestContext *>(context);
         if (rcontext != nullptr) {
             ms.readByte();    // skip command
             readVersion(&ms);
@@ -251,8 +243,7 @@ namespace Rpc {
             : ElementAInstruction<RpcAsyncResponse>(id) {
     }
 
-    RpcAsyncResponseInstruction::~RpcAsyncResponseInstruction() {
-    }
+    RpcAsyncResponseInstruction::~RpcAsyncResponseInstruction() = default;
 
     uint8_t RpcAsyncResponseInstruction::command() const {
         return 0x12;
@@ -267,8 +258,7 @@ namespace Rpc {
             : ServerElementAInstruction<RpcAsyncResponse>(id), RpcSenderEventContainer(receiver) {
     }
 
-    ServerRpcAsyncResponseInstruction::~ServerRpcAsyncResponseInstruction() {
-    }
+    ServerRpcAsyncResponseInstruction::~ServerRpcAsyncResponseInstruction() = default;
 
     uint8_t ServerRpcAsyncResponseInstruction::command() const {
         return 0x12;
@@ -279,7 +269,7 @@ namespace Rpc {
     }
 
     bool ServerRpcAsyncResponseInstruction::setCommandBuffer(MemoryStream &ms, ClientContext *context) {
-        RpcAsyncResponseContext *rcontext = dynamic_cast<RpcAsyncResponseContext *>(context);
+        auto rcontext = dynamic_cast<RpcAsyncResponseContext *>(context);
         if (rcontext != nullptr) {
             ms.readByte();    // skip command
             readVersion(&ms);
@@ -296,8 +286,7 @@ namespace Rpc {
     RpcNotifyInstruction::RpcNotifyInstruction(InstructionDescription *id) : ElementAInstruction<RpcNotifyInfo>(id) {
     }
 
-    RpcNotifyInstruction::~RpcNotifyInstruction() {
-    }
+    RpcNotifyInstruction::~RpcNotifyInstruction() = default;
 
     uint8_t RpcNotifyInstruction::command() const {
         return 0x13;
@@ -311,8 +300,7 @@ namespace Rpc {
             : ServerElementAInstruction<RpcNotifyInfo>(id), RpcReceiverEventContainer(receiver) {
     }
 
-    ServerRpcNotifyInstruction::~ServerRpcNotifyInstruction() {
-    }
+    ServerRpcNotifyInstruction::~ServerRpcNotifyInstruction() = default;
 
     uint8_t ServerRpcNotifyInstruction::command() const {
         return 0x13;
@@ -323,7 +311,7 @@ namespace Rpc {
     }
 
     bool ServerRpcNotifyInstruction::setCommandBuffer(MemoryStream &ms, ClientContext *context) {
-        RpcNotifyContext *rcontext = dynamic_cast<RpcNotifyContext *>(context);
+        auto rcontext = dynamic_cast<RpcNotifyContext *>(context);
         if (rcontext != nullptr) {
             ms.readByte();    // skip command
             readVersion(&ms);
@@ -339,8 +327,7 @@ namespace Rpc {
     RpcSyncInstruction2::RpcSyncInstruction2(InstructionDescription *id) : RpcSyncInstruction(id) {
     }
 
-    RpcSyncInstruction2::~RpcSyncInstruction2() {
-    }
+    RpcSyncInstruction2::~RpcSyncInstruction2() = default;
 
     uint8_t RpcSyncInstruction2::command() const {
         return 0x15;
@@ -350,8 +337,7 @@ namespace Rpc {
             : ServerRpcSyncInstruction(id, receiver) {
     }
 
-    ServerRpcSyncInstruction2::~ServerRpcSyncInstruction2() {
-    }
+    ServerRpcSyncInstruction2::~ServerRpcSyncInstruction2() = default;
 
     uint8_t ServerRpcSyncInstruction2::command() const {
         return 0x15;
@@ -361,8 +347,7 @@ namespace Rpc {
             id) {
     }
 
-    RpcAsyncRequestInstruction2::~RpcAsyncRequestInstruction2() {
-    }
+    RpcAsyncRequestInstruction2::~RpcAsyncRequestInstruction2() = default;
 
     uint8_t RpcAsyncRequestInstruction2::command() const {
         return 0x16;
@@ -373,8 +358,7 @@ namespace Rpc {
             : ServerRpcAsyncRequestInstruction(id, receiver) {
     }
 
-    ServerRpcAsyncRequestInstruction2::~ServerRpcAsyncRequestInstruction2() {
-    }
+    ServerRpcAsyncRequestInstruction2::~ServerRpcAsyncRequestInstruction2() = default;
 
     uint8_t ServerRpcAsyncRequestInstruction2::command() const {
         return 0x16;
@@ -384,8 +368,7 @@ namespace Rpc {
             : RpcAsyncResponseInstruction(id) {
     }
 
-    RpcAsyncResponseInstruction2::~RpcAsyncResponseInstruction2() {
-    }
+    RpcAsyncResponseInstruction2::~RpcAsyncResponseInstruction2() = default;
 
     uint8_t RpcAsyncResponseInstruction2::command() const {
         return 0x17;
@@ -396,8 +379,7 @@ namespace Rpc {
             : ServerRpcAsyncResponseInstruction(id, receiver) {
     }
 
-    ServerRpcAsyncResponseInstruction2::~ServerRpcAsyncResponseInstruction2() {
-    }
+    ServerRpcAsyncResponseInstruction2::~ServerRpcAsyncResponseInstruction2() = default;
 
     uint8_t ServerRpcAsyncResponseInstruction2::command() const {
         return 0x17;
@@ -406,8 +388,7 @@ namespace Rpc {
     RpcNotifyInstruction2::RpcNotifyInstruction2(InstructionDescription *id) : RpcNotifyInstruction(id) {
     }
 
-    RpcNotifyInstruction2::~RpcNotifyInstruction2() {
-    }
+    RpcNotifyInstruction2::~RpcNotifyInstruction2() = default;
 
     uint8_t RpcNotifyInstruction2::command() const {
         return 0x18;
@@ -417,8 +398,7 @@ namespace Rpc {
             : ServerRpcNotifyInstruction(id, receiver) {
     }
 
-    ServerRpcNotifyInstruction2::~ServerRpcNotifyInstruction2() {
-    }
+    ServerRpcNotifyInstruction2::~ServerRpcNotifyInstruction2() = default;
 
     uint8_t ServerRpcNotifyInstruction2::command() const {
         return 0x18;
