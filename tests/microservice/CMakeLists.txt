@@ -25,7 +25,7 @@ set(MICROSERVICE_SRC
 #        ServiceInstance.cpp
 #        ServiceRegister.cpp
         SummerApplicationTest.cpp
-#        SummerStarter.cpp
+        SummerStarterTest.cpp
         SsoServiceTest.cpp
 #        TcpService.cpp
 #        TcpTemplate.cpp

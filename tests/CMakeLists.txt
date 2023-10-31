@@ -85,11 +85,11 @@ if (COMMON_ENABLE_TEST)
 
     if (COMMON_BUILD_MQTTCLIENT)
         set(EXTERNALS_LIB
+                ${EXTERNALS_LIB}
                 paho-mqtt3a-static${CMAKE_FIND_LIBRARY_SUFFIXES}
                 paho-mqtt3as-static${CMAKE_FIND_LIBRARY_SUFFIXES}
                 paho-mqtt3c-static${CMAKE_FIND_LIBRARY_SUFFIXES}
                 paho-mqtt3cs-static${CMAKE_FIND_LIBRARY_SUFFIXES}
-                ${EXTERNALS_LIB}
                 )
     endif()
 

@@ -13,10 +13,11 @@
 using namespace Data;
 
 namespace Microservice {
-    static const char* Summer_default_ProdName = "easesuite";
-    static String Summer_homePath;
-    static TraceListenerContexts Summer_traceContexts;
+    static const char *Summer_default_ProdName = "easesuite";
+    static String Summer_rootPath;
+    static TraceListenerContexts Summer_traceContexts(true, 32);
 
+    __attribute__((unused))
     static struct InitializeSummerApplication {
         InitializeSummerApplication() {
             String appFilePath = Application::startupPath();
@@ -30,22 +31,39 @@ namespace Microservice {
                 appName = appFileName;
 
 #ifdef __linux__
-            const String homePath = Path::getAppPath();
+            const String rootPath = Path::getAppPath();
 #else
-            const String homePath = Path::getDocumentPath(
+            const String rootPath = Path::getDocumentPath(
                     String::format("Documents/%s/%s", Summer_default_ProdName, appName.c_str()));
 #endif
-            Summer_homePath = homePath;
+            Summer_rootPath = rootPath;
 
-            Summer_traceContexts.add(new FileTraceListenerContext(Path::combine(homePath, "logs")));
+            Summer_traceContexts.add(new FileTraceListenerContext(Path::combine(rootPath, "logs")));
         }
     } InitializeSummerApplication;
 
-    SummerApplication::SummerApplication(int argc, const char *argv[],
-                                         const String &rootPath, const TraceListenerContexts &contexts) :
-                                         Application(argc, argv,
-                                                     !rootPath.isNullOrEmpty() ? rootPath : Summer_homePath,
-                                                     !contexts.isEmpty() ? contexts : Summer_traceContexts) {
+    SummerApplication::SummerApplication(int argc, const char *argv[], const TraceListenerContexts &contexts) :
+            Application(argc, argv, Summer_rootPath, !contexts.isEmpty() ? contexts : Summer_traceContexts) {
+        create();
+    }
+
+    SummerApplication::SummerApplication(const String &rootPath, int argc, const char *argv[],
+                                         const TraceListenerContexts &contexts) :
+            Application(argc, argv,
+                        !rootPath.isNullOrEmpty() ? rootPath : Summer_rootPath,
+                        !contexts.isEmpty() ? contexts : Summer_traceContexts) {
+        create();
+    }
+
+    SummerApplication::~SummerApplication() {
+        destroy();
+    }
+
+    SummerApplication *SummerApplication::instance() {
+        return dynamic_cast<SummerApplication *>(Application::instance());
+    }
+
+    void SummerApplication::create() {
 #ifdef WIN32
         Trace::enableConsoleOutput();
         Trace::enableFlushConsoleOutput();
@@ -56,13 +74,9 @@ namespace Microservice {
         }
     }
 
-    SummerApplication::~SummerApplication() {
+    void SummerApplication::destroy() {
         if (_traceListeners.count() > 0) {
             Trace::writeLine(String::format("%s is stopping.", Application::name().c_str()), Trace::Info);
         }
-    }
-
-    SummerApplication *SummerApplication::instance() {
-        return dynamic_cast<SummerApplication *>(Application::instance());
     }
 }

@@ -118,6 +118,8 @@ namespace Config {
 
         String fileName() const;
 
+        String profileName() const;
+
         void updateVariables();
 
         bool updateVariables(const String &key, const String &value, String &newValue);

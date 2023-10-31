@@ -46,9 +46,11 @@ namespace Microservice {
     public:
         typedef void (*ProcessAction)();
 
-        SummerStarter(int argc = 0, const char *argv[] = nullptr,
-                      const String &rootPath = String::Empty,
-                      const TraceListenerContexts &contexts = TraceListenerContexts::Empty);
+        explicit SummerStarter(int argc = 0, const char *argv[] = nullptr,
+                               const TraceListenerContexts &contexts = TraceListenerContexts::Empty);
+
+        explicit SummerStarter(const String &rootPath, int argc = 0, const char *argv[] = nullptr,
+                               const TraceListenerContexts &contexts = TraceListenerContexts::Empty);
 
         virtual ~SummerStarter();
 
@@ -69,21 +71,31 @@ namespace Microservice {
             return _app->exitCode();
         }
 
+        int run();
+
         template<class T>
         int run() {
             T t;
             if (t.initialize()) {
                 t.unInitialize();
             }
-            unInitialize();
 
-            return _app->exitCode();
+            return run();
         }
 
-        void unInitialize();
+        void reInitialize();
+
+    public:
+        static SummerStarter *instance();
 
     private:
+        void create();
+
+        void destroy();
+
         void initialize();
+
+        void unInitialize();
 
         void runLoopInner();
 
@@ -103,6 +115,9 @@ namespace Microservice {
         NotificationService *_notification;
 
         Dictionary<String, ProcessAction> _actions;
+
+    private:
+        static SummerStarter *_instance;
     };
 }
 

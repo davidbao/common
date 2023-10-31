@@ -72,6 +72,7 @@ runTest json/JsonTextWriterTest
 runTest microservice/DataSourceServiceTest
 runTest microservice/SsoServiceTest
 runTest microservice/SummerApplicationTest
+runTest microservice/SummerStarterTest
 runTest net/DnsTest
 runTest net/NetInterfaceTest
 runTest net/NetTypeTest

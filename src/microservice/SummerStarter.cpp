@@ -20,13 +20,43 @@
 #include "microservice/TcpService.h"
 
 #ifdef HAS_NOTIFICATION
+
 #include "microservice/NotificationService.h"
+
 #endif
 
 namespace Microservice {
+    SummerStarter *SummerStarter::_instance = nullptr;
+
     SummerStarter::SummerStarter(int argc, const char *argv[],
-                                 const String &rootPath, const TraceListenerContexts &contexts) {
-        _app = new SummerApplication(argc, argv, rootPath, contexts);
+                                 const TraceListenerContexts &contexts) {
+        _app = new SummerApplication(argc, argv, contexts);
+        create();
+
+        _instance = this;
+    }
+
+    SummerStarter::SummerStarter(const String &rootPath, int argc, const char *argv[],
+                                 const TraceListenerContexts &contexts) {
+        _app = new SummerApplication(rootPath, argc, argv, contexts);
+        create();
+
+        _instance = this;
+    }
+
+    SummerStarter::~SummerStarter() {
+        _instance = nullptr;
+
+        destroy();
+
+        delete _app;
+    }
+
+    SummerStarter *SummerStarter::instance() {
+        return _instance;
+    }
+
+    void SummerStarter::create() {
         _config = new ConfigService();
         _register = new ServiceRegister();
         _discovery = new ServiceDiscovery();
@@ -45,7 +75,7 @@ namespace Microservice {
         initialize();
     }
 
-    SummerStarter::~SummerStarter() {
+    void SummerStarter::destroy() {
         delete _http;
         delete _tcp;
         delete _actuator;
@@ -58,7 +88,6 @@ namespace Microservice {
 #ifdef HAS_NOTIFICATION
         delete _notification;
 #endif
-        delete _app;
     }
 
     void SummerStarter::add(const String &key, ProcessAction action) {
@@ -68,6 +97,12 @@ namespace Microservice {
     int SummerStarter::runLoop() {
         runLoopInner();
 
+        unInitialize();
+
+        return _app->exitCode();
+    }
+
+    int SummerStarter::run() {
         unInitialize();
 
         return _app->exitCode();
@@ -129,5 +164,12 @@ namespace Microservice {
         _tcp->unInitialize();
         _dataSource->unInitialize();
         _config->unInitialize();
+    }
+
+    void SummerStarter::reInitialize() {
+        unInitialize();
+        destroy();
+        create();
+        initialize();
     }
 }

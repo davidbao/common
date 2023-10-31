@@ -323,6 +323,26 @@ namespace Config {
         }
     }
 
+    String ConfigService::profileName() const {
+        String profile;
+        if (getProperty("summer.profiles.active", profile) && !profile.isNullOrEmpty()) {
+            String path;
+            String basePath;
+            getProperty("summer.profiles.path", basePath);
+            if (String::equals(basePath, "home", true)) {
+                Application *app = Application::instance();
+                assert(app);
+                path = app->rootPath();
+            } else if (Path::isPathRooted(basePath))
+                path = basePath;
+            else
+                path = Path::getDirectoryName(this->fileName());
+            String fileName = Path::combine(path, String::format("application-%s.yml", profile.c_str()));
+            return fileName;
+        }
+        return String::Empty;
+    }
+
     bool ConfigService::setProperty(const String &key, const String &value) {
         _properties.add(key, value);
         return true;
