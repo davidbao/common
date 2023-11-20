@@ -35,50 +35,10 @@ namespace Microservice {
     }
 
     bool DataSourceService::initialize() {
-        ServiceFactory *factory = ServiceFactory::instance();
-        assert(factory);
-        auto *cs = factory->getService<IConfigService>();
-        assert(cs);
-
-        bool enable = true;
-        if (cs->getProperty("summer.datasource.enabled", enable) && !enable) {
+        String connectionStr = createConnectionStr(DatasourcePrefix);
+        if (connectionStr.isNullOrEmpty()) {
             return false;
         }
-        String user;
-        if (!cs->getProperty("summer.datasource.username", user))
-            return false;
-        if (user.isNullOrEmpty()) {
-            Trace::warn("database user name is incorrect.");
-            return false;
-        }
-        String password;
-        if (!cs->getProperty("summer.datasource.password", password)) {
-            Trace::warn("database password is incorrect.");
-            return false;
-        }
-        String encoding;
-        cs->getProperty("summer.datasource.encoding", encoding);
-        String timeout;
-        cs->getProperty("summer.datasource.timeout", timeout);
-        int minCount = 0, maxCount = 0;
-        cs->getProperty("summer.datasource.pool.minCount", minCount);
-        cs->getProperty("summer.datasource.pool.maxCount", maxCount);
-        TimeSpan pingCycle, idle;
-        cs->getProperty("summer.datasource.pingCycle", pingCycle);
-        cs->getProperty("summer.datasource.pool.idle", idle);
-
-        String url = cs->getProperty("summer.datasource.url");
-        String connectionStr;
-        static const char *fmt = "%s=%s; ";
-        connectionStr.appendFormat(fmt, "url", url.c_str());
-        connectionStr.appendFormat(fmt, "user", user.c_str());
-        connectionStr.appendFormat(fmt, "password", password.c_str());
-        connectionStr.appendFormat(fmt, "timeout", timeout.c_str());
-        connectionStr.appendFormat(fmt, "pingCycle", pingCycle.toString().c_str());
-        connectionStr.appendFormat(fmt, "minCount", Int32(minCount).toString().c_str());
-        connectionStr.appendFormat(fmt, "maxCount", Int32(maxCount).toString().c_str());
-        connectionStr.appendFormat(fmt, "idle", idle.toString().c_str());
-        connectionStr.appendFormat(fmt, "encoding", encoding.c_str());
         _connection = new SqlConnection(connectionStr);
         return _connection->open();
     }
@@ -105,5 +65,62 @@ namespace Microservice {
 
     SqlConnection *DataSourceService::connection() {
         return _connection;
+    }
+
+    String DataSourceService::createConnectionStr(const String &prefix) {
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto *cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        if (prefix.isNullOrEmpty()) {
+            return String::Empty;
+        }
+
+        String temp = prefix[prefix.length() - 1] == '.' ? prefix.substr(0, prefix.length() - 1) : prefix;
+        const char *prefixStr = temp.c_str();
+
+        bool enable = true;
+        if (cs->getProperty(String::format("%s.enabled", prefixStr), enable) && !enable) {
+            return String::Empty;
+        }
+        String user;
+        if (!cs->getProperty(String::format("%s.username", prefixStr), user))
+            return String::Empty;
+        if (user.isNullOrEmpty()) {
+            Trace::warn("database user name is incorrect.");
+            return String::Empty;
+        }
+        String password;
+        if (!cs->getProperty(String::format("%s.password", prefixStr), password)) {
+            Trace::warn("database password is incorrect.");
+            return String::Empty;
+        }
+        String encoding;
+        cs->getProperty(String::format("%s.encoding", prefixStr), encoding);
+        String timeout;
+        cs->getProperty(String::format("%s.timeout", prefixStr), timeout);
+        int minCount = 0, maxCount = 0;
+        cs->getProperty(String::format("%s.pool.minCount", prefixStr), minCount);
+        cs->getProperty(String::format("%s.pool.maxCount", prefixStr), maxCount);
+        TimeSpan pingCycle, idle;
+        cs->getProperty(String::format("%s.pingCycle", prefixStr), pingCycle);
+        cs->getProperty(String::format("%s.pool.idle", prefixStr), idle);
+
+        String url = cs->getProperty(String::format("%s.url", prefixStr));
+        String scheme = cs->getProperty(String::format("%s.scheme", prefixStr));
+        static const char *fmt = "%s=%s; ";
+        String connectionStr;
+        connectionStr.appendFormat(fmt, "url", url.c_str());
+        connectionStr.appendFormat(fmt, "scheme", scheme.c_str());
+        connectionStr.appendFormat(fmt, "user", user.c_str());
+        connectionStr.appendFormat(fmt, "password", password.c_str());
+        connectionStr.appendFormat(fmt, "timeout", timeout.c_str());
+        connectionStr.appendFormat(fmt, "pingCycle", pingCycle.toString().c_str());
+        connectionStr.appendFormat(fmt, "minCount", Int32(minCount).toString().c_str());
+        connectionStr.appendFormat(fmt, "maxCount", Int32(maxCount).toString().c_str());
+        connectionStr.appendFormat(fmt, "idle", idle.toString().c_str());
+        connectionStr.appendFormat(fmt, "encoding", encoding.c_str());
+        return connectionStr;
     }
 }

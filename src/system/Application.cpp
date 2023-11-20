@@ -115,8 +115,8 @@ namespace System {
     }
 
     void Application::onTerm(int signum) {
-        Debug::writeFormatLine("received %d signal.", signum);
-        Application::instance()->exit();
+        Trace::debug(String::format("received %d signal.", signum));
+        Application::instance()->exit(-3);
     }
 
     const String &Application::rootPath() const {
@@ -255,7 +255,7 @@ namespace System {
     }
 
     void Application::exit(int code) {
-        Trace::writeFormatLine("The application is exiting.", Trace::Info);
+        Trace::writeFormatLine(String::format("The application is exiting'%d'.", code), Trace::Info);
         _exitCode = code;
         _loop = false;
 
@@ -456,7 +456,7 @@ namespace System {
 
     void OS::postPowerOff() {
         _action = PowerOff;
-        Application::instance()->exit(-1);
+        Application::instance()->exit(-2);
     }
 
     bool OS::isRebooting() {

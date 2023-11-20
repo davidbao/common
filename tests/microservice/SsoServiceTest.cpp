@@ -7,9 +7,11 @@
 //
 
 #include "microservice/SsoService.h"
+#include "microservice/DataSourceService.h"
 #include "crypto/SmProvider.h"
 #include "configuration/ConfigService.h"
 #include "http/HttpClient.h"
+#include "system/Application.h"
 #include "IO/Path.h"
 #include "IO/File.h"
 
@@ -21,6 +23,53 @@ using namespace Http;
 String _accessToken1;
 String _accessToken2;
 String _accessToken3;
+
+static String _host = "192.166.1.3";
+static String _port = "3306";
+static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
+static String _database = "SsoServiceTest_db";
+static String _url = _baseUrl + "/" + _database;
+static String _username = "root";
+static String _password = "123.com";
+
+void setUp() {
+    {
+        SqlConnection connection(Url(_baseUrl), _username, _password);
+        if (!connection.open()) {
+            return;
+        }
+        connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+        if (!connection.executeSql(String::format("CREATE DATABASE %s;", _database.c_str()))) {
+            return;
+        }
+    }
+
+    {
+        // Create catalog_user table and fill admin & user.
+        SqlConnection connection(_url, _username, _password);
+        if (!connection.open()) {
+            return;
+        }
+        String sql = "SET NAMES utf8mb4; SET FOREIGN_KEY_CHECKS = 0; DROP TABLE IF EXISTS `catalog_user`;"
+                     " CREATE TABLE `catalog_user`( `id` bigint(20) NOT NULL, `name` varchar(128)"
+                     " CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, `password` varchar(128)"
+                     " CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, `update_user` varchar(128)"
+                     " DEFAULT NULL, `update_time` datetime DEFAULT NULL, PRIMARY KEY (`id`))"
+                     " ENGINE=InnoDB DEFAULT CHARSET=utf8; BEGIN; INSERT INTO `catalog_user`"
+                     " VALUES (1, 'admin', '4bXMiNc+1YZ81tzpD2ZBkWjADzejfvbLC4vpZLQo0iQ81LL9APomCJJi3Vx8iRO1',"
+                     " NULL, NULL); INSERT INTO `catalog_user` VALUES (2, 'user',"
+                     " 'jw5chyjSvQQdjAxA3CMPhYTcKbGoRLrfW2CKsIiGAAL6tryNM0/1loiyubDfwrWZ', NULL, NULL); COMMIT;"
+                     " SET FOREIGN_KEY_CHECKS = 1;";
+        connection.executeSql(sql);
+    }
+}
+
+void cleanUp() {
+    SqlConnection connection(Url(_baseUrl), _username, _password);
+    if (connection.open()) {
+        connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    }
+}
 
 bool testConstructor() {
     {
@@ -66,8 +115,8 @@ bool testConstructor() {
 bool testLogin() {
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
@@ -135,8 +184,8 @@ bool testLogin() {
 
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
@@ -208,8 +257,8 @@ bool testLogin() {
 
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
@@ -283,8 +332,8 @@ bool testLogin() {
 bool testLogout() {
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         String request, response;
         JsonNode node{
@@ -303,8 +352,8 @@ bool testLogout() {
 
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         String request, response;
         Url baseUrl("http://127.0.0.1:5438/v1/auth/users/logout");
@@ -319,8 +368,8 @@ bool testLogout() {
 
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         String request, response;
         Url baseUrl("http://127.0.0.1:5438/v1/auth/users/logout");
@@ -338,11 +387,11 @@ bool testLogout() {
     return true;
 }
 
-bool testModifyPassword() {
+bool testModifyPassword(const String &oldPassword, const String &newPassword) {
     {
         HttpClient client{
-            {"connectionTimeout", "00:00:05"},
-            {"receiveTimeout", "00:00:05"},
+                {"connectionTimeout", "00:00:05"},
+                {"receiveTimeout",    "00:00:05"},
         };
         JsonNode encryptNode;
         if (!client.get(Url("http://127.0.0.1:5438/v1/auth/users/encrypt"), HttpHeaders::JsonTypeHeaders,
@@ -364,9 +413,9 @@ bool testModifyPassword() {
 
         HttpHeaders headers({HttpHeader("Content-Type", "application/x-www-form-urlencoded")});
         String request, response;
-        String name = "user", oldPassword = "123.com", newPassword = "1234.com";
+        String name = "user";
         JsonNode node{
-                {"name",     name},
+                {"name",        name},
                 {"oldPassword", oldPassword},
                 {"newPassword", newPassword},
         };
@@ -409,7 +458,7 @@ bool testModifyPassword() {
     return true;
 }
 
-int main() {
+int testYml() {
     ConfigService cs;
     cs.setProperty("server.enabled", true);
     cs.setProperty("server.http.session.enabled", true);
@@ -441,15 +490,155 @@ int main() {
     if (!testLogin()) {
         result = 2;
     }
-    if (!testModifyPassword()) {
+    if (!testModifyPassword("123.com", "1234.com")) {
         result = 3;
     }
-    if (!testLogout()) {
+    if (!testModifyPassword("1234.com", "123.com")) {
         result = 4;
+    }
+    if (!testLogout()) {
+        result = 5;
     }
 
     ss.unInitialize();
     hs.unInitialize();
+    return result;
+}
 
+int testDatabase() {
+    ConfigService cs;
+    cs.setProperty("server.enabled", true);
+    cs.setProperty("server.http.session.enabled", true);
+    cs.setProperty("server.scheme", "http");
+    cs.setProperty("server.port", 5438);
+    cs.setProperty("server.enabled", true);
+    cs.setProperty("summer.security.users[0].name", "user");
+    cs.setProperty("summer.security.users[0].password", "123.com");
+
+    cs.setProperty("summer.security.type", "database");
+    cs.setProperty("summer.datasource.enabled", true);
+    cs.setProperty("summer.datasource.username", _username);
+    cs.setProperty("summer.datasource.password", _password);
+    cs.setProperty("summer.datasource.url", _url);
+    cs.setProperty("summer.datasource.scheme", "");
+
+    DataSourceService ds;
+    ds.initialize();
+
+    HttpService hs;
+    hs.initialize();
+
+    SsoService ss;
+    ss.initialize();
+
+    auto func = [](HttpService *hs) {
+        return hs->isAlive();
+    };
+    Thread::delay(3000, Func<bool>(func, &hs));
+    Thread::msleep(500);
+//#if defined(WIN32) && defined(_X86_)
+//    Thread::msleep(3000);
+//#endif
+
+    int result = 0;
+    if (!testConstructor()) {
+        result = 1;
+    }
+    if (!testLogin()) {
+        result = 2;
+    }
+    if (!testModifyPassword("123.com", "1234.com")) {
+        result = 3;
+    }
+    if (!testModifyPassword("1234.com", "123.com")) {
+        result = 4;
+    }
+    if (!testLogout()) {
+        result = 5;
+    }
+
+    ss.unInitialize();
+    hs.unInitialize();
+    ds.unInitialize();
+    return result;
+}
+
+bool parseArguments(const Application &app) {
+    const Application::Arguments &arguments = app.arguments();
+    String host, userName, password, database;
+    Port port;
+    if (arguments.contains("help") || arguments.contains("?")) {
+        puts("Usage:");
+        puts("-?, --help            Display this help and exit.");
+        puts("-h, --host=name       Connect to host.");
+        puts("-P, --port=#          Port number to use for connection.");
+        puts("-u, --user=name       User for login if not current user.");
+        puts("-p, --password[=name] Password to use when connecting to server.");
+        puts("-d, --database=name   Database for connection.");
+        return false;
+    }
+
+    if(arguments.contains("host") || arguments.contains("h")) {
+        host = arguments["host"];
+        if (host.isNullOrEmpty()) {
+            host = arguments["h"];
+        }
+    }
+    if(arguments.contains("port") || arguments.contains("P")) {
+        if (!Port::parse(arguments["port"], port)) {
+            Port::parse(arguments["P"], port);
+        }
+    }
+    if(arguments.contains("user") || arguments.contains("u")) {
+        userName = arguments["user"];
+        if (userName.isNullOrEmpty()) {
+            userName = arguments["u"];
+        }
+    }
+    if(arguments.contains("password") || arguments.contains("p")) {
+        password = arguments["password"];
+        if (password.isNullOrEmpty()) {
+            password = arguments["p"];
+        }
+    }
+    if(arguments.contains("database") || arguments.contains("d")) {
+        database = arguments["database"];
+        if (database.isNullOrEmpty()) {
+            database = arguments["d"];
+        }
+    }
+
+    _baseUrl = String::format("mysql://%s:%s",
+                              !host.isNullOrEmpty() ? host.c_str() : _host.c_str(),
+                              !port.isEmpty() ? port.toString().c_str() : _port.c_str());
+    _database = !database.isNullOrEmpty() ? database : _database;
+    _url = _baseUrl + "/" + _database;
+    _username = !userName.isNullOrEmpty() ? userName : _username;
+    _password = !password.isNullOrEmpty() ? password : _password;
+
+    return true;
+}
+
+// argv: -h=192.167.0.6 -P=3306 -u=root -p=123456.com -d=connection_db
+int main(int argc, const char *argv[]) {
+//    String cypher1 = ConfigService::computeCypherText(R"({"name":"user","password":"123.com"})");
+//    String cypher2 = ConfigService::computeCypherText(R"({"name":"admin","password":"123.com"})");
+
+    Application app(argc, argv);
+    if (!parseArguments(app)) {
+        return 0;
+    }
+
+    setUp();
+
+    int result;
+    result = testYml();
+    if (result != 0) {
+        return result;
+    }
+
+    result = testDatabase();
+
+    cleanUp();
     return result;
 }

@@ -11,6 +11,7 @@
 
 #include "data/String.h"
 #include "microservice/HttpService.h"
+#include "database/SqlConnection.h"
 
 using namespace Data;
 
@@ -57,13 +58,21 @@ namespace Microservice {
 
         bool checkByYml(const String &name, const String &password);
 
+        bool checkByDb(const String &name, const String &password);
+
         bool check(const String &name);
 
-        static bool checkByYml(const String &name);
+        bool checkByYml(const String &name);
+
+        bool checkByDb(const String &name);
 
         bool modifyPassword(const String &name, const String &oldPassword, const String &newPassword);
 
-        static bool modifyPasswordByYml(const String &name, const String &oldPassword, const String &newPassword);
+        bool modifyPasswordByYml(const String &name, const String &oldPassword, const String &newPassword);
+
+        bool modifyPasswordByDb(const String &name, const String &oldPassword, const String &newPassword);
+
+        SqlConnection *connection();
 
     private:
         static void errorNode(ErrorCode code, JsonNode &node);
@@ -71,9 +80,13 @@ namespace Microservice {
     private:
         StringMap _caches;
 
+        SqlConnection *_connection;
+
     private:
         static const char *AccessTokenId;
         static const char *Sm2String;
+
+#define SecurityPrefix "summer.security."
     };
 }
 

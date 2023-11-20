@@ -31,7 +31,7 @@ namespace Net {
         Stopwatch sw("Sender::send", 2000);
 #endif
 
-        size_t sendLen = 0;
+        ssize_t sendLen = 0;
 
         if (buffer == nullptr) {
             return 0;
@@ -62,7 +62,7 @@ namespace Net {
     }
 
     ssize_t Sender::send(const String &str) {
-        ByteArray buffer((const uint8_t*) str.c_str(), str.length());
+        ByteArray buffer((const uint8_t *) str.c_str(), str.length());
         return send(buffer);
     }
 }

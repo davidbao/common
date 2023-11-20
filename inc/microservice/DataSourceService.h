@@ -42,8 +42,13 @@ namespace Microservice {
 
         void createSqlFile(const String &fileName, const String &sql) override;
 
+    public:
+        static String createConnectionStr(const String &prefix);
+
     private:
         SqlConnection *_connection;
+
+#define DatasourcePrefix "summer.datasource."
     };
 }
 

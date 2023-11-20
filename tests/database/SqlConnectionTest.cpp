@@ -232,7 +232,7 @@ bool testOpen() {
     {
         String connectionStr;
         static const char *fmt = "%s=%s; ";
-        connectionStr.appendFormat(fmt, "scheme", Url(_url).scheme().c_str());
+        connectionStr.appendFormat(fmt, "ds", Url(_url).scheme().c_str());
         connectionStr.appendFormat(fmt, "host", _host.c_str());
         connectionStr.appendFormat(fmt, "port", _port.c_str());
         connectionStr.appendFormat(fmt, "dbname", _database.c_str());

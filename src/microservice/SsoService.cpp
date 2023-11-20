@@ -9,6 +9,7 @@
 #include "microservice/SsoService.h"
 #include "crypto/SmProvider.h"
 #include "configuration/ConfigService.h"
+#include "microservice/DataSourceService.h"
 
 using namespace Crypto;
 using namespace Config;
@@ -17,9 +18,13 @@ namespace Microservice {
     const char *SsoService::AccessTokenId = "accessToken";
     const char *SsoService::Sm2String = "SM2_";
 
-    SsoService::SsoService() = default;
+    SsoService::SsoService() : _connection(nullptr) {
+    }
 
-    SsoService::~SsoService() = default;
+    SsoService::~SsoService() {
+        delete _connection;
+        _connection = nullptr;
+    }
 
     bool SsoService::initialize() {
         ServiceFactory *factory = ServiceFactory::instance();
@@ -57,6 +62,16 @@ namespace Microservice {
             hi->addWhitelist(list);
         }
 
+        String securityType;
+        cs->getProperty(SecurityPrefix "type", securityType);
+        if (securityType == "database") {
+            String connectionStr = DataSourceService::createConnectionStr(SecurityPrefix "database.");
+            if (!connectionStr.isNullOrEmpty()) {
+                _connection = new SqlConnection(connectionStr);
+                _connection->open();
+            }
+        }
+
         return true;
     }
 
@@ -67,6 +82,9 @@ namespace Microservice {
         auto hs = factory->getService<IHttpRegister>();
         assert(hs);
         hs->removeMapping(this);
+
+        delete _connection;
+        _connection = nullptr;
 
         return true;
     }
@@ -158,43 +176,7 @@ namespace Microservice {
                 errorNode(code, result);
             }
             response.setContent(result);
-        } else {
-            // Remove this.
-            JsonNode node, result;
-            if (JsonNode::parse(request.text(), node)) {
-                String name, password;
-                if (!node.getAttribute("name", name))
-                    node.getAttribute("userName", name);
-                if (!name.isNullOrEmpty() && node.getAttribute("password", password)) {
-                    if (check(name, password)) {
-                        // Login successfully.
-                        result.add(JsonNode("code", "0"));
-                        result.add(JsonNode("msg", "Login successfully."));
-
-                        ServiceFactory *factory = ServiceFactory::instance();
-                        assert(factory);
-                        auto hs = factory->getService<IHttpSession>();
-                        assert(hs);
-                        String token = hs->addSession(name);
-                        result.add(JsonNode(AccessTokenId, token));
-                    } else {
-                        // The username or password is incorrect.
-                        result.add(JsonNode("code", "900"));
-                        result.add(JsonNode("msg", "The user name or password is incorrect."));
-                    }
-                } else {
-                    // The username or password is incorrect.
-                    result.add(JsonNode("code", "900"));
-                    result.add(JsonNode("msg", "The user name or password is incorrect."));
-                }
-            } else {
-                // Json string parse error.
-                result.add(JsonNode("code", "511"));
-                result.add(JsonNode("msg", "Json string parse error."));
-            }
-            response.setContent(result);
         }
-
         return HttpStatus::HttpOk;
     }
 
@@ -282,81 +264,7 @@ namespace Microservice {
                 errorNode(code, result);
             }
             response.setContent(result);
-        } else {
-            ServiceFactory *factory = ServiceFactory::instance();
-            assert(factory);
-            auto cs = factory->getService<IConfigService>();
-            assert(cs);
-
-            JsonNode node, result;
-            if (JsonNode::parse(request.text(), node)) {
-                String name;
-                if (!node.getAttribute("name", name)) {
-                    result.add(JsonNode("code", "1100"));
-                    result.add(JsonNode("msg", String::format("The field'%s' is incorrect.", "name")));
-                    response.setContent(result);
-                    return HttpStatus::HttpOk;
-                }
-                String oldPassword;
-                if (!node.getAttribute("oldPassword", oldPassword)) {
-                    result.add(JsonNode("code", "1100"));
-                    result.add(JsonNode("msg", String::format("The field'%s' is incorrect.", "oldPassword")));
-                    response.setContent(result);
-                    return HttpStatus::HttpOk;
-                }
-                String newPassword;
-                if (!node.getAttribute("newPassword", newPassword)) {
-                    result.add(JsonNode("code", "1100"));
-                    result.add(JsonNode("msg", String::format("The field'%s' is incorrect.", "newPassword")));
-                    response.setContent(result);
-                    return HttpStatus::HttpOk;
-                }
-
-                String oname, opassword, key;
-                static const uint32_t maxUserCount = 8;
-                bool correct = false;
-                for (size_t i = 0; i < maxUserCount; i++) {
-                    cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
-                    cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
-                    correct = name == oname && oldPassword == opassword;
-                    if (correct) {
-                        key = String::format("summer.security.users[%d].password", i);
-                        break;
-                    }
-                }
-                if (!correct) {
-                    cs->getProperty("summer.security.user.name", oname);
-                    cs->getProperty("summer.security.user.password", opassword);
-                    correct = name == oname && oldPassword == opassword;
-                    if (correct) {
-                        key = "summer.security.user.password";
-                    }
-                }
-                if (correct) {
-                    // Modify successfully.
-                    YmlNode::Properties properties;
-                    properties.add(key, ConfigService::createEncText(newPassword));
-                    if (!cs->updateConfigFile(properties)) {
-                        result.add(JsonNode("code", "1101"));
-                        result.add(JsonNode("msg", "Failed to save config file."));
-                    } else {
-                        result.add(JsonNode("code", "0"));
-                        result.add(JsonNode("msg", "Modify successfully."));
-                    }
-                } else {
-                    // The username or password is incorrect.
-                    result.add(JsonNode("code", "900"));
-                    result.add(JsonNode("msg", "The user name or password is incorrect."));
-                }
-            } else {
-                // Json string parse error.
-                result.add(JsonNode("code", "511"));
-                result.add(JsonNode("msg", "Json string parse error."));
-            }
-
-            response.setContent(result);
         }
-
         return HttpStatus::HttpOk;
     }
 
@@ -456,8 +364,33 @@ namespace Microservice {
         return _caches.at(name, value);
     }
 
+    SqlConnection *SsoService::connection() {
+        if (_connection != nullptr) {
+            return _connection;
+        } else {
+            ServiceFactory *factory = ServiceFactory::instance();
+            assert(factory);
+            auto ds = factory->getService<IDataSourceService>();
+            if (ds != nullptr) {
+                return ds->connection();
+            }
+            return nullptr;
+        }
+    }
+
     bool SsoService::check(const String &name, const String &password) {
-        return checkByYml(name, password);
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String securityType;
+        cs->getProperty(SecurityPrefix "type", securityType);
+        if (securityType == "database") {
+            return checkByDb(name, password);
+        } else {
+            return checkByYml(name, password);
+        }
     }
 
     bool SsoService::checkByYml(const String &name, const String &password) {
@@ -470,22 +403,52 @@ namespace Microservice {
         static const uint32_t maxUserCount = 8;
         bool correct = false;
         for (size_t i = 0; i < maxUserCount; i++) {
-            cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
-            cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
+            cs->getProperty(String::format(SecurityPrefix "users[%d].name", i), oname);
+            cs->getProperty(String::format(SecurityPrefix "users[%d].password", i), opassword);
             correct = name == oname && password == opassword;
             if (correct)
                 break;
         }
         if (!correct) {
-            cs->getProperty("summer.security.user.name", oname);
-            cs->getProperty("summer.security.user.password", opassword);
+            cs->getProperty(SecurityPrefix "user.name", oname);
+            cs->getProperty(SecurityPrefix "user.password", opassword);
             correct = name == oname && password == opassword;
         }
         return correct;
     }
 
+    bool SsoService::checkByDb(const String &name, const String &password) {
+        SqlConnection *connection = this->connection();
+        if (connection != nullptr) {
+            // {"name":"user","password":"123.com"}
+            DataTable table("user");
+            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String sql = String::format("SELECT PASSWORD FROM %s WHERE NAME='%s'", tableName.c_str(), name.c_str());
+            if (connection->executeSqlQuery(sql, table) && table.rowCount() == 1) {
+                String cypherText = table.rows()[0].cells()[0].valueStr();
+                String sm4PlainText = ConfigService::computePlainText(cypherText);
+                JsonNode node;
+                if (JsonNode::parse(sm4PlainText, node)) {
+                    return node.getAttribute("password") == password;
+                }
+            }
+        }
+        return false;
+    }
+
     bool SsoService::check(const String &name) {
-        return checkByYml(name);
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String securityType;
+        cs->getProperty(SecurityPrefix "type", securityType);
+        if (securityType == "database") {
+            return checkByDb(name);
+        } else {
+            return checkByYml(name);
+        }
     }
 
     bool SsoService::checkByYml(const String &name) {
@@ -498,20 +461,45 @@ namespace Microservice {
         static const uint32_t maxUserCount = 8;
         bool correct = false;
         for (size_t i = 0; i < maxUserCount; i++) {
-            cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
+            cs->getProperty(String::format(SecurityPrefix "users[%d].name", i), oname);
             correct = name == oname;
             if (correct)
                 break;
         }
         if (!correct) {
-            cs->getProperty("summer.security.user.name", oname);
+            cs->getProperty(SecurityPrefix "user.name", oname);
             correct = name == oname;
         }
         return correct;
     }
 
+    bool SsoService::checkByDb(const String &name) {
+        SqlConnection *connection = this->connection();
+        if (connection != nullptr) {
+            // {"name":"user","password":"123.com"}
+            DataTable table("user");
+            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String sql = String::format("SELECT PASSWORD FROM %s WHERE NAME='%s'", tableName.c_str(), name.c_str());
+            if (connection->executeSqlQuery(sql, table) && table.rowCount() == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool SsoService::modifyPassword(const String &name, const String &oldPassword, const String &newPassword) {
-        return modifyPasswordByYml(name, oldPassword, newPassword);
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String securityType;
+        cs->getProperty(SecurityPrefix "type", securityType);
+        if (securityType == "database") {
+            return modifyPasswordByDb(name, oldPassword, newPassword);
+        } else {
+            return modifyPasswordByYml(name, oldPassword, newPassword);
+        }
     }
 
     bool SsoService::modifyPasswordByYml(const String &name, const String &oldPassword, const String &newPassword) {
@@ -524,26 +512,44 @@ namespace Microservice {
         static const uint32_t maxUserCount = 8;
         bool correct = false;
         for (size_t i = 0; i < maxUserCount; i++) {
-            cs->getProperty(String::format("summer.security.users[%d].name", i), oname);
-            cs->getProperty(String::format("summer.security.users[%d].password", i), opassword);
+            cs->getProperty(String::format(SecurityPrefix "users[%d].name", i), oname);
+            cs->getProperty(String::format(SecurityPrefix "users[%d].password", i), opassword);
             correct = name == oname && oldPassword == opassword;
             if (correct) {
-                key = String::format("summer.security.users[%d].password", i);
+                key = String::format(SecurityPrefix "users[%d].password", i);
                 break;
             }
         }
         if (!correct) {
-            cs->getProperty("summer.security.user.name", oname);
-            cs->getProperty("summer.security.user.password", opassword);
+            cs->getProperty(SecurityPrefix "user.name", oname);
+            cs->getProperty(SecurityPrefix "user.password", opassword);
             correct = name == oname && oldPassword == opassword;
             if (correct) {
-                key = "summer.security.user.password";
+                key = SecurityPrefix "user.password";
             }
         }
         if (correct) {
             YmlNode::Properties properties;
             properties.add(key, ConfigService::createEncText(newPassword));
             return cs->updateConfigFile(properties);
+        }
+        return false;
+    }
+
+    bool SsoService::modifyPasswordByDb(const String &name, const String &oldPassword, const String &newPassword) {
+        if (!checkByDb(name, oldPassword)) {
+            return false;
+        }
+
+        SqlConnection *connection = this->connection();
+        if (connection != nullptr) {
+            // {"name":"user","password":"123.com"}
+            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String cypher = ConfigService::computeCypherText(
+                    String::format(R"({"name":"%s","password":"%s"})", name.c_str(), newPassword.c_str()));
+            String sql = String::format("UPDATE %s SET PASSWORD='%s',UPDATE_USER='%s',UPDATE_TIME=NOW() WHERE NAME='%s'",
+                                        tableName.c_str(), cypher.c_str(), name.c_str(), name.c_str());
+            return connection->executeSql(sql);
         }
         return false;
     }

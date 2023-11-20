@@ -48,7 +48,6 @@
 #include "diag/Trace.h"
 #include "system/Math.h"
 #include "data/Convert.h"
-#include "data/DateTime.h"
 #include "diag/Process.h"
 
 
@@ -101,7 +100,7 @@ namespace Net {
             {
                 printf
                 ("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
-                exit(1);
+                return false;
             }
 
             dwRetVal = GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
@@ -254,8 +253,8 @@ namespace Net {
         const String &transmittedStr = "packets transmitted";
         ssize_t start = str.find(transmittedStr);
         if (start > 0) {
-            start += transmittedStr.length();
-            int end = str.find("received");
+            start += (ssize_t) transmittedStr.length();
+            ssize_t end = str.find("received");
             if (end > start) {
                 String countStr = str.substr(start, end - start);
                 countStr = String::replace(countStr, "packets", String::Empty);

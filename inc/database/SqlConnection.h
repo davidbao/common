@@ -60,6 +60,10 @@ namespace Database {
 
         Url url() const;
 
+        String dbName() const;
+
+        String scheme() const;
+
         size_t numberOfConnections();
 
     private:

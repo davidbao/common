@@ -93,7 +93,7 @@ namespace Database {
     void SqlConnection::init(const String &connectionStr) {
         Url url;
         Port port;
-        String scheme, host, dbname, user;
+        String ds, scheme, host, dbname, user;
         StringMap connections;
         StringArray texts;
         StringArray::parse(connectionStr, texts, ';');
@@ -106,9 +106,8 @@ namespace Database {
                 if (String::equals(key, "url", true)) {
                     Url::parse(value, url);
                 } else if (String::equals(key, "Data Source", true) ||
-                           String::equals(key, "ds", true) ||
-                           String::equals(key, "scheme", true)) {
-                    scheme = value;
+                           String::equals(key, "ds", true)) {
+                    ds = value;
                 } else if (String::equals(key, "user", true)) {
                     user = value;
                     connections.add("user", user);
@@ -137,6 +136,8 @@ namespace Database {
                            String::equals(key, "db name", true)) {
                     dbname = value;
                     connections.add("dbname", dbname);
+                } else if (String::equals(key, "scheme", true)) {
+                    connections.add("scheme", scheme);
                 } else if (String::equals(key, "minCount", true) ||
                            String::equals(key, "minConnectionCount", true)) {
                     int v;
@@ -172,7 +173,7 @@ namespace Database {
 
         // combine url.
         if (url.isEmpty()) {
-            url = Url(scheme, Endpoint(host, port), dbname);
+            url = Url(ds, Endpoint(host, port), dbname);
         } else {
             connections.add("host", url.address());
             connections.add("port", url.port());
@@ -351,6 +352,18 @@ namespace Database {
     Url SqlConnection::url() const {
         Url value;
         getProperty("url", value);
+        return value;
+    }
+
+    String SqlConnection::dbName() const {
+        String value;
+        getProperty("dbname", value);
+        return value;
+    }
+
+    String SqlConnection::scheme() const {
+        String value;
+        getProperty("scheme", value);
         return value;
     }
 
