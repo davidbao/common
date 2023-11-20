@@ -64,12 +64,15 @@ bool testSm2() {
 bool testSm2_generatePublicKey() {
     ByteArray publicKey, privateKey, publicKey2;
     if(!Sm2Provider::generateKey(publicKey, privateKey)) {
+        printf("Failed to Sm2Provider::generateKey.\n");
         return false;
     }
     if(!Sm2Provider::generatePublicKey(privateKey, publicKey2)) {
+        printf("Failed to Sm2Provider::generatePublicKey.\n");
         return false;
     }
     if(publicKey != publicKey2) {
+        printf("publicKey is not equal to publicKey2.\n");
         return false;
     }
     return true;

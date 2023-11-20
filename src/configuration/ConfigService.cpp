@@ -213,7 +213,7 @@ namespace Config {
 
         // load application.yml.
         if (!loadFile(this->fileName(), _properties)) {
-            Trace::error(String::format("Can not find main yaml file'%s'.", this->fileName().c_str()));
+            Trace::warn(String::format("Can not find main yaml file'%s'.", this->fileName().c_str()));
             return false;
         }
 
@@ -257,7 +257,7 @@ namespace Config {
     bool ConfigService::loadFile(const String &fileName, YmlNode::Properties &properties) const {
         String ymlFileName = Path::getFileName(fileName);
         if (!File::exists(fileName)) {
-            Trace::error(String::format("Can not find application configuration file'%s'.", ymlFileName.c_str()));
+            Trace::warn(String::format("Can not find application configuration file'%s'.", ymlFileName.c_str()));
             return false;
         }
 

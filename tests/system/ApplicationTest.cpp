@@ -85,6 +85,7 @@ bool testConstructor() {
         String content = File::readAllText(fileName);
         if (content != "abc123") {
             File::deleteFile(fileName);
+            printf("Failed to test multi application, content: %s\n", content.c_str());
             return false;
         }
         File::deleteFile(fileName);
