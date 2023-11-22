@@ -73,19 +73,28 @@ bool testConstructor() {
     }
 
     {
-        Process::start(Application::startupPath(), "-s &");
-        Process::start(Application::startupPath(), "-s &");
-
-#ifdef __arm_linux__
-        Thread::sleep(2000);
-#else
-        Thread::sleep(200);
-#endif
         String fileName = Path::combine(Path::getAppPath(), "ApplicationTest_flag.txt");
+        if (File::exists(fileName)) {
+            File::deleteFile(fileName);
+        }
+
+        auto runFunc = [] {
+            Process process;
+            process.setRedirectStdout(true);
+            Process::start(Application::startupPath(), "-s", &process);
+            Trace::info(process.stdoutStr().c_str());
+        };
+        Thread thread1("single_app_thread1", runFunc);
+        thread1.start();
+        Thread::msleep(100);
+        Thread thread2("single_app_thread2", runFunc);
+        thread2.start();
+
         String content = File::readAllText(fileName);
         if (content != "abc123") {
             File::deleteFile(fileName);
-            printf("Failed to test multi application, content: %s\n", content.c_str());
+            Trace::error(String::format("Failed to test multi application, exists: %s, content: %s\n",
+                   File::exists(fileName) ? "true" : "false", content.c_str()));
             return false;
         }
         File::deleteFile(fileName);
@@ -106,13 +115,12 @@ int main(int argc, const char *argv[]) {
     Application app(argc, argv);
     const Application::Arguments &arguments = app.arguments();
     if(arguments.contains("single") || arguments.contains("s")) {
-        Application app2(argc, argv, String::Empty, TraceListenerContexts::Empty, "single_app");
-//        if (ProcessMutex::exists("single_app")) {
-//            exit(0);
-//        }
+        String singleAppName = "single_app";
+        Application app2(argc, argv, String::Empty, TraceListenerContexts::Empty, singleAppName);
 
         createFlagName();
-        Thread::sleep(5 * 1000);
+
+        Thread::msleep(500);
     } else {
         setUp();
 
