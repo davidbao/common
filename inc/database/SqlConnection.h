@@ -62,7 +62,7 @@ namespace Database {
 
         String dbName() const;
 
-        String scheme() const;
+        String schema() const;
 
         size_t numberOfConnections();
 

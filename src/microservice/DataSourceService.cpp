@@ -108,11 +108,11 @@ namespace Microservice {
         cs->getProperty(String::format("%s.pool.idle", prefixStr), idle);
 
         String url = cs->getProperty(String::format("%s.url", prefixStr));
-        String scheme = cs->getProperty(String::format("%s.scheme", prefixStr));
+        String schema = cs->getProperty(String::format("%s.schema", prefixStr));
         static const char *fmt = "%s=%s; ";
         String connectionStr;
         connectionStr.appendFormat(fmt, "url", url.c_str());
-        connectionStr.appendFormat(fmt, "scheme", scheme.c_str());
+        connectionStr.appendFormat(fmt, "schema", schema.c_str());
         connectionStr.appendFormat(fmt, "user", user.c_str());
         connectionStr.appendFormat(fmt, "password", password.c_str());
         connectionStr.appendFormat(fmt, "timeout", timeout.c_str());

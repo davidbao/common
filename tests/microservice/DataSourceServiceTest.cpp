@@ -18,7 +18,7 @@ static String _port = "3306";
 static String _baseUrl(String::format("mysql://%s:%s", _host.c_str(), _port.c_str()));
 static String _database = "DataSourceService_db";
 static String _url = _baseUrl + "/" + _database;
-static String _scheme = "test";
+static String _schema = "test";
 static String _username = "root";
 static String _password = "123.com";
 
@@ -81,7 +81,7 @@ bool testConstructor() {
             return false;
         }
         SqlConnection *connection = ds.connection();
-        if (connection->scheme() != _scheme) {
+        if (connection->schema() != _schema) {
             return false;
         }
 
@@ -123,14 +123,14 @@ bool testConstructor() {
 
 bool parseArguments(const Application &app) {
     const Application::Arguments &arguments = app.arguments();
-    String host, userName, password, database, scheme;
+    String host, userName, password, database, schema;
     Port port;
     if (arguments.contains("help") || arguments.contains("?")) {
         puts("Usage:");
         puts("-?, --help            Display this help and exit.");
         puts("-h, --host=name       Connect to host.");
         puts("-P, --port=#          Port number to use for connection->");
-        puts("-s, --scheme=name     The database scheme.");
+        puts("-s, --schema=name     The database schema.");
         puts("-u, --user=name       User for login if not current user.");
         puts("-p, --password[=name] Password to use when connecting to server.");
         puts("-d, --database=name   Database for connection->");
@@ -166,10 +166,10 @@ bool parseArguments(const Application &app) {
             database = arguments["d"];
         }
     }
-    if(arguments.contains("scheme") || arguments.contains("s")) {
-        scheme = arguments["scheme"];
-        if (scheme.isNullOrEmpty()) {
-            scheme = arguments["s"];
+    if(arguments.contains("schema") || arguments.contains("s")) {
+        schema = arguments["schema"];
+        if (schema.isNullOrEmpty()) {
+            schema = arguments["s"];
         }
     }
 
@@ -177,7 +177,7 @@ bool parseArguments(const Application &app) {
                               !host.isNullOrEmpty() ? host.c_str() : _host.c_str(),
                               !port.isEmpty() ? port.toString().c_str() : _port.c_str());
     _database = !database.isNullOrEmpty() ? database : _database;
-    _scheme = scheme;
+    _schema = schema;
     _url = _baseUrl + "/" + _database;
     _username = !userName.isNullOrEmpty() ? userName : _username;
     _password = !password.isNullOrEmpty() ? password : _password;
@@ -197,7 +197,7 @@ int main(int argc, const char *argv[]) {
     static TestConfigService ts;
     ts.setProperty("summer.datasource.enabled", true);
     ts.setProperty("summer.datasource.url", _url);
-    ts.setProperty("summer.datasource.scheme", _scheme);
+    ts.setProperty("summer.datasource.schema", _schema);
     ts.setProperty("summer.datasource.username", _username);
     ts.setProperty("summer.datasource.password", _password);
     ts.setProperty("summer.datasource.timeout", "00:00:30");

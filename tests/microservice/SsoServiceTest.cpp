@@ -581,7 +581,7 @@ int testDatabase() {
     cs.setProperty("summer.datasource.username", _username);
     cs.setProperty("summer.datasource.password", _password);
     cs.setProperty("summer.datasource.url", _url);
-    cs.setProperty("summer.datasource.scheme", "");
+    cs.setProperty("summer.datasource.schema", "");
 
     DataSourceService ds;
     ds.initialize();

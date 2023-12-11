@@ -429,7 +429,8 @@ namespace Microservice {
         if (connection != nullptr) {
             // {"name":"user","password":"123.com"}
             DataTable table("user");
-            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String tableName = connection->schema().isNullOrEmpty() ?
+                               "CATALOG_USER" : String::format("%s.CATALOG_USER", connection->schema().c_str());
             String sql = String::format("SELECT PASSWORD FROM %s WHERE NAME='%s'", tableName.c_str(), name.c_str());
             if (connection->executeSqlQuery(sql, table) && table.rowCount() == 1) {
                 String cypherText = table.rows()[0].cells()[0].valueStr();
@@ -522,7 +523,8 @@ namespace Microservice {
         if (connection != nullptr) {
             // {"name":"user","password":"123.com"}
             DataTable table("user");
-            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String tableName = connection->schema().isNullOrEmpty() ?
+                               "CATALOG_USER" : String::format("%s.CATALOG_USER", connection->schema().c_str());
             String sql = String::format("SELECT PASSWORD FROM %s WHERE NAME='%s'", tableName.c_str(), name.c_str());
             if (connection->executeSqlQuery(sql, table) && table.rowCount() == 1) {
                 return true;
@@ -625,7 +627,8 @@ namespace Microservice {
         SqlConnection *connection = this->connection();
         if (connection != nullptr) {
             // {"name":"user","password":"123.com"}
-            String tableName = String::format("%sCATALOG_USER", connection->scheme().c_str());
+            String tableName = connection->schema().isNullOrEmpty() ?
+                               "CATALOG_USER" : String::format("%s.CATALOG_USER", connection->schema().c_str());
             String cypher = ConfigService::computeCypherText(
                     String::format(R"({"name":"%s","password":"%s"})", name.c_str(), newPassword.c_str()));
             String sql = String::format("UPDATE %s SET PASSWORD='%s',UPDATE_USER='%s',UPDATE_TIME=NOW() WHERE NAME='%s'",

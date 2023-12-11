@@ -93,7 +93,7 @@ namespace Database {
     void SqlConnection::init(const String &connectionStr) {
         Url url;
         Port port;
-        String ds, scheme, host, dbname, user;
+        String ds, schema, host, dbname, user;
         StringMap connections;
         StringArray texts;
         StringArray::parse(connectionStr, texts, ';');
@@ -136,8 +136,8 @@ namespace Database {
                            String::equals(key, "db name", true)) {
                     dbname = value;
                     connections.add("dbname", dbname);
-                } else if (String::equals(key, "scheme", true)) {
-                    connections.add("scheme", scheme);
+                } else if (String::equals(key, "schema", true)) {
+                    connections.add("schema", schema);
                 } else if (String::equals(key, "minCount", true) ||
                            String::equals(key, "minConnectionCount", true)) {
                     int v;
@@ -361,9 +361,9 @@ namespace Database {
         return value;
     }
 
-    String SqlConnection::scheme() const {
+    String SqlConnection::schema() const {
         String value;
-        getProperty("scheme", value);
+        getProperty("schema", value);
         return value;
     }
 
