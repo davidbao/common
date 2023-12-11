@@ -109,7 +109,9 @@ void setUp() {
         FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
         fs.writeText(text);
         fs.close();
+#ifndef WIN32
         File::chmod(fileName);
+#endif
     }
 }
 
