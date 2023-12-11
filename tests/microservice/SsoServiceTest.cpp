@@ -62,12 +62,68 @@ void setUp() {
                      " SET FOREIGN_KEY_CHECKS = 1;";
         connection.executeSql(sql);
     }
+
+    {
+        String text = "# -*- coding:utf-8 -*-\n"
+                      "\n"
+                      "import sys\n"
+                      "\n"
+                      "\n"
+                      "def _check(user_name, password):\n"
+                      "    if user_name == 'user':\n"
+                      "        if password == '123.com' or password == '1234.com' or password is None:\n"
+                      "            return True\n"
+                      "    return False\n"
+                      "\n"
+                      "\n"
+                      "def _modify(user_name, old_password, new_password):\n"
+                      "    if user_name == 'user':\n"
+                      "        if old_password == '123.com' and new_password == '1234.com':\n"
+                      "            return True\n"
+                      "        if old_password == '1234.com' and new_password == '123.com':\n"
+                      "            return True\n"
+                      "    return False\n"
+                      "\n"
+                      "\n"
+                      "if __name__ == '__main__':\n"
+                      "    result = False\n"
+                      "\n"
+                      "    if len(sys.argv) > 2:\n"
+                      "        task_name = sys.argv[1]\n"
+                      "        if task_name == 'check':\n"
+                      "            user_name = sys.argv[2]\n"
+                      "            if len(sys.argv) > 3:\n"
+                      "                password = sys.argv[3]\n"
+                      "            else:\n"
+                      "                password = None\n"
+                      "            result = _check(user_name, password)\n"
+                      "        elif task_name == 'modify':\n"
+                      "            user_name = sys.argv[2]\n"
+                      "            if len(sys.argv) > 4:\n"
+                      "                old_password = sys.argv[3]\n"
+                      "                new_password = sys.argv[4]\n"
+                      "                result = _modify(user_name, old_password, new_password)\n"
+                      "\n"
+                      "    print(result)\n";
+        String fileName = Path::combine(Path::getAppPath(), "sso.py");
+        FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
+        fs.writeText(text);
+        fs.close();
+        File::chmod(fileName);
+    }
 }
 
 void cleanUp() {
     SqlConnection connection(Url(_baseUrl), _username, _password);
     if (connection.open()) {
         connection.executeSql(String::format("DROP DATABASE IF EXISTS %s;", _database.c_str()));
+    }
+
+    {
+        String fileName = Path::combine(Path::getAppPath(), "sso.py");
+        if (File::exists(fileName)) {
+            File::deleteFile(fileName);
+        }
     }
 }
 
@@ -458,16 +514,7 @@ bool testModifyPassword(const String &oldPassword, const String &newPassword) {
     return true;
 }
 
-int testYml() {
-    ConfigService cs;
-    cs.setProperty("server.enabled", true);
-    cs.setProperty("server.http.session.enabled", true);
-    cs.setProperty("server.scheme", "http");
-    cs.setProperty("server.port", 5438);
-    cs.setProperty("server.enabled", true);
-    cs.setProperty("summer.security.users[0].name", "user");
-    cs.setProperty("summer.security.users[0].password", "123.com");
-
+int testInit() {
     HttpService hs;
     hs.initialize();
 
@@ -505,6 +552,20 @@ int testYml() {
     return result;
 }
 
+int testYml() {
+    ConfigService cs;
+    cs.setProperty("server.enabled", true);
+    cs.setProperty("server.http.session.enabled", true);
+    cs.setProperty("server.scheme", "http");
+    cs.setProperty("server.port", 5438);
+    cs.setProperty("server.enabled", true);
+
+    cs.setProperty("summer.security.users[0].name", "user");
+    cs.setProperty("summer.security.users[0].password", "123.com");
+
+    return testInit();
+}
+
 int testDatabase() {
     ConfigService cs;
     cs.setProperty("server.enabled", true);
@@ -512,8 +573,6 @@ int testDatabase() {
     cs.setProperty("server.scheme", "http");
     cs.setProperty("server.port", 5438);
     cs.setProperty("server.enabled", true);
-    cs.setProperty("summer.security.users[0].name", "user");
-    cs.setProperty("summer.security.users[0].password", "123.com");
 
     cs.setProperty("summer.security.type", "database");
     cs.setProperty("summer.datasource.enabled", true);
@@ -525,42 +584,24 @@ int testDatabase() {
     DataSourceService ds;
     ds.initialize();
 
-    HttpService hs;
-    hs.initialize();
+    return testInit();
+}
 
-    SsoService ss;
-    ss.initialize();
+int testPython() {
+    ConfigService cs;
+    cs.setProperty("server.enabled", true);
+    cs.setProperty("server.http.session.enabled", true);
+    cs.setProperty("server.scheme", "http");
+    cs.setProperty("server.port", 5438);
+    cs.setProperty("server.enabled", true);
 
-    auto func = [](HttpService *hs) {
-        return hs->isAlive();
-    };
-    Thread::delay(3000, Func<bool>(func, &hs));
-    Thread::msleep(500);
-//#if defined(WIN32) && defined(_X86_)
-//    Thread::msleep(3000);
-//#endif
+    cs.setProperty("summer.security.type", "python");
+    cs.setProperty("summer.security.python.check.file", "sso.py");
+    cs.setProperty("summer.security.python.check.param", "check");
+    cs.setProperty("summer.security.python.modify.file", "sso.py");
+    cs.setProperty("summer.security.python.modify.param", "modify");
 
-    int result = 0;
-    if (!testConstructor()) {
-        result = 1;
-    }
-    if (!testLogin()) {
-        result = 2;
-    }
-    if (!testModifyPassword("123.com", "1234.com")) {
-        result = 3;
-    }
-    if (!testModifyPassword("1234.com", "123.com")) {
-        result = 4;
-    }
-    if (!testLogout()) {
-        result = 5;
-    }
-
-    ss.unInitialize();
-    hs.unInitialize();
-    ds.unInitialize();
-    return result;
+    return testInit();
 }
 
 bool parseArguments(const Application &app) {
@@ -578,30 +619,30 @@ bool parseArguments(const Application &app) {
         return false;
     }
 
-    if(arguments.contains("host") || arguments.contains("h")) {
+    if (arguments.contains("host") || arguments.contains("h")) {
         host = arguments["host"];
         if (host.isNullOrEmpty()) {
             host = arguments["h"];
         }
     }
-    if(arguments.contains("port") || arguments.contains("P")) {
+    if (arguments.contains("port") || arguments.contains("P")) {
         if (!Port::parse(arguments["port"], port)) {
             Port::parse(arguments["P"], port);
         }
     }
-    if(arguments.contains("user") || arguments.contains("u")) {
+    if (arguments.contains("user") || arguments.contains("u")) {
         userName = arguments["user"];
         if (userName.isNullOrEmpty()) {
             userName = arguments["u"];
         }
     }
-    if(arguments.contains("password") || arguments.contains("p")) {
+    if (arguments.contains("password") || arguments.contains("p")) {
         password = arguments["password"];
         if (password.isNullOrEmpty()) {
             password = arguments["p"];
         }
     }
-    if(arguments.contains("database") || arguments.contains("d")) {
+    if (arguments.contains("database") || arguments.contains("d")) {
         database = arguments["database"];
         if (database.isNullOrEmpty()) {
             database = arguments["d"];
@@ -632,12 +673,24 @@ int main(int argc, const char *argv[]) {
     setUp();
 
     int result;
+
     result = testYml();
     if (result != 0) {
+        cleanUp();
         return result;
     }
 
     result = testDatabase();
+    if (result != 0) {
+        cleanUp();
+        return result + 10;
+    }
+
+    result = testPython();
+    if (result != 0) {
+        cleanUp();
+        return result + 20;
+    }
 
     cleanUp();
     return result;

@@ -8,11 +8,16 @@
 
 #include "microservice/SsoService.h"
 #include "crypto/SmProvider.h"
+#include "IO/File.h"
+#include "IO/Path.h"
+#include "diag/Trace.h"
+#include "diag/Process.h"
 #include "configuration/ConfigService.h"
 #include "microservice/DataSourceService.h"
 
 using namespace Crypto;
 using namespace Config;
+using namespace Diag;
 
 namespace Microservice {
     const char *SsoService::AccessTokenId = "accessToken";
@@ -388,6 +393,8 @@ namespace Microservice {
         cs->getProperty(SecurityPrefix "type", securityType);
         if (securityType == "database") {
             return checkByDb(name, password);
+        } else if (securityType == "python") {
+            return checkByPython(name, password);
         } else {
             return checkByYml(name, password);
         }
@@ -436,6 +443,41 @@ namespace Microservice {
         return false;
     }
 
+    bool SsoService::checkByPython(const String &name, const String &password) {
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String file, param;
+        cs->getProperty(SecurityPrefix "python.check.file", file);
+        cs->getProperty(SecurityPrefix "python.check.param", param);
+        String fileName;
+        if (Path::isPathRooted(file)) {
+            if (File::exists(file)) {
+                fileName = file;
+            }
+        } else {
+            fileName = Path::combine(Path::getAppPath(), file);
+        }
+        if (!File::exists(fileName)) {
+            Trace::debug("Can not file python file in sso service!");
+            return false;
+        }
+
+        param = String::format("%s %s %s %s", fileName.c_str(), param.c_str(), name.c_str(), password.c_str());
+        fileName = "python";
+
+        Process process;
+        process.setRedirectStdout(true);
+        if (Process::start(fileName, param, &process)) {
+            String str = process.stdoutStr().trim(' ', '\r', '\n');
+            bool result = false;
+            return Boolean::parse(str, result) && result;
+        }
+        return false;
+    }
+
     bool SsoService::check(const String &name) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
@@ -446,6 +488,8 @@ namespace Microservice {
         cs->getProperty(SecurityPrefix "type", securityType);
         if (securityType == "database") {
             return checkByDb(name);
+        } else if (securityType == "python") {
+            return checkByPython(name);
         } else {
             return checkByYml(name);
         }
@@ -487,6 +531,41 @@ namespace Microservice {
         return false;
     }
 
+    bool SsoService::checkByPython(const String &name) {
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String file, param;
+        cs->getProperty(SecurityPrefix "python.check.file", file);
+        cs->getProperty(SecurityPrefix "python.check.param", param);
+        String fileName;
+        if (Path::isPathRooted(file)) {
+            if (File::exists(file)) {
+                fileName = file;
+            }
+        } else {
+            fileName = Path::combine(Path::getAppPath(), file);
+        }
+        if (!File::exists(fileName)) {
+            Trace::debug("Can not file python file in sso service!");
+            return false;
+        }
+
+        param = String::format("%s %s %s", fileName.c_str(), param.c_str(), name.c_str());
+        fileName = "python";
+
+        Process process;
+        process.setRedirectStdout(true);
+        if (Process::start(fileName, param, &process)) {
+            String str = process.stdoutStr().trim(' ', '\r', '\n');
+            bool result = false;
+            return Boolean::parse(str, result) && result;
+        }
+        return false;
+    }
+
     bool SsoService::modifyPassword(const String &name, const String &oldPassword, const String &newPassword) {
         ServiceFactory *factory = ServiceFactory::instance();
         assert(factory);
@@ -497,6 +576,8 @@ namespace Microservice {
         cs->getProperty(SecurityPrefix "type", securityType);
         if (securityType == "database") {
             return modifyPasswordByDb(name, oldPassword, newPassword);
+        } else if (securityType == "python") {
+                return modifyPasswordByPython(name, oldPassword, newPassword);
         } else {
             return modifyPasswordByYml(name, oldPassword, newPassword);
         }
@@ -550,6 +631,42 @@ namespace Microservice {
             String sql = String::format("UPDATE %s SET PASSWORD='%s',UPDATE_USER='%s',UPDATE_TIME=NOW() WHERE NAME='%s'",
                                         tableName.c_str(), cypher.c_str(), name.c_str(), name.c_str());
             return connection->executeSql(sql);
+        }
+        return false;
+    }
+
+    bool SsoService::modifyPasswordByPython(const String &name, const String &oldPassword, const String &newPassword) {
+        ServiceFactory *factory = ServiceFactory::instance();
+        assert(factory);
+        auto cs = factory->getService<IConfigService>();
+        assert(cs);
+
+        String file, param;
+        cs->getProperty(SecurityPrefix "python.modify.file", file);
+        cs->getProperty(SecurityPrefix "python.modify.param", param);
+        String fileName;
+        if (Path::isPathRooted(file)) {
+            if (File::exists(file)) {
+                fileName = file;
+            }
+        } else {
+            fileName = Path::combine(Path::getAppPath(), file);
+        }
+        if (!File::exists(fileName)) {
+            Trace::debug("Can not file python file in sso service!");
+            return false;
+        }
+
+        param = String::format("%s %s %s %s %s", fileName.c_str(), param.c_str(), name.c_str(),
+                               oldPassword.c_str(), newPassword.c_str());
+        fileName = "python";
+
+        Process process;
+        process.setRedirectStdout(true);
+        if (Process::start(fileName, param, &process)) {
+            String str = process.stdoutStr().trim(' ', '\r', '\n');
+            bool result = false;
+            return Boolean::parse(str, result) && result;
         }
         return false;
     }

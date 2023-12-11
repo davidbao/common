@@ -60,17 +60,23 @@ namespace Microservice {
 
         bool checkByDb(const String &name, const String &password);
 
+        bool checkByPython(const String &name, const String &password);
+
         bool check(const String &name);
 
         bool checkByYml(const String &name);
 
         bool checkByDb(const String &name);
 
+        bool checkByPython(const String &name);
+
         bool modifyPassword(const String &name, const String &oldPassword, const String &newPassword);
 
         bool modifyPasswordByYml(const String &name, const String &oldPassword, const String &newPassword);
 
         bool modifyPasswordByDb(const String &name, const String &oldPassword, const String &newPassword);
+
+        bool modifyPasswordByPython(const String &name, const String &oldPassword, const String &newPassword);
 
         SqlConnection *connection();
 
