@@ -14,31 +14,32 @@ using namespace System;
 namespace Crypto {
     // https://github.com/GuoHuiChen/gmjs
     // js sm2 match.
-    Sm2Provider::Sm2Provider() {
+    Sm2Provider::Sm2Provider() : _publicKey{0}, _privateKey{0} {
         generateKey(_publicKey, _privateKey);
     }
 
-    Sm2Provider::Sm2Provider(const uint8_t publicKey[PublicKeyLength]) {
+    Sm2Provider::Sm2Provider(const uint8_t publicKey[PublicKeyLength]) : _publicKey{0}, _privateKey{0} {
         memcpy(_publicKey, publicKey, PublicKeyLength);
         memset(_privateKey, 0, PrivateKeyLength);
     }
 
-    Sm2Provider::Sm2Provider(const ByteArray &publicKey) {
+    Sm2Provider::Sm2Provider(const ByteArray &publicKey) : _publicKey{0}, _privateKey{0} {
         memcpy(_publicKey, publicKey.data(), Math::min(PublicKeyLength, (int) publicKey.count()));
         memset(_privateKey, 0, PrivateKeyLength);
     }
 
-    Sm2Provider::Sm2Provider(const uint8_t publicKey[PublicKeyLength], const uint8_t privateKey[PrivateKeyLength]) {
+    Sm2Provider::Sm2Provider(const uint8_t publicKey[PublicKeyLength],
+                             const uint8_t privateKey[PrivateKeyLength]) : _publicKey{0}, _privateKey{0} {
         memcpy(_publicKey, publicKey, PublicKeyLength);
         memcpy(_privateKey, privateKey, PrivateKeyLength);
     }
 
-    Sm2Provider::Sm2Provider(const ByteArray &publicKey, const ByteArray &privateKey) {
+    Sm2Provider::Sm2Provider(const ByteArray &publicKey, const ByteArray &privateKey) : _publicKey{0}, _privateKey{0} {
         memcpy(_publicKey, publicKey.data(), Math::min(PublicKeyLength, (int) publicKey.count()));
         memcpy(_privateKey, privateKey.data(), Math::min(PrivateKeyLength, (int) privateKey.count()));
     }
 
-    Sm2Provider::Sm2Provider(const Sm2Provider &provider) {
+    Sm2Provider::Sm2Provider(const Sm2Provider &provider) : _publicKey{0}, _privateKey{0} {
         memcpy(_publicKey, provider._publicKey, PublicKeyLength);
         memcpy(_privateKey, provider._privateKey, PrivateKeyLength);
     }
@@ -84,7 +85,7 @@ namespace Crypto {
             }
             BN_free(d);
         }
-        EVP_PKEY_CTX *ctx = nullptr;
+        EVP_PKEY_CTX *ctx;
         if (!(ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr))) {
             EC_KEY_free(key_pair);
             return false;
@@ -257,7 +258,7 @@ namespace Crypto {
         if (!createEVP_PKEY(key)) {
             return false;
         }
-        EC_KEY *key_pair = nullptr;
+        EC_KEY *key_pair;
         if (!(key_pair = EVP_PKEY_get0_EC_KEY(key))) {
             EVP_PKEY_free(key);
             return false;
@@ -295,17 +296,17 @@ namespace Crypto {
             return false;
         }
 
-        EC_KEY *key_pair = nullptr;
+        EC_KEY *key_pair;
         if (!(key_pair = EVP_PKEY_get0_EC_KEY(key))) {
             EVP_PKEY_free(key);
             return false;
         }
-        const EC_GROUP *group = nullptr;
+        const EC_GROUP *group;
         if (!(group = EC_KEY_get0_group(key_pair))) {
             EVP_PKEY_free(key);
             return false;
         }
-        BN_CTX *ctx = nullptr;
+        BN_CTX *ctx;
         if (!(ctx = BN_CTX_new())) {
             EVP_PKEY_free(key);
             return false;
@@ -321,7 +322,7 @@ namespace Crypto {
         }
         BN_free(pri_key);
 
-        BIGNUM *x_coordinate = nullptr, *y_coordinate = nullptr;
+        BIGNUM *x_coordinate, *y_coordinate;
         x_coordinate = BN_CTX_get(ctx);
         y_coordinate = BN_CTX_get(ctx);
         if (!(EC_POINT_get_affine_coordinates(group, pub_key, x_coordinate, y_coordinate, ctx))) {
@@ -367,7 +368,7 @@ namespace Crypto {
     }
 
     bool Sm2Provider::getPrivateKey(EC_KEY *key, uint8_t privateKey[PrivateKeyLength]) {
-        const BIGNUM *priKey = nullptr;
+        const BIGNUM *priKey;
         if (!(priKey = EC_KEY_get0_private_key(key))) {
             return false;
         }
@@ -378,13 +379,13 @@ namespace Crypto {
     }
 
     bool Sm2Provider::getPublicKey(EC_KEY *key, uint8_t publicKey[PublicKeyLength]) {
-        const EC_POINT *pub_key = nullptr;
+        const EC_POINT *pub_key;
         if (!(pub_key = EC_KEY_get0_public_key(key))) {
             return false;
         }
-        const EC_GROUP *group = nullptr;
-        BN_CTX *ctx = nullptr;
-        BIGNUM *x_coordinate = nullptr, *y_coordinate = nullptr;
+        const EC_GROUP *group;
+        BN_CTX *ctx;
+        BIGNUM *x_coordinate, *y_coordinate;
         if (!(group = EC_KEY_get0_group(key))) {
             return false;
         }

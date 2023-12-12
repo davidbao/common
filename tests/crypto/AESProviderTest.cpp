@@ -48,6 +48,24 @@ bool testAES_StringKey(AESProvider::KeySize keySizes) {
             return false;
         }
     }
+
+    {
+        AESProvider test(keySizes);
+        test.setMode(CypherMode::ECB);
+        test.setPaddingMode(PaddingMode::PKCS7);
+
+        String data;
+        if (!test.encrypt(_plainText, data)) {
+            return false;
+        }
+        String plain;
+        if (!test.decrypt(data, plain)) {
+            return false;
+        }
+        if (plain != _plainText) {
+            return false;
+        }
+    }
     return true;
 }
 

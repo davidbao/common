@@ -268,8 +268,7 @@ namespace Crypto {
         delete[] sBufOut;
     }
 
-    HashAlgorithm::HashAlgorithm() {
-    }
+    HashAlgorithm::HashAlgorithm() = default;
 
     bool HashAlgorithm::computeHash(const String &data, ByteArray &output) {
         ByteArray array((uint8_t *) data.c_str(), data.length());

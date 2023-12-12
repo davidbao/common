@@ -16,46 +16,50 @@ using namespace Crypto;
 static const String _plainText = "ABC/abc123,)_中文";
 
 bool testSm2() {
-    // encrypt & decrypt by random key.
-    Sm2Provider sm2;
-    String cypherText;
-    if(!sm2.encrypt(_plainText, cypherText)) {
-        return false;
-    }
-    String plainText2;
-    if(!sm2.decrypt(cypherText, plainText2)) {
-        return false;
-    }
-    if(_plainText != plainText2) {
-        return false;
-    }
+    {
+        // encrypt & decrypt by random key.
+        Sm2Provider sm2;
+        String cypherText;
+        if (!sm2.encrypt(_plainText, cypherText)) {
+            return false;
+        }
+        String plainText2;
+        if (!sm2.decrypt(cypherText, plainText2)) {
+            return false;
+        }
+        if (_plainText != plainText2) {
+            return false;
+        }
 
-    // encrypt & decrypt by the specified key.
-    ByteArray privateKey;
-    ByteArray::parseHexString("0127E2238F923C4530CC2EC87B9C3839497CCB11FD519E4F13C211BC49D86DB9", privateKey);
-    ByteArray publicKey;
-    ByteArray::parseHexString("FABB215EA4483A3686040F07A9EFCC1E86C6851AE68DCE9F39AF704EC72B310FE810C83E68140557A4DA10390DDEDF3CF6C00EFF6DB6B6996171662AE010330B", publicKey);
-    Sm2Provider sm2_2(publicKey, privateKey);
+        // encrypt & decrypt by the specified key.
+        ByteArray privateKey;
+        ByteArray::parseHexString("0127E2238F923C4530CC2EC87B9C3839497CCB11FD519E4F13C211BC49D86DB9", privateKey);
+        ByteArray publicKey;
+        ByteArray::parseHexString(
+                "FABB215EA4483A3686040F07A9EFCC1E86C6851AE68DCE9F39AF704EC72B310FE810C83E68140557A4DA10390DDEDF3CF6C00EFF6DB6B6996171662AE010330B",
+                publicKey);
+        Sm2Provider sm2_2(publicKey, privateKey);
 
-    if(!sm2_2.encrypt(_plainText, cypherText)) {
-        return false;
-    }
-    if(!sm2_2.decrypt(cypherText, plainText2)) {
-        return false;
-    }
-    if(_plainText != plainText2) {
-        return false;
-    }
+        if (!sm2_2.encrypt(_plainText, cypherText)) {
+            return false;
+        }
+        if (!sm2_2.decrypt(cypherText, plainText2)) {
+            return false;
+        }
+        if (_plainText != plainText2) {
+            return false;
+        }
 
-    // decrypt by the specified key and cypher.
-    Sm2Provider sm2_3(publicKey, privateKey);
-    String cypherText2 = "307B022067B6A99DBCB82C212875C7B3E299BCD3258FBFC30C9963121A6C42CC62C64206022074DD904BAF95400E9A28CC90BA0E9CD9393BDCCAB7C5B023C8D87598CB96EEA80420F5C9451F280F54356E468ECD0E3FCAC7DD3673326FA2B91C4EBB8469BC14EA970413E0EB88738E08F7C95FB23D903198FE24EDE74D";
-    String plainText3;
-    if(!sm2_3.decrypt(cypherText2, plainText3)) {
-        return false;
-    }
-    if(_plainText != plainText3) {
-        return false;
+        // decrypt by the specified key and cypher.
+        Sm2Provider sm2_3(publicKey, privateKey);
+        String cypherText2 = "307B022067B6A99DBCB82C212875C7B3E299BCD3258FBFC30C9963121A6C42CC62C64206022074DD904BAF95400E9A28CC90BA0E9CD9393BDCCAB7C5B023C8D87598CB96EEA80420F5C9451F280F54356E468ECD0E3FCAC7DD3673326FA2B91C4EBB8469BC14EA970413E0EB88738E08F7C95FB23D903198FE24EDE74D";
+        String plainText3;
+        if (!sm2_3.decrypt(cypherText2, plainText3)) {
+            return false;
+        }
+        if (_plainText != plainText3) {
+            return false;
+        }
     }
 
     return true;

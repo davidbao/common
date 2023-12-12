@@ -23,7 +23,7 @@ namespace Crypto {
             Default = Key256
         };
 
-        SHAProvider(KeySize keySize = Default);
+        explicit SHAProvider(KeySize keySize = Default);
 
         int hashSize() const override;
 

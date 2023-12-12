@@ -17,7 +17,8 @@ namespace Crypto {
         generateIV();
     }
 
-    AESProvider::AESProvider(KeySize keySize, const ByteArray &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
+    AESProvider::AESProvider(KeySize keySize, const ByteArray &key, const ByteArray &iv)
+            : SymmetricAlgorithm(), _keySize(256) {
         initKeySizes(keySize);
 
         if (!validKeySize((int) key.count() * 8)) {
@@ -32,7 +33,8 @@ namespace Crypto {
         }
     }
 
-    AESProvider::AESProvider(KeySize keySize, const String &key, const ByteArray &iv) : SymmetricAlgorithm(), _keySize(256) {
+    AESProvider::AESProvider(KeySize keySize, const String &key, const ByteArray &iv)
+            : SymmetricAlgorithm(), _keySize(256) {
         initKeySizes(keySize);
 
         if (key.isNullOrEmpty()) {
