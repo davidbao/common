@@ -96,15 +96,16 @@ void setUp() {
                       "                password = sys.argv[3]\n"
                       "            else:\n"
                       "                password = None\n"
-                      "            result = _check(user_name, password)\n"
+                      "            if _check(user_name, password):\n"
+                      "                print('Check successfully.')\n"
                       "        elif task_name == 'modify':\n"
                       "            user_name = sys.argv[2]\n"
                       "            if len(sys.argv) > 4:\n"
                       "                old_password = sys.argv[3]\n"
                       "                new_password = sys.argv[4]\n"
-                      "                result = _modify(user_name, old_password, new_password)\n"
-                      "\n"
-                      "    print(result)\n";
+                      "                if _modify(user_name, old_password, new_password):\n"
+                      "                    print('Modify successfully.')\n"
+                      "\n";
         String fileName = Path::combine(Path::getAppPath(), "sso.py");
         FileStream fs(fileName, FileMode::FileCreate, FileAccess::FileWrite);
         fs.writeText(text);

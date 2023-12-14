@@ -467,14 +467,11 @@ namespace Microservice {
         }
 
         param = String::format("%s %s %s %s", fileName.c_str(), param.c_str(), name.c_str(), password.c_str());
-        fileName = "python";
-
         Process process;
         process.setRedirectStdout(true);
-        if (Process::start(fileName, param, &process)) {
-            String str = process.stdoutStr().trim(' ', '\r', '\n');
-            bool result = false;
-            return Boolean::parse(str, result) && result;
+        if (Process::start("python", param, &process)) {
+            const String &str = process.stdoutStr();
+            return str.find("Check successfully.") >= 0;
         }
         return false;
     }
@@ -556,14 +553,11 @@ namespace Microservice {
         }
 
         param = String::format("%s %s %s", fileName.c_str(), param.c_str(), name.c_str());
-        fileName = "python";
-
         Process process;
         process.setRedirectStdout(true);
-        if (Process::start(fileName, param, &process)) {
-            String str = process.stdoutStr().trim(' ', '\r', '\n');
-            bool result = false;
-            return Boolean::parse(str, result) && result;
+        if (Process::start("python", param, &process)) {
+            const String &str = process.stdoutStr();
+            return str.find("Check successfully.") >= 0;
         }
         return false;
     }
@@ -662,14 +656,11 @@ namespace Microservice {
 
         param = String::format("%s %s %s %s %s", fileName.c_str(), param.c_str(), name.c_str(),
                                oldPassword.c_str(), newPassword.c_str());
-        fileName = "python";
-
         Process process;
         process.setRedirectStdout(true);
-        if (Process::start(fileName, param, &process)) {
-            String str = process.stdoutStr().trim(' ', '\r', '\n');
-            bool result = false;
-            return Boolean::parse(str, result) && result;
+        if (Process::start("python", param, &process)) {
+            const String &str = process.stdoutStr();
+            return str.find("Modify successfully.") >= 0;
         }
         return false;
     }
