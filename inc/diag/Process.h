@@ -12,6 +12,7 @@
 #include "data/String.h"
 #include "data/PList.h"
 #include "data/DateTime.h"
+#include "data/StringArray.h"
 #include "data/TimeSpan.h"
 #include "system/Delegate.h"
 
@@ -75,7 +76,9 @@ namespace Diag {
         int exitCode() const;
 
     public:
-        static bool start(const String &fileName, const String &arguments = String::Empty, Process *process = nullptr);
+        static bool start(const String &fileName, const StringArray &arguments = StringArray::Empty, Process *process = nullptr);
+
+        static bool start(const String &fileName, const String &arguments, Process *process = nullptr);
 
         static bool start(const String &fileName, Process *process);
 
@@ -100,7 +103,7 @@ namespace Diag {
 
 #else
 
-        static int readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout);
+        static int readWithTimeout(int handle, char *data, int maxlen, int timeout);
 
 #endif
 

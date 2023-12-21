@@ -20,6 +20,7 @@ runTest crypto/SHAProviderTest
 runTest crypto/SmProviderTest
 runTest data/ArrayTest
 runTest data/ByteArrayTest
+runTest data/ConvertTest
 runTest data/DateTimeTest
 runTest data/DictionaryTest
 runTest data/ListTest

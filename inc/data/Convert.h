@@ -57,22 +57,21 @@ namespace Data {
 
         static bool parseStr(const String &text, uint64_t &value, NumberStyles style = NumberStyles::NSInteger);
 
-        static bool
-        parseStr(const String &text, float &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
+        static bool parseStr(const String &text, float &value,
+                             NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
-        static bool
-        parseStr(const String &text, double &value, NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
+        static bool parseStr(const String &text, double &value,
+                             NumberStyles style = (NumberStyles) (NSFloat | NSAllowThousands));
 
-        static void
-        splitStr(const String &str, char splitSymbol, StringArray &texts, char incSymbol = '\0');
+        static void splitStr(const String &str, char splitSymbol, StringArray &texts,
+                             char incSymbol1 = '\0', char incSymbol2 = '\0');
 
-        static void
-        splitStr(const String &str, StringArray &texts, char splitSymbol = ';', char incSymbol = '\0');
+        static void splitStr(const String &str, StringArray &texts, char splitSymbol = ';',
+                             char incSymbol1 = '\0', char incSymbol2 = '\0');
 
         static void splitStr(const String &str, StringArray &texts, const String &splitSymbol = ";");
 
-        static void
-        splitItems(const String &str, StringArray &texts, char splitSymbol = ';', char escape = '\\',
+        static void splitItems(const String &str, StringArray &texts, char splitSymbol = ';', char escape = '\\',
                    char startRange = '{', char endRange = '}');
 
         class KeyPair {

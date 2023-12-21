@@ -98,7 +98,7 @@ namespace Data {
         return Double::parse(text, value, style);
     }
 
-    void Convert::splitStr(const String &str, char splitSymbol, StringArray &texts, char incSymbol) {
+    void Convert::splitStr(const String &str, char splitSymbol, StringArray &texts, char incSymbol1, char incSymbol2) {
         int size;
         String splitStr;
         String text = str;
@@ -111,16 +111,20 @@ namespace Data {
                 return;
             }
             splitStr = text.substr(0, size);
-            if (incSymbol != '\0') {
-                int incSize = (int) splitStr.find(incSymbol);
-                if (incSize >= 0) {
-                    String splitStr2 = splitStr.substr(incSize + 1, splitStr.length() - incSize);
-                    if (splitStr2.find(incSymbol) < 0) {
-                        String lastStr = text.substr(size, text.length() - size);
-                        int size2 = (int) lastStr.find(incSymbol);
-                        if (size2 >= 0) {
-                            splitStr = text.substr(0, size + size2 + 1);     // included splitSymbol
-                            text = text.substr(size2 + 1, text.length() - size2);
+            char incSymbols[2] = {incSymbol1, incSymbol2};
+            for (int i = 0; i < 2; ++i) {
+                char incSymbol = incSymbols[i];
+                if (incSymbol != '\0') {
+                    int incSize = (int) splitStr.find(incSymbol);
+                    if (incSize >= 0) {
+                        String splitStr2 = splitStr.substr(incSize + 1, splitStr.length() - incSize);
+                        if (splitStr2.find(incSymbol) < 0) {
+                            String lastStr = text.substr(size, text.length() - size);
+                            int size2 = (int) lastStr.find(incSymbol);
+                            if (size2 >= 0) {
+                                splitStr = text.substr(1, size + size2 - 1);     // excluded splitSymbol
+                                text = text.substr(size2 + 1, text.length() - size2);
+                            }
                         }
                     }
                 }
@@ -134,8 +138,8 @@ namespace Data {
         }
     }
 
-    void Convert::splitStr(const String &str, StringArray &texts, char splitSymbol, char incSymbol) {
-        splitStr(str, splitSymbol, texts, incSymbol);
+    void Convert::splitStr(const String &str, StringArray &texts, char splitSymbol, char incSymbol1, char incSymbol2) {
+        splitStr(str, splitSymbol, texts, incSymbol1, incSymbol2);
     }
 
     void Convert::splitStr(const String &str, StringArray &texts, const String &splitSymbol) {

@@ -14,6 +14,7 @@
 set(DATA_SRC
         ArrayTest.cpp
         ByteArrayTest.cpp
+        ConvertTest.cpp
         DateTimeTest.cpp
         DictionaryTest.cpp
         ListTest.cpp

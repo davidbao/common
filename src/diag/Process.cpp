@@ -8,6 +8,7 @@
 
 #include "diag/Process.h"
 #include "data/TimeSpan.h"
+#include "data/Convert.h"
 #include "diag/Trace.h"
 #include "exception/Exception.h"
 #include "system/Application.h"
@@ -21,7 +22,6 @@
 
 #else
 
-#include "data/Convert.h"
 #include "data/StringArray.h"
 #include <unistd.h>
 #include <cerrno>
@@ -114,7 +114,7 @@ namespace Diag {
 
 #else
 
-    int Process::readWithTimeout(int handle, char *data, uint32_t maxlen, uint32_t timeout) {
+    int Process::readWithTimeout(int handle, char *data, int maxlen, int timeout) {
         int len = -1;
         if (handle != -1) {
             const int MAX_COUNT = 512;
@@ -161,7 +161,7 @@ namespace Diag {
 
 #endif
 
-    bool Process::start(const String &fileName, const String &arguments, Process *process) {
+    bool Process::start(const String &fileName, const StringArray &arguments, Process *process) {
         if (fileName.isNullOrEmpty())
             throw ArgumentNullException("fileName");
 
@@ -169,6 +169,9 @@ namespace Diag {
             process->_startTick = Environment::getTickCount();
             process->_startTime = DateTime::now();
         }
+
+        String params = arguments.toString(' ');
+
 #ifdef WIN32
         STARTUPINFO si;
         memset(&si, 0, sizeof(si));
@@ -197,7 +200,7 @@ namespace Diag {
         //sj.hStdOutput
         PROCESS_INFORMATION pi;
         memset(&pi, 0, sizeof(pi));
-        String clineStr = !arguments.isNullOrEmpty() ? String::format("%s %s", fileName.c_str(), arguments.c_str())
+        String clineStr = !params.isNullOrEmpty() ? String::format("%s %s", fileName.c_str(), params.c_str())
                                                      : String(fileName);
         BOOL result = CreateProcess(nullptr, (char *) clineStr.c_str(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW,
                                     nullptr, nullptr, &si, &pi);
@@ -292,7 +295,7 @@ namespace Diag {
         pid_t child;
         if ((child = fork()) < 0) {
             Trace::error(String::format("Process::start.fork'%s %s' failed with error(%d): %s", fileName.c_str(),
-                                        arguments.c_str(), errno, strerror(errno)));
+                                        params.c_str(), errno, strerror(errno)));
             return false;
         }
 
@@ -301,7 +304,7 @@ namespace Diag {
 #ifdef DEBUG
             if (process == nullptr || process->showChildLog) {
                 Debug::writeFormatLine("Process::start(child process), file name: '%s', arguments: '%s', child pid: %d",
-                                       fileName.c_str(), arguments.c_str(), getpid());
+                                       fileName.c_str(), params.c_str(), getpid());
             }
 #endif
 
@@ -314,10 +317,8 @@ namespace Diag {
 
             char **argv = nullptr;
             size_t argc = 0;
-            if (!arguments.isNullOrEmpty()) {
-                StringArray parameters;
-                Convert::splitStr(arguments, ' ', parameters, '"');
-                argc = parameters.count() + 1;
+            if (arguments.count() > 0) {
+                argc = arguments.count() + 1;
                 argv = new char *[argc + 1];
 
                 size_t fileNameLen = fileName.length() + 1;
@@ -325,11 +326,11 @@ namespace Diag {
                 memset(argv[0], 0, fileNameLen);
                 strcpy(argv[0], fileName);
                 for (size_t i = 1; i < argc; i++) {
-                    const String &paramStr = parameters[i - 1];
-                    size_t paramLen = paramStr.length() + 1;
+                    const String &argument = arguments[i - 1];
+                    size_t paramLen = argument.length() + 1;
                     argv[i] = new char[paramLen];
                     memset(argv[i], 0, paramLen);
-                    strcpy(argv[i], paramStr.c_str());
+                    strcpy(argv[i], argument.c_str());
                 }
                 argv[argc] = nullptr;
             }
@@ -342,7 +343,7 @@ namespace Diag {
             }
             if (result == -1) {
                 Trace::error(String::format("Process::start.execvp'%s %s' failed with error(%d): %s",
-                                            fileName.c_str(), arguments.c_str(), errno, strerror(errno)));
+                                            fileName.c_str(), params.c_str(), errno, strerror(errno)));
                 return false;
             }
             return true;
@@ -397,7 +398,7 @@ namespace Diag {
                 if (milliseconds != 0 && timeout != -2) {
                     if (milliseconds > 0) {
                         uint64_t endTick = Environment::getTickCount();
-                        milliseconds = process->_waiting - (endTick - process->_startTick);
+                        milliseconds = process->_waiting - (int) (endTick - process->_startTick);
                         if (milliseconds > 0) {
                             process->waitForExit(milliseconds);
                         }
@@ -406,7 +407,7 @@ namespace Diag {
                     }
                 }
             } else {
-                if (arguments.find('&') < 0) {
+                if (params.find('&') < 0) {
                     int status;
                     while (waitpid(child, &status, WNOHANG) < 0) {
                         if (errno != EINTR) {
@@ -423,8 +424,14 @@ namespace Diag {
 #endif
     }
 
+    bool Process::start(const String &fileName, const String &arguments, Process *process) {
+        StringArray parameters;
+        Convert::splitStr(arguments, ' ', parameters, '"', '\'');
+        return start(fileName, parameters, process);
+    }
+
     bool Process::start(const String &fileName, Process *process) {
-        return start(fileName, String::Empty, process);
+        return start(fileName, StringArray::Empty, process);
     }
 
     bool Process::startByCmdString(const String &cmdString) {

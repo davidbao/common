@@ -493,7 +493,8 @@ namespace System {
             return;
         }
 #else
-        // todo: poweroff current os.
+
+        // todo: power off current os.
 #endif
     }
 }
